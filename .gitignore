@@ -1,0 +1,11 @@
+.codex/
+
+# Local runtime and dependency state
+app/.data/
+app/node_modules/
+*.log
+
+# OS/editor noise
+.DS_Store
+Thumbs.db
+*.swp

@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-10-28",
+  "reviewStatus": "parent-and-independent-Sol-visual-review",
+  "sources": [
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/07-targets-cards.webp",
+      "sha256": "0c3df4526577355eeb0cf30751fa253f59cd59355bc794ba618084362ddd3847"
+    },
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/08-timing-damage-status.webp",
+      "sha256": "242ae7f516b5a4310445b1c4bf1b1c6b6323630ab8337a641a7e7608aa6a61f2"
+    },
+    {
+      "filename": "research-assets/provided-previews/mmexport1793009377934.jpg.jpeg",
+      "sha256": "ed60ea847178b7da1338cd6ef27cd5b2de7ba6b1cc6b368361ec28d7f61b99c7"
+    },
+    {
+      "filename": "research-assets/douyin-7684572630280187855/9daca93d6836499e.webp",
+      "sha256": "364809d7123ab5541d9a772cf0386bc7d288bd0d75b9358811025670ea54b712"
+    },
+    {
+      "filename": "research-assets/douyin-7684572630280187855/2a38f5fdf0d555dc.webp",
+      "sha256": "c4c3819b3c2a38c622181a7d89efd9e24bbcb80e31da2e78ba3cbb5b83f03c57"
+    }
+  ],
+  "heldItems": [
+    {
+      "id": "rocky-helmet",
+      "name": {
+        "zh": "凸凸头盔",
+        "en": "Rocky Helmet"
+      },
+      "observedWeather": "thunderstorm",
+      "deckQuantity": null,
+      "otherWeatherVariantsVerified": false,
+      "exactChinese": "携带此持有物的宝可梦受到伤害后，其对伤害来源造成1点伤害。",
+      "timing": "after-receiving-positive-damage",
+      "optional": false,
+      "printedDamage": 1,
+      "judgment": false,
+      "engineScope": "combat-preview-only"
+    }
+  ],
+  "ruleReferences": [
+    "reviewed-combat-spec.md",
+    "reviewed-playcard-spec.md",
+    "reviewed-next-pokemon.md"
+  ],
+  "interpretations": [
+    "saved nested damage stack",
+    "holder orders simultaneous receiving effects",
+    "no defeated-holder Defiant",
+    "item damage-event completion consumes Defense",
+    "no retail item counts inferred"
+  ]
+}

@@ -1,0 +1,300 @@
+{
+  "reviewedAt": "2026-10-28",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "faces": [
+    {
+      "level": 1,
+      "name": {
+        "zh": "可达鸭",
+        "en": "Psyduck"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "悠游自如",
+        "en": "Swift Swim"
+      },
+      "abilityText": {
+        "zh": "在你的出牌阶段限一次，你可以进行一次判定。本回合若你因此特性而判定的结果为“雨天”（[暴雨]/[雷雨]），你使用牌不受距离限制，此宝可梦使用招式也不受距离限制。",
+        "en": "Once during your play phase, you may make a judgment. If its result is rainy (heavy rain or thunderstorm), your cards and this Pokémon’s moves ignore distance limits for this turn."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "name": {
+            "zh": "泡沫",
+            "en": "Bubble"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你弃置目标宝可梦的一枚强化指示物。",
+            "en": "After this Pokémon deals damage with this move, discard one reinforcement marker from the target Pokémon."
+          },
+          "effectParagraphStatus": "visually-transcribed",
+          "effectTiming": "after-dealing-damage",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/b5a47d16cbd12a6b.webp",
+        "sha256": "10cadb7ff0e652e8132d8a7fb26c127134da7006c8389217c8151593400ecb63",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 29,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-psyduck.md"
+      }
+    },
+    {
+      "level": 2,
+      "name": {
+        "zh": "可达鸭",
+        "en": "Psyduck"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "悠游自如",
+        "en": "Swift Swim"
+      },
+      "abilityText": {
+        "zh": "在你的出牌阶段限一次，你可以进行一次判定。本回合若你因此特性而判定的结果为“雨天”（[暴雨]/[雷雨]），你使用牌不受距离限制，此宝可梦使用招式也不受距离限制。",
+        "en": "Once during your play phase, you may make a judgment. If its result is rainy (heavy rain or thunderstorm), your cards and this Pokémon’s moves ignore distance limits for this turn."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "name": {
+            "zh": "泡沫",
+            "en": "Bubble"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你弃置目标宝可梦的一枚强化指示物。",
+            "en": "After this Pokémon deals damage with this move, discard one reinforcement marker from the target Pokémon."
+          },
+          "effectParagraphStatus": "visually-transcribed",
+          "effectTiming": "after-dealing-damage",
+          "unresolvedSymbols": []
+        },
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "name": {
+            "zh": "定身法",
+            "en": "Disable"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "weatherIconsInCondition": [
+              "rain",
+              "thunderstorm"
+            ],
+            "count": 1,
+            "ruleInterpretation": {
+              "count": 1,
+              "qualifier": "discard one hand card with heavy rain OR thunderstorm, of any card kind",
+              "source": "booklet07 p08"
+            }
+          },
+          "printedValue": null,
+          "effectKind": "temporary-hand-exile",
+          "effectText": {
+            "zh": "将目标宝可梦对应的训练家的至多两张手牌移出游戏，直到该训练家的回合开始。",
+            "en": "Remove up to two hand cards of the target Pokémon’s trainer from the game until that trainer’s next turn begins."
+          },
+          "effectParagraphStatus": "visually-transcribed",
+          "effectTiming": "on-uncanceled-settlement",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/dcce9913ff5e4e91.webp",
+        "sha256": "eca4116f007a6ae66b4dbe585301ec8a5a9ebf15cc2bf7d5ac3fcb7cb4229ba9",
+        "facePosition": "left",
+        "observedAssetOrdinal": 31,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-psyduck.md"
+      }
+    },
+    {
+      "level": 3,
+      "name": {
+        "zh": "哥达鸭",
+        "en": "Golduck"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "悠游自如",
+        "en": "Swift Swim"
+      },
+      "abilityText": {
+        "zh": "在你的出牌阶段限一次，你可以进行一次判定。本回合若你因此特性而判定的结果为“雨天”（[暴雨]/[雷雨]），你使用牌不受距离限制，此宝可梦使用招式也不受距离限制。",
+        "en": "Once during your play phase, you may make a judgment. If its result is rainy (heavy rain or thunderstorm), your cards and this Pokémon’s moves ignore distance limits for this turn."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "name": {
+            "zh": "水之波动",
+            "en": "Water Pulse"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“雨天”（[暴雨]/[雷雨]），目标宝可梦陷入“混乱”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is rainy (heavy rain or thunderstorm), the target Pokémon becomes Confused."
+          },
+          "effectParagraphStatus": "visually-transcribed",
+          "effectTiming": "after-dealing-damage",
+          "unresolvedSymbols": [
+            {
+              "zh": "伤害数值旁印有混乱图标；仍按文字段落进行天气判定。",
+              "en": "A confusion icon appears beside the damage value; the written weather judgment condition still applies."
+            }
+          ]
+        },
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "name": {
+            "zh": "定身法",
+            "en": "Disable"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "weatherIconsInCondition": [
+              "rain",
+              "thunderstorm"
+            ],
+            "count": 1,
+            "ruleInterpretation": {
+              "count": 1,
+              "qualifier": "discard one hand card with heavy rain OR thunderstorm, of any card kind",
+              "source": "booklet07 p08"
+            }
+          },
+          "printedValue": null,
+          "effectKind": "temporary-hand-exile",
+          "effectText": {
+            "zh": "将目标宝可梦对应的训练家的至多两张手牌移出游戏，直到该训练家的回合开始。",
+            "en": "Remove up to two hand cards of the target Pokémon’s trainer from the game until that trainer’s next turn begins."
+          },
+          "effectParagraphStatus": "visually-transcribed",
+          "effectTiming": "on-uncanceled-settlement",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/dcce9913ff5e4e91.webp",
+        "sha256": "eca4116f007a6ae66b4dbe585301ec8a5a9ebf15cc2bf7d5ac3fcb7cb4229ba9",
+        "facePosition": "right",
+        "observedAssetOrdinal": 31,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-psyduck.md"
+      }
+    }
+  ],
+  "bookletSources": [
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/07-targets-cards.webp",
+      "sha256": "0c3df4526577355eeb0cf30751fa253f59cd59355bc794ba618084362ddd3847"
+    },
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/08-timing-damage-status.webp",
+      "sha256": "242ae7f516b5a4310445b1c4bf1b1c6b6323630ab8337a641a7e7608aa6a61f2"
+    },
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/09-reference.webp",
+      "sha256": "ca4080c37b59cee3781a51efa32df4c9295c05d56d1314b77242b574bb5db877"
+    }
+  ]
+}

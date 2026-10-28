@@ -1,0 +1,29 @@
+# Gameplay milestone 6 — Pikachu and Sandshrew abilities
+
+## Reviewed abilities batch — 2026-10-28 (current)
+
+**76 tests pass**. Combat now supports five groups: Bulbasaur, Charmander, Squirtle, Pikachu and Sandshrew (15 faces). Six new faces execute Pikachu's thunderstorm paralysis/optional Static, Sand Veil's optional sunny virtual Dodge, Sandshrew's heavy-rain poison and Lv.2/Lv.3 private hand discard/take. Failed Sand Veil preserves the response ID/clock and allows an actual Dodge afterward. Paralysis now rejects rainy command cards before spending them. Source-after-damage effects precede target-after-damage abilities, including surviving confusion self-damage. Mandatory hand choices pause after response expiry and never auto-pick/pass.
+
+`reviewed-next-pokemon.md` / `.json` contain nine visually transcribed faces from six saved originals, independently reviewed by root. Mankey's three faces are now readable reference text but remain unavailable in combat until held-item-loss/no-hand-limit and reinforcement-choice support is implemented. All 40 groups/120 names and HP remain reviewed; 35 groups still lack full executable effects. This is not a full random-roster match or original 108-card deck. The production test deck remains six command/six Dodge per seat, all intense sun; weather branches were tested with explicitly seeded fixtures.
+
+Actual English/Chinese UI checks on an isolated port4174 fixture: Sand Veil canceled damage without spending hand cards; Sandshrew's source trainer chose among four face-down cards while the spectator saw none; the hand discard completed before target Pikachu's Static prompt; Static's seeded clear judgment paralyzed the source. Five inspected clients had no warning/error logs. Main production deal/randomness was not changed by these fixtures. Evidence: `sand-veil-ability-preview.jpg`, `private-hand-choice-preview.jpg`, `static-ability-preview.jpg`; details in `gameplay-milestone-6.md`. Accepted arena, native card presentation, centered hover previews and identity-first/no-repeat setup are preserved.
+
+This update supersedes older three-group/37-pending and 62-test counts below. Continue source-backed effects; no rediscovery or source reconfirmation is needed.
+
+## Source and implementation decisions
+
+- Root and Sol reviewer each viewed all six original photographs covering Pikachu/Sandshrew/MankeyLv.1–3. All nine trait/move paragraphs are in `reviewed-next-pokemon.json/.md`; original file hashes match the identity/HP roster. Right-side move icons remain recorded without invented costs/resistance.
+- Pikachu command printed values1/2/3; positive damage triggers a thunderstorm judgment for paralysis. Static is an optional separate after-receiving decision and uses NOT intense sun. A Dodge prevents damage and both after-damage triggers. No status replaces an existing status. Sourceless poison has no damage source to paralyze; confusion self-damage can target its own source. Defeated/no-longer-active Pokémon do not transfer their receiving trait to a deployed reserve.
+- Sand Veil requires no held item. One optional judgment per defense window; sunny means intense sun or clear. A failure preserves clock/ID and still allows actual Dodge, with no repeated judgment. Lv.1 positive-damage judgment uses heavy rain for poison. Lv.2 discards one target-trainer hand card;Lv.3 takes one. Neither move removes held items.
+- Mandatory hand decisions use stable shuffled server mappings; self-targeted choices show own known names/weather, others are indexed backs. State and mapping survive restart; exact retries transfer/discard once. Mandatory expiry waits, while optional trait decisions can expire to pass.
+- All code changes preserve source-before-target after-damage timing, existing rescue/deployment/victory flow and projection privacy. The game-card deck remains the same all-sun fixture; conditional weather tests and UI tests explicitly seed outcomes.
+
+## Validation
+
+`npm.cmd test`:76 passed,0 failed (62 previous +14 new expanded-Pokémon scenarios). Covers weather/status branches, source identity, Dodge timing, Sand Veil success/failure/once-only/item guard, private choice authority, indices/payload rejection, restart/idempotence, source-effect-before-Static continuation, mandatory timeout and paralysis card-weather validation. Syntax checks passed. Two earlier test assumptions incorrectly treated shuffled blind slots as hand order; tests now capture stable private mappings before asserting movement. A real surviving-confusion timing gap was fixed.
+
+Isolated local UI server4174 created legal rooms, completed identity/five-draw/two-partner setup and then explicitly seeded the required species/levels/decks. This is deterministic QA state, not a natural random-deal/full-match claim. Production4173 rooms and random deck allocation were never seeded. Actual UI card play: PikachuLv.2 attacked SandshrewLv.1; Sand Veil judged intense sun and canceled the settlement, keeping both hand and HP. Second room: SandshrewLv.2 hit PikachuLv.1 for2; source chose one of4 face-down hand cards, target hand fell4→3, then Static prompted and a seeded clear judgment paralyzed the source. Chinese hand-choice controls worked. Spectator saw0 hand choices and0 private hand cards. All5 client warning/error logs were empty. Evidence screenshots saved at project root. UI fixture server/data are temporary and cleaned after verification.
+
+## Remaining scope
+
+Five of40 Pokémon groups support combat. Nine additional faces are readable, making18 trait/move-reviewed faces total; Mankey needs real held-item-loss/no-hand-limit and chosen reinforcement removal support before being enabled. Random full-roster games are still incomplete. Full item/tool/event cards, original quantities/weather distribution, Potion rescue healing, deployment/remote performance and models remain later work.

@@ -1,0 +1,1621 @@
+{
+  "source": "https://www.douyin.com/note/7684572630280187855",
+  "observedDate": "2026-10-27",
+  "note": "All 80 signed URLs and candidate DOM order reobserved and preserved before downloads. DOM ordinal remains a candidate carousel position except previously confirmed index 10. Existing files preserved.",
+  "fullObservedURLSamples": [
+    "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=chRKv8fd0tyxGEIlLE6jLmIw2qU%3D",
+    "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D"
+  ],
+  "rows": [
+    {
+      "domOrdinal": 1,
+      "candidateCarouselIndex": 1,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oI0jtWA7EIA0FaABiFVBlGbESIOfafAeAAiLC7~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "3e8e9215541293f2.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0jtWA7EIA0FaABiFVBlGbESIOfafAeAAiLC7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=8CzmhJ76buKDuK8pAtqIUOmZE0Y%3D",
+      "domNaturalDimensions": {
+        "width": 1756,
+        "height": 2422
+      }
+    },
+    {
+      "domOrdinal": 2,
+      "candidateCarouselIndex": 2,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ocAiAGtE8ALiBIjeBAWlfaVbFC7fSAH3II0EAF~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "f93f4ddbd5eaa174.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocAiAGtE8ALiBIjeBAWlfaVbFC7fSAH3II0EAF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=WzBTOgy%2BdDvUeDppqbK%2BM8d9lak%3D",
+      "domNaturalDimensions": {
+        "width": 2435,
+        "height": 1682
+      }
+    },
+    {
+      "domOrdinal": 3,
+      "candidateCarouselIndex": 3,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oYEAlVfB8EiAWA7fW0IACLIBtFGkASAGie9jba~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "1fe3571035e312b6.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oYEAlVfB8EiAWA7fW0IACLIBtFGkASAGie9jba~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5RCNuFY8dLfretocuxHcph3qyhA%3D",
+      "domNaturalDimensions": {
+        "width": 1241,
+        "height": 1770
+      }
+    },
+    {
+      "domOrdinal": 4,
+      "candidateCarouselIndex": 4,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/okApFiFFMICbelttAeWAaa7jBE8JVABEQZAfBS~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "cc3ea6ca8c274bfa.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/okApFiFFMICbelttAeWAaa7jBE8JVABEQZAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2Fzc2%2BuGMDkArJi0nuR%2FrAhaJk2w%3D",
+      "domNaturalDimensions": {
+        "width": 2105,
+        "height": 1430
+      }
+    },
+    {
+      "domOrdinal": 5,
+      "candidateCarouselIndex": 5,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/ocCSaEjIMpCtiEFBAQ8bAEAAeWFfAVBBytf7El~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "39437d37719487f3.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ocCSaEjIMpCtiEFBAQ8bAEAAeWFfAVBBytf7El~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=miN0%2Bug45b9LheZ1vf28GZJPgmY%3D",
+      "domNaturalDimensions": {
+        "width": 1462,
+        "height": 2034
+      }
+    },
+    {
+      "domOrdinal": 6,
+      "candidateCarouselIndex": 6,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oEiVElSAIjbLfCFATANESAiA7tf0GBAWBeGIBa~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "7eaec309be7319cf.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEiVElSAIjbLfCFATANESAiA7tf0GBAWBeGIBa~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SNNBoK4pRbIqLjNMlR27N3yXJi4%3D",
+      "domNaturalDimensions": {
+        "width": 2321,
+        "height": 1594
+      }
+    },
+    {
+      "domOrdinal": 7,
+      "candidateCarouselIndex": 7,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/owGAfBFjAitBiWaV7hBEBf01bIIFEALlACASeG~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "d3083eca1c028544.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owGAfBFjAitBiWaV7hBEBf01bIIFEALlACASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Gj%2FaLJpgE5%2FpuYCfKru2smX%2F948%3D",
+      "domNaturalDimensions": {
+        "width": 1340,
+        "height": 1765
+      }
+    },
+    {
+      "domOrdinal": 8,
+      "candidateCarouselIndex": 8,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oEFWBLiBIICEAdSfiletCAjA7AfFVGa0BA6bEx~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "607245c532f5f96b.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEFWBLiBIICEAdSfiletCAjA7AfFVGa0BA6bEx~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=AC5Luxiz%2BBY68Z37U6CGycCsjio%3D",
+      "domNaturalDimensions": {
+        "width": 2385,
+        "height": 1640
+      }
+    },
+    {
+      "domOrdinal": 9,
+      "candidateCarouselIndex": 9,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ooD7WSIC0AikFlabBftjF7AEGeAdLBABfEAViI~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "aebe5753010027b3.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ooD7WSIC0AikFlabBftjF7AEGeAdLBABfEAViI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=FcF5MYthG82xrvVB%2BiPcWczt1Ms%3D",
+      "domNaturalDimensions": {
+        "width": 1296,
+        "height": 1747
+      }
+    },
+    {
+      "domOrdinal": 10,
+      "candidateCarouselIndex": 10,
+      "imageIndex": 10,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "4435cba5816a6d22.webp"
+      ],
+      "evidence": "Counter 10/80 and slide geometry x=160,y=56,width=746,height=640 matched this DOM ordinal after pausing.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=chRKv8fd0tyxGEIlLE6jLmIw2qU%3D",
+      "domNaturalDimensions": {
+        "width": 2512,
+        "height": 1710
+      }
+    },
+    {
+      "domOrdinal": 11,
+      "candidateCarouselIndex": 11,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oM2BBSjaaQAiCAffe4KtK8AMKAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "4be9d98ef5800e1e.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oM2BBSjaaQAiCAffe4KtK8AMKAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2udm%2BAZahBIyBqTf5EYdvmA2tvY%3D",
+      "domNaturalDimensions": {
+        "width": 1306,
+        "height": 1881
+      }
+    },
+    {
+      "domOrdinal": 12,
+      "candidateCarouselIndex": 12,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/o02BBSjaCQAiCAmfefKtK8AMMAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "4d6f27261b083205.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o02BBSjaCQAiCAmfefKtK8AMMAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=JJSYLFw2alF%2BkIE90Wu%2FE%2FN2pWY%3D",
+      "domNaturalDimensions": {
+        "width": 2328,
+        "height": 1600
+      }
+    },
+    {
+      "domOrdinal": 13,
+      "candidateCarouselIndex": 13,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/o4BWFVACeAEkAfGjBbmltiIA0L7GiSFAfaIEBH~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "d3af2ba9dcacb1f2.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o4BWFVACeAEkAfGjBbmltiIA0L7GiSFAfaIEBH~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IHPK%2FdxNWJmR2i%2FGj8UTgGhjZz0%3D",
+      "domNaturalDimensions": {
+        "width": 1513,
+        "height": 2101
+      }
+    },
+    {
+      "domOrdinal": 14,
+      "candidateCarouselIndex": 14,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/o8CtEaIGAieBfWHAFVilBBIIbALgf7AS0jErMA~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "b97b04e3dc50bc91.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o8CtEaIGAieBfWHAFVilBBIIbALgf7AS0jErMA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SC9zPoPUB1OlmxqxOlyNd4K9ob8%3D",
+      "domNaturalDimensions": {
+        "width": 2255,
+        "height": 1540
+      }
+    },
+    {
+      "domOrdinal": 15,
+      "candidateCarouselIndex": 15,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oIiVGit0AAAWA7qlAELJSFaGjefBfbiIBBEClI~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "4754ca927840578d.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oIiVGit0AAAWA7qlAELJSFaGjefBfbiIBBEClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=jYp3PKcxC5ySsn8laF%2BQysDqpHc%3D",
+      "domNaturalDimensions": {
+        "width": 1125,
+        "height": 1590
+      }
+    },
+    {
+      "domOrdinal": 16,
+      "candidateCarouselIndex": 16,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o0WBeFWSCIM5jtAAtUAA8fQFVKQI7epBaA2iKE~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "50313e61fed9704e.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0WBeFWSCIM5jtAAtUAA8fQFVKQI7epBaA2iKE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nvvqOcUkXcdh5o1semNCZ6EA1M8%3D",
+      "domNaturalDimensions": {
+        "width": 2597,
+        "height": 1804
+      }
+    },
+    {
+      "domOrdinal": 17,
+      "candidateCarouselIndex": 17,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o0VAafKFjECIiAW7tBeQf2OAASBpAO8FCtKMQW~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "70fa7ae258309b0a.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0VAafKFjECIiAW7tBeQf2OAASBpAO8FCtKMQW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=XcOEcoBUN%2BgzxB2KacITCflSPLw%3D",
+      "domNaturalDimensions": {
+        "width": 1332,
+        "height": 1825
+      }
+    },
+    {
+      "domOrdinal": 18,
+      "candidateCarouselIndex": 18,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oI0ljBASeAEGbtCQAG7VfbEMFIBaLBAfiiAI7W~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "d12d2615c2459559.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0ljBASeAEGbtCQAG7VfbEMFIBaLBAfiiAI7W~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2Wc3szXOLLQpws3iyzSk%2BmFOfJ4%3D",
+      "domNaturalDimensions": {
+        "width": 2247,
+        "height": 1535
+      }
+    },
+    {
+      "domOrdinal": 19,
+      "candidateCarouselIndex": 19,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oQiEbhBfBGFS0aflgNLCAtII7AWFAUjeBAEVAi~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "3ce12ea7061280d5.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQiEbhBfBGFS0aflgNLCAtII7AWFAUjeBAEVAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lGDfSVLdaV5f66OKTtUaakZ8O3o%3D",
+      "domNaturalDimensions": {
+        "width": 1185,
+        "height": 1611
+      }
+    },
+    {
+      "domOrdinal": 20,
+      "candidateCarouselIndex": 20,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oMVAaulijEBEiAL7WBfIfbFAASB0A2eC0tFGIO~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "de760adc11d0ed85.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMVAaulijEBEiAL7WBfIfbFAASB0A2eC0tFGIO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zhY21Rd1VZolycR09SyBHIeXAoc%3D",
+      "domNaturalDimensions": {
+        "width": 2161,
+        "height": 1485
+      }
+    },
+    {
+      "domOrdinal": 21,
+      "candidateCarouselIndex": 21,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/osAAiIAjlWVAPbGFfOI9ELSB7BbGiAta0EeCfB~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "3806ab68017599aa.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAAiIAjlWVAPbGFfOI9ELSB7BbGiAta0EeCfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dhS759GStL1L2qIQTeO0wyXfzKY%3D",
+      "domNaturalDimensions": {
+        "width": 1429,
+        "height": 1971
+      }
+    },
+    {
+      "domOrdinal": 22,
+      "candidateCarouselIndex": 22,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oIGfAIWAtIFSjLSBBaEeC0jbyfAQE7AilVEiAB~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "9f65c439556c02e1.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oIGfAIWAtIFSjLSBBaEeC0jbyfAQE7AilVEiAB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=y0i3vIqR6OeAfCpAtRnUD9zk5is%3D",
+      "domNaturalDimensions": {
+        "width": 2503,
+        "height": 1715
+      }
+    },
+    {
+      "domOrdinal": 23,
+      "candidateCarouselIndex": 23,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oQjzeAGSRFCBbL70ViBjtAaBAExlEfFIAAWiIf~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "8eae984590659cfe.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQjzeAGSRFCBbL70ViBjtAaBAExlEfFIAAWiIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Hg5kILgbTEpFNXgUkGIpPlaVBfw%3D",
+      "domNaturalDimensions": {
+        "width": 1215,
+        "height": 1717
+      }
+    },
+    {
+      "domOrdinal": 24,
+      "candidateCarouselIndex": 24,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oQbfESLHAfajaBAlBAGAItSW7iVAFECBAiI0eS~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "b7f7b17669cbcf18.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQbfESLHAfajaBAlBAGAItSW7iVAFECBAiI0eS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=j3RYwaBqF8pYzJlvKyg7zwjy3bA%3D",
+      "domNaturalDimensions": {
+        "width": 1992,
+        "height": 1325
+      }
+    },
+    {
+      "domOrdinal": 25,
+      "candidateCarouselIndex": 25,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oMbl7VAiSCfIBFvnBAIABWtej0FAHLEGAfaETi~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "1d0ff1e50e0588f3.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMbl7VAiSCfIBFvnBAIABWtej0FAHLEGAfaETi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GIeJqoszyhl9APnkM3yS4kjeykg%3D",
+      "domNaturalDimensions": {
+        "width": 1149,
+        "height": 1665
+      }
+    },
+    {
+      "domOrdinal": 26,
+      "candidateCarouselIndex": 26,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/owB0IjEAa8ALUIiFCF7BWSefAtGYBEAIfAbVil~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "e1eccf176c187faf.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owB0IjEAa8ALUIiFCF7BWSefAtGYBEAIfAbVil~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aH%2BuyQ5hkzpb7EBrU6BD0WhtLK0%3D",
+      "domNaturalDimensions": {
+        "width": 2115,
+        "height": 1438
+      }
+    },
+    {
+      "domOrdinal": 27,
+      "candidateCarouselIndex": 27,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oULtbAJVSAQfBBjAIWfiC7FEaFleIx0ABiVAEG~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "9daca93d6836499e.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oULtbAJVSAQfBBjAIWfiC7FEaFleIx0ABiVAEG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SLQSapu3qUQ6cICQKEE9bqkqFUc%3D",
+      "domNaturalDimensions": {
+        "width": 1233,
+        "height": 1743
+      }
+    },
+    {
+      "domOrdinal": 28,
+      "candidateCarouselIndex": 28,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oUApKiNFMQF2sKttAeWAaC7jCE8yVABIQeAfBS~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "2a38f5fdf0d555dc.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUApKiNFMQF2sKttAeWAaC7jCE8yVABIQeAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=x7c4zrymstieRC3TFSlmiZaP0QI%3D",
+      "domNaturalDimensions": {
+        "width": 2243,
+        "height": 1555
+      }
+    },
+    {
+      "domOrdinal": 29,
+      "candidateCarouselIndex": 29,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ocCI0FfbEiWBacSEBlGGeBX7tjALAAiAAv2VIf~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "b5a47d16cbd12a6b.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocCI0FfbEiWBacSEBlGGeBX7tjALAAiAAv2VIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ttI9GRbra7DNVsOZM04D%2BYOpsBA%3D",
+      "domNaturalDimensions": {
+        "width": 1207,
+        "height": 1668
+      }
+    },
+    {
+      "domOrdinal": 30,
+      "candidateCarouselIndex": 30,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oISAYEIibCGA70ABtiAfLElBeWaACVIBF0Ejf2~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "dcce9913ff5e4e91.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oISAYEIibCGA70ABtiAfLElBeWaACVIBF0Ejf2~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=OvRzwWzvQ6vlvDb50Gd7LmcvxuM%3D",
+      "domNaturalDimensions": {
+        "width": 2414,
+        "height": 1668
+      }
+    },
+    {
+      "domOrdinal": 31,
+      "candidateCarouselIndex": 31,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oYFIiKbeIb9BauSESKkGeBe7vTALAAiAAzMVQm~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "822f8d0ea4aa5fd2.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYFIiKbeIb9BauSESKkGeBe7vTALAAiAAzMVQm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=yJA6FIQRvw4rJqnwryzZyXgq3Gs%3D",
+      "domNaturalDimensions": {
+        "width": 1261,
+        "height": 1783
+      }
+    },
+    {
+      "domOrdinal": 32,
+      "candidateCarouselIndex": 32,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/okKNpAVB7QtAeameeFIAzRGVAkgLIBTiEAivKS~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "dd4da468dec62517.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okKNpAVB7QtAeameeFIAzRGVAkgLIBTiEAivKS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QsJa6DuQgfZriOQ3aS6xstRWmlA%3D",
+      "domNaturalDimensions": {
+        "width": 2121,
+        "height": 1499
+      }
+    },
+    {
+      "domOrdinal": 33,
+      "candidateCarouselIndex": 33,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o8EhAKpSxLFAtBiAIVIGeeeiQAmZAvRzBaKTN7~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "8aa8f78fb2454b3c.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8EhAKpSxLFAtBiAIVIGeeeiQAmZAvRzBaKTN7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=uHJFN4TFON6p23w5sAyZOCh4xVg%3D",
+      "domNaturalDimensions": {
+        "width": 1032,
+        "height": 1383
+      }
+    },
+    {
+      "domOrdinal": 34,
+      "candidateCarouselIndex": 34,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/owlzBReGaIeX7NVBtKlkFSpiKEeAAIvALAATQA~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "fd4244524a22cb33.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owlzBReGaIeX7NVBtKlkFSpiKEeAAIvALAATQA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lNqEyQ4iN0x1bB0Z4L5GxNNtSCU%3D",
+      "domNaturalDimensions": {
+        "width": 2167,
+        "height": 1498
+      }
+    },
+    {
+      "domOrdinal": 35,
+      "candidateCarouselIndex": 35,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oQGKAaFTQENSRIIuee7KBleBTv2miApzAtAALV~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "a84a204806c6aaea.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQGKAaFTQENSRIIuee7KBleBTv2miApzAtAALV~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=VHsiCzA0Z%2FCHrb3t3pJI6tGgEYA%3D",
+      "domNaturalDimensions": {
+        "width": 1215,
+        "height": 1717
+      }
+    },
+    {
+      "domOrdinal": 36,
+      "candidateCarouselIndex": 36,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/ose7IBvtoeTxFAzKpoEmQXRKAALeBVAiSNGaAI~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "e14644a3470dab05.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ose7IBvtoeTxFAzKpoEmQXRKAALeBVAiSNGaAI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bBWaHK7eYHooD61Eos%2F3vvDw%2B%2Fk%3D",
+      "domNaturalDimensions": {
+        "width": 2245,
+        "height": 1516
+      }
+    },
+    {
+      "domOrdinal": 37,
+      "candidateCarouselIndex": 37,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/octzI8EVBAAQmF7qAIAeeApAKTLGSLeviaNKRB~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "b280570639f39edd.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/octzI8EVBAAQmF7qAIAeeApAKTLGSLeviaNKRB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2BX5xWY1%2FcZDR%2FeB%2BQDVRN%2FTVBf0%3D",
+      "domNaturalDimensions": {
+        "width": 1108,
+        "height": 1499
+      }
+    },
+    {
+      "domOrdinal": 38,
+      "candidateCarouselIndex": 38,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oEpKTtvIAz7RAQmIHELVAKFGAsa7ABTeeiSBNe~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "ce76e230919194cf.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEpKTtvIAz7RAQmIHELVAKFGAsa7ABTeeiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Xv3wzmkUnobAfvt3ZvSZrC1aJKs%3D",
+      "domNaturalDimensions": {
+        "width": 2181,
+        "height": 1492
+      }
+    },
+    {
+      "domOrdinal": 39,
+      "candidateCarouselIndex": 39,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oQaESpzAFiRGDteZAAA7eTevBpBLKKIVAIuQNm~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "673b57f8d60f404f.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oQaESpzAFiRGDteZAAA7eTevBpBLKKIVAIuQNm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=r9fip4A0QF3m4BsraUzK03S0X3s%3D",
+      "domNaturalDimensions": {
+        "width": 1205,
+        "height": 1666
+      }
+    },
+    {
+      "domOrdinal": 40,
+      "candidateCarouselIndex": 40,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/ociBzSAFtLNwAEaARVeT7gAAvIIoeBpGQKKemj~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "16dbf1226f8435b7.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ociBzSAFtLNwAEaARVeT7gAAvIIoeBpGQKKemj~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nj73vtZ4N7rVXPl3IiRv4yFkSao%3D",
+      "domNaturalDimensions": {
+        "width": 2114,
+        "height": 1449
+      }
+    },
+    {
+      "domOrdinal": 41,
+      "candidateCarouselIndex": 41,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/ooI8O7EVoSKKvLNfeyFG9AABapBeATtARQAzIi~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "46f7a756255255d2.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooI8O7EVoSKKvLNfeyFG9AABapBeATtARQAzIi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=0TmZ2gK6NNvbhy3faoWfmFNgItk%3D",
+      "domNaturalDimensions": {
+        "width": 1125,
+        "height": 1547
+      }
+    },
+    {
+      "domOrdinal": 42,
+      "candidateCarouselIndex": 42,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o0GtKeevARpiVLABw8eEATa0ISQBKIzA7NFAnp~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "bb30feae53e3cae4.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0GtKeevARpiVLABw8eEATa0ISQBKIzA7NFAnp~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fb2S24YQB7s2e5JjkRJXhQjc7wM%3D",
+      "domNaturalDimensions": {
+        "width": 2287,
+        "height": 1580
+      }
+    },
+    {
+      "domOrdinal": 43,
+      "candidateCarouselIndex": 43,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ocIAzpKTAtvBieaV742EBNRf9IQ0IALKAFASeG~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "90856a0dfd9c6673.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocIAzpKTAtvBieaV742EBNRf9IQ0IALKAFASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=gA9OMQee0ugrVzdojVLe%2BszyfmA%3D",
+      "domNaturalDimensions": {
+        "width": 1156,
+        "height": 1597
+      }
+    },
+    {
+      "domOrdinal": 44,
+      "candidateCarouselIndex": 44,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o0KzASGAAQVALFNvdaeE7tTM9epNKiBRAIB4fI~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "3e502b35e3a11c0a.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0KzASGAAQVALFNvdaeE7tTM9epNKiBRAIB4fI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5EjMCjUbaet%2B3YRcbTHxi6HzMRY%3D",
+      "domNaturalDimensions": {
+        "width": 2317,
+        "height": 1596
+      }
+    },
+    {
+      "domOrdinal": 45,
+      "candidateCarouselIndex": 45,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o4MpBAKI7azeNvF6KAAilQASIAtVReGalTeBLE~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "6ac040c2b49bb16b.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4MpBAKI7azeNvF6KAAilQASIAtVReGalTeBLE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zIR3y%2B0iIg0Xwv20SuinPaR4OS4%3D",
+      "domNaturalDimensions": {
+        "width": 1077,
+        "height": 1495
+      }
+    },
+    {
+      "domOrdinal": 46,
+      "candidateCarouselIndex": 46,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oMnGeAGS8KFBeL7RVtpTvAaBAITKEznQAAeiIN~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "c92ef6b729134c2c.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMnGeAGS8KFBeL7RVtpTvAaBAITKEznQAAeiIN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=tkc8yy0%2FKAMDVI3UcSYDMgUtMK8%3D",
+      "domNaturalDimensions": {
+        "width": 2104,
+        "height": 1451
+      }
+    },
+    {
+      "domOrdinal": 47,
+      "candidateCarouselIndex": 47,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/osibaLG57BBlYQAT7KIImvEAKAbAe9AiSVeeTF~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "446dff6cad2bbf79.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osibaLG57BBlYQAT7KIImvEAKAbAe9AiSVeeTF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=b3mC%2BuRXsenW2FRReoCIur8FOSA%3D",
+      "domNaturalDimensions": {
+        "width": 1203,
+        "height": 1659
+      }
+    },
+    {
+      "domOrdinal": 48,
+      "candidateCarouselIndex": 48,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/osAeiLvaAeN7nGeqQAKBTtARF0IBSV6aAAEKIz~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "c2c3b8e6271d44f3.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAeiLvaAeN7nGeqQAKBTtARF0IBSV6aAAEKIz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Md5OekiPxUL6oAfRqjsBxckDhGo%3D",
+      "domNaturalDimensions": {
+        "width": 2174,
+        "height": 1519
+      }
+    },
+    {
+      "domOrdinal": 49,
+      "candidateCarouselIndex": 49,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o4nTveACIIqRnwABiKVBKGeESQozaNAeAAtLF7~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "f9d4649bf774abae.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4nTveACIIqRnwABiKVBKGeESQozaNAeAAtLF7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rN3FvfCb%2FhYOBc4OruRZynuxPdA%3D",
+      "domNaturalDimensions": {
+        "width": 1024,
+        "height": 1447
+      }
+    },
+    {
+      "domOrdinal": 50,
+      "candidateCarouselIndex": 50,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/osKEeLE7aGVFSRBvKAAzAPeNIeqTtlBI9aQAiA~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "884282a55b1f31ba.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osKEeLE7aGVFSRBvKAAzAPeNIeqTtlBI9aQAiA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dFRx4MsHI95IJH4PUKmHJeVSfLA%3D",
+      "domNaturalDimensions": {
+        "width": 2155,
+        "height": 1524
+      }
+    },
+    {
+      "domOrdinal": 51,
+      "candidateCarouselIndex": 51,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/o0ARKiNtGQF9GKevANLAak7TqEedVABIIfAzBS~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "969aaeb98538b1a7.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o0ARKiNtGQF9GKevANLAak7TqEedVABIIfAzBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IMNiz09DZIbr7zH69cg91MK1Sa8%3D",
+      "domNaturalDimensions": {
+        "width": 1108,
+        "height": 1573
+      }
+    },
+    {
+      "domOrdinal": 52,
+      "candidateCarouselIndex": 52,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/okaESkzAFiRGBteCAAA7eTevBqBLKKIVAIIQNn~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "5afd461637ceef9f.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okaESkzAFiRGBteCAAA7eTevBqBLKKIVAIIQNn~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=MAUBuL3KhF1uEOM0%2F6NbQKWzvwY%3D",
+      "domNaturalDimensions": {
+        "width": 2259,
+        "height": 1543
+      }
+    },
+    {
+      "domOrdinal": 53,
+      "candidateCarouselIndex": 53,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o4qKTtvIAz7RAQKI5ELVAKFGAKafABJ9eiSBNe~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [
+        "37aa792489c5744b.webp"
+      ],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4qKTtvIAz7RAQKI5ELVAKFGAKafABJ9eiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kV23n0dRcVKtghHz1n%2FvEx6sYow%3D",
+      "domNaturalDimensions": {
+        "width": 1096,
+        "height": 1549
+      }
+    },
+    {
+      "domOrdinal": 54,
+      "candidateCarouselIndex": 54,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oALveAKVSAxNBqTAIeziF7KEalKeQSRABtMAIG~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oALveAKVSAxNBqTAIeziF7KEalKeQSRABtMAIG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=qIs2ys6HPdQVOzktsMn43y85%2BF4%3D",
+      "domNaturalDimensions": {
+        "width": 2374,
+        "height": 1653
+      },
+      "downloadedFilename": "2ce6114721e23bda.webp",
+      "downloadedSha256": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+      "downloadedBytes": 225262,
+      "downloadedDimensions": {
+        "width": 2374,
+        "height": 1653
+      }
+    },
+    {
+      "domOrdinal": 55,
+      "candidateCarouselIndex": 55,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=LZI%2FpsFVR5MmAvVyGLRndaypj5w%3D",
+      "domNaturalDimensions": {
+        "width": 1194,
+        "height": 1688
+      }
+    },
+    {
+      "domOrdinal": 56,
+      "candidateCarouselIndex": 56,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2FkmmX60Tu7Gi%2FeGPL9iOfvcG1Co%3D",
+      "domNaturalDimensions": {
+        "width": 2200,
+        "height": 1524
+      }
+    },
+    {
+      "domOrdinal": 57,
+      "candidateCarouselIndex": 57,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=s6cTVGwiSh4px73Lk4qA%2FXX5elM%3D",
+      "domNaturalDimensions": {
+        "width": 1071,
+        "height": 1506
+      }
+    },
+    {
+      "domOrdinal": 58,
+      "candidateCarouselIndex": 58,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aWDzU9Y%2BqNDrAgWNbJ9BUo5TamM%3D",
+      "domNaturalDimensions": {
+        "width": 2132,
+        "height": 1493
+      }
+    },
+    {
+      "domOrdinal": 59,
+      "candidateCarouselIndex": 59,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QyjKeN%2FNZlhxtIU3nCmNmsgOek8%3D",
+      "domNaturalDimensions": {
+        "width": 1183,
+        "height": 1579
+      }
+    },
+    {
+      "domOrdinal": 60,
+      "candidateCarouselIndex": 60,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zNP3CGoD4sOiY7O6l%2F8cOfeovqo%3D",
+      "domNaturalDimensions": {
+        "width": 1961,
+        "height": 1386
+      }
+    },
+    {
+      "domOrdinal": 61,
+      "candidateCarouselIndex": 61,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=L6%2FGutaF8eagI5MvGGynaNz9KZc%3D",
+      "domNaturalDimensions": {
+        "width": 1365,
+        "height": 1869
+      }
+    },
+    {
+      "domOrdinal": 62,
+      "candidateCarouselIndex": 62,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fKlKtWcdd%2FSCw2mvcZmTvufkggo%3D",
+      "domNaturalDimensions": {
+        "width": 2273,
+        "height": 1568
+      }
+    },
+    {
+      "domOrdinal": 63,
+      "candidateCarouselIndex": 63,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=3f8Jlx2aF2tklUORBbjpLh76SLI%3D",
+      "domNaturalDimensions": {
+        "width": 1195,
+        "height": 1644
+      }
+    },
+    {
+      "domOrdinal": 64,
+      "candidateCarouselIndex": 64,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nH3%2B92ADOw3kk8MXq89Ky4R%2FnsA%3D",
+      "domNaturalDimensions": {
+        "width": 2369,
+        "height": 1638
+      }
+    },
+    {
+      "domOrdinal": 65,
+      "candidateCarouselIndex": 65,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rHemuFQ1gcWqKpIkRiaxjIcMoe8%3D",
+      "domNaturalDimensions": {
+        "width": 1123,
+        "height": 1538
+      }
+    },
+    {
+      "domOrdinal": 66,
+      "candidateCarouselIndex": 66,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GBR0176D9SzuHknWe2%2FNW1uvWyQ%3D",
+      "domNaturalDimensions": {
+        "width": 1964,
+        "height": 1335
+      }
+    },
+    {
+      "domOrdinal": 67,
+      "candidateCarouselIndex": 67,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nb4arHjMzIYqdO6eiVkFvgZi7pI%3D",
+      "domNaturalDimensions": {
+        "width": 1089,
+        "height": 1572
+      }
+    },
+    {
+      "domOrdinal": 68,
+      "candidateCarouselIndex": 68,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ZxHPOaAduu9mrENnHA4eagzWP28%3D",
+      "domNaturalDimensions": {
+        "width": 2275,
+        "height": 1503
+      }
+    },
+    {
+      "domOrdinal": 69,
+      "candidateCarouselIndex": 69,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bsnUhZk0Ag6wOvdO2ch8sJoPyRU%3D",
+      "domNaturalDimensions": {
+        "width": 1165,
+        "height": 1647
+      }
+    },
+    {
+      "domOrdinal": 70,
+      "candidateCarouselIndex": 70,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=YIhWB29ZhdlSHD0jVBBvKYLP5kk%3D",
+      "domNaturalDimensions": {
+        "width": 2154,
+        "height": 1476
+      }
+    },
+    {
+      "domOrdinal": 71,
+      "candidateCarouselIndex": 71,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kcUhjo%2B040GBtxPDEscXK%2BAmSmU%3D",
+      "domNaturalDimensions": {
+        "width": 1285,
+        "height": 1792
+      }
+    },
+    {
+      "domOrdinal": 72,
+      "candidateCarouselIndex": 72,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=TWDic420fTyzwnJm7Gaeoa2aI5Q%3D",
+      "domNaturalDimensions": {
+        "width": 2279,
+        "height": 1556
+      }
+    },
+    {
+      "domOrdinal": 73,
+      "candidateCarouselIndex": 73,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=pzyVZ7zuspi%2B2fnST%2BDUs4SC9pE%3D",
+      "domNaturalDimensions": {
+        "width": 1060,
+        "height": 1486
+      }
+    },
+    {
+      "domOrdinal": 74,
+      "candidateCarouselIndex": 74,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QPQCpRX1vLml%2BmG2tqTKG%2BdeB40%3D",
+      "domNaturalDimensions": {
+        "width": 2069,
+        "height": 1428
+      }
+    },
+    {
+      "domOrdinal": 75,
+      "candidateCarouselIndex": 75,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=soME6cDHgSyrDfWKhypw5ixpp9E%3D",
+      "domNaturalDimensions": {
+        "width": 1298,
+        "height": 1778
+      }
+    },
+    {
+      "domOrdinal": 76,
+      "candidateCarouselIndex": 76,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=c8V0Pq64ecET3NVLRwFILMYtPXE%3D",
+      "domNaturalDimensions": {
+        "width": 2485,
+        "height": 1697
+      }
+    },
+    {
+      "domOrdinal": 77,
+      "candidateCarouselIndex": 77,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fLJLe8N7y3oE6lsCLP2heHNl7Kc%3D",
+      "domNaturalDimensions": {
+        "width": 1254,
+        "height": 1773
+      }
+    },
+    {
+      "domOrdinal": 78,
+      "candidateCarouselIndex": 78,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=9CyCgyjFqPILlCV4aLqdF%2FLLC1Y%3D",
+      "domNaturalDimensions": {
+        "width": 2169,
+        "height": 1445
+      }
+    },
+    {
+      "domOrdinal": 79,
+      "candidateCarouselIndex": 79,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=vlSvIyVYNv4wZXqPrMlO6INNQ0A%3D",
+      "domNaturalDimensions": {
+        "width": 1159,
+        "height": 1678
+      }
+    },
+    {
+      "domOrdinal": 80,
+      "candidateCarouselIndex": 80,
+      "imageIndex": null,
+      "sourceOrigin": "https://p3-pc-sign.douyinpic.com",
+      "observedURLPath": "/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp",
+      "signedQueryPreserved": true,
+      "priorFilenames": [],
+      "evidence": "Rendered .dySwiperSlide DOM order only; not independently paired with on-page counter.",
+      "observedSignedURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D",
+      "domNaturalDimensions": {
+        "width": 2390,
+        "height": 1646
+      }
+    }
+  ],
+  "existingFileHashAudit": [
+    {
+      "filename": "16dbf1226f8435b7.webp",
+      "bytes": 187860,
+      "sha256": "ff5485e1f645edd9fa98728429a636a36e6426db2a064b7bb26df426ce99c536"
+    },
+    {
+      "filename": "1d0ff1e50e0588f3.webp",
+      "bytes": 96948,
+      "sha256": "6d15ab5d0cf2db23bcaa9edf701a049c45487be046975ee1037e06ca3e8d1bd1"
+    },
+    {
+      "filename": "1fe3571035e312b6.webp",
+      "bytes": 155700,
+      "sha256": "dea42fd7edfdc907244db16105a4419dc48d0ae0d2c95bf97549d4fa6c9e09b8"
+    },
+    {
+      "filename": "2a38f5fdf0d555dc.webp",
+      "bytes": 184270,
+      "sha256": "c4c3819b3c2a38c622181a7d89efd9e24bbcb80e31da2e78ba3cbb5b83f03c57"
+    },
+    {
+      "filename": "37aa792489c5744b.webp",
+      "bytes": 101080,
+      "sha256": "ab9a9291431a9f07a237898e2ff32fbbffc577f499c277e8e9bb190df2a3bf17"
+    },
+    {
+      "filename": "3806ab68017599aa.webp",
+      "bytes": 185102,
+      "sha256": "f6adff34261725e4b01656074b7b5bd7d4a65c3249dd5bc01b03464fea235f9f"
+    },
+    {
+      "filename": "39437d37719487f3.webp",
+      "bytes": 144460,
+      "sha256": "cb4d9f58c66d2575f54b445e0135edab1f1cf006c2e1f98b260263e51bb58813"
+    },
+    {
+      "filename": "3ce12ea7061280d5.webp",
+      "bytes": 131504,
+      "sha256": "497900eb0c8526d12af738bb5b855af5083f0ad0c383df282e4a34c3a062a145"
+    },
+    {
+      "filename": "3e502b35e3a11c0a.webp",
+      "bytes": 215592,
+      "sha256": "18adf085911cbd3e4d43f79c6e5aa65f4f039975d36afbee79e64fae31532d7b"
+    },
+    {
+      "filename": "3e8e9215541293f2.webp",
+      "bytes": 220420,
+      "sha256": "7441ea6eb5182b63310c66ce7d3bb5f4a61e0093ac5ed39042e7174a4b045d5a"
+    },
+    {
+      "filename": "4435cba5816a6d22.webp",
+      "bytes": 216010,
+      "sha256": "5b7be4f36e6a2f5fcb08a20fd3e7666a7b9a627f42dbc435eb3ca7af43e46464"
+    },
+    {
+      "filename": "446dff6cad2bbf79.webp",
+      "bytes": 93458,
+      "sha256": "bba5b4a772d8f5cc71d193c38b5088400aa34de5004cee794a631a66c22044c6"
+    },
+    {
+      "filename": "46f7a756255255d2.webp",
+      "bytes": 84902,
+      "sha256": "fd7bd4b4f1b99bd74be4e896ff98f4f370cc01aa7119988b63bf313f25cbc173"
+    },
+    {
+      "filename": "4754ca927840578d.webp",
+      "bytes": 120592,
+      "sha256": "e6502a310e3d5106a94fc11feaf2ae06d5eae22eca63ed41390ea136a2b93db9"
+    },
+    {
+      "filename": "4be9d98ef5800e1e.webp",
+      "bytes": 125330,
+      "sha256": "1ce2e1fec39f7248e0770e4532078f3f8f4c4caa2b1c7265868dbdbeb3986080"
+    },
+    {
+      "filename": "4d6f27261b083205.webp",
+      "bytes": 184422,
+      "sha256": "429f7e081738d4fc68244fc5bbd6291d88348401cdd8c550ec8576f35ffe8593"
+    },
+    {
+      "filename": "50313e61fed9704e.webp",
+      "bytes": 275394,
+      "sha256": "cf3e56757c7504fead2755494ae95f70c166df9eb9c5bcce4180c60eb870c3ba"
+    },
+    {
+      "filename": "5afd461637ceef9f.webp",
+      "bytes": 174372,
+      "sha256": "55f5804f8d810a0abcd5f1eb5ee621434f8f91e7966125a125f132351257204e"
+    },
+    {
+      "filename": "607245c532f5f96b.webp",
+      "bytes": 184210,
+      "sha256": "c27da53baef591547d0ae122ec6ba6f338c1844155c579bd3be939da74c70076"
+    },
+    {
+      "filename": "673b57f8d60f404f.webp",
+      "bytes": 122830,
+      "sha256": "6b10ca91ea19f281beb7fa4c647e322dbc486c28c951dddc6105905fd6514b89"
+    },
+    {
+      "filename": "6ac040c2b49bb16b.webp",
+      "bytes": 104670,
+      "sha256": "ac8bcd0934c941df0cb428aac376755abdec603c20ec3a33a457a5a50029f40f"
+    },
+    {
+      "filename": "70fa7ae258309b0a.webp",
+      "bytes": 127104,
+      "sha256": "254a97594b012c1d901e58602561709b4b169a5c5bb0f39eeebd43be4f9ffad4"
+    },
+    {
+      "filename": "7eaec309be7319cf.webp",
+      "bytes": 291542,
+      "sha256": "91a0747d348970a1859f5aaf59e0ad30f3211d13dab99bfbf40e18a60162cfb6"
+    },
+    {
+      "filename": "822f8d0ea4aa5fd2.webp",
+      "bytes": 153806,
+      "sha256": "104717f43807ff115267ca0ec3ffa0b4eaa3282d52e7ceb2b1f5775ea88e5881"
+    },
+    {
+      "filename": "884282a55b1f31ba.webp",
+      "bytes": 178624,
+      "sha256": "873093999e8df1c7e62cd6a85260d2cfa502cfd194b87586b424c98ea501f4bb"
+    },
+    {
+      "filename": "8aa8f78fb2454b3c.webp",
+      "bytes": 97188,
+      "sha256": "be6501be97dd9e2d155c2d6e7f92801f882e4d0756011951b1f82aba1031ee72"
+    },
+    {
+      "filename": "8eae984590659cfe.webp",
+      "bytes": 148222,
+      "sha256": "1afc0be56bf872417f2cd4772b37214dbd64175b0ddd06646688436e59b4b8b9"
+    },
+    {
+      "filename": "90856a0dfd9c6673.webp",
+      "bytes": 73590,
+      "sha256": "8866790621b016aed52fb6bc33d67b9b142bab266337823ef4b4af144b855d69"
+    },
+    {
+      "filename": "969aaeb98538b1a7.webp",
+      "bytes": 122866,
+      "sha256": "1bb4bdcd69cb4986d73a17d8cfa37e865c5116b81d0d08a25a246f8747df2608"
+    },
+    {
+      "filename": "9daca93d6836499e.webp",
+      "bytes": 99432,
+      "sha256": "364809d7123ab5541d9a772cf0386bc7d288bd0d75b9358811025670ea54b712"
+    },
+    {
+      "filename": "9f65c439556c02e1.webp",
+      "bytes": 314396,
+      "sha256": "6ca955a7c1454c6e26b6486d7526e53c004efe454f67935900c77a574880fc6e"
+    },
+    {
+      "filename": "a84a204806c6aaea.webp",
+      "bytes": 116916,
+      "sha256": "d886ccfcd2365c7df28b2356d991296d52ac01f191f483a859f1484fa78267e9"
+    },
+    {
+      "filename": "aebe5753010027b3.webp",
+      "bytes": 153206,
+      "sha256": "45829743b1fd63cae15939b5d804c002a2209eab6fc3a8156b8e683216dae235"
+    },
+    {
+      "filename": "b280570639f39edd.webp",
+      "bytes": 69690,
+      "sha256": "5fba4f27c085acf024e320caff04c03b5bcc250ce8ca68c7131e756eb01ae3d2"
+    },
+    {
+      "filename": "b5a47d16cbd12a6b.webp",
+      "bytes": 124264,
+      "sha256": "10cadb7ff0e652e8132d8a7fb26c127134da7006c8389217c8151593400ecb63"
+    },
+    {
+      "filename": "b7f7b17669cbcf18.webp",
+      "bytes": 154232,
+      "sha256": "5355c0073aaa8faa8e35ff28717a02d448d4bb5333c51b6b96c08dcce05ce2ed"
+    },
+    {
+      "filename": "b97b04e3dc50bc91.webp",
+      "bytes": 188088,
+      "sha256": "433848ed3ad316b213cf981044a364926bca2b839cbc66085a11ac70002b5b29"
+    },
+    {
+      "filename": "bb30feae53e3cae4.webp",
+      "bytes": 205394,
+      "sha256": "f951d9549298f416e4d1f47ad5e97f67a724fb5ad1084a7e5065b9ed259d82a5"
+    },
+    {
+      "filename": "c2c3b8e6271d44f3.webp",
+      "bytes": 169482,
+      "sha256": "f9ad64c8da47c84c6225684c74971b61ff70205bed1220a16753c6a6b21ed3a6"
+    },
+    {
+      "filename": "c92ef6b729134c2c.webp",
+      "bytes": 166572,
+      "sha256": "da6c10968393a5a9bd25abdcd17b258ee634349b9b1c1be1c7a393171ef85924"
+    },
+    {
+      "filename": "cc3ea6ca8c274bfa.webp",
+      "bytes": 182060,
+      "sha256": "b8080a34b58e9978a098a4b0e2704fa39cb6571ee44dba12f564fe0485bd49bf"
+    },
+    {
+      "filename": "ce76e230919194cf.webp",
+      "bytes": 180434,
+      "sha256": "172e72b14f8a823078bd30fce1d0716d7c4f50188a4a4aa6f18681c6de3873b7"
+    },
+    {
+      "filename": "d12d2615c2459559.webp",
+      "bytes": 181254,
+      "sha256": "026a221c8ee477ac1f6505b0c6a07dced56b12cd1c74c9ebfcb1c80db95cc749"
+    },
+    {
+      "filename": "d3083eca1c028544.webp",
+      "bytes": 149344,
+      "sha256": "96a84e45fd8bbc9b823dd0c83e148fe32403de932f59d2f8cdcff6e329336466"
+    },
+    {
+      "filename": "d3af2ba9dcacb1f2.webp",
+      "bytes": 215220,
+      "sha256": "3a7abaac94781345d6fb096269a155f79b6c75ecc0affef926fd0d687bf4aa44"
+    },
+    {
+      "filename": "dcce9913ff5e4e91.webp",
+      "bytes": 246944,
+      "sha256": "eca4116f007a6ae66b4dbe585301ec8a5a9ebf15cc2bf7d5ac3fcb7cb4229ba9"
+    },
+    {
+      "filename": "dd4da468dec62517.webp",
+      "bytes": 200832,
+      "sha256": "4b09a6032b1499eb7ca5bc47dafe38c1042f014ab8a56a02a450952881623ca8"
+    },
+    {
+      "filename": "de760adc11d0ed85.webp",
+      "bytes": 203074,
+      "sha256": "b7b22b8da1dbe695b6dfd61ffa73ec96389d1e477647a8f4a2bc1a07259cb3b2"
+    },
+    {
+      "filename": "e14644a3470dab05.webp",
+      "bytes": 215198,
+      "sha256": "2abf68b08f63bcfe6bed408431489ad5bb8c2ba46c0b1abf011c9723711cd590"
+    },
+    {
+      "filename": "e1eccf176c187faf.webp",
+      "bytes": 175498,
+      "sha256": "be032b6154c5d3fe9951eeb7030c4d4d85f5eb37a5b487fa33abb17522ee2c2f"
+    },
+    {
+      "filename": "f93f4ddbd5eaa174.webp",
+      "bytes": 231036,
+      "sha256": "ca543caac727172c9010db263cb6a8059d6e9f4e8001f4263573964d21c814bf"
+    },
+    {
+      "filename": "f9d4649bf774abae.webp",
+      "bytes": 63080,
+      "sha256": "51e918769a502029be54cb916baa067ad7f2b7a72d4a72dd1d21f84107e4e905"
+    },
+    {
+      "filename": "fd4244524a22cb33.webp",
+      "bytes": 186978,
+      "sha256": "330a7cf98e5006c30d2e03d255fa6c578ea242603a611ba0f963713548b92581"
+    }
+  ],
+  "newDownloadsConfirmed": 1,
+  "bundleStatus": "CUA pageAssets list+bundle call was interrupted after 711.2 seconds without a returned result; no output directory or manifest path was obtained.",
+  "finalBoundedDownloadAttempt": {
+    "domOrdinal": 54,
+    "method": "locator.downloadMedia",
+    "timeoutMs": 20000,
+    "result": "Browser is not available: 2",
+    "elapsedSeconds": 0.0219,
+    "downloadedPath": null
+  },
+  "fullSignedURLInventory": "signed-observed-20261027.json",
+  "latestBoundedDownloadAttempt": {
+    "observedAt": "2026-10-27T11:56:13.723606+00:00",
+    "domOrdinal": 54,
+    "imageIndex": null,
+    "method": "locator.downloadMedia",
+    "requestedTimeoutMs": 20000,
+    "requestedToolTimeoutMs": 30000,
+    "elapsedSeconds": 795.2135,
+    "result": "success, but timeout was not enforced",
+    "filename": "2ce6114721e23bda.webp",
+    "sha256": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+    "bytes": 225262,
+    "dimensions": {
+      "width": 2374,
+      "height": 1653
+    },
+    "remainingObservedPathsWithoutSavedAsset": 26,
+    "stopReason": "One normal media download took over 13 minutes despite a requested 20-second timeout. No further browser download calls attempted."
+  }
+}

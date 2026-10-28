@@ -1,0 +1,2087 @@
+{
+  "source": "https://www.douyin.com/note/7684572630280187855",
+  "observedAt": "2026-10-27T11:41:33.731Z",
+  "note": "Read-only rendered DOM inspection; ordinals remain candidates unless paired with observed on-page counter.",
+  "slides": [
+    {
+      "domOrdinal": 1,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0jtWA7EIA0FaABiFVBlGbESIOfafAeAAiLC7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=8CzmhJ76buKDuK8pAtqIUOmZE0Y%3D",
+          "height": 2422,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0jtWA7EIA0FaABiFVBlGbESIOfafAeAAiLC7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=8CzmhJ76buKDuK8pAtqIUOmZE0Y%3D",
+          "width": 1756
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0jtWA7EIA0FaABiFVBlGbESIOfafAeAAiLC7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=8CzmhJ76buKDuK8pAtqIUOmZE0Y%3D",
+          "height": 2422,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0jtWA7EIA0FaABiFVBlGbESIOfafAeAAiLC7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=8CzmhJ76buKDuK8pAtqIUOmZE0Y%3D",
+          "width": 1756
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": -2078,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 2,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocAiAGtE8ALiBIjeBAWlfaVbFC7fSAH3II0EAF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=WzBTOgy%2BdDvUeDppqbK%2BM8d9lak%3D",
+          "height": 1682,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocAiAGtE8ALiBIjeBAWlfaVbFC7fSAH3II0EAF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=WzBTOgy%2BdDvUeDppqbK%2BM8d9lak%3D",
+          "width": 2435
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocAiAGtE8ALiBIjeBAWlfaVbFC7fSAH3II0EAF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=WzBTOgy%2BdDvUeDppqbK%2BM8d9lak%3D",
+          "height": 1682,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocAiAGtE8ALiBIjeBAWlfaVbFC7fSAH3II0EAF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=WzBTOgy%2BdDvUeDppqbK%2BM8d9lak%3D",
+          "width": 2435
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": -1332,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 3,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oYEAlVfB8EiAWA7fW0IACLIBtFGkASAGie9jba~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5RCNuFY8dLfretocuxHcph3qyhA%3D",
+          "height": 1770,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oYEAlVfB8EiAWA7fW0IACLIBtFGkASAGie9jba~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5RCNuFY8dLfretocuxHcph3qyhA%3D",
+          "width": 1241
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oYEAlVfB8EiAWA7fW0IACLIBtFGkASAGie9jba~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5RCNuFY8dLfretocuxHcph3qyhA%3D",
+          "height": 1770,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oYEAlVfB8EiAWA7fW0IACLIBtFGkASAGie9jba~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5RCNuFY8dLfretocuxHcph3qyhA%3D",
+          "width": 1241
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": -586,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 4,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/okApFiFFMICbelttAeWAaa7jBE8JVABEQZAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2Fzc2%2BuGMDkArJi0nuR%2FrAhaJk2w%3D",
+          "height": 1430,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/okApFiFFMICbelttAeWAaa7jBE8JVABEQZAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2Fzc2%2BuGMDkArJi0nuR%2FrAhaJk2w%3D",
+          "width": 2105
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/okApFiFFMICbelttAeWAaa7jBE8JVABEQZAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2Fzc2%2BuGMDkArJi0nuR%2FrAhaJk2w%3D",
+          "height": 1430,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/okApFiFFMICbelttAeWAaa7jBE8JVABEQZAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2Fzc2%2BuGMDkArJi0nuR%2FrAhaJk2w%3D",
+          "width": 2105
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 160,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 5,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ocCSaEjIMpCtiEFBAQ8bAEAAeWFfAVBBytf7El~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=miN0%2Bug45b9LheZ1vf28GZJPgmY%3D",
+          "height": 2034,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ocCSaEjIMpCtiEFBAQ8bAEAAeWFfAVBBytf7El~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=miN0%2Bug45b9LheZ1vf28GZJPgmY%3D",
+          "width": 1462
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ocCSaEjIMpCtiEFBAQ8bAEAAeWFfAVBBytf7El~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=miN0%2Bug45b9LheZ1vf28GZJPgmY%3D",
+          "height": 2034,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ocCSaEjIMpCtiEFBAQ8bAEAAeWFfAVBBytf7El~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=miN0%2Bug45b9LheZ1vf28GZJPgmY%3D",
+          "width": 1462
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 906,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 6,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEiVElSAIjbLfCFATANESAiA7tf0GBAWBeGIBa~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SNNBoK4pRbIqLjNMlR27N3yXJi4%3D",
+          "height": 1594,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEiVElSAIjbLfCFATANESAiA7tf0GBAWBeGIBa~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SNNBoK4pRbIqLjNMlR27N3yXJi4%3D",
+          "width": 2321
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEiVElSAIjbLfCFATANESAiA7tf0GBAWBeGIBa~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SNNBoK4pRbIqLjNMlR27N3yXJi4%3D",
+          "height": 1594,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEiVElSAIjbLfCFATANESAiA7tf0GBAWBeGIBa~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SNNBoK4pRbIqLjNMlR27N3yXJi4%3D",
+          "width": 2321
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 1652,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 7,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owGAfBFjAitBiWaV7hBEBf01bIIFEALlACASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Gj%2FaLJpgE5%2FpuYCfKru2smX%2F948%3D",
+          "height": 1765,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owGAfBFjAitBiWaV7hBEBf01bIIFEALlACASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Gj%2FaLJpgE5%2FpuYCfKru2smX%2F948%3D",
+          "width": 1340
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owGAfBFjAitBiWaV7hBEBf01bIIFEALlACASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Gj%2FaLJpgE5%2FpuYCfKru2smX%2F948%3D",
+          "height": 1765,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owGAfBFjAitBiWaV7hBEBf01bIIFEALlACASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Gj%2FaLJpgE5%2FpuYCfKru2smX%2F948%3D",
+          "width": 1340
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 2398,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 8,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEFWBLiBIICEAdSfiletCAjA7AfFVGa0BA6bEx~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=AC5Luxiz%2BBY68Z37U6CGycCsjio%3D",
+          "height": 1640,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEFWBLiBIICEAdSfiletCAjA7AfFVGa0BA6bEx~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=AC5Luxiz%2BBY68Z37U6CGycCsjio%3D",
+          "width": 2385
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEFWBLiBIICEAdSfiletCAjA7AfFVGa0BA6bEx~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=AC5Luxiz%2BBY68Z37U6CGycCsjio%3D",
+          "height": 1640,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEFWBLiBIICEAdSfiletCAjA7AfFVGa0BA6bEx~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=AC5Luxiz%2BBY68Z37U6CGycCsjio%3D",
+          "width": 2385
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 3144,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 9,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ooD7WSIC0AikFlabBftjF7AEGeAdLBABfEAViI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=FcF5MYthG82xrvVB%2BiPcWczt1Ms%3D",
+          "height": 1747,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ooD7WSIC0AikFlabBftjF7AEGeAdLBABfEAViI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=FcF5MYthG82xrvVB%2BiPcWczt1Ms%3D",
+          "width": 1296
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ooD7WSIC0AikFlabBftjF7AEGeAdLBABfEAViI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=FcF5MYthG82xrvVB%2BiPcWczt1Ms%3D",
+          "height": 1747,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ooD7WSIC0AikFlabBftjF7AEGeAdLBABfEAViI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=FcF5MYthG82xrvVB%2BiPcWczt1Ms%3D",
+          "width": 1296
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 3890,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 10,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=chRKv8fd0tyxGEIlLE6jLmIw2qU%3D",
+          "height": 1710,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=chRKv8fd0tyxGEIlLE6jLmIw2qU%3D",
+          "width": 2512
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=chRKv8fd0tyxGEIlLE6jLmIw2qU%3D",
+          "height": 1710,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=chRKv8fd0tyxGEIlLE6jLmIw2qU%3D",
+          "width": 2512
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 4636,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 11,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oM2BBSjaaQAiCAffe4KtK8AMKAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2udm%2BAZahBIyBqTf5EYdvmA2tvY%3D",
+          "height": 1881,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oM2BBSjaaQAiCAffe4KtK8AMKAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2udm%2BAZahBIyBqTf5EYdvmA2tvY%3D",
+          "width": 1306
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oM2BBSjaaQAiCAffe4KtK8AMKAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2udm%2BAZahBIyBqTf5EYdvmA2tvY%3D",
+          "height": 1881,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oM2BBSjaaQAiCAffe4KtK8AMKAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2udm%2BAZahBIyBqTf5EYdvmA2tvY%3D",
+          "width": 1306
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 5382,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 12,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o02BBSjaCQAiCAmfefKtK8AMMAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=JJSYLFw2alF%2BkIE90Wu%2FE%2FN2pWY%3D",
+          "height": 1600,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o02BBSjaCQAiCAmfefKtK8AMMAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=JJSYLFw2alF%2BkIE90Wu%2FE%2FN2pWY%3D",
+          "width": 2328
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o02BBSjaCQAiCAmfefKtK8AMMAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=JJSYLFw2alF%2BkIE90Wu%2FE%2FN2pWY%3D",
+          "height": 1600,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o02BBSjaCQAiCAmfefKtK8AMMAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=JJSYLFw2alF%2BkIE90Wu%2FE%2FN2pWY%3D",
+          "width": 2328
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 6128,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 13,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o4BWFVACeAEkAfGjBbmltiIA0L7GiSFAfaIEBH~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IHPK%2FdxNWJmR2i%2FGj8UTgGhjZz0%3D",
+          "height": 2101,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o4BWFVACeAEkAfGjBbmltiIA0L7GiSFAfaIEBH~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IHPK%2FdxNWJmR2i%2FGj8UTgGhjZz0%3D",
+          "width": 1513
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o4BWFVACeAEkAfGjBbmltiIA0L7GiSFAfaIEBH~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IHPK%2FdxNWJmR2i%2FGj8UTgGhjZz0%3D",
+          "height": 2101,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o4BWFVACeAEkAfGjBbmltiIA0L7GiSFAfaIEBH~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IHPK%2FdxNWJmR2i%2FGj8UTgGhjZz0%3D",
+          "width": 1513
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 6874,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 14,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o8CtEaIGAieBfWHAFVilBBIIbALgf7AS0jErMA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SC9zPoPUB1OlmxqxOlyNd4K9ob8%3D",
+          "height": 1540,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o8CtEaIGAieBfWHAFVilBBIIbALgf7AS0jErMA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SC9zPoPUB1OlmxqxOlyNd4K9ob8%3D",
+          "width": 2255
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o8CtEaIGAieBfWHAFVilBBIIbALgf7AS0jErMA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SC9zPoPUB1OlmxqxOlyNd4K9ob8%3D",
+          "height": 1540,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o8CtEaIGAieBfWHAFVilBBIIbALgf7AS0jErMA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SC9zPoPUB1OlmxqxOlyNd4K9ob8%3D",
+          "width": 2255
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 7620,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 15,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oIiVGit0AAAWA7qlAELJSFaGjefBfbiIBBEClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=jYp3PKcxC5ySsn8laF%2BQysDqpHc%3D",
+          "height": 1590,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oIiVGit0AAAWA7qlAELJSFaGjefBfbiIBBEClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=jYp3PKcxC5ySsn8laF%2BQysDqpHc%3D",
+          "width": 1125
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oIiVGit0AAAWA7qlAELJSFaGjefBfbiIBBEClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=jYp3PKcxC5ySsn8laF%2BQysDqpHc%3D",
+          "height": 1590,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oIiVGit0AAAWA7qlAELJSFaGjefBfbiIBBEClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=jYp3PKcxC5ySsn8laF%2BQysDqpHc%3D",
+          "width": 1125
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 8366,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 16,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0WBeFWSCIM5jtAAtUAA8fQFVKQI7epBaA2iKE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nvvqOcUkXcdh5o1semNCZ6EA1M8%3D",
+          "height": 1804,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0WBeFWSCIM5jtAAtUAA8fQFVKQI7epBaA2iKE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nvvqOcUkXcdh5o1semNCZ6EA1M8%3D",
+          "width": 2597
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0WBeFWSCIM5jtAAtUAA8fQFVKQI7epBaA2iKE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nvvqOcUkXcdh5o1semNCZ6EA1M8%3D",
+          "height": 1804,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0WBeFWSCIM5jtAAtUAA8fQFVKQI7epBaA2iKE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nvvqOcUkXcdh5o1semNCZ6EA1M8%3D",
+          "width": 2597
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 9112,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 17,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0VAafKFjECIiAW7tBeQf2OAASBpAO8FCtKMQW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=XcOEcoBUN%2BgzxB2KacITCflSPLw%3D",
+          "height": 1825,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0VAafKFjECIiAW7tBeQf2OAASBpAO8FCtKMQW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=XcOEcoBUN%2BgzxB2KacITCflSPLw%3D",
+          "width": 1332
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0VAafKFjECIiAW7tBeQf2OAASBpAO8FCtKMQW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=XcOEcoBUN%2BgzxB2KacITCflSPLw%3D",
+          "height": 1825,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0VAafKFjECIiAW7tBeQf2OAASBpAO8FCtKMQW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=XcOEcoBUN%2BgzxB2KacITCflSPLw%3D",
+          "width": 1332
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 9858,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 18,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0ljBASeAEGbtCQAG7VfbEMFIBaLBAfiiAI7W~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2Wc3szXOLLQpws3iyzSk%2BmFOfJ4%3D",
+          "height": 1535,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0ljBASeAEGbtCQAG7VfbEMFIBaLBAfiiAI7W~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2Wc3szXOLLQpws3iyzSk%2BmFOfJ4%3D",
+          "width": 2247
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0ljBASeAEGbtCQAG7VfbEMFIBaLBAfiiAI7W~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2Wc3szXOLLQpws3iyzSk%2BmFOfJ4%3D",
+          "height": 1535,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0ljBASeAEGbtCQAG7VfbEMFIBaLBAfiiAI7W~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=2Wc3szXOLLQpws3iyzSk%2BmFOfJ4%3D",
+          "width": 2247
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 10604,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 19,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQiEbhBfBGFS0aflgNLCAtII7AWFAUjeBAEVAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lGDfSVLdaV5f66OKTtUaakZ8O3o%3D",
+          "height": 1611,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQiEbhBfBGFS0aflgNLCAtII7AWFAUjeBAEVAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lGDfSVLdaV5f66OKTtUaakZ8O3o%3D",
+          "width": 1185
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQiEbhBfBGFS0aflgNLCAtII7AWFAUjeBAEVAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lGDfSVLdaV5f66OKTtUaakZ8O3o%3D",
+          "height": 1611,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQiEbhBfBGFS0aflgNLCAtII7AWFAUjeBAEVAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lGDfSVLdaV5f66OKTtUaakZ8O3o%3D",
+          "width": 1185
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 11350,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 20,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMVAaulijEBEiAL7WBfIfbFAASB0A2eC0tFGIO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zhY21Rd1VZolycR09SyBHIeXAoc%3D",
+          "height": 1485,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMVAaulijEBEiAL7WBfIfbFAASB0A2eC0tFGIO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zhY21Rd1VZolycR09SyBHIeXAoc%3D",
+          "width": 2161
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMVAaulijEBEiAL7WBfIfbFAASB0A2eC0tFGIO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zhY21Rd1VZolycR09SyBHIeXAoc%3D",
+          "height": 1485,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMVAaulijEBEiAL7WBfIfbFAASB0A2eC0tFGIO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zhY21Rd1VZolycR09SyBHIeXAoc%3D",
+          "width": 2161
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 12096,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 21,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAAiIAjlWVAPbGFfOI9ELSB7BbGiAta0EeCfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dhS759GStL1L2qIQTeO0wyXfzKY%3D",
+          "height": 1971,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAAiIAjlWVAPbGFfOI9ELSB7BbGiAta0EeCfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dhS759GStL1L2qIQTeO0wyXfzKY%3D",
+          "width": 1429
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAAiIAjlWVAPbGFfOI9ELSB7BbGiAta0EeCfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dhS759GStL1L2qIQTeO0wyXfzKY%3D",
+          "height": 1971,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAAiIAjlWVAPbGFfOI9ELSB7BbGiAta0EeCfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dhS759GStL1L2qIQTeO0wyXfzKY%3D",
+          "width": 1429
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 12842,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 22,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oIGfAIWAtIFSjLSBBaEeC0jbyfAQE7AilVEiAB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=y0i3vIqR6OeAfCpAtRnUD9zk5is%3D",
+          "height": 1715,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oIGfAIWAtIFSjLSBBaEeC0jbyfAQE7AilVEiAB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=y0i3vIqR6OeAfCpAtRnUD9zk5is%3D",
+          "width": 2503
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oIGfAIWAtIFSjLSBBaEeC0jbyfAQE7AilVEiAB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=y0i3vIqR6OeAfCpAtRnUD9zk5is%3D",
+          "height": 1715,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oIGfAIWAtIFSjLSBBaEeC0jbyfAQE7AilVEiAB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=y0i3vIqR6OeAfCpAtRnUD9zk5is%3D",
+          "width": 2503
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 13588,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 23,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQjzeAGSRFCBbL70ViBjtAaBAExlEfFIAAWiIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Hg5kILgbTEpFNXgUkGIpPlaVBfw%3D",
+          "height": 1717,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQjzeAGSRFCBbL70ViBjtAaBAExlEfFIAAWiIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Hg5kILgbTEpFNXgUkGIpPlaVBfw%3D",
+          "width": 1215
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQjzeAGSRFCBbL70ViBjtAaBAExlEfFIAAWiIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Hg5kILgbTEpFNXgUkGIpPlaVBfw%3D",
+          "height": 1717,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQjzeAGSRFCBbL70ViBjtAaBAExlEfFIAAWiIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Hg5kILgbTEpFNXgUkGIpPlaVBfw%3D",
+          "width": 1215
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 14334,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 24,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQbfESLHAfajaBAlBAGAItSW7iVAFECBAiI0eS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=j3RYwaBqF8pYzJlvKyg7zwjy3bA%3D",
+          "height": 1325,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQbfESLHAfajaBAlBAGAItSW7iVAFECBAiI0eS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=j3RYwaBqF8pYzJlvKyg7zwjy3bA%3D",
+          "width": 1992
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQbfESLHAfajaBAlBAGAItSW7iVAFECBAiI0eS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=j3RYwaBqF8pYzJlvKyg7zwjy3bA%3D",
+          "height": 1325,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQbfESLHAfajaBAlBAGAItSW7iVAFECBAiI0eS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=j3RYwaBqF8pYzJlvKyg7zwjy3bA%3D",
+          "width": 1992
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 15080,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 25,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMbl7VAiSCfIBFvnBAIABWtej0FAHLEGAfaETi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GIeJqoszyhl9APnkM3yS4kjeykg%3D",
+          "height": 1665,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMbl7VAiSCfIBFvnBAIABWtej0FAHLEGAfaETi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GIeJqoszyhl9APnkM3yS4kjeykg%3D",
+          "width": 1149
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMbl7VAiSCfIBFvnBAIABWtej0FAHLEGAfaETi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GIeJqoszyhl9APnkM3yS4kjeykg%3D",
+          "height": 1665,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMbl7VAiSCfIBFvnBAIABWtej0FAHLEGAfaETi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GIeJqoszyhl9APnkM3yS4kjeykg%3D",
+          "width": 1149
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 15826,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 26,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owB0IjEAa8ALUIiFCF7BWSefAtGYBEAIfAbVil~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aH%2BuyQ5hkzpb7EBrU6BD0WhtLK0%3D",
+          "height": 1438,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owB0IjEAa8ALUIiFCF7BWSefAtGYBEAIfAbVil~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aH%2BuyQ5hkzpb7EBrU6BD0WhtLK0%3D",
+          "width": 2115
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owB0IjEAa8ALUIiFCF7BWSefAtGYBEAIfAbVil~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aH%2BuyQ5hkzpb7EBrU6BD0WhtLK0%3D",
+          "height": 1438,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owB0IjEAa8ALUIiFCF7BWSefAtGYBEAIfAbVil~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aH%2BuyQ5hkzpb7EBrU6BD0WhtLK0%3D",
+          "width": 2115
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 16572,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 27,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oULtbAJVSAQfBBjAIWfiC7FEaFleIx0ABiVAEG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SLQSapu3qUQ6cICQKEE9bqkqFUc%3D",
+          "height": 1743,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oULtbAJVSAQfBBjAIWfiC7FEaFleIx0ABiVAEG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SLQSapu3qUQ6cICQKEE9bqkqFUc%3D",
+          "width": 1233
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oULtbAJVSAQfBBjAIWfiC7FEaFleIx0ABiVAEG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SLQSapu3qUQ6cICQKEE9bqkqFUc%3D",
+          "height": 1743,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oULtbAJVSAQfBBjAIWfiC7FEaFleIx0ABiVAEG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=SLQSapu3qUQ6cICQKEE9bqkqFUc%3D",
+          "width": 1233
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 17318,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 28,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUApKiNFMQF2sKttAeWAaC7jCE8yVABIQeAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=x7c4zrymstieRC3TFSlmiZaP0QI%3D",
+          "height": 1555,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUApKiNFMQF2sKttAeWAaC7jCE8yVABIQeAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=x7c4zrymstieRC3TFSlmiZaP0QI%3D",
+          "width": 2243
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUApKiNFMQF2sKttAeWAaC7jCE8yVABIQeAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=x7c4zrymstieRC3TFSlmiZaP0QI%3D",
+          "height": 1555,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUApKiNFMQF2sKttAeWAaC7jCE8yVABIQeAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=x7c4zrymstieRC3TFSlmiZaP0QI%3D",
+          "width": 2243
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 18064,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 29,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocCI0FfbEiWBacSEBlGGeBX7tjALAAiAAv2VIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ttI9GRbra7DNVsOZM04D%2BYOpsBA%3D",
+          "height": 1668,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocCI0FfbEiWBacSEBlGGeBX7tjALAAiAAv2VIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ttI9GRbra7DNVsOZM04D%2BYOpsBA%3D",
+          "width": 1207
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocCI0FfbEiWBacSEBlGGeBX7tjALAAiAAv2VIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ttI9GRbra7DNVsOZM04D%2BYOpsBA%3D",
+          "height": 1668,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocCI0FfbEiWBacSEBlGGeBX7tjALAAiAAv2VIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ttI9GRbra7DNVsOZM04D%2BYOpsBA%3D",
+          "width": 1207
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 18810,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 30,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oISAYEIibCGA70ABtiAfLElBeWaACVIBF0Ejf2~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=OvRzwWzvQ6vlvDb50Gd7LmcvxuM%3D",
+          "height": 1668,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oISAYEIibCGA70ABtiAfLElBeWaACVIBF0Ejf2~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=OvRzwWzvQ6vlvDb50Gd7LmcvxuM%3D",
+          "width": 2414
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oISAYEIibCGA70ABtiAfLElBeWaACVIBF0Ejf2~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=OvRzwWzvQ6vlvDb50Gd7LmcvxuM%3D",
+          "height": 1668,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oISAYEIibCGA70ABtiAfLElBeWaACVIBF0Ejf2~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=OvRzwWzvQ6vlvDb50Gd7LmcvxuM%3D",
+          "width": 2414
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 19556,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 31,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYFIiKbeIb9BauSESKkGeBe7vTALAAiAAzMVQm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=yJA6FIQRvw4rJqnwryzZyXgq3Gs%3D",
+          "height": 1783,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYFIiKbeIb9BauSESKkGeBe7vTALAAiAAzMVQm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=yJA6FIQRvw4rJqnwryzZyXgq3Gs%3D",
+          "width": 1261
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYFIiKbeIb9BauSESKkGeBe7vTALAAiAAzMVQm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=yJA6FIQRvw4rJqnwryzZyXgq3Gs%3D",
+          "height": 1783,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYFIiKbeIb9BauSESKkGeBe7vTALAAiAAzMVQm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=yJA6FIQRvw4rJqnwryzZyXgq3Gs%3D",
+          "width": 1261
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 20302,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 32,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okKNpAVB7QtAeameeFIAzRGVAkgLIBTiEAivKS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QsJa6DuQgfZriOQ3aS6xstRWmlA%3D",
+          "height": 1499,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okKNpAVB7QtAeameeFIAzRGVAkgLIBTiEAivKS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QsJa6DuQgfZriOQ3aS6xstRWmlA%3D",
+          "width": 2121
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okKNpAVB7QtAeameeFIAzRGVAkgLIBTiEAivKS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QsJa6DuQgfZriOQ3aS6xstRWmlA%3D",
+          "height": 1499,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okKNpAVB7QtAeameeFIAzRGVAkgLIBTiEAivKS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QsJa6DuQgfZriOQ3aS6xstRWmlA%3D",
+          "width": 2121
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 21048,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 33,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8EhAKpSxLFAtBiAIVIGeeeiQAmZAvRzBaKTN7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=uHJFN4TFON6p23w5sAyZOCh4xVg%3D",
+          "height": 1383,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8EhAKpSxLFAtBiAIVIGeeeiQAmZAvRzBaKTN7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=uHJFN4TFON6p23w5sAyZOCh4xVg%3D",
+          "width": 1032
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8EhAKpSxLFAtBiAIVIGeeeiQAmZAvRzBaKTN7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=uHJFN4TFON6p23w5sAyZOCh4xVg%3D",
+          "height": 1383,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8EhAKpSxLFAtBiAIVIGeeeiQAmZAvRzBaKTN7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=uHJFN4TFON6p23w5sAyZOCh4xVg%3D",
+          "width": 1032
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 21794,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 34,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owlzBReGaIeX7NVBtKlkFSpiKEeAAIvALAATQA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lNqEyQ4iN0x1bB0Z4L5GxNNtSCU%3D",
+          "height": 1498,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owlzBReGaIeX7NVBtKlkFSpiKEeAAIvALAATQA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lNqEyQ4iN0x1bB0Z4L5GxNNtSCU%3D",
+          "width": 2167
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owlzBReGaIeX7NVBtKlkFSpiKEeAAIvALAATQA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lNqEyQ4iN0x1bB0Z4L5GxNNtSCU%3D",
+          "height": 1498,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owlzBReGaIeX7NVBtKlkFSpiKEeAAIvALAATQA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=lNqEyQ4iN0x1bB0Z4L5GxNNtSCU%3D",
+          "width": 2167
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 22540,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 35,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQGKAaFTQENSRIIuee7KBleBTv2miApzAtAALV~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=VHsiCzA0Z%2FCHrb3t3pJI6tGgEYA%3D",
+          "height": 1717,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQGKAaFTQENSRIIuee7KBleBTv2miApzAtAALV~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=VHsiCzA0Z%2FCHrb3t3pJI6tGgEYA%3D",
+          "width": 1215
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQGKAaFTQENSRIIuee7KBleBTv2miApzAtAALV~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=VHsiCzA0Z%2FCHrb3t3pJI6tGgEYA%3D",
+          "height": 1717,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQGKAaFTQENSRIIuee7KBleBTv2miApzAtAALV~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=VHsiCzA0Z%2FCHrb3t3pJI6tGgEYA%3D",
+          "width": 1215
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 23286,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 36,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ose7IBvtoeTxFAzKpoEmQXRKAALeBVAiSNGaAI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bBWaHK7eYHooD61Eos%2F3vvDw%2B%2Fk%3D",
+          "height": 1516,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ose7IBvtoeTxFAzKpoEmQXRKAALeBVAiSNGaAI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bBWaHK7eYHooD61Eos%2F3vvDw%2B%2Fk%3D",
+          "width": 2245
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ose7IBvtoeTxFAzKpoEmQXRKAALeBVAiSNGaAI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bBWaHK7eYHooD61Eos%2F3vvDw%2B%2Fk%3D",
+          "height": 1516,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ose7IBvtoeTxFAzKpoEmQXRKAALeBVAiSNGaAI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bBWaHK7eYHooD61Eos%2F3vvDw%2B%2Fk%3D",
+          "width": 2245
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 24032,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 37,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/octzI8EVBAAQmF7qAIAeeApAKTLGSLeviaNKRB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2BX5xWY1%2FcZDR%2FeB%2BQDVRN%2FTVBf0%3D",
+          "height": 1499,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/octzI8EVBAAQmF7qAIAeeApAKTLGSLeviaNKRB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2BX5xWY1%2FcZDR%2FeB%2BQDVRN%2FTVBf0%3D",
+          "width": 1108
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/octzI8EVBAAQmF7qAIAeeApAKTLGSLeviaNKRB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2BX5xWY1%2FcZDR%2FeB%2BQDVRN%2FTVBf0%3D",
+          "height": 1499,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/octzI8EVBAAQmF7qAIAeeApAKTLGSLeviaNKRB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2BX5xWY1%2FcZDR%2FeB%2BQDVRN%2FTVBf0%3D",
+          "width": 1108
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 24778,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 38,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEpKTtvIAz7RAQmIHELVAKFGAsa7ABTeeiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Xv3wzmkUnobAfvt3ZvSZrC1aJKs%3D",
+          "height": 1492,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEpKTtvIAz7RAQmIHELVAKFGAsa7ABTeeiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Xv3wzmkUnobAfvt3ZvSZrC1aJKs%3D",
+          "width": 2181
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEpKTtvIAz7RAQmIHELVAKFGAsa7ABTeeiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Xv3wzmkUnobAfvt3ZvSZrC1aJKs%3D",
+          "height": 1492,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEpKTtvIAz7RAQmIHELVAKFGAsa7ABTeeiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Xv3wzmkUnobAfvt3ZvSZrC1aJKs%3D",
+          "width": 2181
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 25524,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 39,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oQaESpzAFiRGDteZAAA7eTevBpBLKKIVAIuQNm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=r9fip4A0QF3m4BsraUzK03S0X3s%3D",
+          "height": 1666,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oQaESpzAFiRGDteZAAA7eTevBpBLKKIVAIuQNm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=r9fip4A0QF3m4BsraUzK03S0X3s%3D",
+          "width": 1205
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oQaESpzAFiRGDteZAAA7eTevBpBLKKIVAIuQNm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=r9fip4A0QF3m4BsraUzK03S0X3s%3D",
+          "height": 1666,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oQaESpzAFiRGDteZAAA7eTevBpBLKKIVAIuQNm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=r9fip4A0QF3m4BsraUzK03S0X3s%3D",
+          "width": 1205
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 26270,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 40,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ociBzSAFtLNwAEaARVeT7gAAvIIoeBpGQKKemj~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nj73vtZ4N7rVXPl3IiRv4yFkSao%3D",
+          "height": 1449,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ociBzSAFtLNwAEaARVeT7gAAvIIoeBpGQKKemj~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nj73vtZ4N7rVXPl3IiRv4yFkSao%3D",
+          "width": 2114
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ociBzSAFtLNwAEaARVeT7gAAvIIoeBpGQKKemj~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nj73vtZ4N7rVXPl3IiRv4yFkSao%3D",
+          "height": 1449,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ociBzSAFtLNwAEaARVeT7gAAvIIoeBpGQKKemj~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nj73vtZ4N7rVXPl3IiRv4yFkSao%3D",
+          "width": 2114
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 27016,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 41,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooI8O7EVoSKKvLNfeyFG9AABapBeATtARQAzIi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=0TmZ2gK6NNvbhy3faoWfmFNgItk%3D",
+          "height": 1547,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooI8O7EVoSKKvLNfeyFG9AABapBeATtARQAzIi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=0TmZ2gK6NNvbhy3faoWfmFNgItk%3D",
+          "width": 1125
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooI8O7EVoSKKvLNfeyFG9AABapBeATtARQAzIi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=0TmZ2gK6NNvbhy3faoWfmFNgItk%3D",
+          "height": 1547,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooI8O7EVoSKKvLNfeyFG9AABapBeATtARQAzIi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=0TmZ2gK6NNvbhy3faoWfmFNgItk%3D",
+          "width": 1125
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 27762,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 42,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0GtKeevARpiVLABw8eEATa0ISQBKIzA7NFAnp~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fb2S24YQB7s2e5JjkRJXhQjc7wM%3D",
+          "height": 1580,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0GtKeevARpiVLABw8eEATa0ISQBKIzA7NFAnp~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fb2S24YQB7s2e5JjkRJXhQjc7wM%3D",
+          "width": 2287
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0GtKeevARpiVLABw8eEATa0ISQBKIzA7NFAnp~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fb2S24YQB7s2e5JjkRJXhQjc7wM%3D",
+          "height": 1580,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0GtKeevARpiVLABw8eEATa0ISQBKIzA7NFAnp~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fb2S24YQB7s2e5JjkRJXhQjc7wM%3D",
+          "width": 2287
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 28508,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 43,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocIAzpKTAtvBieaV742EBNRf9IQ0IALKAFASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=gA9OMQee0ugrVzdojVLe%2BszyfmA%3D",
+          "height": 1597,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocIAzpKTAtvBieaV742EBNRf9IQ0IALKAFASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=gA9OMQee0ugrVzdojVLe%2BszyfmA%3D",
+          "width": 1156
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocIAzpKTAtvBieaV742EBNRf9IQ0IALKAFASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=gA9OMQee0ugrVzdojVLe%2BszyfmA%3D",
+          "height": 1597,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocIAzpKTAtvBieaV742EBNRf9IQ0IALKAFASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=gA9OMQee0ugrVzdojVLe%2BszyfmA%3D",
+          "width": 1156
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 29254,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 44,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0KzASGAAQVALFNvdaeE7tTM9epNKiBRAIB4fI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5EjMCjUbaet%2B3YRcbTHxi6HzMRY%3D",
+          "height": 1596,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0KzASGAAQVALFNvdaeE7tTM9epNKiBRAIB4fI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5EjMCjUbaet%2B3YRcbTHxi6HzMRY%3D",
+          "width": 2317
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0KzASGAAQVALFNvdaeE7tTM9epNKiBRAIB4fI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5EjMCjUbaet%2B3YRcbTHxi6HzMRY%3D",
+          "height": 1596,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0KzASGAAQVALFNvdaeE7tTM9epNKiBRAIB4fI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=5EjMCjUbaet%2B3YRcbTHxi6HzMRY%3D",
+          "width": 2317
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 30000,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 45,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4MpBAKI7azeNvF6KAAilQASIAtVReGalTeBLE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zIR3y%2B0iIg0Xwv20SuinPaR4OS4%3D",
+          "height": 1495,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4MpBAKI7azeNvF6KAAilQASIAtVReGalTeBLE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zIR3y%2B0iIg0Xwv20SuinPaR4OS4%3D",
+          "width": 1077
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4MpBAKI7azeNvF6KAAilQASIAtVReGalTeBLE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zIR3y%2B0iIg0Xwv20SuinPaR4OS4%3D",
+          "height": 1495,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4MpBAKI7azeNvF6KAAilQASIAtVReGalTeBLE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zIR3y%2B0iIg0Xwv20SuinPaR4OS4%3D",
+          "width": 1077
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 30746,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 46,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMnGeAGS8KFBeL7RVtpTvAaBAITKEznQAAeiIN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=tkc8yy0%2FKAMDVI3UcSYDMgUtMK8%3D",
+          "height": 1451,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMnGeAGS8KFBeL7RVtpTvAaBAITKEznQAAeiIN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=tkc8yy0%2FKAMDVI3UcSYDMgUtMK8%3D",
+          "width": 2104
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMnGeAGS8KFBeL7RVtpTvAaBAITKEznQAAeiIN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=tkc8yy0%2FKAMDVI3UcSYDMgUtMK8%3D",
+          "height": 1451,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMnGeAGS8KFBeL7RVtpTvAaBAITKEznQAAeiIN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=tkc8yy0%2FKAMDVI3UcSYDMgUtMK8%3D",
+          "width": 2104
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 31492,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 47,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osibaLG57BBlYQAT7KIImvEAKAbAe9AiSVeeTF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=b3mC%2BuRXsenW2FRReoCIur8FOSA%3D",
+          "height": 1659,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osibaLG57BBlYQAT7KIImvEAKAbAe9AiSVeeTF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=b3mC%2BuRXsenW2FRReoCIur8FOSA%3D",
+          "width": 1203
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osibaLG57BBlYQAT7KIImvEAKAbAe9AiSVeeTF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=b3mC%2BuRXsenW2FRReoCIur8FOSA%3D",
+          "height": 1659,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osibaLG57BBlYQAT7KIImvEAKAbAe9AiSVeeTF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=b3mC%2BuRXsenW2FRReoCIur8FOSA%3D",
+          "width": 1203
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 32238,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 48,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAeiLvaAeN7nGeqQAKBTtARF0IBSV6aAAEKIz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Md5OekiPxUL6oAfRqjsBxckDhGo%3D",
+          "height": 1519,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAeiLvaAeN7nGeqQAKBTtARF0IBSV6aAAEKIz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Md5OekiPxUL6oAfRqjsBxckDhGo%3D",
+          "width": 2174
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAeiLvaAeN7nGeqQAKBTtARF0IBSV6aAAEKIz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Md5OekiPxUL6oAfRqjsBxckDhGo%3D",
+          "height": 1519,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAeiLvaAeN7nGeqQAKBTtARF0IBSV6aAAEKIz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Md5OekiPxUL6oAfRqjsBxckDhGo%3D",
+          "width": 2174
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 32984,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 49,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4nTveACIIqRnwABiKVBKGeESQozaNAeAAtLF7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rN3FvfCb%2FhYOBc4OruRZynuxPdA%3D",
+          "height": 1447,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4nTveACIIqRnwABiKVBKGeESQozaNAeAAtLF7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rN3FvfCb%2FhYOBc4OruRZynuxPdA%3D",
+          "width": 1024
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4nTveACIIqRnwABiKVBKGeESQozaNAeAAtLF7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rN3FvfCb%2FhYOBc4OruRZynuxPdA%3D",
+          "height": 1447,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4nTveACIIqRnwABiKVBKGeESQozaNAeAAtLF7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rN3FvfCb%2FhYOBc4OruRZynuxPdA%3D",
+          "width": 1024
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 33730,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 50,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osKEeLE7aGVFSRBvKAAzAPeNIeqTtlBI9aQAiA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dFRx4MsHI95IJH4PUKmHJeVSfLA%3D",
+          "height": 1524,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osKEeLE7aGVFSRBvKAAzAPeNIeqTtlBI9aQAiA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dFRx4MsHI95IJH4PUKmHJeVSfLA%3D",
+          "width": 2155
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osKEeLE7aGVFSRBvKAAzAPeNIeqTtlBI9aQAiA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dFRx4MsHI95IJH4PUKmHJeVSfLA%3D",
+          "height": 1524,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osKEeLE7aGVFSRBvKAAzAPeNIeqTtlBI9aQAiA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=dFRx4MsHI95IJH4PUKmHJeVSfLA%3D",
+          "width": 2155
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 34476,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 51,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o0ARKiNtGQF9GKevANLAak7TqEedVABIIfAzBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IMNiz09DZIbr7zH69cg91MK1Sa8%3D",
+          "height": 1573,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o0ARKiNtGQF9GKevANLAak7TqEedVABIIfAzBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IMNiz09DZIbr7zH69cg91MK1Sa8%3D",
+          "width": 1108
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o0ARKiNtGQF9GKevANLAak7TqEedVABIIfAzBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IMNiz09DZIbr7zH69cg91MK1Sa8%3D",
+          "height": 1573,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o0ARKiNtGQF9GKevANLAak7TqEedVABIIfAzBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=IMNiz09DZIbr7zH69cg91MK1Sa8%3D",
+          "width": 1108
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 35222,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 52,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okaESkzAFiRGBteCAAA7eTevBqBLKKIVAIIQNn~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=MAUBuL3KhF1uEOM0%2F6NbQKWzvwY%3D",
+          "height": 1543,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okaESkzAFiRGBteCAAA7eTevBqBLKKIVAIIQNn~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=MAUBuL3KhF1uEOM0%2F6NbQKWzvwY%3D",
+          "width": 2259
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okaESkzAFiRGBteCAAA7eTevBqBLKKIVAIIQNn~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=MAUBuL3KhF1uEOM0%2F6NbQKWzvwY%3D",
+          "height": 1543,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okaESkzAFiRGBteCAAA7eTevBqBLKKIVAIIQNn~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=MAUBuL3KhF1uEOM0%2F6NbQKWzvwY%3D",
+          "width": 2259
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 35968,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 53,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4qKTtvIAz7RAQKI5ELVAKFGAKafABJ9eiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kV23n0dRcVKtghHz1n%2FvEx6sYow%3D",
+          "height": 1549,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4qKTtvIAz7RAQKI5ELVAKFGAKafABJ9eiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kV23n0dRcVKtghHz1n%2FvEx6sYow%3D",
+          "width": 1096
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4qKTtvIAz7RAQKI5ELVAKFGAKafABJ9eiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kV23n0dRcVKtghHz1n%2FvEx6sYow%3D",
+          "height": 1549,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4qKTtvIAz7RAQKI5ELVAKFGAKafABJ9eiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kV23n0dRcVKtghHz1n%2FvEx6sYow%3D",
+          "width": 1096
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 36714,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 54,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oALveAKVSAxNBqTAIeziF7KEalKeQSRABtMAIG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=qIs2ys6HPdQVOzktsMn43y85%2BF4%3D",
+          "height": 1653,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oALveAKVSAxNBqTAIeziF7KEalKeQSRABtMAIG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=qIs2ys6HPdQVOzktsMn43y85%2BF4%3D",
+          "width": 2374
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oALveAKVSAxNBqTAIeziF7KEalKeQSRABtMAIG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=qIs2ys6HPdQVOzktsMn43y85%2BF4%3D",
+          "height": 1653,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oALveAKVSAxNBqTAIeziF7KEalKeQSRABtMAIG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=qIs2ys6HPdQVOzktsMn43y85%2BF4%3D",
+          "width": 2374
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 37460,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 55,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=LZI%2FpsFVR5MmAvVyGLRndaypj5w%3D",
+          "height": 1688,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=LZI%2FpsFVR5MmAvVyGLRndaypj5w%3D",
+          "width": 1194
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=LZI%2FpsFVR5MmAvVyGLRndaypj5w%3D",
+          "height": 1688,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=LZI%2FpsFVR5MmAvVyGLRndaypj5w%3D",
+          "width": 1194
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 38206,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 56,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2FkmmX60Tu7Gi%2FeGPL9iOfvcG1Co%3D",
+          "height": 1524,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2FkmmX60Tu7Gi%2FeGPL9iOfvcG1Co%3D",
+          "width": 2200
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2FkmmX60Tu7Gi%2FeGPL9iOfvcG1Co%3D",
+          "height": 1524,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2FkmmX60Tu7Gi%2FeGPL9iOfvcG1Co%3D",
+          "width": 2200
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 38952,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 57,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=s6cTVGwiSh4px73Lk4qA%2FXX5elM%3D",
+          "height": 1506,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=s6cTVGwiSh4px73Lk4qA%2FXX5elM%3D",
+          "width": 1071
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=s6cTVGwiSh4px73Lk4qA%2FXX5elM%3D",
+          "height": 1506,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=s6cTVGwiSh4px73Lk4qA%2FXX5elM%3D",
+          "width": 1071
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 39698,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 58,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aWDzU9Y%2BqNDrAgWNbJ9BUo5TamM%3D",
+          "height": 1493,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aWDzU9Y%2BqNDrAgWNbJ9BUo5TamM%3D",
+          "width": 2132
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aWDzU9Y%2BqNDrAgWNbJ9BUo5TamM%3D",
+          "height": 1493,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aWDzU9Y%2BqNDrAgWNbJ9BUo5TamM%3D",
+          "width": 2132
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 40444,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 59,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QyjKeN%2FNZlhxtIU3nCmNmsgOek8%3D",
+          "height": 1579,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QyjKeN%2FNZlhxtIU3nCmNmsgOek8%3D",
+          "width": 1183
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QyjKeN%2FNZlhxtIU3nCmNmsgOek8%3D",
+          "height": 1579,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QyjKeN%2FNZlhxtIU3nCmNmsgOek8%3D",
+          "width": 1183
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 41190,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 60,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zNP3CGoD4sOiY7O6l%2F8cOfeovqo%3D",
+          "height": 1386,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zNP3CGoD4sOiY7O6l%2F8cOfeovqo%3D",
+          "width": 1961
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zNP3CGoD4sOiY7O6l%2F8cOfeovqo%3D",
+          "height": 1386,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zNP3CGoD4sOiY7O6l%2F8cOfeovqo%3D",
+          "width": 1961
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 41936,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 61,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=L6%2FGutaF8eagI5MvGGynaNz9KZc%3D",
+          "height": 1869,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=L6%2FGutaF8eagI5MvGGynaNz9KZc%3D",
+          "width": 1365
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=L6%2FGutaF8eagI5MvGGynaNz9KZc%3D",
+          "height": 1869,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=L6%2FGutaF8eagI5MvGGynaNz9KZc%3D",
+          "width": 1365
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 42682,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 62,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fKlKtWcdd%2FSCw2mvcZmTvufkggo%3D",
+          "height": 1568,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fKlKtWcdd%2FSCw2mvcZmTvufkggo%3D",
+          "width": 2273
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fKlKtWcdd%2FSCw2mvcZmTvufkggo%3D",
+          "height": 1568,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fKlKtWcdd%2FSCw2mvcZmTvufkggo%3D",
+          "width": 2273
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 43428,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 63,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=3f8Jlx2aF2tklUORBbjpLh76SLI%3D",
+          "height": 1644,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=3f8Jlx2aF2tklUORBbjpLh76SLI%3D",
+          "width": 1195
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=3f8Jlx2aF2tklUORBbjpLh76SLI%3D",
+          "height": 1644,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=3f8Jlx2aF2tklUORBbjpLh76SLI%3D",
+          "width": 1195
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 44174,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 64,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nH3%2B92ADOw3kk8MXq89Ky4R%2FnsA%3D",
+          "height": 1638,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nH3%2B92ADOw3kk8MXq89Ky4R%2FnsA%3D",
+          "width": 2369
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nH3%2B92ADOw3kk8MXq89Ky4R%2FnsA%3D",
+          "height": 1638,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nH3%2B92ADOw3kk8MXq89Ky4R%2FnsA%3D",
+          "width": 2369
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 44920,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 65,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rHemuFQ1gcWqKpIkRiaxjIcMoe8%3D",
+          "height": 1538,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rHemuFQ1gcWqKpIkRiaxjIcMoe8%3D",
+          "width": 1123
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rHemuFQ1gcWqKpIkRiaxjIcMoe8%3D",
+          "height": 1538,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rHemuFQ1gcWqKpIkRiaxjIcMoe8%3D",
+          "width": 1123
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 45666,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 66,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GBR0176D9SzuHknWe2%2FNW1uvWyQ%3D",
+          "height": 1335,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GBR0176D9SzuHknWe2%2FNW1uvWyQ%3D",
+          "width": 1964
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GBR0176D9SzuHknWe2%2FNW1uvWyQ%3D",
+          "height": 1335,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GBR0176D9SzuHknWe2%2FNW1uvWyQ%3D",
+          "width": 1964
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 46412,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 67,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nb4arHjMzIYqdO6eiVkFvgZi7pI%3D",
+          "height": 1572,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nb4arHjMzIYqdO6eiVkFvgZi7pI%3D",
+          "width": 1089
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nb4arHjMzIYqdO6eiVkFvgZi7pI%3D",
+          "height": 1572,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nb4arHjMzIYqdO6eiVkFvgZi7pI%3D",
+          "width": 1089
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 47158,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 68,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ZxHPOaAduu9mrENnHA4eagzWP28%3D",
+          "height": 1503,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ZxHPOaAduu9mrENnHA4eagzWP28%3D",
+          "width": 2275
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ZxHPOaAduu9mrENnHA4eagzWP28%3D",
+          "height": 1503,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ZxHPOaAduu9mrENnHA4eagzWP28%3D",
+          "width": 2275
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 47904,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 69,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bsnUhZk0Ag6wOvdO2ch8sJoPyRU%3D",
+          "height": 1647,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bsnUhZk0Ag6wOvdO2ch8sJoPyRU%3D",
+          "width": 1165
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bsnUhZk0Ag6wOvdO2ch8sJoPyRU%3D",
+          "height": 1647,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bsnUhZk0Ag6wOvdO2ch8sJoPyRU%3D",
+          "width": 1165
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 48650,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 70,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=YIhWB29ZhdlSHD0jVBBvKYLP5kk%3D",
+          "height": 1476,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=YIhWB29ZhdlSHD0jVBBvKYLP5kk%3D",
+          "width": 2154
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=YIhWB29ZhdlSHD0jVBBvKYLP5kk%3D",
+          "height": 1476,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=YIhWB29ZhdlSHD0jVBBvKYLP5kk%3D",
+          "width": 2154
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 49396,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 71,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kcUhjo%2B040GBtxPDEscXK%2BAmSmU%3D",
+          "height": 1792,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kcUhjo%2B040GBtxPDEscXK%2BAmSmU%3D",
+          "width": 1285
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kcUhjo%2B040GBtxPDEscXK%2BAmSmU%3D",
+          "height": 1792,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kcUhjo%2B040GBtxPDEscXK%2BAmSmU%3D",
+          "width": 1285
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 50142,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 72,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=TWDic420fTyzwnJm7Gaeoa2aI5Q%3D",
+          "height": 1556,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=TWDic420fTyzwnJm7Gaeoa2aI5Q%3D",
+          "width": 2279
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=TWDic420fTyzwnJm7Gaeoa2aI5Q%3D",
+          "height": 1556,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=TWDic420fTyzwnJm7Gaeoa2aI5Q%3D",
+          "width": 2279
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 50888,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 73,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=pzyVZ7zuspi%2B2fnST%2BDUs4SC9pE%3D",
+          "height": 1486,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=pzyVZ7zuspi%2B2fnST%2BDUs4SC9pE%3D",
+          "width": 1060
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=pzyVZ7zuspi%2B2fnST%2BDUs4SC9pE%3D",
+          "height": 1486,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=pzyVZ7zuspi%2B2fnST%2BDUs4SC9pE%3D",
+          "width": 1060
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 51634,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 74,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QPQCpRX1vLml%2BmG2tqTKG%2BdeB40%3D",
+          "height": 1428,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QPQCpRX1vLml%2BmG2tqTKG%2BdeB40%3D",
+          "width": 2069
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QPQCpRX1vLml%2BmG2tqTKG%2BdeB40%3D",
+          "height": 1428,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QPQCpRX1vLml%2BmG2tqTKG%2BdeB40%3D",
+          "width": 2069
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 52380,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 75,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=soME6cDHgSyrDfWKhypw5ixpp9E%3D",
+          "height": 1778,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=soME6cDHgSyrDfWKhypw5ixpp9E%3D",
+          "width": 1298
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=soME6cDHgSyrDfWKhypw5ixpp9E%3D",
+          "height": 1778,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=soME6cDHgSyrDfWKhypw5ixpp9E%3D",
+          "width": 1298
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 53126,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 76,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=c8V0Pq64ecET3NVLRwFILMYtPXE%3D",
+          "height": 1697,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=c8V0Pq64ecET3NVLRwFILMYtPXE%3D",
+          "width": 2485
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=c8V0Pq64ecET3NVLRwFILMYtPXE%3D",
+          "height": 1697,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=c8V0Pq64ecET3NVLRwFILMYtPXE%3D",
+          "width": 2485
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 53872,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 77,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fLJLe8N7y3oE6lsCLP2heHNl7Kc%3D",
+          "height": 1773,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fLJLe8N7y3oE6lsCLP2heHNl7Kc%3D",
+          "width": 1254
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fLJLe8N7y3oE6lsCLP2heHNl7Kc%3D",
+          "height": 1773,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fLJLe8N7y3oE6lsCLP2heHNl7Kc%3D",
+          "width": 1254
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 54618,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 78,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=9CyCgyjFqPILlCV4aLqdF%2FLLC1Y%3D",
+          "height": 1445,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=9CyCgyjFqPILlCV4aLqdF%2FLLC1Y%3D",
+          "width": 2169
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=9CyCgyjFqPILlCV4aLqdF%2FLLC1Y%3D",
+          "height": 1445,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=9CyCgyjFqPILlCV4aLqdF%2FLLC1Y%3D",
+          "width": 2169
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 55364,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 79,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=vlSvIyVYNv4wZXqPrMlO6INNQ0A%3D",
+          "height": 1678,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=vlSvIyVYNv4wZXqPrMlO6INNQ0A%3D",
+          "width": 1159
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=vlSvIyVYNv4wZXqPrMlO6INNQ0A%3D",
+          "height": 1678,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=vlSvIyVYNv4wZXqPrMlO6INNQ0A%3D",
+          "width": 1159
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 56110,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    },
+    {
+      "domOrdinal": 80,
+      "images": [
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D",
+          "height": 1646,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D",
+          "width": 2390
+        },
+        {
+          "alt": "",
+          "currentSrc": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D",
+          "height": 1646,
+          "src": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D",
+          "width": 2390
+        }
+      ],
+      "rect": {
+        "height": 640,
+        "width": 746,
+        "x": 56856,
+        "y": 56
+      },
+      "slideClass": "_huFFrGs dySwiperSlide B1uuNgj3"
+    }
+  ]
+}

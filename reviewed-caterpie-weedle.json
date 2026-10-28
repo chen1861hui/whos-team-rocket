@@ -1,0 +1,428 @@
+{
+  "reviewedAt": "2026-10-29",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "faces": [
+    {
+      "group": "caterpie",
+      "level": 1,
+      "name": {
+        "zh": "绿毛虫",
+        "en": "Caterpie"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "鳞粉",
+        "en": "Shield Dust"
+      },
+      "abilityText": {
+        "zh": "此宝可梦不会陷入特殊状态。",
+        "en": "This Pokémon cannot gain a special status."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "撞击",
+            "en": "Tackle"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": null
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/d3083eca1c028544.webp",
+        "sha256": "96a84e45fd8bbc9b823dd0c83e148fe32403de932f59d2f8cdcff6e329336466",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 7,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-caterpie-weedle.md"
+      }
+    },
+    {
+      "group": "caterpie",
+      "level": 2,
+      "name": {
+        "zh": "铁甲蛹",
+        "en": "Metapod"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "蜕皮",
+        "en": "Shed Skin"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦受到伤害时，你可以弃置任意数量的手牌，每弃置一张，此伤害值-1。",
+        "en": "When this Pokémon receives damage, you may discard any number of hand cards. Each discarded card reduces this damage by 1."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "撞击",
+            "en": "Tackle"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": null
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/607245c532f5f96b.webp",
+        "sha256": "c27da53baef591547d0ae122ec6ba6f338c1844155c579bd3be939da74c70076",
+        "facePosition": "left",
+        "observedAssetOrdinal": 9,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-caterpie-weedle.md"
+      }
+    },
+    {
+      "group": "caterpie",
+      "level": 3,
+      "name": {
+        "zh": "巴大蝶",
+        "en": "Butterfree"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "复眼",
+        "en": "Compound Eyes"
+      },
+      "abilityText": {
+        "zh": "其他训练家无法使用[烈日]的【快躲开！】抵消此宝可梦的招式。",
+        "en": "Other trainers cannot use intense-sun Dodge cards to cancel this Pokémon’s moves."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self.",
+            "ignoresDistance": true
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "吹飞",
+            "en": "Whirlwind"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "weatherIconsInCondition": [
+              "rain",
+              "thunderstorm"
+            ],
+            "count": 1
+          },
+          "printedValue": null,
+          "effectText": {
+            "zh": "此招式不受距离限制。你令目标出战宝可梦和对应的备战宝可梦调换位置。",
+            "en": "This move ignores distance limits. Swap the target active Pokémon with its corresponding reserve Pokémon."
+          },
+          "effectKind": "forced-switch",
+          "effectTiming": "on-uncanceled-settlement"
+        },
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "催眠粉",
+            "en": "Sleep Powder"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "weatherIconsInCondition": [
+              "intense-sun",
+              "clear"
+            ],
+            "count": 1
+          },
+          "printedValue": null,
+          "effectText": {
+            "zh": "你进行一次判定，若结果不为[雷雨]，目标宝可梦陷入“睡眠”状态。",
+            "en": "Make a judgment. If the result is not thunderstorm, the target Pokémon becomes Asleep."
+          },
+          "effectKind": "sleep-judgment",
+          "effectTiming": "on-uncanceled-settlement"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/607245c532f5f96b.webp",
+        "sha256": "c27da53baef591547d0ae122ec6ba6f338c1844155c579bd3be939da74c70076",
+        "facePosition": "right",
+        "observedAssetOrdinal": 9,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-caterpie-weedle.md"
+      }
+    },
+    {
+      "group": "weedle",
+      "level": 1,
+      "name": {
+        "zh": "独角虫",
+        "en": "Weedle"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "鳞粉",
+        "en": "Shield Dust"
+      },
+      "abilityText": {
+        "zh": "此宝可梦不会陷入特殊状态。",
+        "en": "This Pokémon cannot gain a special status."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "毒针",
+            "en": "Poison Sting"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[暴雨]，目标宝可梦陷入“中毒”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is heavy rain, the target Pokémon becomes Poisoned."
+          },
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/aebe5753010027b3.webp",
+        "sha256": "45829743b1fd63cae15939b5d804c002a2209eab6fc3a8156b8e683216dae235",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 10,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-caterpie-weedle.md"
+      }
+    },
+    {
+      "group": "weedle",
+      "level": 2,
+      "name": {
+        "zh": "铁壳蛹",
+        "en": "Kakuna"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "蜕皮",
+        "en": "Shed Skin"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦受到伤害时，你可以弃置任意数量的手牌，每弃置一张，此伤害值-1。",
+        "en": "When this Pokémon receives damage, you may discard any number of hand cards. Each discarded card reduces this damage by 1."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "毒针",
+            "en": "Poison Sting"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[暴雨]，目标宝可梦陷入“中毒”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is heavy rain, the target Pokémon becomes Poisoned."
+          },
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/4435cba5816a6d22.webp",
+        "sha256": "5b7be4f36e6a2f5fcb08a20fd3e7666a7b9a627f42dbc435eb3ca7af43e46464",
+        "facePosition": "left",
+        "observedAssetOrdinal": 11,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-caterpie-weedle.md"
+      }
+    },
+    {
+      "group": "weedle",
+      "level": 3,
+      "name": {
+        "zh": "大针蜂",
+        "en": "Beedrill"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "狙击手",
+        "en": "Sniper"
+      },
+      "abilityText": {
+        "zh": "此宝可梦使用招式不受距离限制，你使用牌也不受距离限制。",
+        "en": "This Pokémon’s moves and your card use ignore distance limits."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "乱击",
+            "en": "Fury Attack"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此招式被使用时，你亮出牌堆顶的四张牌，然后其中每有一张“晴天”（[烈日]/[晴朗]）牌，此招式多结算一次。",
+            "en": "When this move is used, reveal the top four deck cards. For each sunny card (intense sun or clear), this move resolves one additional time."
+          },
+          "effectKind": "fury-attack",
+          "effectTiming": "on-move-use"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/4435cba5816a6d22.webp",
+        "sha256": "5b7be4f36e6a2f5fcb08a20fd3e7666a7b9a627f42dbc435eb3ca7af43e46464",
+        "facePosition": "right",
+        "observedAssetOrdinal": 11,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-caterpie-weedle.md"
+      }
+    }
+  ]
+}

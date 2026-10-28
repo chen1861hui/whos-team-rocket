@@ -1,0 +1,56 @@
+{
+  "reviewedAt": "2026-10-27",
+  "acquisition": "exact seven filenames from chinese-preview-evidence.md",
+  "source": "user-supplied original posters",
+  "images": [
+    {
+      "filename": "mmexport1793009383237.jpg.jpeg",
+      "sourcePath": "C:\\Users\\pc\\Downloads\\mmexport1793009383237.jpg.jpeg",
+      "sha256": "7c67f3ed10e165f82bd4234b12a9ea7c7b52e2989b602071190be4826a36836a",
+      "bytes": 656226,
+      "provenance": "Original user-supplied preview poster; byte-identical copy; no inferred deck quantity"
+    },
+    {
+      "filename": "mmexport1793008989807.jpg.jpeg",
+      "sourcePath": "C:\\Users\\pc\\Downloads\\mmexport1793008989807.jpg.jpeg",
+      "sha256": "c6631cca3dc6a24dc9a9272d3604a2a04bcb2856bd78a675871bcb3dedf11b9c",
+      "bytes": 637168,
+      "provenance": "Original user-supplied preview poster; byte-identical copy; no inferred deck quantity"
+    },
+    {
+      "filename": "mmexport1793009022050.jpg.jpeg",
+      "sourcePath": "C:\\Users\\pc\\Downloads\\mmexport1793009022050.jpg.jpeg",
+      "sha256": "b6c4ec18d05a635711f103b48b26220e13679247f8b0b88bf0e911144ee61915",
+      "bytes": 643417,
+      "provenance": "Original user-supplied preview poster; byte-identical copy; no inferred deck quantity"
+    },
+    {
+      "filename": "mmexport1793008971679.jpg.jpeg",
+      "sourcePath": "C:\\Users\\pc\\Downloads\\mmexport1793008971679.jpg.jpeg",
+      "sha256": "42182fb5b0cd8cadaeafada2bd4502f6a527b003bd6b93e139b0e687aa2d6b50",
+      "bytes": 657310,
+      "provenance": "Original user-supplied preview poster; byte-identical copy; no inferred deck quantity"
+    },
+    {
+      "filename": "mmexport1793009377934.jpg.jpeg",
+      "sourcePath": "C:\\Users\\pc\\Downloads\\mmexport1793009377934.jpg.jpeg",
+      "sha256": "ed60ea847178b7da1338cd6ef27cd5b2de7ba6b1cc6b368361ec28d7f61b99c7",
+      "bytes": 635374,
+      "provenance": "Original user-supplied preview poster; byte-identical copy; no inferred deck quantity"
+    },
+    {
+      "filename": "mmexport1793008928244.jpg.jpeg",
+      "sourcePath": "C:\\Users\\pc\\Downloads\\mmexport1793008928244.jpg.jpeg",
+      "sha256": "5817cb32f58f4bb42814d3f5895e48810e025a9c85eac771b940d775caa332e6",
+      "bytes": 621677,
+      "provenance": "Original user-supplied preview poster; byte-identical copy; no inferred deck quantity"
+    },
+    {
+      "filename": "mmexport1793008962926.jpg.jpeg",
+      "sourcePath": "C:\\Users\\pc\\Downloads\\mmexport1793008962926.jpg.jpeg",
+      "sha256": "9c3255bb9d75a32e61e037135c3e279c7e2bba136a6776794c79a8bc60e3225f",
+      "bytes": 3489201,
+      "provenance": "Original user-supplied preview poster; byte-identical copy; no inferred deck quantity"
+    }
+  ]
+}

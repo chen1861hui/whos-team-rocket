@@ -1,0 +1,3094 @@
+{
+  "schemaVersion": 1,
+  "sourceRoster": "reviewed-selection-roster.md",
+  "evidenceStatus": "source-backed-identity-and-hp",
+  "reviewedAt": "2026-10-29",
+  "completeGroups": 40,
+  "photoReviewedFaces": 120,
+  "notes": {
+    "en": "Names, printed levels and HP visually reviewed from saved photos. English names are UI labels. This file does not implement or verify effects. observedAssetOrdinal is a provenance lookup, not a confirmed carousel counter or a source of mechanical values.",
+    "zh": "仅复核照片中的名称、等级与体力。英文为界面标签；本文件不实现或复核效果。资产序号仅用于溯源，不是已确认的轮播页码，也不用于推断数值。"
+  },
+  "entries": [
+    {
+      "id": "bulbasaur",
+      "name": {
+        "zh": "妙蛙种子",
+        "en": "Bulbasaur"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "妙蛙种子",
+            "en": "Bulbasaur"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/3e8e9215541293f2.webp",
+            "sha256": "7441ea6eb5182b63310c66ce7d3bb5f4a61e0093ac5ed39042e7174a4b045d5a",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 1,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "妙蛙草",
+            "en": "Ivysaur"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/f93f4ddbd5eaa174.webp",
+            "sha256": "ca543caac727172c9010db263cb6a8059d6e9f4e8001f4263573964d21c814bf",
+            "facePosition": "left",
+            "observedAssetOrdinal": 2,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "妙蛙花",
+            "en": "Venusaur"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/f93f4ddbd5eaa174.webp",
+            "sha256": "ca543caac727172c9010db263cb6a8059d6e9f4e8001f4263573964d21c814bf",
+            "facePosition": "right",
+            "observedAssetOrdinal": 2,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "charmander",
+      "name": {
+        "zh": "小火龙",
+        "en": "Charmander"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "小火龙",
+            "en": "Charmander"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/1fe3571035e312b6.webp",
+            "sha256": "dea42fd7edfdc907244db16105a4419dc48d0ae0d2c95bf97549d4fa6c9e09b8",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 3,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "火恐龙",
+            "en": "Charmeleon"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/cc3ea6ca8c274bfa.webp",
+            "sha256": "b8080a34b58e9978a098a4b0e2704fa39cb6571ee44dba12f564fe0485bd49bf",
+            "facePosition": "left",
+            "observedAssetOrdinal": 5,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "喷火龙",
+            "en": "Charizard"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/cc3ea6ca8c274bfa.webp",
+            "sha256": "b8080a34b58e9978a098a4b0e2704fa39cb6571ee44dba12f564fe0485bd49bf",
+            "facePosition": "right",
+            "observedAssetOrdinal": 5,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "squirtle",
+      "name": {
+        "zh": "杰尼龟",
+        "en": "Squirtle"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "杰尼龟",
+            "en": "Squirtle"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/39437d37719487f3.webp",
+            "sha256": "cb4d9f58c66d2575f54b445e0135edab1f1cf006c2e1f98b260263e51bb58813",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 6,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "卡咪龟",
+            "en": "Wartortle"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/7eaec309be7319cf.webp",
+            "sha256": "91a0747d348970a1859f5aaf59e0ad30f3211d13dab99bfbf40e18a60162cfb6",
+            "facePosition": "left",
+            "observedAssetOrdinal": 4,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "水箭龟",
+            "en": "Blastoise"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/7eaec309be7319cf.webp",
+            "sha256": "91a0747d348970a1859f5aaf59e0ad30f3211d13dab99bfbf40e18a60162cfb6",
+            "facePosition": "right",
+            "observedAssetOrdinal": 4,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "caterpie",
+      "name": {
+        "zh": "绿毛虫",
+        "en": "Caterpie"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "绿毛虫",
+            "en": "Caterpie"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d3083eca1c028544.webp",
+            "sha256": "96a84e45fd8bbc9b823dd0c83e148fe32403de932f59d2f8cdcff6e329336466",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 7,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "铁甲蛹",
+            "en": "Metapod"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/607245c532f5f96b.webp",
+            "sha256": "c27da53baef591547d0ae122ec6ba6f338c1844155c579bd3be939da74c70076",
+            "facePosition": "left",
+            "observedAssetOrdinal": 9,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "巴大蝶",
+            "en": "Butterfree"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/607245c532f5f96b.webp",
+            "sha256": "c27da53baef591547d0ae122ec6ba6f338c1844155c579bd3be939da74c70076",
+            "facePosition": "right",
+            "observedAssetOrdinal": 9,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pidgey",
+      "name": {
+        "zh": "波波",
+        "en": "Pidgey"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "波波",
+            "en": "Pidgey"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4be9d98ef5800e1e.webp",
+            "sha256": "1ce2e1fec39f7248e0770e4532078f3f8f4c4caa2b1c7265868dbdbeb3986080",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 8,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "比比鸟",
+            "en": "Pidgeotto"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4d6f27261b083205.webp",
+            "sha256": "429f7e081738d4fc68244fc5bbd6291d88348401cdd8c550ec8576f35ffe8593",
+            "facePosition": "left",
+            "observedAssetOrdinal": 12,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "大比鸟",
+            "en": "Pidgeot"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4d6f27261b083205.webp",
+            "sha256": "429f7e081738d4fc68244fc5bbd6291d88348401cdd8c550ec8576f35ffe8593",
+            "facePosition": "right",
+            "observedAssetOrdinal": 12,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "weedle",
+      "name": {
+        "zh": "独角虫",
+        "en": "Weedle"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "独角虫",
+            "en": "Weedle"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/aebe5753010027b3.webp",
+            "sha256": "45829743b1fd63cae15939b5d804c002a2209eab6fc3a8156b8e683216dae235",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 10,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "铁壳蛹",
+            "en": "Kakuna"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4435cba5816a6d22.webp",
+            "sha256": "5b7be4f36e6a2f5fcb08a20fd3e7666a7b9a627f42dbc435eb3ca7af43e46464",
+            "facePosition": "left",
+            "observedAssetOrdinal": 11,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "大针蜂",
+            "en": "Beedrill"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4435cba5816a6d22.webp",
+            "sha256": "5b7be4f36e6a2f5fcb08a20fd3e7666a7b9a627f42dbc435eb3ca7af43e46464",
+            "facePosition": "right",
+            "observedAssetOrdinal": 11,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "pikachu",
+      "name": {
+        "zh": "皮卡丘",
+        "en": "Pikachu"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "皮卡丘",
+            "en": "Pikachu"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d3af2ba9dcacb1f2.webp",
+            "sha256": "3a7abaac94781345d6fb096269a155f79b6c75ecc0affef926fd0d687bf4aa44",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 13,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "皮卡丘",
+            "en": "Pikachu"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b97b04e3dc50bc91.webp",
+            "sha256": "433848ed3ad316b213cf981044a364926bca2b839cbc66085a11ac70002b5b29",
+            "facePosition": "left",
+            "observedAssetOrdinal": 14,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "雷丘",
+            "en": "Raichu"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b97b04e3dc50bc91.webp",
+            "sha256": "433848ed3ad316b213cf981044a364926bca2b839cbc66085a11ac70002b5b29",
+            "facePosition": "right",
+            "observedAssetOrdinal": 14,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "sandshrew",
+      "name": {
+        "zh": "穿山鼠",
+        "en": "Sandshrew"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "穿山鼠",
+            "en": "Sandshrew"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4754ca927840578d.webp",
+            "sha256": "e6502a310e3d5106a94fc11feaf2ae06d5eae22eca63ed41390ea136a2b93db9",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 15,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "穿山鼠",
+            "en": "Sandshrew"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/50313e61fed9704e.webp",
+            "sha256": "cf3e56757c7504fead2755494ae95f70c166df9eb9c5bcce4180c60eb870c3ba",
+            "facePosition": "left",
+            "observedAssetOrdinal": 17,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "穿山王",
+            "en": "Sandslash"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/50313e61fed9704e.webp",
+            "sha256": "cf3e56757c7504fead2755494ae95f70c166df9eb9c5bcce4180c60eb870c3ba",
+            "facePosition": "right",
+            "observedAssetOrdinal": 17,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "nidoran-m",
+      "name": {
+        "zh": "尼多朗",
+        "en": "Nidoran♂"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "尼多朗",
+            "en": "Nidoran♂"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/70fa7ae258309b0a.webp",
+            "sha256": "254a97594b012c1d901e58602561709b4b169a5c5bb0f39eeebd43be4f9ffad4",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 16,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "尼多力诺",
+            "en": "Nidorino"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d12d2615c2459559.webp",
+            "sha256": "026a221c8ee477ac1f6505b0c6a07dced56b12cd1c74c9ebfcb1c80db95cc749",
+            "facePosition": "left",
+            "observedAssetOrdinal": 18,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "尼多王",
+            "en": "Nidoking"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d12d2615c2459559.webp",
+            "sha256": "026a221c8ee477ac1f6505b0c6a07dced56b12cd1c74c9ebfcb1c80db95cc749",
+            "facePosition": "right",
+            "observedAssetOrdinal": 18,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "vulpix",
+      "name": {
+        "zh": "六尾",
+        "en": "Vulpix"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "六尾",
+            "en": "Vulpix"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/3ce12ea7061280d5.webp",
+            "sha256": "497900eb0c8526d12af738bb5b855af5083f0ad0c383df282e4a34c3a062a145",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 19,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "六尾",
+            "en": "Vulpix"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/de760adc11d0ed85.webp",
+            "sha256": "b7b22b8da1dbe695b6dfd61ffa73ec96389d1e477647a8f4a2bc1a07259cb3b2",
+            "facePosition": "left",
+            "observedAssetOrdinal": 22,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "九尾",
+            "en": "Ninetales"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/de760adc11d0ed85.webp",
+            "sha256": "b7b22b8da1dbe695b6dfd61ffa73ec96389d1e477647a8f4a2bc1a07259cb3b2",
+            "facePosition": "right",
+            "observedAssetOrdinal": 22,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "clefairy",
+      "name": {
+        "zh": "皮皮",
+        "en": "Clefairy"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "皮皮",
+            "en": "Clefairy"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/3806ab68017599aa.webp",
+            "sha256": "f6adff34261725e4b01656074b7b5bd7d4a65c3249dd5bc01b03464fea235f9f",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 20,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "皮皮",
+            "en": "Clefairy"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/9f65c439556c02e1.webp",
+            "sha256": "6ca955a7c1454c6e26b6486d7526e53c004efe454f67935900c77a574880fc6e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 21,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "皮可西",
+            "en": "Clefable"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/9f65c439556c02e1.webp",
+            "sha256": "6ca955a7c1454c6e26b6486d7526e53c004efe454f67935900c77a574880fc6e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 21,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "diglett",
+      "name": {
+        "zh": "地鼠",
+        "en": "Diglett"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "地鼠",
+            "en": "Diglett"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/8eae984590659cfe.webp",
+            "sha256": "1afc0be56bf872417f2cd4772b37214dbd64175b0ddd06646688436e59b4b8b9",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 23,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "地鼠",
+            "en": "Diglett"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b7f7b17669cbcf18.webp",
+            "sha256": "5355c0073aaa8faa8e35ff28717a02d448d4bb5333c51b6b96c08dcce05ce2ed",
+            "facePosition": "left",
+            "observedAssetOrdinal": 26,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "三地鼠",
+            "en": "Dugtrio"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b7f7b17669cbcf18.webp",
+            "sha256": "5355c0073aaa8faa8e35ff28717a02d448d4bb5333c51b6b96c08dcce05ce2ed",
+            "facePosition": "right",
+            "observedAssetOrdinal": 26,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "meowth",
+      "name": {
+        "zh": "喵喵",
+        "en": "Meowth"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "喵喵",
+            "en": "Meowth"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/1d0ff1e50e0588f3.webp",
+            "sha256": "6d15ab5d0cf2db23bcaa9edf701a049c45487be046975ee1037e06ca3e8d1bd1",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 24,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "喵喵",
+            "en": "Meowth"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/e1eccf176c187faf.webp",
+            "sha256": "be032b6154c5d3fe9951eeb7030c4d4d85f5eb37a5b487fa33abb17522ee2c2f",
+            "facePosition": "left",
+            "observedAssetOrdinal": 25,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "猫老大",
+            "en": "Persian"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/e1eccf176c187faf.webp",
+            "sha256": "be032b6154c5d3fe9951eeb7030c4d4d85f5eb37a5b487fa33abb17522ee2c2f",
+            "facePosition": "right",
+            "observedAssetOrdinal": 25,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mankey",
+      "name": {
+        "zh": "猴怪",
+        "en": "Mankey"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "猴怪",
+            "en": "Mankey"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/9daca93d6836499e.webp",
+            "sha256": "364809d7123ab5541d9a772cf0386bc7d288bd0d75b9358811025670ea54b712",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 27,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "猴怪",
+            "en": "Mankey"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2a38f5fdf0d555dc.webp",
+            "sha256": "c4c3819b3c2a38c622181a7d89efd9e24bbcb80e31da2e78ba3cbb5b83f03c57",
+            "facePosition": "left",
+            "observedAssetOrdinal": 28,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "火暴猴",
+            "en": "Primeape"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2a38f5fdf0d555dc.webp",
+            "sha256": "c4c3819b3c2a38c622181a7d89efd9e24bbcb80e31da2e78ba3cbb5b83f03c57",
+            "facePosition": "right",
+            "observedAssetOrdinal": 28,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "psyduck",
+      "name": {
+        "zh": "可达鸭",
+        "en": "Psyduck"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "可达鸭",
+            "en": "Psyduck"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b5a47d16cbd12a6b.webp",
+            "sha256": "10cadb7ff0e652e8132d8a7fb26c127134da7006c8389217c8151593400ecb63",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 29,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "可达鸭",
+            "en": "Psyduck"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/dcce9913ff5e4e91.webp",
+            "sha256": "eca4116f007a6ae66b4dbe585301ec8a5a9ebf15cc2bf7d5ac3fcb7cb4229ba9",
+            "facePosition": "left",
+            "observedAssetOrdinal": 31,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "哥达鸭",
+            "en": "Golduck"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/dcce9913ff5e4e91.webp",
+            "sha256": "eca4116f007a6ae66b4dbe585301ec8a5a9ebf15cc2bf7d5ac3fcb7cb4229ba9",
+            "facePosition": "right",
+            "observedAssetOrdinal": 31,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "growlithe",
+      "name": {
+        "zh": "卡蒂狗",
+        "en": "Growlithe"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "卡蒂狗",
+            "en": "Growlithe"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/822f8d0ea4aa5fd2.webp",
+            "sha256": "104717f43807ff115267ca0ec3ffa0b4eaa3282d52e7ceb2b1f5775ea88e5881",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 30,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "卡蒂狗",
+            "en": "Growlithe"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/dd4da468dec62517.webp",
+            "sha256": "4b09a6032b1499eb7ca5bc47dafe38c1042f014ab8a56a02a450952881623ca8",
+            "facePosition": "left",
+            "observedAssetOrdinal": 32,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "风速狗",
+            "en": "Arcanine"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/dd4da468dec62517.webp",
+            "sha256": "4b09a6032b1499eb7ca5bc47dafe38c1042f014ab8a56a02a450952881623ca8",
+            "facePosition": "right",
+            "observedAssetOrdinal": 32,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "abra",
+      "name": {
+        "zh": "凯西",
+        "en": "Abra"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "凯西",
+            "en": "Abra"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/8aa8f78fb2454b3c.webp",
+            "sha256": "be6501be97dd9e2d155c2d6e7f92801f882e4d0756011951b1f82aba1031ee72",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 33,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "勇基拉",
+            "en": "Kadabra"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd4244524a22cb33.webp",
+            "sha256": "330a7cf98e5006c30d2e03d255fa6c578ea242603a611ba0f963713548b92581",
+            "facePosition": "left",
+            "observedAssetOrdinal": 34,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "胡地",
+            "en": "Alakazam"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd4244524a22cb33.webp",
+            "sha256": "330a7cf98e5006c30d2e03d255fa6c578ea242603a611ba0f963713548b92581",
+            "facePosition": "right",
+            "observedAssetOrdinal": 34,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "machop",
+      "name": {
+        "zh": "腕力",
+        "en": "Machop"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "腕力",
+            "en": "Machop"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/a84a204806c6aaea.webp",
+            "sha256": "d886ccfcd2365c7df28b2356d991296d52ac01f191f483a859f1484fa78267e9",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 35,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "豪力",
+            "en": "Machoke"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/e14644a3470dab05.webp",
+            "sha256": "2abf68b08f63bcfe6bed408431489ad5bb8c2ba46c0b1abf011c9723711cd590",
+            "facePosition": "left",
+            "observedAssetOrdinal": 36,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "怪力",
+            "en": "Machamp"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/e14644a3470dab05.webp",
+            "sha256": "2abf68b08f63bcfe6bed408431489ad5bb8c2ba46c0b1abf011c9723711cd590",
+            "facePosition": "right",
+            "observedAssetOrdinal": 36,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "slowpoke",
+      "name": {
+        "zh": "呆呆兽",
+        "en": "Slowpoke"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "呆呆兽",
+            "en": "Slowpoke"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b280570639f39edd.webp",
+            "sha256": "5fba4f27c085acf024e320caff04c03b5bcc250ce8ca68c7131e756eb01ae3d2",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 37,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "呆呆兽",
+            "en": "Slowpoke"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ce76e230919194cf.webp",
+            "sha256": "172e72b14f8a823078bd30fce1d0716d7c4f50188a4a4aa6f18681c6de3873b7",
+            "facePosition": "left",
+            "observedAssetOrdinal": 38,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "呆壳兽",
+            "en": "Slowbro"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ce76e230919194cf.webp",
+            "sha256": "172e72b14f8a823078bd30fce1d0716d7c4f50188a4a4aa6f18681c6de3873b7",
+            "facePosition": "right",
+            "observedAssetOrdinal": 38,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "magnemite",
+      "name": {
+        "zh": "小磁怪",
+        "en": "Magnemite"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "小磁怪",
+            "en": "Magnemite"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/673b57f8d60f404f.webp",
+            "sha256": "6b10ca91ea19f281beb7fa4c647e322dbc486c28c951dddc6105905fd6514b89",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 39,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "小磁怪",
+            "en": "Magnemite"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/16dbf1226f8435b7.webp",
+            "sha256": "ff5485e1f645edd9fa98728429a636a36e6426db2a064b7bb26df426ce99c536",
+            "facePosition": "left",
+            "observedAssetOrdinal": 40,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "三合一磁怪",
+            "en": "Magneton"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/16dbf1226f8435b7.webp",
+            "sha256": "ff5485e1f645edd9fa98728429a636a36e6426db2a064b7bb26df426ce99c536",
+            "facePosition": "right",
+            "observedAssetOrdinal": 40,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "grimer",
+      "name": {
+        "zh": "臭泥",
+        "en": "Grimer"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "臭泥",
+            "en": "Grimer"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/46f7a756255255d2.webp",
+            "sha256": "fd7bd4b4f1b99bd74be4e896ff98f4f370cc01aa7119988b63bf313f25cbc173",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 41,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "臭泥",
+            "en": "Grimer"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/bb30feae53e3cae4.webp",
+            "sha256": "f951d9549298f416e4d1f47ad5e97f67a724fb5ad1084a7e5065b9ed259d82a5",
+            "facePosition": "left",
+            "observedAssetOrdinal": 42,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "臭臭泥",
+            "en": "Muk"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/bb30feae53e3cae4.webp",
+            "sha256": "f951d9549298f416e4d1f47ad5e97f67a724fb5ad1084a7e5065b9ed259d82a5",
+            "facePosition": "right",
+            "observedAssetOrdinal": 42,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "shellder",
+      "name": {
+        "zh": "大舌贝",
+        "en": "Shellder"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "大舌贝",
+            "en": "Shellder"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/90856a0dfd9c6673.webp",
+            "sha256": "8866790621b016aed52fb6bc33d67b9b142bab266337823ef4b4af144b855d69",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 43,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "大舌贝",
+            "en": "Shellder"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/3e502b35e3a11c0a.webp",
+            "sha256": "18adf085911cbd3e4d43f79c6e5aa65f4f039975d36afbee79e64fae31532d7b",
+            "facePosition": "left",
+            "observedAssetOrdinal": 44,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "刺甲贝",
+            "en": "Cloyster"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/3e502b35e3a11c0a.webp",
+            "sha256": "18adf085911cbd3e4d43f79c6e5aa65f4f039975d36afbee79e64fae31532d7b",
+            "facePosition": "right",
+            "observedAssetOrdinal": 44,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "gastly",
+      "name": {
+        "zh": "鬼斯",
+        "en": "Gastly"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "鬼斯",
+            "en": "Gastly"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/6ac040c2b49bb16b.webp",
+            "sha256": "ac8bcd0934c941df0cb428aac376755abdec603c20ec3a33a457a5a50029f40f",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 45,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "鬼斯通",
+            "en": "Haunter"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/c92ef6b729134c2c.webp",
+            "sha256": "da6c10968393a5a9bd25abdcd17b258ee634349b9b1c1be1c7a393171ef85924",
+            "facePosition": "left",
+            "observedAssetOrdinal": 46,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "耿鬼",
+            "en": "Gengar"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/c92ef6b729134c2c.webp",
+            "sha256": "da6c10968393a5a9bd25abdcd17b258ee634349b9b1c1be1c7a393171ef85924",
+            "facePosition": "right",
+            "observedAssetOrdinal": 46,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "exeggcute",
+      "name": {
+        "zh": "蛋蛋",
+        "en": "Exeggcute"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "蛋蛋",
+            "en": "Exeggcute"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/446dff6cad2bbf79.webp",
+            "sha256": "bba5b4a772d8f5cc71d193c38b5088400aa34de5004cee794a631a66c22044c6",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 47,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "蛋蛋",
+            "en": "Exeggcute"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/c2c3b8e6271d44f3.webp",
+            "sha256": "f9ad64c8da47c84c6225684c74971b61ff70205bed1220a16753c6a6b21ed3a6",
+            "facePosition": "left",
+            "observedAssetOrdinal": 48,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "椰蛋树",
+            "en": "Exeggutor"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/c2c3b8e6271d44f3.webp",
+            "sha256": "f9ad64c8da47c84c6225684c74971b61ff70205bed1220a16753c6a6b21ed3a6",
+            "facePosition": "right",
+            "observedAssetOrdinal": 48,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "cubone",
+      "name": {
+        "zh": "卡拉卡拉",
+        "en": "Cubone"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "卡拉卡拉",
+            "en": "Cubone"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/f9d4649bf774abae.webp",
+            "sha256": "51e918769a502029be54cb916baa067ad7f2b7a72d4a72dd1d21f84107e4e905",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 49,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "卡拉卡拉",
+            "en": "Cubone"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/884282a55b1f31ba.webp",
+            "sha256": "873093999e8df1c7e62cd6a85260d2cfa502cfd194b87586b424c98ea501f4bb",
+            "facePosition": "left",
+            "observedAssetOrdinal": 51,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "嘎啦嘎啦",
+            "en": "Marowak"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/884282a55b1f31ba.webp",
+            "sha256": "873093999e8df1c7e62cd6a85260d2cfa502cfd194b87586b424c98ea501f4bb",
+            "facePosition": "right",
+            "observedAssetOrdinal": 51,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "koffing",
+      "name": {
+        "zh": "瓦斯弹",
+        "en": "Koffing"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "瓦斯弹",
+            "en": "Koffing"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/969aaeb98538b1a7.webp",
+            "sha256": "1bb4bdcd69cb4986d73a17d8cfa37e865c5116b81d0d08a25a246f8747df2608",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 50,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "瓦斯弹",
+            "en": "Koffing"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/5afd461637ceef9f.webp",
+            "sha256": "55f5804f8d810a0abcd5f1eb5ee621434f8f91e7966125a125f132351257204e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 52,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "双弹瓦斯",
+            "en": "Weezing"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/5afd461637ceef9f.webp",
+            "sha256": "55f5804f8d810a0abcd5f1eb5ee621434f8f91e7966125a125f132351257204e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 52,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "rhyhorn",
+      "name": {
+        "zh": "独角犀牛",
+        "en": "Rhyhorn"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "独角犀牛",
+            "en": "Rhyhorn"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/37aa792489c5744b.webp",
+            "sha256": "ab9a9291431a9f07a237898e2ff32fbbffc577f499c277e8e9bb190df2a3bf17",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 53,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "独角犀牛",
+            "en": "Rhyhorn"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2ce6114721e23bda.webp",
+            "sha256": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+            "facePosition": "left",
+            "observedAssetOrdinal": 54,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "钻角犀兽",
+            "en": "Rhydon"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2ce6114721e23bda.webp",
+            "sha256": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+            "facePosition": "right",
+            "observedAssetOrdinal": 54,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "chansey",
+      "name": {
+        "zh": "吉利蛋",
+        "en": "Chansey"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "吉利蛋",
+            "en": "Chansey"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ede6e13c73ae2b6e.webp",
+            "sha256": "ede6e13c73ae2b6e151d23f58067349f2b2e1acfdf91bb56360b215cc48a0730",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 55,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "吉利蛋",
+            "en": "Chansey"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d03c99a886622585.webp",
+            "sha256": "d03c99a886622585ed3e4e539c8f47a1c09cc142306e7d96d4014fffc606d826",
+            "facePosition": "left",
+            "observedAssetOrdinal": 56,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "吉利蛋",
+            "en": "Chansey"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d03c99a886622585.webp",
+            "sha256": "d03c99a886622585ed3e4e539c8f47a1c09cc142306e7d96d4014fffc606d826",
+            "facePosition": "right",
+            "observedAssetOrdinal": 56,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "kangaskhan",
+      "name": {
+        "zh": "袋兽",
+        "en": "Kangaskhan"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "袋兽",
+            "en": "Kangaskhan"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b72df440c83a1fa2.webp",
+            "sha256": "b72df440c83a1fa24af3519bd1bce676385811ff82199de8f5fb316d17e07c70",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 57,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "袋兽",
+            "en": "Kangaskhan"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ce3da1b1d2033d35.webp",
+            "sha256": "ce3da1b1d2033d35db112ee809c4513a2a3173609e273cf26828938912cfac02",
+            "facePosition": "left",
+            "observedAssetOrdinal": 58,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "袋兽",
+            "en": "Kangaskhan"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ce3da1b1d2033d35.webp",
+            "sha256": "ce3da1b1d2033d35db112ee809c4513a2a3173609e273cf26828938912cfac02",
+            "facePosition": "right",
+            "observedAssetOrdinal": 58,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "staryu",
+      "name": {
+        "zh": "海星星",
+        "en": "Staryu"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "海星星",
+            "en": "Staryu"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b3d70427fb229ee1.webp",
+            "sha256": "b3d70427fb229ee174dfd24000588923c2b58d3c30dac31a759fbbd4dea04c0e",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 59,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "海星星",
+            "en": "Staryu"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4c4ca1eb3c341f5f.webp",
+            "sha256": "4c4ca1eb3c341f5f1ac4a55788339a5552d3aa7b6cad25b8096acbe77e934a5e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 60,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "宝石海星",
+            "en": "Starmie"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/4c4ca1eb3c341f5f.webp",
+            "sha256": "4c4ca1eb3c341f5f1ac4a55788339a5552d3aa7b6cad25b8096acbe77e934a5e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 60,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "scyther",
+      "name": {
+        "zh": "飞天螳螂",
+        "en": "Scyther"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "飞天螳螂",
+            "en": "Scyther"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ecaafd9dc7bb0598.webp",
+            "sha256": "ecaafd9dc7bb059844e985c844651a31bf3a89edfa3474b3122f7eb411b313ec",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 61,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "飞天螳螂",
+            "en": "Scyther"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2b8363ea1b40ef9c.webp",
+            "sha256": "2b8363ea1b40ef9c347466a712f5b393667475ecd1c65a7971ecd0bcfdeaa574",
+            "facePosition": "left",
+            "observedAssetOrdinal": 62,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "飞天螳螂",
+            "en": "Scyther"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2b8363ea1b40ef9c.webp",
+            "sha256": "2b8363ea1b40ef9c347466a712f5b393667475ecd1c65a7971ecd0bcfdeaa574",
+            "facePosition": "right",
+            "observedAssetOrdinal": 62,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "jynx",
+      "name": {
+        "zh": "迷唇姐",
+        "en": "Jynx"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "迷唇姐",
+            "en": "Jynx"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/65a09eabe1644520.webp",
+            "sha256": "65a09eabe164452056cd322a45d15787fcb03d803c70118a58485d4f88366ef1",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 63,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "迷唇姐",
+            "en": "Jynx"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/8bd4f00fac36f980.webp",
+            "sha256": "8bd4f00fac36f980ebcc3f6c98ec80ac69cd2a0e540c758bca799fd1c936a38f",
+            "facePosition": "left",
+            "observedAssetOrdinal": 64,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "迷唇姐",
+            "en": "Jynx"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/8bd4f00fac36f980.webp",
+            "sha256": "8bd4f00fac36f980ebcc3f6c98ec80ac69cd2a0e540c758bca799fd1c936a38f",
+            "facePosition": "right",
+            "observedAssetOrdinal": 64,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "electabuzz",
+      "name": {
+        "zh": "电击兽",
+        "en": "Electabuzz"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "电击兽",
+            "en": "Electabuzz"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/246197ed6800a311.webp",
+            "sha256": "246197ed6800a3118d3601040b16683df3ccf70147ad642e0968892b332af874",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 65,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "电击兽",
+            "en": "Electabuzz"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/552ac4965b807626.webp",
+            "sha256": "552ac4965b8076262df50692e92c897ce5cb0b3dde4fee6362df0b8dd202aa64",
+            "facePosition": "left",
+            "observedAssetOrdinal": 66,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "电击兽",
+            "en": "Electabuzz"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/552ac4965b807626.webp",
+            "sha256": "552ac4965b8076262df50692e92c897ce5cb0b3dde4fee6362df0b8dd202aa64",
+            "facePosition": "right",
+            "observedAssetOrdinal": 66,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "tauros",
+      "name": {
+        "zh": "肯泰罗",
+        "en": "Tauros"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "肯泰罗",
+            "en": "Tauros"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/147c200af1b0b31d.webp",
+            "sha256": "147c200af1b0b31d62f520c21b47307f808247d675b656649a03e546c56ddb7b",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 67,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "肯泰罗",
+            "en": "Tauros"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/65a574027315cd33.webp",
+            "sha256": "65a574027315cd33ca580d4f44855c3988204bfc4d5d67f40663edf7574f31f4",
+            "facePosition": "left",
+            "observedAssetOrdinal": 68,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "肯泰罗",
+            "en": "Tauros"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/65a574027315cd33.webp",
+            "sha256": "65a574027315cd33ca580d4f44855c3988204bfc4d5d67f40663edf7574f31f4",
+            "facePosition": "right",
+            "observedAssetOrdinal": 68,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "magikarp",
+      "name": {
+        "zh": "鲤鱼王",
+        "en": "Magikarp"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "鲤鱼王",
+            "en": "Magikarp"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/947078209d187ff7.webp",
+            "sha256": "947078209d187ff73c5b8d9a548f8d44a52a2d3c8979a5629392cd1c19d4925b",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 69,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "暴鲤龙",
+            "en": "Gyarados"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ee7ea946e3c6ca97.webp",
+            "sha256": "ee7ea946e3c6ca970a64311c1680f7a95ccf79195c75790a9a27d8e243a52091",
+            "facePosition": "left",
+            "observedAssetOrdinal": 70,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "暴鲤龙",
+            "en": "Gyarados"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ee7ea946e3c6ca97.webp",
+            "sha256": "ee7ea946e3c6ca970a64311c1680f7a95ccf79195c75790a9a27d8e243a52091",
+            "facePosition": "right",
+            "observedAssetOrdinal": 70,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "lapras",
+      "name": {
+        "zh": "拉普拉斯",
+        "en": "Lapras"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "拉普拉斯",
+            "en": "Lapras"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/6d32d20d75165f92.webp",
+            "sha256": "6d32d20d75165f92c9aa0373f62506bf57338f8a793b5a46927a8905d93f5015",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 71,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "拉普拉斯",
+            "en": "Lapras"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd829ad608cac48e.webp",
+            "sha256": "fd829ad608cac48ebfa5dc0e5492e4fc76b3a9b8105d403f56f5858598bf5905",
+            "facePosition": "left",
+            "observedAssetOrdinal": 72,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "拉普拉斯",
+            "en": "Lapras"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd829ad608cac48e.webp",
+            "sha256": "fd829ad608cac48ebfa5dc0e5492e4fc76b3a9b8105d403f56f5858598bf5905",
+            "facePosition": "right",
+            "observedAssetOrdinal": 72,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "porygon",
+      "name": {
+        "zh": "多边兽",
+        "en": "Porygon"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "多边兽",
+            "en": "Porygon"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/7269aee9ae4cfc48.webp",
+            "sha256": "7269aee9ae4cfc4897ae3edf55f0eab66ba722128abfe495144a7764ba12991a",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 73,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "多边兽",
+            "en": "Porygon"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/64613fdec379daf2.webp",
+            "sha256": "64613fdec379daf2649b2f0b5b81ea020144b18a57864679362aca7f864dc3e0",
+            "facePosition": "left",
+            "observedAssetOrdinal": 74,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "多边兽",
+            "en": "Porygon"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/64613fdec379daf2.webp",
+            "sha256": "64613fdec379daf2649b2f0b5b81ea020144b18a57864679362aca7f864dc3e0",
+            "facePosition": "right",
+            "observedAssetOrdinal": 74,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "aerodactyl",
+      "name": {
+        "zh": "化石翼龙",
+        "en": "Aerodactyl"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "化石翼龙",
+            "en": "Aerodactyl"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/9414297694aaf061.webp",
+            "sha256": "9414297694aaf061a645f18250adb1eede7c9403a99ca628b37806437b7dca08",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 75,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "化石翼龙",
+            "en": "Aerodactyl"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/00d540d573d962d2.webp",
+            "sha256": "00d540d573d962d202a50b458b15e97772180cca33b338efefe908b175a6f73e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 76,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "化石翼龙",
+            "en": "Aerodactyl"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/00d540d573d962d2.webp",
+            "sha256": "00d540d573d962d202a50b458b15e97772180cca33b338efefe908b175a6f73e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 76,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "snorlax",
+      "name": {
+        "zh": "卡比兽",
+        "en": "Snorlax"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": false,
+      "engineEligible": false,
+      "effectStatus": "unsupported",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "卡比兽",
+            "en": "Snorlax"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/5e1440d1e2c3957a.webp",
+            "sha256": "5e1440d1e2c3957a83cfd6daf804ba009aaf9ecc5b20b3a4108d9f4f583cbe71",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 77,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "卡比兽",
+            "en": "Snorlax"
+          },
+          "hp": 5,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/13d02ab71efd1e99.webp",
+            "sha256": "13d02ab71efd1e9900facbb1f2be37ff9c9546f8a72abcec210bc113891de53e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 78,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "卡比兽",
+            "en": "Snorlax"
+          },
+          "hp": 6,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/13d02ab71efd1e99.webp",
+            "sha256": "13d02ab71efd1e9900facbb1f2be37ff9c9546f8a72abcec210bc113891de53e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 78,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    },
+    {
+      "id": "dratini",
+      "name": {
+        "zh": "迷你龙",
+        "en": "Dratini"
+      },
+      "evidenceStatus": "source-backed",
+      "selectionEligible": true,
+      "supportedEffects": true,
+      "engineEligible": false,
+      "effectStatus": "existing-reviewed-combat-preview",
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "迷你龙",
+            "en": "Dratini"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/404de94e118f7ab2.webp",
+            "sha256": "404de94e118f7ab2c5edda530ddad880aac6e61dbbe90ceb49b9006d17afc06a",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 79,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "哈克龙",
+            "en": "Dragonair"
+          },
+          "hp": 3,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/da4a1cc732bae99a.webp",
+            "sha256": "da4a1cc732bae99a69358208099ba5bb5247d6f11389c4d130418078a19c702f",
+            "facePosition": "left",
+            "observedAssetOrdinal": 80,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "快龙",
+            "en": "Dragonite"
+          },
+          "hp": 4,
+          "hpStatus": "photo-reviewed",
+          "engineEligible": false,
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/da4a1cc732bae99a.webp",
+            "sha256": "da4a1cc732bae99a69358208099ba5bb5247d6f11389c4d130418078a19c702f",
+            "facePosition": "right",
+            "observedAssetOrdinal": 80,
+            "imageIndex": null,
+            "reviewStatus": "identity-and-hp-visually-reviewed",
+            "edition": "unidentified",
+            "specification": "reviewed-selection-roster.md"
+          }
+        }
+      ]
+    }
+  ]
+}

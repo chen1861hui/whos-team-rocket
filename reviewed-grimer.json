@@ -1,0 +1,238 @@
+{
+  "reviewedAt": "2026-10-28",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "translationStatus": "working-english",
+  "faces": [
+    {
+      "level": 1,
+      "name": {
+        "zh": "臭泥",
+        "en": "Grimer"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "毒手",
+        "en": "Poison Touch"
+      },
+      "abilityText": {
+        "zh": "当一只宝可梦陷入特殊状态时，你可以令其改为陷入“中毒”状态，当一只宝可梦的“中毒”状态效果被触发时，你可以令伤害值改为2点。",
+        "en": "When a Pokémon would enter a special status, you may change that status to Poison. When a Pokémon’s Poison effect triggers, you may set its damage to 2."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "拍击",
+            "en": "Pound"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "printedValuePresentation": "numeral inside red burst at right of move heading",
+          "effectText": {
+            "zh": "",
+            "en": ""
+          },
+          "effectParagraphStatus": "no-effect-paragraph-printed",
+          "effectTiming": "no-additional-effect-paragraph",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within the source Pokémon distance limit, including self under the booklet default."
+          },
+          "unresolvedSymbols": [],
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/46f7a756255255d2.webp",
+        "sha256": "fd7bd4b4f1b99bd74be4e896ff98f4f370cc01aa7119988b63bf313f25cbc173",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 41,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-grimer.md"
+      }
+    },
+    {
+      "level": 2,
+      "name": {
+        "zh": "臭泥",
+        "en": "Grimer"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "毒手",
+        "en": "Poison Touch"
+      },
+      "abilityText": {
+        "zh": "当一只宝可梦陷入特殊状态时，你可以令其改为陷入“中毒”状态，当一只宝可梦的“中毒”状态效果被触发时，你可以令伤害值改为2点。",
+        "en": "When a Pokémon would enter a special status, you may change that status to Poison. When a Pokémon’s Poison effect triggers, you may set its damage to 2."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "污泥炸弹",
+            "en": "Sludge Bomb"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "printedValuePresentation": "numeral inside red burst at right of move heading",
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[暴雨]，目标宝可梦陷入“中毒”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is heavy rain, the target Pokémon becomes Poisoned."
+          },
+          "effectParagraphStatus": "visually-transcribed",
+          "effectTiming": "after-dealing-damage",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within the source Pokémon distance limit, including self under the booklet default."
+          },
+          "unresolvedSymbols": [
+            {
+              "zh": "伤害数值旁印有中毒图标；不会替代招式段落中的天气判定条件。",
+              "en": "A poison icon is printed beside the damage value; it does not replace the paragraph’s weather judgment condition."
+            }
+          ],
+          "effectJudgment": {
+            "resultWeathers": [
+              "rain"
+            ],
+            "optional": false,
+            "trigger": "actual damage caused by this move"
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/bb30feae53e3cae4.webp",
+        "sha256": "f951d9549298f416e4d1f47ad5e97f67a724fb5ad1084a7e5065b9ed259d82a5",
+        "facePosition": "left",
+        "observedAssetOrdinal": 42,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-grimer.md"
+      }
+    },
+    {
+      "level": 3,
+      "name": {
+        "zh": "臭臭泥",
+        "en": "Muk"
+      },
+      "hp": 5,
+      "traitName": {
+        "zh": "毒手",
+        "en": "Poison Touch"
+      },
+      "abilityText": {
+        "zh": "当一只宝可梦陷入特殊状态时，你可以令其改为陷入“中毒”状态，当一只宝可梦的“中毒”状态效果被触发时，你可以令伤害值改为2点。",
+        "en": "When a Pokémon would enter a special status, you may change that status to Poison. When a Pokémon’s Poison effect triggers, you may set its damage to 2."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "剧毒",
+            "en": "Toxic"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "printedValuePresentation": "numeral inside red burst at right of move heading",
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“雨天”（[暴雨]/[雷雨]），目标宝可梦陷入“中毒”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is rainy (heavy rain or thunderstorm), the target Pokémon becomes Poisoned."
+          },
+          "effectParagraphStatus": "visually-transcribed",
+          "effectTiming": "after-dealing-damage",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within the source Pokémon distance limit, including self under the booklet default."
+          },
+          "unresolvedSymbols": [
+            {
+              "zh": "伤害数值旁印有中毒图标；不会替代招式段落中的天气判定条件。",
+              "en": "A poison icon is printed beside the damage value; it does not replace the paragraph’s weather judgment condition."
+            }
+          ],
+          "effectJudgment": {
+            "resultWeathers": [
+              "rain",
+              "thunderstorm"
+            ],
+            "optional": false,
+            "trigger": "actual damage caused by this move"
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/bb30feae53e3cae4.webp",
+        "sha256": "f951d9549298f416e4d1f47ad5e97f67a724fb5ad1084a7e5065b9ed259d82a5",
+        "facePosition": "right",
+        "observedAssetOrdinal": 42,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-grimer.md"
+      }
+    }
+  ],
+  "bookletSources": [
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/08-timing-damage-status.webp",
+      "sha256": "242ae7f516b5a4310445b1c4bf1b1c6b6323630ab8337a641a7e7608aa6a61f2"
+    },
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/09-reference.webp",
+      "sha256": "ca4080c37b59cee3781a51efa32df4c9295c05d56d1314b77242b574bb5db877"
+    }
+  ]
+}

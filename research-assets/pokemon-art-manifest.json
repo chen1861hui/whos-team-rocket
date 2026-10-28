@@ -1,0 +1,732 @@
+{
+  "schemaVersion": 1,
+  "downloadedAt": "2026-10-27T17:13:31.134442+00:00",
+  "sourceRepository": "https://github.com/PokeAPI/sprites",
+  "assetKind": "Standalone official Pokemon artwork, not source card photography",
+  "roster": "app/content/selection-roster.json",
+  "expectedCount": 40,
+  "validatedCount": 40,
+  "validation": "Decoded full PNG with Pillow; checked dimensions and alpha extrema; SHA-256 of original bytes",
+  "entries": [
+    {
+      "groupId": "bulbasaur",
+      "nationalDex": 1,
+      "file": "app/public/pokemon-art/bulbasaur.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png",
+      "sha256": "7233d8d8b03b5fa91d835a3069d25769155db93c9ef91b6066e215ed3895e9d8",
+      "bytes": 203385,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "charmander",
+      "nationalDex": 4,
+      "file": "app/public/pokemon-art/charmander.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/4.png",
+      "sha256": "0c8e36e321cbd6578d0b669324edf6cb819f8e510dbac43cee22c4221db80b4d",
+      "bytes": 137817,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "squirtle",
+      "nationalDex": 7,
+      "file": "app/public/pokemon-art/squirtle.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/7.png",
+      "sha256": "37cda7bf8ad6f4252d539aed3bd989a85c8cb0f8e9d815be12bad08c16f31fe9",
+      "bytes": 155045,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "caterpie",
+      "nationalDex": 10,
+      "file": "app/public/pokemon-art/caterpie.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/10.png",
+      "sha256": "49eb7f6c88d65d65e938d42df61d5cf47dd46f01c08603b6df620eb003a37457",
+      "bytes": 174430,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "pidgey",
+      "nationalDex": 16,
+      "file": "app/public/pokemon-art/pidgey.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/16.png",
+      "sha256": "cabe3212d06ce9c59184b84cbf2bcb17396f441d7c857243253502247e637758",
+      "bytes": 145917,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "weedle",
+      "nationalDex": 13,
+      "file": "app/public/pokemon-art/weedle.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/13.png",
+      "sha256": "d8cf2e85a0b1b741aedab01cc67c13a4a8dc502e9719a1954228f8346f78f1cd",
+      "bytes": 108372,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "pikachu",
+      "nationalDex": 25,
+      "file": "app/public/pokemon-art/pikachu.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/25.png",
+      "sha256": "759ceafdb4b8d637dfcfe673cf672bc3c472354a3b2e7e0835d9cdcacd8d195d",
+      "bytes": 118057,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "sandshrew",
+      "nationalDex": 27,
+      "file": "app/public/pokemon-art/sandshrew.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/27.png",
+      "sha256": "6d1a14b1b658a37e766951d75636fc96b95431c4faca96deb6b6f85dfa5fd31d",
+      "bytes": 173758,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "nidoran-m",
+      "nationalDex": 32,
+      "file": "app/public/pokemon-art/nidoran-m.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/32.png",
+      "sha256": "4216cc685bdb61152f4f551e4d8f7eed0d0e484821528db946eb4bd495d6699b",
+      "bytes": 167589,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "vulpix",
+      "nationalDex": 37,
+      "file": "app/public/pokemon-art/vulpix.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/37.png",
+      "sha256": "cded4e96e175c05c19380a1226e825f3fb2a0b889f3c011d74570e7503853555",
+      "bytes": 157357,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "clefairy",
+      "nationalDex": 35,
+      "file": "app/public/pokemon-art/clefairy.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/35.png",
+      "sha256": "4190637ae539df3c5c08cefbe69a6408c8a903811e82b2157298e7f0ba976b62",
+      "bytes": 175738,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "diglett",
+      "nationalDex": 50,
+      "file": "app/public/pokemon-art/diglett.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/50.png",
+      "sha256": "f7e2775b5ec38e79323bd045ce20045fc4cdd6c382eb83d1105c94e36332b7c1",
+      "bytes": 163664,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "meowth",
+      "nationalDex": 52,
+      "file": "app/public/pokemon-art/meowth.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/52.png",
+      "sha256": "893353baec0dd1ac52a62af4465d28660a959e18beb21c17cd6cd9d3cb2d173c",
+      "bytes": 115809,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "mankey",
+      "nationalDex": 56,
+      "file": "app/public/pokemon-art/mankey.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/56.png",
+      "sha256": "e9b4fcec480f05a61e2e8b9a9f6bd930c3994ac9680da95f4bd309792a327b08",
+      "bytes": 101437,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "psyduck",
+      "nationalDex": 54,
+      "file": "app/public/pokemon-art/psyduck.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/54.png",
+      "sha256": "87110a75d9d9c67e0d82b912abcea3c25a96bc394e366812c65639ea1bacdf40",
+      "bytes": 117239,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "growlithe",
+      "nationalDex": 58,
+      "file": "app/public/pokemon-art/growlithe.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/58.png",
+      "sha256": "05f90f8fec5729ef41ee205acf7d81a97e84cd6a82c5babf6e4eacf5662ee57a",
+      "bytes": 151687,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "abra",
+      "nationalDex": 63,
+      "file": "app/public/pokemon-art/abra.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/63.png",
+      "sha256": "e1c271b81c1e1424dded3024977dc07876d270e3f14f84b366b70c73746a87a3",
+      "bytes": 116699,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "machop",
+      "nationalDex": 66,
+      "file": "app/public/pokemon-art/machop.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/66.png",
+      "sha256": "699145a859f7aa9412662fb671b8e7ae52af27d4eaf9ab5b4bbf453dde7f41fb",
+      "bytes": 132188,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "slowpoke",
+      "nationalDex": 79,
+      "file": "app/public/pokemon-art/slowpoke.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/79.png",
+      "sha256": "e0802e526e073469aabd520014267a22f6120ccdccd9e580c0271788cd246708",
+      "bytes": 126460,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "magnemite",
+      "nationalDex": 81,
+      "file": "app/public/pokemon-art/magnemite.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/81.png",
+      "sha256": "dd5162b1fca0be482896e4aec409bd7979457f151bc3fde48b33fbda1837f231",
+      "bytes": 96595,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "grimer",
+      "nationalDex": 88,
+      "file": "app/public/pokemon-art/grimer.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/88.png",
+      "sha256": "1d032143f4d902a6a26f8776d194ceb696e4aca1bee23fde512f8eb66d2e4b08",
+      "bytes": 122585,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "shellder",
+      "nationalDex": 90,
+      "file": "app/public/pokemon-art/shellder.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/90.png",
+      "sha256": "d1051fa793cf81c8a88935a79da2f4254f8b703e3299f3b20de1ad5290193452",
+      "bytes": 175387,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "gastly",
+      "nationalDex": 92,
+      "file": "app/public/pokemon-art/gastly.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/92.png",
+      "sha256": "23c69f67ece1dd1724666a4bb94ebea14d53045c6f406faa2963db4f04bd5f4b",
+      "bytes": 176993,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "exeggcute",
+      "nationalDex": 102,
+      "file": "app/public/pokemon-art/exeggcute.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/102.png",
+      "sha256": "20e609dac93de2c42b1ce347939e92abb96c3b12ae52eff6c5c46bc7aca942c7",
+      "bytes": 155189,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "cubone",
+      "nationalDex": 104,
+      "file": "app/public/pokemon-art/cubone.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/104.png",
+      "sha256": "88ead79f1c78f8dec797b7441ea81cfb736ec75faa3aa239d9990fdd908dffb9",
+      "bytes": 156699,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "koffing",
+      "nationalDex": 109,
+      "file": "app/public/pokemon-art/koffing.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/109.png",
+      "sha256": "fafb96d013ab7b44989cd86501e3ea78c43c42e0baec37a3c1da826859ec7cac",
+      "bytes": 153356,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "rhyhorn",
+      "nationalDex": 111,
+      "file": "app/public/pokemon-art/rhyhorn.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/111.png",
+      "sha256": "6a7478554afcbb28fbe2339ab82dcc6d70eeead9364e511304558cf063dfb057",
+      "bytes": 184215,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "chansey",
+      "nationalDex": 113,
+      "file": "app/public/pokemon-art/chansey.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/113.png",
+      "sha256": "8233229237ea208457fccd44311aa1efb2401282584fb745a279158e2e2b3cc0",
+      "bytes": 153542,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "kangaskhan",
+      "nationalDex": 115,
+      "file": "app/public/pokemon-art/kangaskhan.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/115.png",
+      "sha256": "bc2424e71902a870074096821791b089969b88fdf766fc5675927dacd9c29d48",
+      "bytes": 183110,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "staryu",
+      "nationalDex": 120,
+      "file": "app/public/pokemon-art/staryu.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/120.png",
+      "sha256": "c6d201593a95accb563277077dab8a6dfe3b84eb8a51eef42eb717aae9826e4f",
+      "bytes": 157316,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "scyther",
+      "nationalDex": 123,
+      "file": "app/public/pokemon-art/scyther.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/123.png",
+      "sha256": "0e983e7e5252585364103cd4dddbc015f3d7ca3ead5172a0379e969147709f2f",
+      "bytes": 131534,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "jynx",
+      "nationalDex": 124,
+      "file": "app/public/pokemon-art/jynx.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/124.png",
+      "sha256": "c3bf3395798770b69c0686aa1165199de92e5ef4815b07500e11214d235f71e7",
+      "bytes": 156134,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "electabuzz",
+      "nationalDex": 125,
+      "file": "app/public/pokemon-art/electabuzz.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/125.png",
+      "sha256": "47e0902fb2d49e6286f4878b0bfc67cc5eea4f07755fc65014087fd0656e3e12",
+      "bytes": 134434,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "tauros",
+      "nationalDex": 128,
+      "file": "app/public/pokemon-art/tauros.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/128.png",
+      "sha256": "04ba885a5e71dc1e6970e7a83a098464e3fa29b83502631772a0f709662887e4",
+      "bytes": 129530,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "magikarp",
+      "nationalDex": 129,
+      "file": "app/public/pokemon-art/magikarp.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/129.png",
+      "sha256": "df8fc8a1d11083f25afa148484737b9d70dd2912a9f9f68913116612353ccf75",
+      "bytes": 136990,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "lapras",
+      "nationalDex": 131,
+      "file": "app/public/pokemon-art/lapras.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/131.png",
+      "sha256": "ffd98849dee0a265bb109d9798dbfd18b35346a1c21ca01aa0dab60a72defbc6",
+      "bytes": 135952,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "porygon",
+      "nationalDex": 137,
+      "file": "app/public/pokemon-art/porygon.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/137.png",
+      "sha256": "28a6c05c13e2a1f19dd4fea6e7f89b9ed639421c0f5937e7d6d726b4ce754c5a",
+      "bytes": 153642,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "aerodactyl",
+      "nationalDex": 142,
+      "file": "app/public/pokemon-art/aerodactyl.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/142.png",
+      "sha256": "5427b0a9ac5dbf1fee7fcd19f44de1dfb97d577c82262bb961538865a08bc79a",
+      "bytes": 81716,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "snorlax",
+      "nationalDex": 143,
+      "file": "app/public/pokemon-art/snorlax.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/143.png",
+      "sha256": "1afd32e5f6053a50860d67c5d7cc3bc6ca9a174634097fe65880523a0a13a55a",
+      "bytes": 139225,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    },
+    {
+      "groupId": "dratini",
+      "nationalDex": 147,
+      "file": "app/public/pokemon-art/dratini.png",
+      "sourceUrl": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/147.png",
+      "sha256": "0172fb6a0c44d0e748e679dc39195d662027aa170fd65ca98bc405eea184cc2d",
+      "bytes": 102258,
+      "width": 475,
+      "height": 475,
+      "format": "PNG",
+      "mode": "RGBA",
+      "transparent": true,
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "preservedExisting": false
+    }
+  ]
+}

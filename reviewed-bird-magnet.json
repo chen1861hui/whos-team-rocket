@@ -1,0 +1,461 @@
+{
+  "reviewedAt": "2026-10-29",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "faces": [
+    {
+      "group": "pidgey",
+      "level": 1,
+      "name": {
+        "zh": "波波",
+        "en": "Pidgey"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "锐利目光",
+        "en": "Keen Eye"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦使用招式时，其他训练家使用的【快躲开！】的效果改为“令此招式对你的宝可梦造成的伤害-1”，直到此宝可梦的招式结算结束。",
+        "en": "When this Pokémon uses a move, other trainers’ Dodge effects become “reduce this move’s damage to your Pokémon by 1” until the whole move finishes resolving."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "撞击",
+            "en": "Tackle"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": null
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/4be9d98ef5800e1e.webp",
+        "sha256": "1ce2e1fec39f7248e0770e4532078f3f8f4c4caa2b1c7265868dbdbeb3986080",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 8,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-bird-magnet.md"
+      }
+    },
+    {
+      "group": "pidgey",
+      "level": 2,
+      "name": {
+        "zh": "比比鸟",
+        "en": "Pidgeotto"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "锐利目光",
+        "en": "Keen Eye"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦使用招式时，其他训练家使用的【快躲开！】的效果改为“令此招式对你的宝可梦造成的伤害-1”，直到此宝可梦的招式结算结束。",
+        "en": "When this Pokémon uses a move, other trainers’ Dodge effects become “reduce this move’s damage to your Pokémon by 1” until the whole move finishes resolving."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "翅膀攻击",
+            "en": "Wing Attack"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": null
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/4d6f27261b083205.webp",
+        "sha256": "429f7e081738d4fc68244fc5bbd6291d88348401cdd8c550ec8576f35ffe8593",
+        "facePosition": "left",
+        "observedAssetOrdinal": 12,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-bird-magnet.md"
+      }
+    },
+    {
+      "group": "pidgey",
+      "level": 3,
+      "name": {
+        "zh": "大比鸟",
+        "en": "Pidgeot"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "锐利目光",
+        "en": "Keen Eye"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦使用招式时，其他训练家使用的【快躲开！】的效果改为“令此招式对你的宝可梦造成的伤害-1”，直到此宝可梦的招式结算结束。",
+        "en": "When this Pokémon uses a move, other trainers’ Dodge effects become “reduce this move’s damage to your Pokémon by 1” until the whole move finishes resolving."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "空气之刃",
+            "en": "Air Slash"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 3,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“畏缩”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes Flinched."
+          },
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/4d6f27261b083205.webp",
+        "sha256": "429f7e081738d4fc68244fc5bbd6291d88348401cdd8c550ec8576f35ffe8593",
+        "facePosition": "right",
+        "observedAssetOrdinal": 12,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-bird-magnet.md"
+      }
+    },
+    {
+      "group": "magnemite",
+      "level": 1,
+      "name": {
+        "zh": "小磁怪",
+        "en": "Magnemite"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "分析",
+        "en": "Analytic"
+      },
+      "abilityText": {
+        "zh": "在你的出牌阶段限一次，你可以弃置至多等同于此宝可梦体力值的数量的手牌，然后摸等量的牌。",
+        "en": "Once during your Play phase, you may discard up to this Pokémon’s current HP in hand cards, then draw the same number."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "电击",
+            "en": "Thunder Shock"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes Paralyzed."
+          },
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/673b57f8d60f404f.webp",
+        "sha256": "6b10ca91ea19f281beb7fa4c647e322dbc486c28c951dddc6105905fd6514b89",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 39,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-bird-magnet.md"
+      }
+    },
+    {
+      "group": "magnemite",
+      "level": 2,
+      "name": {
+        "zh": "小磁怪",
+        "en": "Magnemite"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "分析",
+        "en": "Analytic"
+      },
+      "abilityText": {
+        "zh": "在你的出牌阶段限一次，你可以弃置至多等同于此宝可梦体力值的数量的手牌，然后摸等量的牌。",
+        "en": "Once during your Play phase, you may discard up to this Pokémon’s current HP in hand cards, then draw the same number."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "电击",
+            "en": "Thunder Shock"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes Paralyzed."
+          },
+          "effectTiming": "after-dealing-damage"
+        },
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "电磁波",
+            "en": "Thunder Wave"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "weatherIconsInCondition": [
+              "rain",
+              "thunderstorm"
+            ],
+            "count": 1
+          },
+          "printedValue": null,
+          "effectText": {
+            "zh": "你进行一次判定，若结果不为[烈日]，目标宝可梦陷入“麻痹”状态。",
+            "en": "Make a judgment. If the result is not intense sun, the target Pokémon becomes Paralyzed."
+          },
+          "effectTiming": "on-uncanceled-settlement",
+          "effectKind": "paralysis-judgment"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/16dbf1226f8435b7.webp",
+        "sha256": "ff5485e1f645edd9fa98728429a636a36e6426db2a064b7bb26df426ce99c536",
+        "facePosition": "left",
+        "observedAssetOrdinal": 40,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-bird-magnet.md"
+      }
+    },
+    {
+      "group": "magnemite",
+      "level": 3,
+      "name": {
+        "zh": "三合一磁怪",
+        "en": "Magneton"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "分析",
+        "en": "Analytic"
+      },
+      "abilityText": {
+        "zh": "在你的出牌阶段限一次，你可以弃置至多等同于此宝可梦体力值的数量的手牌，然后摸等量的牌。",
+        "en": "Once during your Play phase, you may discard up to this Pokémon’s current HP in hand cards, then draw the same number."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "十万伏特",
+            "en": "Thunderbolt"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes Paralyzed."
+          },
+          "effectTiming": "after-dealing-damage"
+        },
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "电磁波",
+            "en": "Thunder Wave"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "weatherIconsInCondition": [
+              "rain",
+              "thunderstorm"
+            ],
+            "count": 1
+          },
+          "printedValue": null,
+          "effectText": {
+            "zh": "你进行一次判定，若结果不为[烈日]，目标宝可梦陷入“麻痹”状态。",
+            "en": "Make a judgment. If the result is not intense sun, the target Pokémon becomes Paralyzed."
+          },
+          "effectTiming": "on-uncanceled-settlement",
+          "effectKind": "paralysis-judgment"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/16dbf1226f8435b7.webp",
+        "sha256": "ff5485e1f645edd9fa98728429a636a36e6426db2a064b7bb26df426ce99c536",
+        "facePosition": "right",
+        "observedAssetOrdinal": 40,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-bird-magnet.md"
+      }
+    }
+  ]
+}

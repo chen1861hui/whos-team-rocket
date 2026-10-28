@@ -1,0 +1,257 @@
+{
+  "reviewedAt": "2026-10-28",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "faces": [
+    {
+      "level": 1,
+      "name": {
+        "zh": "喵喵",
+        "en": "Meowth"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "捡拾",
+        "en": "Pickup"
+      },
+      "abilityText": {
+        "zh": "在每个回合内限一次，当你于你的摸牌阶段外得到牌后，你摸一张牌。",
+        "en": "Once in each turn, after you gain cards outside your draw phase, draw one card."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "self",
+            "max": 1,
+            "description": "This Pokémon only."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "守住",
+            "en": "Protect"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "weatherIconsInCondition": [
+              "intense-sun",
+              "clear"
+            ],
+            "count": 1
+          },
+          "printedValue": null,
+          "effectKind": "self-defense",
+          "effectText": {
+            "zh": "此招式指定此宝可梦为目标。若此宝可梦没有“防御强化”指示物，其获得一枚“防御强化”指示物。",
+            "en": "This move targets this Pokémon. If it has no Defense reinforcement, it gains one Defense reinforcement."
+          },
+          "effectTiming": "on-uncanceled-settlement"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/1d0ff1e50e0588f3.webp",
+        "sha256": "6d15ab5d0cf2db23bcaa9edf701a049c45487be046975ee1037e06ca3e8d1bd1",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 24,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-meowth.md"
+      }
+    },
+    {
+      "level": 2,
+      "name": {
+        "zh": "喵喵",
+        "en": "Meowth"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "捡拾",
+        "en": "Pickup"
+      },
+      "abilityText": {
+        "zh": "在每个回合内限一次，当你于你的摸牌阶段外得到牌后，你摸一张牌。",
+        "en": "Once in each turn, after you gain cards outside your draw phase, draw one card."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "聚宝功",
+            "en": "Pay Day"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectKind": "pay-day",
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你可以观看牌堆顶的两张牌，然后将这些牌分别交给任意名训练家。",
+            "en": "After this Pokémon deals damage with this move, you may inspect the top two deck cards, then give those cards individually to any trainers."
+          },
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/e1eccf176c187faf.webp",
+        "sha256": "be032b6154c5d3fe9951eeb7030c4d4d85f5eb37a5b487fa33abb17522ee2c2f",
+        "facePosition": "left",
+        "observedAssetOrdinal": 25,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-meowth.md"
+      }
+    },
+    {
+      "level": 3,
+      "name": {
+        "zh": "猫老大",
+        "en": "Persian"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "柔软",
+        "en": "Limber"
+      },
+      "abilityText": {
+        "zh": "此宝可梦不会陷入“麻痹”状态。",
+        "en": "This Pokémon cannot become Paralyzed."
+      },
+      "moves": [
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "name": {
+            "zh": "聚宝功",
+            "en": "Pay Day"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectKind": "pay-day",
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你可以观看牌堆顶的两张牌，然后将这些牌分别交给任意名训练家。",
+            "en": "After this Pokémon deals damage with this move, you may inspect the top two deck cards, then give those cards individually to any trainers."
+          },
+          "effectTiming": "after-dealing-damage"
+        },
+        {
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [
+            {
+              "zh": "畏缩图标印在伤害数值旁；文字段落明确为造成伤害后直接施加状态。",
+              "en": "The flinch icon is beside the damage value; the paragraph directly applies the status after damage."
+            }
+          ],
+          "name": {
+            "zh": "击掌奇袭",
+            "en": "Fake Out"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectKind": "flinch-after-damage",
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，目标宝可梦陷入“畏缩”状态。",
+            "en": "After this Pokémon deals damage with this move, the target Pokémon becomes Flinched."
+          },
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/e1eccf176c187faf.webp",
+        "sha256": "be032b6154c5d3fe9951eeb7030c4d4d85f5eb37a5b487fa33abb17522ee2c2f",
+        "facePosition": "right",
+        "observedAssetOrdinal": 25,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-meowth.md"
+      }
+    }
+  ],
+  "bookletSources": [
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/07-targets-cards.webp",
+      "sha256": "0c3df4526577355eeb0cf30751fa253f59cd59355bc794ba618084362ddd3847"
+    },
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/08-timing-damage-status.webp",
+      "sha256": "242ae7f516b5a4310445b1c4bf1b1c6b6323630ab8337a641a7e7608aa6a61f2"
+    },
+    {
+      "filename": "research-assets/xiaohongshu-rulebook/09-reference.webp",
+      "sha256": "ca4080c37b59cee3781a51efa32df4c9295c05d56d1314b77242b574bb5db877"
+    }
+  ]
+}

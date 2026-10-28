@@ -1,0 +1,1010 @@
+{
+  "source": "https://www.douyin.com/note/7684572630280187855",
+  "observedAtPageCounter": "8/80",
+  "accessiblePhotoAssetsObserved": 80,
+  "note": "80 rendered gallery source URLs observed. 80 downloaded photo assets preserved. DOM order is candidate carousel position; imageIndex remains null unless independently paired with on-page counter. Gallery photos are not a count of distinct cards or physical deck quantity.",
+  "assets": [
+    {
+      "observedAssetOrdinal": 1,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "3e8e9215541293f2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0jtWA7EIA0FaABiFVBlGbESIOfafAeAAiLC7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=qRCYPSoZKrzVQMUvbJV1hX787TI%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 2,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "f93f4ddbd5eaa174.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocAiAGtE8ALiBIjeBAWlfaVbFC7fSAH3II0EAF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=ma8OhS8tBa00lx9Osq1Wg5cXYHQ%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 3,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "1fe3571035e312b6.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oYEAlVfB8EiAWA7fW0IACLIBtFGkASAGie9jba~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=NKoDsUsl8cSUeJwl%2F6rp0f692o8%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 4,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "7eaec309be7319cf.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEiVElSAIjbLfCFATANESAiA7tf0GBAWBeGIBa~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=hAVBgU04lLxuU5aoiZVcuZHOtqc%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 5,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "cc3ea6ca8c274bfa.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/okApFiFFMICbelttAeWAaa7jBE8JVABEQZAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=V779bdBHSt1aD1jCMQ%2B8wNbMDsM%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 6,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "39437d37719487f3.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ocCSaEjIMpCtiEFBAQ8bAEAAeWFfAVBBytf7El~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=Kc7OCbT%2FeCvjSFfAavvkqDghvyA%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 7,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "d3083eca1c028544.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owGAfBFjAitBiWaV7hBEBf01bIIFEALlACASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=YzPC82Q0W97%2BXt5dHgkDWmri09c%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 8,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "4be9d98ef5800e1e.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oM2BBSjaaQAiCAffe4KtK8AMKAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=0ZHuJg8fMDyBY%2F2SXxHP%2FEFKuG8%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 9,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "607245c532f5f96b.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEFWBLiBIICEAdSfiletCAjA7AfFVGa0BA6bEx~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=gff58inQ9rqAqA7cMoSRdBrhahk%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 10,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "aebe5753010027b3.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ooD7WSIC0AikFlabBftjF7AEGeAdLBABfEAViI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=N4Z4iTS3zwrW872XIqm0dIY0sgI%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 11,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "4435cba5816a6d22.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocHGLE0iiBWABCtlEAAbIeEjaFSVVIAfOBf7Ar~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=29yAV1QJC%2BmDtfxZus%2BijJ6Vghs%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 12,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "4d6f27261b083205.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o02BBSjaCQAiCAmfefKtK8AMMAQtFEMFVIp7AW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=c1JmYU38ycfmrEVx9nm9iML373E%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 13,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "d3af2ba9dcacb1f2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o4BWFVACeAEkAfGjBbmltiIA0L7GiSFAfaIEBH~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=kOes9gqEUtiHUb967WPOJ7%2FNmys%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 14,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "b97b04e3dc50bc91.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o8CtEaIGAieBfWHAFVilBBIIbALgf7AS0jErMA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=btjK0ZlXaulYkoqKJyqJcQ2moOU%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 15,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "4754ca927840578d.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oIiVGit0AAAWA7qlAELJSFaGjefBfbiIBBEClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=8KmQxDejyfZhWanVv%2BRVFjjIwPo%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 16,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "70fa7ae258309b0a.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0VAafKFjECIiAW7tBeQf2OAASBpAO8FCtKMQW~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=6JLRK5o%2BKKWPdsv1Nhv1oq4lzMs%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 17,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "50313e61fed9704e.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0WBeFWSCIM5jtAAtUAA8fQFVKQI7epBaA2iKE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=ZfG%2B87AKhcGs3eTVaFG1TsiaenQ%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 18,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "d12d2615c2459559.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oI0ljBASeAEGbtCQAG7VfbEMFIBaLBAfiiAI7W~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=sbI9wJ%2Bj0Hu169hQ%2Ba7CVL%2Fr2EI%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 19,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "3ce12ea7061280d5.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQiEbhBfBGFS0aflgNLCAtII7AWFAUjeBAEVAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=gxfto1lS6LQiDoF86CFQpZj7D7w%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 20,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "3806ab68017599aa.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAAiIAjlWVAPbGFfOI9ELSB7BbGiAta0EeCfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=SFg3pfbtotEArMgERswzlo7iNz4%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 21,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "9f65c439556c02e1.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oIGfAIWAtIFSjLSBBaEeC0jbyfAQE7AilVEiAB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=ajXYLN8XylGPrtr1JNNBlqvsUfI%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 22,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "de760adc11d0ed85.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMVAaulijEBEiAL7WBfIfbFAASB0A2eC0tFGIO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=ccEpBkPL0t9SVQS%2B5LLww2JT0zw%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 23,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "8eae984590659cfe.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQjzeAGSRFCBbL70ViBjtAaBAExlEfFIAAWiIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=Hbc%2FzXeRNMx33tYDcey6JQENH98%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 24,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "1d0ff1e50e0588f3.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMbl7VAiSCfIBFvnBAIABWtej0FAHLEGAfaETi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=rHfngznKjNgn%2Bt6kOr82YFCuuSs%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 25,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "e1eccf176c187faf.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owB0IjEAa8ALUIiFCF7BWSefAtGYBEAIfAbVil~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=U0nAnK9VncADNEj27tSXg8eWY%2Fc%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 26,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "b7f7b17669cbcf18.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQbfESLHAfajaBAlBAGAItSW7iVAFECBAiI0eS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=Wwi0VgkLkjFH0a9fb7a6pVLIJu0%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 27,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "9daca93d6836499e.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oULtbAJVSAQfBBjAIWfiC7FEaFleIx0ABiVAEG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=TDFDOJdO%2BPzQi%2B2Fv9kK0rZ%2FVCs%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 28,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "2a38f5fdf0d555dc.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUApKiNFMQF2sKttAeWAaC7jCE8yVABIQeAfBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=yR2jGimlqO1kRRWaxt%2Bg0VDk6%2FE%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 29,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "b5a47d16cbd12a6b.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocCI0FfbEiWBacSEBlGGeBX7tjALAAiAAv2VIf~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=naHzIMg%2FsZXoLaQFpvopQL0YRXk%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 30,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "822f8d0ea4aa5fd2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYFIiKbeIb9BauSESKkGeBe7vTALAAiAAzMVQm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=MSzulhN5ptRpS9BzX84hPggXY8c%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 31,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "dcce9913ff5e4e91.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oISAYEIibCGA70ABtiAfLElBeWaACVIBF0Ejf2~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=KvdN5ZMSbrwEH5GitIwMFpTyXh0%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 32,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "dd4da468dec62517.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okKNpAVB7QtAeameeFIAzRGVAkgLIBTiEAivKS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=rLxArolukwTS56PANDRoNet6jKQ%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 33,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "8aa8f78fb2454b3c.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8EhAKpSxLFAtBiAIVIGeeeiQAmZAvRzBaKTN7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=xCZuU4OPUFQWnYLwkpdulAvHdQI%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 34,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "fd4244524a22cb33.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owlzBReGaIeX7NVBtKlkFSpiKEeAAIvALAATQA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=SkBfzGYUu%2BM%2BupEoMKEadFof8Ys%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 35,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "a84a204806c6aaea.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oQGKAaFTQENSRIIuee7KBleBTv2miApzAtAALV~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=M%2BsXt6jrllIrP2jIE4iHuCQAoi8%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 36,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "e14644a3470dab05.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ose7IBvtoeTxFAzKpoEmQXRKAALeBVAiSNGaAI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=h85IdHUypsAXVn0hoMI40f0rcjA%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 37,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "b280570639f39edd.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/octzI8EVBAAQmF7qAIAeeApAKTLGSLeviaNKRB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=8rtp7ggdJYHD7AP1nVgGUs9k5yU%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 38,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "ce76e230919194cf.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oEpKTtvIAz7RAQmIHELVAKFGAsa7ABTeeiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=UJ0n%2ByEeJ9QakXb%2FlHhUDvQrd9E%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 39,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "673b57f8d60f404f.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oQaESpzAFiRGDteZAAA7eTevBpBLKKIVAIuQNm~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=RxmpyzcQ7d%2FEwpU42KgtaG7tR68%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 40,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "16dbf1226f8435b7.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ociBzSAFtLNwAEaARVeT7gAAvIIoeBpGQKKemj~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=ZJkmrC6FoUNHzaX0aCAEhTakSp0%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 41,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "46f7a756255255d2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooI8O7EVoSKKvLNfeyFG9AABapBeATtARQAzIi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=n1wMUmfzaanARvgHE9ASAMRw4Pk%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 42,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "bb30feae53e3cae4.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0GtKeevARpiVLABw8eEATa0ISQBKIzA7NFAnp~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=sdgMOo%2FcsksuR8dECkmKv%2FKMKM0%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 43,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "90856a0dfd9c6673.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocIAzpKTAtvBieaV742EBNRf9IQ0IALKAFASeG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=66HI8xc3DOa4oYZVB3cYJfotZn4%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 44,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "3e502b35e3a11c0a.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0KzASGAAQVALFNvdaeE7tTM9epNKiBRAIB4fI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=q6gdAvRFr6TFIYSP5SbzZMSzvIc%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 45,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "6ac040c2b49bb16b.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4MpBAKI7azeNvF6KAAilQASIAtVReGalTeBLE~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=3Q1jHtQ1UTSjDJabn7%2B%2BHdo0LEY%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 46,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "c92ef6b729134c2c.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMnGeAGS8KFBeL7RVtpTvAaBAITKEznQAAeiIN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=HaJpLR5n39EMud2DeUdGb0NkK4o%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 47,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "446dff6cad2bbf79.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osibaLG57BBlYQAT7KIImvEAKAbAe9AiSVeeTF~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=%2BYEfu%2Bp7hvt%2FmuShMeW686Z0Bvs%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 48,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "c2c3b8e6271d44f3.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAeiLvaAeN7nGeqQAKBTtARF0IBSV6aAAEKIz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=5%2BQZNhz6qvW00rXG%2BNxLINQTRyU%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 49,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "f9d4649bf774abae.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4nTveACIIqRnwABiKVBKGeESQozaNAeAAtLF7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=wuz8Xa8%2FbO%2Bt4NdAAdtTYAP0n%2B8%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 50,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "969aaeb98538b1a7.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/o0ARKiNtGQF9GKevANLAak7TqEedVABIIfAzBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=EgIfqocWZoO%2FkaTJ30Z32WClni4%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 51,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "884282a55b1f31ba.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osKEeLE7aGVFSRBvKAAzAPeNIeqTtlBI9aQAiA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=yDzYMtlslEH8QgonJPAh1r7SS7I%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 52,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "5afd461637ceef9f.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okaESkzAFiRGBteCAAA7eTevBqBLKKIVAIIQNn~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=6NZmBqc8Bj1fNvD3Sey5HvgztHc%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 53,
+      "imageIndex": null,
+      "imageIndexStatus": "not mapped to the 1-80 on-page counter",
+      "filename": "37aa792489c5744b.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4qKTtvIAz7RAQKI5ELVAKFGAKafABJ9eiSBNe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795687200&x-signature=bDA34%2FR%2Fmxv79Jv3TamzTBnZa8s%3D",
+      "downloaded": true,
+      "dimensions": null,
+      "attributionStatus": "probable-post-detail-photo; not individually verified"
+    },
+    {
+      "observedAssetOrdinal": 54,
+      "candidateDomOrdinal": 54,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM ordinal 54; not paired with on-page counter",
+      "filename": "2ce6114721e23bda.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oALveAKVSAxNBqTAIeziF7KEalKeQSRABtMAIG~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=qIs2ys6HPdQVOzktsMn43y85%2BF4%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2374,
+        "height": 1653
+      },
+      "sha256": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+      "bytes": 225262,
+      "attributionStatus": "observed image within source post rendered .dySwiperSlide; card content not transcribed"
+    },
+    {
+      "observedAssetOrdinal": 57,
+      "candidateDomOrdinal": 57,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "b72df440c83a1fa2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=s6cTVGwiSh4px73Lk4qA%2FXX5elM%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1071,
+        "height": 1506
+      },
+      "sha256": "b72df440c83a1fa24af3519bd1bce676385811ff82199de8f5fb316d17e07c70",
+      "bytes": 91320,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 55,
+      "candidateDomOrdinal": 55,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "ede6e13c73ae2b6e.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=LZI%2FpsFVR5MmAvVyGLRndaypj5w%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1194,
+        "height": 1688
+      },
+      "sha256": "ede6e13c73ae2b6e151d23f58067349f2b2e1acfdf91bb56360b215cc48a0730",
+      "bytes": 100698,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 58,
+      "candidateDomOrdinal": 58,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "ce3da1b1d2033d35.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aWDzU9Y%2BqNDrAgWNbJ9BUo5TamM%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2132,
+        "height": 1493
+      },
+      "sha256": "ce3da1b1d2033d35db112ee809c4513a2a3173609e273cf26828938912cfac02",
+      "bytes": 190158,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 56,
+      "candidateDomOrdinal": 56,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "d03c99a886622585.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2FkmmX60Tu7Gi%2FeGPL9iOfvcG1Co%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2200,
+        "height": 1524
+      },
+      "sha256": "d03c99a886622585ed3e4e539c8f47a1c09cc142306e7d96d4014fffc606d826",
+      "bytes": 183204,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 59,
+      "candidateDomOrdinal": 59,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "b3d70427fb229ee1.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QyjKeN%2FNZlhxtIU3nCmNmsgOek8%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1183,
+        "height": 1579
+      },
+      "sha256": "b3d70427fb229ee174dfd24000588923c2b58d3c30dac31a759fbbd4dea04c0e",
+      "bytes": 77764,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 60,
+      "candidateDomOrdinal": 60,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "4c4ca1eb3c341f5f.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zNP3CGoD4sOiY7O6l%2F8cOfeovqo%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1961,
+        "height": 1386
+      },
+      "sha256": "4c4ca1eb3c341f5f1ac4a55788339a5552d3aa7b6cad25b8096acbe77e934a5e",
+      "bytes": 162320,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 61,
+      "candidateDomOrdinal": 61,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "ecaafd9dc7bb0598.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=L6%2FGutaF8eagI5MvGGynaNz9KZc%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1365,
+        "height": 1869
+      },
+      "sha256": "ecaafd9dc7bb059844e985c844651a31bf3a89edfa3474b3122f7eb411b313ec",
+      "bytes": 167080,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 62,
+      "candidateDomOrdinal": 62,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "2b8363ea1b40ef9c.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fKlKtWcdd%2FSCw2mvcZmTvufkggo%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2273,
+        "height": 1568
+      },
+      "sha256": "2b8363ea1b40ef9c347466a712f5b393667475ecd1c65a7971ecd0bcfdeaa574",
+      "bytes": 286870,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 63,
+      "candidateDomOrdinal": 63,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "65a09eabe1644520.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=3f8Jlx2aF2tklUORBbjpLh76SLI%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1195,
+        "height": 1644
+      },
+      "sha256": "65a09eabe164452056cd322a45d15787fcb03d803c70118a58485d4f88366ef1",
+      "bytes": 89530,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 65,
+      "candidateDomOrdinal": 65,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "246197ed6800a311.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rHemuFQ1gcWqKpIkRiaxjIcMoe8%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1123,
+        "height": 1538
+      },
+      "sha256": "246197ed6800a3118d3601040b16683df3ccf70147ad642e0968892b332af874",
+      "bytes": 106480,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 64,
+      "candidateDomOrdinal": 64,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "8bd4f00fac36f980.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nH3%2B92ADOw3kk8MXq89Ky4R%2FnsA%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2369,
+        "height": 1638
+      },
+      "sha256": "8bd4f00fac36f980ebcc3f6c98ec80ac69cd2a0e540c758bca799fd1c936a38f",
+      "bytes": 228670,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 66,
+      "candidateDomOrdinal": 66,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "552ac4965b807626.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GBR0176D9SzuHknWe2%2FNW1uvWyQ%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1964,
+        "height": 1335
+      },
+      "sha256": "552ac4965b8076262df50692e92c897ce5cb0b3dde4fee6362df0b8dd202aa64",
+      "bytes": 165674,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 67,
+      "candidateDomOrdinal": 67,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "147c200af1b0b31d.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nb4arHjMzIYqdO6eiVkFvgZi7pI%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1089,
+        "height": 1572
+      },
+      "sha256": "147c200af1b0b31d62f520c21b47307f808247d675b656649a03e546c56ddb7b",
+      "bytes": 76576,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 69,
+      "candidateDomOrdinal": 69,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "947078209d187ff7.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bsnUhZk0Ag6wOvdO2ch8sJoPyRU%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1165,
+        "height": 1647
+      },
+      "sha256": "947078209d187ff73c5b8d9a548f8d44a52a2d3c8979a5629392cd1c19d4925b",
+      "bytes": 63096,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 68,
+      "candidateDomOrdinal": 68,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "65a574027315cd33.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ZxHPOaAduu9mrENnHA4eagzWP28%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2275,
+        "height": 1503
+      },
+      "sha256": "65a574027315cd33ca580d4f44855c3988204bfc4d5d67f40663edf7574f31f4",
+      "bytes": 211890,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 70,
+      "candidateDomOrdinal": 70,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "ee7ea946e3c6ca97.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=YIhWB29ZhdlSHD0jVBBvKYLP5kk%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2154,
+        "height": 1476
+      },
+      "sha256": "ee7ea946e3c6ca970a64311c1680f7a95ccf79195c75790a9a27d8e243a52091",
+      "bytes": 189906,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 71,
+      "candidateDomOrdinal": 71,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "6d32d20d75165f92.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kcUhjo%2B040GBtxPDEscXK%2BAmSmU%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1285,
+        "height": 1792
+      },
+      "sha256": "6d32d20d75165f92c9aa0373f62506bf57338f8a793b5a46927a8905d93f5015",
+      "bytes": 103116,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 73,
+      "candidateDomOrdinal": 73,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "7269aee9ae4cfc48.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=pzyVZ7zuspi%2B2fnST%2BDUs4SC9pE%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1060,
+        "height": 1486
+      },
+      "sha256": "7269aee9ae4cfc4897ae3edf55f0eab66ba722128abfe495144a7764ba12991a",
+      "bytes": 78776,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 72,
+      "candidateDomOrdinal": 72,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "fd829ad608cac48e.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=TWDic420fTyzwnJm7Gaeoa2aI5Q%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2279,
+        "height": 1556
+      },
+      "sha256": "fd829ad608cac48ebfa5dc0e5492e4fc76b3a9b8105d403f56f5858598bf5905",
+      "bytes": 197276,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 75,
+      "candidateDomOrdinal": 75,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "9414297694aaf061.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=soME6cDHgSyrDfWKhypw5ixpp9E%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1298,
+        "height": 1778
+      },
+      "sha256": "9414297694aaf061a645f18250adb1eede7c9403a99ca628b37806437b7dca08",
+      "bytes": 111494,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 74,
+      "candidateDomOrdinal": 74,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "64613fdec379daf2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QPQCpRX1vLml%2BmG2tqTKG%2BdeB40%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2069,
+        "height": 1428
+      },
+      "sha256": "64613fdec379daf2649b2f0b5b81ea020144b18a57864679362aca7f864dc3e0",
+      "bytes": 264658,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 77,
+      "candidateDomOrdinal": 77,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "5e1440d1e2c3957a.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fLJLe8N7y3oE6lsCLP2heHNl7Kc%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1254,
+        "height": 1773
+      },
+      "sha256": "5e1440d1e2c3957a83cfd6daf804ba009aaf9ecc5b20b3a4108d9f4f583cbe71",
+      "bytes": 99072,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 76,
+      "candidateDomOrdinal": 76,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "00d540d573d962d2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=c8V0Pq64ecET3NVLRwFILMYtPXE%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2485,
+        "height": 1697
+      },
+      "sha256": "00d540d573d962d202a50b458b15e97772180cca33b338efefe908b175a6f73e",
+      "bytes": 199464,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 78,
+      "candidateDomOrdinal": 78,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "13d02ab71efd1e99.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=9CyCgyjFqPILlCV4aLqdF%2FLLC1Y%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2169,
+        "height": 1445
+      },
+      "sha256": "13d02ab71efd1e9900facbb1f2be37ff9c9546f8a72abcec210bc113891de53e",
+      "bytes": 177034,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 79,
+      "candidateDomOrdinal": 79,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "404de94e118f7ab2.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=vlSvIyVYNv4wZXqPrMlO6INNQ0A%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 1159,
+        "height": 1678
+      },
+      "sha256": "404de94e118f7ab2c5edda530ddad880aac6e61dbbe90ceb49b9006d17afc06a",
+      "bytes": 80834,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    },
+    {
+      "observedAssetOrdinal": 80,
+      "candidateDomOrdinal": 80,
+      "imageIndex": null,
+      "imageIndexStatus": "DOM candidate ordinal; not paired with on-page counter",
+      "filename": "da4a1cc732bae99a.webp",
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D",
+      "downloaded": true,
+      "dimensions": {
+        "width": 2390,
+        "height": 1646
+      },
+      "sha256": "da4a1cc732bae99a69358208099ba5bb5247d6f11389c4d130418078a19c702f",
+      "bytes": 228148,
+      "attributionStatus": "Observed image within source post rendered .dySwiperSlide; card content not transcribed",
+      "downloadMethod": "Direct transfer of exact persisted observed signed public media URL; Pillow decoded"
+    }
+  ],
+  "assetAttributionAudit": "All 53 URLs carry biz_tag=aweme_images and s=PackSourceEnum_AWEME_DETAIL; 8 sampled bundled images and visible 7/80–8/80 screens matched the post card faces. Probable post-detail attribution; not all 53 individually visually checked.",
+  "carouselCoverage": {
+    "totalCarouselItems": 80,
+    "itemCounterObservedInCurrentBrowser": "8/80 at first inventory; normal next control advanced to 9/80 before browser became unavailable",
+    "visuallyInspectedPageIndexes": [
+      7,
+      8
+    ],
+    "pageIndexMappedAssets": 0,
+    "uninspectedCarouselPages": "1-6 and 9-80 content not individually reviewed",
+    "status": "80 source photo URLs observed; 54 saved files; 26 observed paths remain without saved assets. Downloaded files are hash-distinct. Actual carousel position is confirmed only where acquisition-observations.json records direct counter evidence.",
+    "fullSignedURLInventory": "signed-observed-20261027.json"
+  },
+  "downloadedPhotoAssets": 80
+}

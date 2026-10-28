@@ -1,0 +1,931 @@
+{
+  "schemaVersion": 1,
+  "reviewedAt": "2026-10-28",
+  "evidenceStatus": "single-review-source-photo-transcription",
+  "reviewOnly": true,
+  "engineEligible": false,
+  "edition": "unidentified (provenance only)",
+  "translationStatus": "working-english; names are English labels, not evidence of an English printing",
+  "sourceRoster": "app/content/selection-roster.json",
+  "notation": {
+    "squareBracketLabels": "Editorial substitution for visible icons, not literal printed Chinese or an extra payment.",
+    "烈日": "orange full sun / intense sun",
+    "晴朗": "orange sun with cloud / clear",
+    "雷雨": "dark cloud, rain and lightning / thunderstorm",
+    "暴雨": "dark cloud and rain without lightning / heavy rain",
+    "command": "red rectangle with yellow burst; not weather"
+  },
+  "rulesReferences": [
+    "reviewed-combat-spec.md",
+    "reviewed-playcard-spec.md",
+    "gameplay-milestone-4.md"
+  ],
+  "scope": "Exactly Abra, Machop and Slowpoke groups; nine faces from six local saved original photographs.",
+  "reviewBoundary": "All six actual saved original photographs were directly viewed with tools.view_image; all six SHA-256 hashes were verified against selection-roster.json. Chinese words and numerals were transcribed visually with line breaks normalized. This is one source review, not an independent second signoff. No engine, UI, catalogue, tests or original asset was modified.",
+  "entries": [
+    {
+      "id": "abra",
+      "name": {
+        "zh": "凯西",
+        "en": "Abra"
+      },
+      "evidenceStatus": "source-photo-visually-transcribed",
+      "translationStatus": "working-english",
+      "reviewOnly": true,
+      "engineEligible": false,
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "凯西",
+            "en": "Abra"
+          },
+          "hp": 3,
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "同步",
+              "en": "Synchronize"
+            },
+            "text": {
+              "zh": "当此宝可梦受到伤害后，你可以获得造成此伤害的事件牌或【接招吧！】。",
+              "en": "After this Pokémon receives damage, you may obtain the event card or Take this! that caused that damage."
+            },
+            "timing": "after-receiving-damage",
+            "optional": true,
+            "implementationDependencies": [
+              "damage-source-card-identity",
+              "optional-source-card-retrieval",
+              "card-zone-and-multi-target-ordering"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "瞬间移动",
+                "en": "Teleport"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": null,
+              "printedValuePresentation": "no numeral printed in the move heading",
+              "effectText": {
+                "zh": "此招式指定此宝可梦为目标。你摸一张牌，然后若你的备战宝可梦未失去战斗能力，你进行交替，此交替不计入次数限制。",
+                "en": "This move targets this Pokémon. Draw one card; then, if your reserve Pokémon has not fainted, switch. This switch does not count toward the switch limit."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "on-move-use",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "explicit-self",
+                "max": 1,
+                "description": "The face explicitly specifies this Pokémon as its target."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "switch": {
+                "optional": false,
+                "condition": "reserve Pokémon has not fainted",
+                "drawFirst": 1,
+                "countsTowardSwitchLimit": false,
+                "waivesMoveUseLimit": false,
+                "waivesCommandUserLimit": false
+              }
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/8aa8f78fb2454b3c.webp",
+            "sha256": "be6501be97dd9e2d155c2d6e7f92801f882e4d0756011951b1f82aba1031ee72",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 33,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [
+            "同步 card-zone/retrieval conflicts and shared damage-causing card across multiple targets are not settled by this photographed face; retain exact source-card identity and accepted general timing rules."
+          ],
+          "engineEligible": false
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "勇基拉",
+            "en": "Kadabra"
+          },
+          "hp": 3,
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "同步",
+              "en": "Synchronize"
+            },
+            "text": {
+              "zh": "当此宝可梦受到伤害后，你可以获得造成此伤害的事件牌或【接招吧！】。",
+              "en": "After this Pokémon receives damage, you may obtain the event card or Take this! that caused that damage."
+            },
+            "timing": "after-receiving-damage",
+            "optional": true,
+            "implementationDependencies": [
+              "damage-source-card-identity",
+              "optional-source-card-retrieval",
+              "card-zone-and-multi-target-ordering"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "念力",
+                "en": "Confusion"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 2,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[烈日]，目标宝可梦陷入“混乱”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is intense sun, the target Pokémon becomes confused."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "after-dealing-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [
+                {
+                  "appearance": "gray square with white spiral",
+                  "position": "beside printed-value burst, not before move name",
+                  "interpretationBoundary": "Visible appearance is recorded. Its semantic role at this heading position is not independently established; do not add a cost, automatic status, damage element, immunity or resistance."
+                }
+              ],
+              "engineEligible": false,
+              "effectJudgment": {
+                "resultWeather": "intense-sun",
+                "comparison": "equals",
+                "optional": false,
+                "trigger": "actual damage caused by this move"
+              }
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd4244524a22cb33.webp",
+            "sha256": "330a7cf98e5006c30d2e03d255fa6c578ea242603a611ba0f963713548b92581",
+            "facePosition": "left",
+            "observedAssetOrdinal": 34,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [
+            "同步 card-zone/retrieval conflicts and shared damage-causing card across multiple targets are not settled by this photographed face; retain exact source-card identity and accepted general timing rules."
+          ],
+          "engineEligible": false
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "胡地",
+            "en": "Alakazam"
+          },
+          "hp": 4,
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "同步",
+              "en": "Synchronize"
+            },
+            "text": {
+              "zh": "当此宝可梦受到伤害后，你可以获得造成此伤害的事件牌或【接招吧！】。",
+              "en": "After this Pokémon receives damage, you may obtain the event card or Take this! that caused that damage."
+            },
+            "timing": "after-receiving-damage",
+            "optional": true,
+            "implementationDependencies": [
+              "damage-source-card-identity",
+              "optional-source-card-retrieval",
+              "card-zone-and-multi-target-ordering"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "精神强念",
+                "en": "Psychic"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 3,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[烈日]，目标宝可梦陷入“混乱”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is intense sun, the target Pokémon becomes confused."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "after-dealing-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [
+                {
+                  "appearance": "gray square with white spiral",
+                  "position": "beside printed-value burst, not before move name",
+                  "interpretationBoundary": "Visible appearance is recorded. Its semantic role at this heading position is not independently established; do not add a cost, automatic status, damage element, immunity or resistance."
+                }
+              ],
+              "engineEligible": false,
+              "effectJudgment": {
+                "resultWeather": "intense-sun",
+                "comparison": "equals",
+                "optional": false,
+                "trigger": "actual damage caused by this move"
+              }
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd4244524a22cb33.webp",
+            "sha256": "330a7cf98e5006c30d2e03d255fa6c578ea242603a611ba0f963713548b92581",
+            "facePosition": "right",
+            "observedAssetOrdinal": 34,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [
+            "同步 card-zone/retrieval conflicts and shared damage-causing card across multiple targets are not settled by this photographed face; retain exact source-card identity and accepted general timing rules."
+          ],
+          "engineEligible": false
+        }
+      ]
+    },
+    {
+      "id": "machop",
+      "name": {
+        "zh": "腕力",
+        "en": "Machop"
+      },
+      "evidenceStatus": "source-photo-visually-transcribed",
+      "translationStatus": "working-english",
+      "reviewOnly": true,
+      "engineEligible": false,
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "腕力",
+            "en": "Machop"
+          },
+          "hp": 3,
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "毅力",
+              "en": "Guts"
+            },
+            "text": {
+              "zh": "此宝可梦即使处于“灼伤”状态，其招式的伤害也不会因“灼伤”而减少。当此宝可梦造成伤害时，若此宝可梦处于特殊状态，此伤害值+1。",
+              "en": "Even while this Pokémon is burned, the damage of its moves is not reduced by burn. When this Pokémon deals damage, if it has a special status, that damage is increased by 1."
+            },
+            "timing": "continuous-burn-reduction-exception-and-when-dealing-damage",
+            "optional": false,
+            "implementationDependencies": [
+              "burn-damage-modifier-exception",
+              "source-special-status-predicate",
+              "caused-damage-modifier"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "碎岩",
+                "en": "Rock Smash"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 1,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "当此招式被使用时，你弃置目标宝可梦的一枚强化指示物。",
+                "en": "When this move is used, discard one reinforcement marker from the target Pokémon."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "on-move-use",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/a84a204806c6aaea.webp",
+            "sha256": "d886ccfcd2365c7df28b2356d991296d52ac01f191f483a859f1484fa78267e9",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 35,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [
+            "The face orders one target reinforcement marker discarded at move use, but does not independently specify marker choice, no-marker handling or defense ordering. Do not make the effect contingent on damage."
+          ],
+          "engineEligible": false
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "豪力",
+            "en": "Machoke"
+          },
+          "hp": 4,
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "毅力",
+              "en": "Guts"
+            },
+            "text": {
+              "zh": "此宝可梦即使处于“灼伤”状态，其招式的伤害也不会因“灼伤”而减少。当此宝可梦造成伤害时，若此宝可梦处于特殊状态，此伤害值+1。",
+              "en": "Even while this Pokémon is burned, the damage of its moves is not reduced by burn. When this Pokémon deals damage, if it has a special status, that damage is increased by 1."
+            },
+            "timing": "continuous-burn-reduction-exception-and-when-dealing-damage",
+            "optional": false,
+            "implementationDependencies": [
+              "burn-damage-modifier-exception",
+              "source-special-status-predicate",
+              "caused-damage-modifier"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "劈瓦",
+                "en": "Brick Break"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 2,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "当此招式被使用时，你弃置目标宝可梦的一枚强化指示物。",
+                "en": "When this move is used, discard one reinforcement marker from the target Pokémon."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "on-move-use",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/e14644a3470dab05.webp",
+            "sha256": "2abf68b08f63bcfe6bed408431489ad5bb8c2ba46c0b1abf011c9723711cd590",
+            "facePosition": "left",
+            "observedAssetOrdinal": 36,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [
+            "The face orders one target reinforcement marker discarded at move use, but does not independently specify marker choice, no-marker handling or defense ordering. Do not make the effect contingent on damage."
+          ],
+          "engineEligible": false
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "怪力",
+            "en": "Machamp"
+          },
+          "hp": 5,
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "毅力",
+              "en": "Guts"
+            },
+            "text": {
+              "zh": "此宝可梦即使处于“灼伤”状态，其招式的伤害也不会因“灼伤”而减少。当此宝可梦造成伤害时，若此宝可梦处于特殊状态，此伤害值+1。",
+              "en": "Even while this Pokémon is burned, the damage of its moves is not reduced by burn. When this Pokémon deals damage, if it has a special status, that damage is increased by 1."
+            },
+            "timing": "continuous-burn-reduction-exception-and-when-dealing-damage",
+            "optional": false,
+            "implementationDependencies": [
+              "burn-damage-modifier-exception",
+              "source-special-status-predicate",
+              "caused-damage-modifier"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "爆裂拳",
+                "en": "Dynamic Punch"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 3,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，目标宝可梦陷入“混乱”状态。",
+                "en": "After this Pokémon deals damage with this move, the target Pokémon becomes confused."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "after-dealing-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [
+                {
+                  "appearance": "gray square with white spiral",
+                  "position": "beside printed-value burst, not before move name",
+                  "interpretationBoundary": "Visible appearance is recorded. Its semantic role at this heading position is not independently established; do not add a cost, automatic status, damage element, immunity or resistance."
+                }
+              ],
+              "engineEligible": false
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/e14644a3470dab05.webp",
+            "sha256": "2abf68b08f63bcfe6bed408431489ad5bb8c2ba46c0b1abf011c9723711cd590",
+            "facePosition": "right",
+            "observedAssetOrdinal": 36,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [],
+          "engineEligible": false
+        }
+      ]
+    },
+    {
+      "id": "slowpoke",
+      "name": {
+        "zh": "呆呆兽",
+        "en": "Slowpoke"
+      },
+      "evidenceStatus": "source-photo-visually-transcribed",
+      "translationStatus": "working-english",
+      "reviewOnly": true,
+      "engineEligible": false,
+      "levels": [
+        {
+          "level": 1,
+          "name": {
+            "zh": "呆呆兽",
+            "en": "Slowpoke"
+          },
+          "hp": 3,
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "迟钝",
+              "en": "Oblivious"
+            },
+            "text": {
+              "zh": "当此宝可梦于你的回合外受到伤害后，直到当前训练家的回合结束，此宝可梦不会再受到伤害。",
+              "en": "After this Pokémon receives damage outside your turn, this Pokémon cannot receive further damage until the current trainer’s turn ends."
+            },
+            "timing": "after-receiving-damage-outside-own-trainer-turn",
+            "optional": false,
+            "implementationDependencies": [
+              "damage-vs-hp-loss",
+              "current-trainer-turn-identity",
+              "turn-scoped-subsequent-damage-prevention"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "水枪",
+                "en": "Water Gun"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 2,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "",
+                "en": ""
+              },
+              "effectParagraphStatus": "no-effect-paragraph-printed",
+              "effectTiming": "no-additional-effect-paragraph",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b280570639f39edd.webp",
+            "sha256": "5fba4f27c085acf024e320caff04c03b5bcc250ce8ca68c7131e756eb01ae3d2",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 37,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [],
+          "engineEligible": false
+        },
+        {
+          "level": 2,
+          "name": {
+            "zh": "呆呆兽",
+            "en": "Slowpoke"
+          },
+          "hp": 4,
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "迟钝",
+              "en": "Oblivious"
+            },
+            "text": {
+              "zh": "当此宝可梦于你的回合外受到伤害后，直到当前训练家的回合结束，此宝可梦不会再受到伤害。",
+              "en": "After this Pokémon receives damage outside your turn, this Pokémon cannot receive further damage until the current trainer’s turn ends."
+            },
+            "timing": "after-receiving-damage-outside-own-trainer-turn",
+            "optional": false,
+            "implementationDependencies": [
+              "damage-vs-hp-loss",
+              "current-trainer-turn-identity",
+              "turn-scoped-subsequent-damage-prevention"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "意念头锤",
+                "en": "Zen Headbutt"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 2,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“畏缩”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes flinched."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "after-dealing-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [
+                {
+                  "appearance": "blue square with white face-like symbol",
+                  "position": "beside printed-value burst, not before move name",
+                  "interpretationBoundary": "Visible appearance is recorded. Its semantic role at this heading position is not independently established; do not add a cost, automatic status, damage element, immunity or resistance."
+                }
+              ],
+              "engineEligible": false,
+              "effectJudgment": {
+                "resultWeather": "thunderstorm",
+                "comparison": "equals",
+                "optional": false,
+                "trigger": "actual damage caused by this move"
+              }
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ce76e230919194cf.webp",
+            "sha256": "172e72b14f8a823078bd30fce1d0716d7c4f50188a4a4aa6f18681c6de3873b7",
+            "facePosition": "left",
+            "observedAssetOrdinal": 38,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [],
+          "engineEligible": false
+        },
+        {
+          "level": 3,
+          "name": {
+            "zh": "呆壳兽",
+            "en": "Slowbro"
+          },
+          "hp": 5,
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "trait": {
+            "name": {
+              "zh": "迟钝",
+              "en": "Oblivious"
+            },
+            "text": {
+              "zh": "当此宝可梦于你的回合外受到伤害后，直到当前训练家的回合结束，此宝可梦不会再受到伤害。",
+              "en": "After this Pokémon receives damage outside your turn, this Pokémon cannot receive further damage until the current trainer’s turn ends."
+            },
+            "timing": "after-receiving-damage-outside-own-trainer-turn",
+            "optional": false,
+            "implementationDependencies": [
+              "damage-vs-hp-loss",
+              "current-trainer-turn-identity",
+              "turn-scoped-subsequent-damage-prevention"
+            ],
+            "uses": {
+              "explicitPerPhaseLimitPrinted": false,
+              "description": "No once-per-phase or once-per-turn limit is printed in this trait paragraph. Do not invent one; trigger eligibility and general timing rules still apply."
+            }
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "预知未来",
+                "en": "Future Sight"
+              },
+              "condition": {
+                "kind": "command",
+                "observedIcon": "red rectangle with yellow burst immediately before move name",
+                "weatherIconsInCondition": [],
+                "ruleInterpretation": {
+                  "cardName": {
+                    "zh": "接招吧！",
+                    "en": "Take this!"
+                  },
+                  "count": 1,
+                  "source": "reviewed-playcard-spec.md / booklet R07 p08"
+                }
+              },
+              "printedValue": 2,
+              "printedValuePresentation": "numeral inside red burst at right of move heading",
+              "effectText": {
+                "zh": "当此招式被使用时，你可以观看牌堆顶的三张牌，然后将这些牌以任意顺序置于牌堆顶。",
+                "en": "When this move is used, you may look at the top three cards of the deck, then place those cards on top of the deck in any order."
+              },
+              "effectParagraphStatus": "visually-transcribed",
+              "effectTiming": "on-move-use",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase, unless overridden"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "deckLook": {
+                "optional": true,
+                "count": 3,
+                "visibility": "trainer viewing only; face says look, not reveal",
+                "reorder": "return these cards to deck top in any order",
+                "drawsCards": false
+              }
+            }
+          ],
+          "provenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ce76e230919194cf.webp",
+            "sha256": "172e72b14f8a823078bd30fce1d0716d7c4f50188a4a4aa6f18681c6de3873b7",
+            "facePosition": "right",
+            "observedAssetOrdinal": 38,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-pokemon-batch-3.md"
+          },
+          "uncertainties": [
+            "The face does not independently establish fewer-than-three-card deck handling, exact private reorder UI procedure, or move-use ordering relative to defense."
+          ],
+          "engineEligible": false
+        }
+      ]
+    }
+  ],
+  "implementationNotes": [
+    "All nine moves have the command marker before the move name: one 接招吧！ under the reviewed booklet rules. None has a weather-card condition or weather-card payment.",
+    "Printed numerals are separate from conditional damage modifiers and right-side heading symbols. Teleport has no printed numeral; do not invent zero as a printed value.",
+    "受到伤害 means receives damage, 造成伤害 means deals damage, and neither automatically includes 失去体力 (HP loss). Resolve actual positive damage and existing fainting/rescue ordering before after-damage triggers.",
+    "同步 is optional after receiving damage and obtains the actual event card or 接招吧！ that caused that damage. It is not a judgment, damage reflection, generic draw, or automatic retrieval of an arbitrary discard. The face alone does not define card-zone conflicts or multi-target shared-card retrieval.",
+    "瞬间移动 explicitly self-targets: draw first, then switch if reserve is not fainted. The switch does not count toward the switch limit. The face does not waive move-use or command-use limits.",
+    "毅力 has two continuous clauses: burn does not reduce move damage; while the Pokémon has a special status its caused damage is +1. Do not turn this into burn immunity or +1 per special status.",
+    "碎岩 and 劈瓦 discard one reinforcement marker from the target when the move is used, not only after damage. Root must establish marker-choice/no-marker procedure and ordering against defense from the accepted rules before enabling this interaction.",
+    "爆裂拳 causes confusion after actual damage without a judgment. 念力 and 精神强念 instead require a mandatory intense-sun judgment; 意念头锤 requires a mandatory thunderstorm judgment for flinch.",
+    "迟钝 triggers automatically only after receiving damage outside its trainer’s turn. It prevents further damage until the CURRENT trainer’s turn ends; it neither cancels the first damage nor expressly prevents HP loss.",
+    "预知未来 optionally privately views the top three cards and returns those cards in any order at move-use time. Do not substitute a draw, reveal, judgment or post-damage effect. Short-deck behavior and interaction order need the accepted general rules.",
+    "No trait paragraph in these nine faces prints a once-per-phase/turn cap. Standard move-use and one-command-Pokémon limits remain applicable unless expressly overridden. No complete retail quantities/weather distribution are established."
+  ]
+}

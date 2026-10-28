@@ -1,0 +1,65 @@
+{
+  "sourceTitle": "宝可梦谁是火箭队 桌游规则书",
+  "author": "马小虾玩桌游",
+  "noteDateDisplayed": "Sep 2 (year not displayed)",
+  "canonicalUrl": "https://www.rednote.com/discovery/item/6a97c38c0000000026015ccf",
+  "galleryImageCount": 9,
+  "reviewedGalleryIndexes": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "missingGalleryIndexes": [],
+  "images": [
+    {
+      "imageIndex": 1,
+      "filename": "01-cover.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/607abdeb85dd86ff52eac67997126641/notes_pre_post/1040g3k8324jr86pi0o705pfnqu41hqbjqa2304o!nd_dft_wlteh_webp_3",
+      "coverage": "Standalone front-cover scan"
+    },
+    {
+      "imageIndex": 2,
+      "filename": "02-outer-cover.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/37860707eebbd60c7f542718fd251f38/note_pre_post_uhdr/1040g3r8324jsqeggna705pfnqu41hqbj1f9c0gg!nd_dft_wgth_webp_3",
+      "coverage": "Open outer cover and printed page 01 (components)"
+    },
+    {
+      "imageIndex": 3,
+      "filename": "03-components.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/d2604ddd7b798f3d376a4473fee478e7/note_pre_post_uhdr/1040g3r8324jsqeggna7g5pfnqu41hqbj0aijbe0!nd_dft_wgth_webp_3",
+      "coverage": "Printed page 01 (game components)"
+    },
+    {
+      "imageIndex": 4,
+      "filename": "04-setup.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/87a8b76b9a2ed0f77a9c8b71f3abaf3a/note_pre_post_uhdr/1040g3r8324jsqeggna805pfnqu41hqbjl354450!nd_dft_wgth_webp_3",
+      "coverage": "Printed pages 02-03 (roles, objectives, setup and starting hand)"
+    },
+    {
+      "imageIndex": 5,
+      "filename": "05-turn-flow.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/d31149c0524f03e75259e18428c0a0fb/note_pre_post_uhdr/1040g3r8324jsqeggna8g5pfnqu41hqbja2go13o!nd_dft_wgth_webp_3",
+      "coverage": "Printed pages 04-05 (table layout, phases and turn end)"
+    },
+    {
+      "imageIndex": 6,
+      "filename": "06-rescue-basics.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/8b4e0278e417f3cfcafccfd77c0a0b7f/note_pre_post_uhdr/1040g3r8324jsqeggna905pfnqu41hqbjc1tlgig!nd_dft_wgth_webp_3",
+      "coverage": "Printed pages 06-07 (rescue, knockout/elimination, zones and distance)"
+    },
+    {
+      "imageIndex": 7,
+      "filename": "07-targets-cards.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/ecc985384e52221c51b3cb7b7ee71da7/note_pre_post_uhdr/1040g3r8324jsqeggna9g5pfnqu41hqbj02mlmmg!nd_dft_wgth_webp_3",
+      "coverage": "Printed pages 08-09 (moves, evolution, reserve rules, card types and operations)"
+    },
+    {
+      "imageIndex": 8,
+      "filename": "08-timing-damage-status.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/a4572952768053558d63d73d721959e3/note_pre_post_uhdr/1040g3r8324jsqeggnaa05pfnqu41hqbj64f8820!nd_dft_wgth_webp_3",
+      "coverage": "Printed pages 10-11 (simultaneous timing, damage, reinforcement and special statuses)"
+    },
+    {
+      "imageIndex": 9,
+      "filename": "09-reference.webp",
+      "originalURL": "https://sns-web-i10.rednotecdn.com/202610271849/81cd0d94485b5c54f4532434691259ca/note_pre_post_uhdr/1040g3r8324jsqeggnaag5pfnqu41hqbjolb6ct0!nd_dft_wgth_webp_3",
+      "coverage": "Printed page 12 (status icons, credits and Pokémon Lv.1 to Lv.3 chart)"
+    }
+  ]
+}

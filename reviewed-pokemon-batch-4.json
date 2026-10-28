@@ -1,0 +1,392 @@
+{
+  "reviewedAt": "2026-10-28",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "edition": "unidentified",
+  "iconTranscription": "Bracketed weather words replace visible weather icons; English is a working UI translation.",
+  "faces": [
+    {
+      "id": "shellder",
+      "level": 1,
+      "name": {
+        "zh": "大舌贝",
+        "en": "Shellder"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "连续攻击",
+        "en": "Skill Link"
+      },
+      "abilityText": {
+        "zh": "此宝可梦使用招式不受次数限制。",
+        "en": "This Pokémon may use its moves without a use-count limit."
+      },
+      "move": {
+        "name": {
+          "zh": "撞击",
+          "en": "Tackle"
+        },
+        "condition": {
+          "kind": "command",
+          "cardName": {
+            "zh": "接招吧！",
+            "en": "Take this!"
+          },
+          "count": 1
+        },
+        "printedValue": 1,
+        "printedValuePresentation": "numeral inside red burst at right of move heading",
+        "effectText": {
+          "zh": "",
+          "en": ""
+        },
+        "effectParagraphStatus": "no-effect-paragraph-printed",
+        "effectTiming": "no-additional-effect-paragraph",
+        "uses": {
+          "faceOverridePrinted": true,
+          "bookletDefault": "Skill Link overrides move use-count limit",
+          "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+        },
+        "targeting": {
+          "kind": "booklet-default",
+          "max": 1,
+          "description": "Active Pokémon within the source Pokémon distance limit; self is legal under the booklet default."
+        },
+        "unresolvedSymbols": [],
+        "engineEligible": false,
+        "effectStatus": "combat-preview",
+        "engineScope": "combat-preview-only"
+      },
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/90856a0dfd9c6673.webp",
+        "sha256": "8866790621b016aed52fb6bc33d67b9b142bab266337823ef4b4af144b855d69",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 43,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-pokemon-batch-4.md"
+      }
+    },
+    {
+      "id": "shellder",
+      "level": 2,
+      "name": {
+        "zh": "大舌贝",
+        "en": "Shellder"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "连续攻击",
+        "en": "Skill Link"
+      },
+      "abilityText": {
+        "zh": "此宝可梦使用招式不受次数限制。",
+        "en": "This Pokémon may use its moves without a use-count limit."
+      },
+      "move": {
+        "name": {
+          "zh": "尖刺加农炮",
+          "en": "Spike Cannon"
+        },
+        "condition": {
+          "kind": "command",
+          "cardName": {
+            "zh": "接招吧！",
+            "en": "Take this!"
+          },
+          "count": 1
+        },
+        "printedValue": 2,
+        "printedValuePresentation": "numeral inside red burst at right of move heading",
+        "effectText": {
+          "zh": "当此宝可梦因此招式而造成伤害后，你可以弃置一张手牌，然后你摸一张牌。",
+          "en": "After this Pokémon deals damage with this move, you may discard one hand card, then draw one card."
+        },
+        "effectParagraphStatus": "visually-transcribed",
+        "effectTiming": "after-dealing-damage",
+        "uses": {
+          "faceOverridePrinted": true,
+          "bookletDefault": "Skill Link overrides move use-count limit",
+          "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+        },
+        "targeting": {
+          "kind": "booklet-default",
+          "max": 1,
+          "description": "Active Pokémon within the source Pokémon distance limit; self is legal under the booklet default."
+        },
+        "unresolvedSymbols": [],
+        "engineEligible": false,
+        "effectStatus": "combat-preview",
+        "engineScope": "combat-preview-only"
+      },
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/3e502b35e3a11c0a.webp",
+        "sha256": "18adf085911cbd3e4d43f79c6e5aa65f4f039975d36afbee79e64fae31532d7b",
+        "facePosition": "left",
+        "observedAssetOrdinal": 44,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-pokemon-batch-4.md"
+      }
+    },
+    {
+      "id": "shellder",
+      "level": 3,
+      "name": {
+        "zh": "刺甲贝",
+        "en": "Cloyster"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "连续攻击",
+        "en": "Skill Link"
+      },
+      "abilityText": {
+        "zh": "此宝可梦使用招式不受次数限制。",
+        "en": "This Pokémon may use its moves without a use-count limit."
+      },
+      "move": {
+        "name": {
+          "zh": "冰锥",
+          "en": "Icicle Spear"
+        },
+        "condition": {
+          "kind": "command",
+          "cardName": {
+            "zh": "接招吧！",
+            "en": "Take this!"
+          },
+          "count": 1
+        },
+        "printedValue": 2,
+        "printedValuePresentation": "numeral inside red burst at right of move heading",
+        "effectText": {
+          "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“雨天”（[暴雨]/[雷雨]），你获得此判定牌。",
+          "en": "After this Pokémon deals damage with this move, make a judgment. If the result is rainy (heavy rain or thunderstorm), obtain that judgment card."
+        },
+        "effectParagraphStatus": "visually-transcribed",
+        "effectTiming": "after-dealing-damage",
+        "uses": {
+          "faceOverridePrinted": true,
+          "bookletDefault": "Skill Link overrides move use-count limit",
+          "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+        },
+        "targeting": {
+          "kind": "booklet-default",
+          "max": 1,
+          "description": "Active Pokémon within the source Pokémon distance limit; self is legal under the booklet default."
+        },
+        "unresolvedSymbols": [],
+        "engineEligible": false,
+        "effectStatus": "combat-preview",
+        "engineScope": "combat-preview-only"
+      },
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/3e502b35e3a11c0a.webp",
+        "sha256": "18adf085911cbd3e4d43f79c6e5aa65f4f039975d36afbee79e64fae31532d7b",
+        "facePosition": "right",
+        "observedAssetOrdinal": 44,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-pokemon-batch-4.md"
+      }
+    },
+    {
+      "id": "dratini",
+      "level": 1,
+      "name": {
+        "zh": "迷你龙",
+        "en": "Dratini"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "神奇鳞片",
+        "en": "Marvel Scale"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦受到伤害时，若此宝可梦处于特殊状态且此伤害值大于1点，你可以令此伤害值-1。",
+        "en": "When this Pokémon receives damage, if it has a special status and the damage exceeds 1, you may reduce that damage by 1."
+      },
+      "move": {
+        "name": {
+          "zh": "龙卷风",
+          "en": "Twister"
+        },
+        "condition": {
+          "kind": "command",
+          "cardName": {
+            "zh": "接招吧！",
+            "en": "Take this!"
+          },
+          "count": 1
+        },
+        "printedValue": 1,
+        "printedValuePresentation": "numeral inside red burst at right of move heading",
+        "effectText": {
+          "zh": "",
+          "en": ""
+        },
+        "effectParagraphStatus": "no-effect-paragraph-printed",
+        "effectTiming": "no-additional-effect-paragraph",
+        "uses": {
+          "faceOverridePrinted": false,
+          "bookletDefault": "once per Pokémon/move per Play phase",
+          "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+        },
+        "targeting": {
+          "kind": "booklet-default",
+          "max": 1,
+          "description": "Active Pokémon within the source Pokémon distance limit; self is legal under the booklet default."
+        },
+        "unresolvedSymbols": [],
+        "engineEligible": false,
+        "effectStatus": "combat-preview",
+        "engineScope": "combat-preview-only"
+      },
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/404de94e118f7ab2.webp",
+        "sha256": "404de94e118f7ab2c5edda530ddad880aac6e61dbbe90ceb49b9006d17afc06a",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 79,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-pokemon-batch-4.md"
+      }
+    },
+    {
+      "id": "dratini",
+      "level": 2,
+      "name": {
+        "zh": "哈克龙",
+        "en": "Dragonair"
+      },
+      "hp": 3,
+      "traitName": {
+        "zh": "神奇鳞片",
+        "en": "Marvel Scale"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦受到伤害时，若此宝可梦处于特殊状态且此伤害值大于1点，你可以令此伤害值-1。",
+        "en": "When this Pokémon receives damage, if it has a special status and the damage exceeds 1, you may reduce that damage by 1."
+      },
+      "move": {
+        "name": {
+          "zh": "龙之怒",
+          "en": "Dragon Rage"
+        },
+        "condition": {
+          "kind": "command",
+          "cardName": {
+            "zh": "接招吧！",
+            "en": "Take this!"
+          },
+          "count": 1
+        },
+        "printedValue": 2,
+        "printedValuePresentation": "numeral inside red burst at right of move heading",
+        "effectText": {
+          "zh": "此招式无法被强化指示物影响。此招式不可被【快躲开！】抵消。",
+          "en": "This move cannot be affected by reinforcement markers and cannot be canceled by Dodge!"
+        },
+        "effectParagraphStatus": "visually-transcribed",
+        "effectTiming": "continuous-move-modifiers",
+        "uses": {
+          "faceOverridePrinted": false,
+          "bookletDefault": "once per Pokémon/move per Play phase",
+          "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+        },
+        "targeting": {
+          "kind": "booklet-default",
+          "max": 1,
+          "description": "Active Pokémon within the source Pokémon distance limit; self is legal under the booklet default."
+        },
+        "unresolvedSymbols": [],
+        "engineEligible": false,
+        "effectStatus": "combat-preview",
+        "engineScope": "combat-preview-only"
+      },
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/da4a1cc732bae99a.webp",
+        "sha256": "da4a1cc732bae99a69358208099ba5bb5247d6f11389c4d130418078a19c702f",
+        "facePosition": "left",
+        "observedAssetOrdinal": 80,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-pokemon-batch-4.md"
+      }
+    },
+    {
+      "id": "dratini",
+      "level": 3,
+      "name": {
+        "zh": "快龙",
+        "en": "Dragonite"
+      },
+      "hp": 4,
+      "traitName": {
+        "zh": "多重鳞片",
+        "en": "Multiscale"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦受到伤害时，若此宝可梦未受伤，你令此伤害值改为1点。",
+        "en": "When this Pokémon receives damage, if it is uninjured, set that damage to 1."
+      },
+      "move": {
+        "name": {
+          "zh": "流星群",
+          "en": "Draco Meteor"
+        },
+        "condition": {
+          "kind": "command",
+          "cardName": {
+            "zh": "接招吧！",
+            "en": "Take this!"
+          },
+          "count": 1
+        },
+        "printedValue": 2,
+        "printedValuePresentation": "numeral inside red burst at right of move heading",
+        "effectText": {
+          "zh": "此招式可以指定至多两只在此宝可梦的距离限制范围内的宝可梦为目标。此招式无法被强化指示物影响。此招式不可被【快躲开！】抵消。",
+          "en": "This move may target up to two Pokémon within this Pokémon’s distance limit. It cannot be affected by reinforcement markers and cannot be canceled by Dodge!"
+        },
+        "effectParagraphStatus": "visually-transcribed",
+        "effectTiming": "continuous-move-modifiers",
+        "uses": {
+          "faceOverridePrinted": false,
+          "bookletDefault": "once per Pokémon/move per Play phase",
+          "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+        },
+        "targeting": {
+          "kind": "printed",
+          "max": 2,
+          "description": "Active Pokémon within the source Pokémon distance limit; self is legal under the booklet default."
+        },
+        "unresolvedSymbols": [],
+        "engineEligible": false,
+        "effectStatus": "combat-preview",
+        "engineScope": "combat-preview-only"
+      },
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/da4a1cc732bae99a.webp",
+        "sha256": "da4a1cc732bae99a69358208099ba5bb5247d6f11389c4d130418078a19c702f",
+        "facePosition": "right",
+        "observedAssetOrdinal": 80,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-pokemon-batch-4.md"
+      }
+    }
+  ]
+}

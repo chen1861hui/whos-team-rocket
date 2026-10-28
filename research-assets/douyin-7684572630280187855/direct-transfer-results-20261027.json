@@ -1,0 +1,485 @@
+{
+  "startedAt": "2026-10-27T12:38:37.420051+00:00",
+  "source": "https://www.douyin.com/note/7684572630280187855",
+  "policy": "Only exact previously observed signed URLs. Four workers; 15-second socket timeout; one attempt per missing URL.",
+  "originalHashes": {
+    "16dbf1226f8435b7.webp": "ff5485e1f645edd9fa98728429a636a36e6426db2a064b7bb26df426ce99c536",
+    "1d0ff1e50e0588f3.webp": "6d15ab5d0cf2db23bcaa9edf701a049c45487be046975ee1037e06ca3e8d1bd1",
+    "1fe3571035e312b6.webp": "dea42fd7edfdc907244db16105a4419dc48d0ae0d2c95bf97549d4fa6c9e09b8",
+    "2a38f5fdf0d555dc.webp": "c4c3819b3c2a38c622181a7d89efd9e24bbcb80e31da2e78ba3cbb5b83f03c57",
+    "2ce6114721e23bda.webp": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+    "37aa792489c5744b.webp": "ab9a9291431a9f07a237898e2ff32fbbffc577f499c277e8e9bb190df2a3bf17",
+    "3806ab68017599aa.webp": "f6adff34261725e4b01656074b7b5bd7d4a65c3249dd5bc01b03464fea235f9f",
+    "39437d37719487f3.webp": "cb4d9f58c66d2575f54b445e0135edab1f1cf006c2e1f98b260263e51bb58813",
+    "3ce12ea7061280d5.webp": "497900eb0c8526d12af738bb5b855af5083f0ad0c383df282e4a34c3a062a145",
+    "3e502b35e3a11c0a.webp": "18adf085911cbd3e4d43f79c6e5aa65f4f039975d36afbee79e64fae31532d7b",
+    "3e8e9215541293f2.webp": "7441ea6eb5182b63310c66ce7d3bb5f4a61e0093ac5ed39042e7174a4b045d5a",
+    "4435cba5816a6d22.webp": "5b7be4f36e6a2f5fcb08a20fd3e7666a7b9a627f42dbc435eb3ca7af43e46464",
+    "446dff6cad2bbf79.webp": "bba5b4a772d8f5cc71d193c38b5088400aa34de5004cee794a631a66c22044c6",
+    "46f7a756255255d2.webp": "fd7bd4b4f1b99bd74be4e896ff98f4f370cc01aa7119988b63bf313f25cbc173",
+    "4754ca927840578d.webp": "e6502a310e3d5106a94fc11feaf2ae06d5eae22eca63ed41390ea136a2b93db9",
+    "4be9d98ef5800e1e.webp": "1ce2e1fec39f7248e0770e4532078f3f8f4c4caa2b1c7265868dbdbeb3986080",
+    "4d6f27261b083205.webp": "429f7e081738d4fc68244fc5bbd6291d88348401cdd8c550ec8576f35ffe8593",
+    "50313e61fed9704e.webp": "cf3e56757c7504fead2755494ae95f70c166df9eb9c5bcce4180c60eb870c3ba",
+    "5afd461637ceef9f.webp": "55f5804f8d810a0abcd5f1eb5ee621434f8f91e7966125a125f132351257204e",
+    "607245c532f5f96b.webp": "c27da53baef591547d0ae122ec6ba6f338c1844155c579bd3be939da74c70076",
+    "673b57f8d60f404f.webp": "6b10ca91ea19f281beb7fa4c647e322dbc486c28c951dddc6105905fd6514b89",
+    "6ac040c2b49bb16b.webp": "ac8bcd0934c941df0cb428aac376755abdec603c20ec3a33a457a5a50029f40f",
+    "70fa7ae258309b0a.webp": "254a97594b012c1d901e58602561709b4b169a5c5bb0f39eeebd43be4f9ffad4",
+    "7eaec309be7319cf.webp": "91a0747d348970a1859f5aaf59e0ad30f3211d13dab99bfbf40e18a60162cfb6",
+    "822f8d0ea4aa5fd2.webp": "104717f43807ff115267ca0ec3ffa0b4eaa3282d52e7ceb2b1f5775ea88e5881",
+    "884282a55b1f31ba.webp": "873093999e8df1c7e62cd6a85260d2cfa502cfd194b87586b424c98ea501f4bb",
+    "8aa8f78fb2454b3c.webp": "be6501be97dd9e2d155c2d6e7f92801f882e4d0756011951b1f82aba1031ee72",
+    "8eae984590659cfe.webp": "1afc0be56bf872417f2cd4772b37214dbd64175b0ddd06646688436e59b4b8b9",
+    "90856a0dfd9c6673.webp": "8866790621b016aed52fb6bc33d67b9b142bab266337823ef4b4af144b855d69",
+    "969aaeb98538b1a7.webp": "1bb4bdcd69cb4986d73a17d8cfa37e865c5116b81d0d08a25a246f8747df2608",
+    "9daca93d6836499e.webp": "364809d7123ab5541d9a772cf0386bc7d288bd0d75b9358811025670ea54b712",
+    "9f65c439556c02e1.webp": "6ca955a7c1454c6e26b6486d7526e53c004efe454f67935900c77a574880fc6e",
+    "a84a204806c6aaea.webp": "d886ccfcd2365c7df28b2356d991296d52ac01f191f483a859f1484fa78267e9",
+    "aebe5753010027b3.webp": "45829743b1fd63cae15939b5d804c002a2209eab6fc3a8156b8e683216dae235",
+    "b280570639f39edd.webp": "5fba4f27c085acf024e320caff04c03b5bcc250ce8ca68c7131e756eb01ae3d2",
+    "b5a47d16cbd12a6b.webp": "10cadb7ff0e652e8132d8a7fb26c127134da7006c8389217c8151593400ecb63",
+    "b7f7b17669cbcf18.webp": "5355c0073aaa8faa8e35ff28717a02d448d4bb5333c51b6b96c08dcce05ce2ed",
+    "b97b04e3dc50bc91.webp": "433848ed3ad316b213cf981044a364926bca2b839cbc66085a11ac70002b5b29",
+    "bb30feae53e3cae4.webp": "f951d9549298f416e4d1f47ad5e97f67a724fb5ad1084a7e5065b9ed259d82a5",
+    "c2c3b8e6271d44f3.webp": "f9ad64c8da47c84c6225684c74971b61ff70205bed1220a16753c6a6b21ed3a6",
+    "c92ef6b729134c2c.webp": "da6c10968393a5a9bd25abdcd17b258ee634349b9b1c1be1c7a393171ef85924",
+    "cc3ea6ca8c274bfa.webp": "b8080a34b58e9978a098a4b0e2704fa39cb6571ee44dba12f564fe0485bd49bf",
+    "ce76e230919194cf.webp": "172e72b14f8a823078bd30fce1d0716d7c4f50188a4a4aa6f18681c6de3873b7",
+    "d12d2615c2459559.webp": "026a221c8ee477ac1f6505b0c6a07dced56b12cd1c74c9ebfcb1c80db95cc749",
+    "d3083eca1c028544.webp": "96a84e45fd8bbc9b823dd0c83e148fe32403de932f59d2f8cdcff6e329336466",
+    "d3af2ba9dcacb1f2.webp": "3a7abaac94781345d6fb096269a155f79b6c75ecc0affef926fd0d687bf4aa44",
+    "dcce9913ff5e4e91.webp": "eca4116f007a6ae66b4dbe585301ec8a5a9ebf15cc2bf7d5ac3fcb7cb4229ba9",
+    "dd4da468dec62517.webp": "4b09a6032b1499eb7ca5bc47dafe38c1042f014ab8a56a02a450952881623ca8",
+    "de760adc11d0ed85.webp": "b7b22b8da1dbe695b6dfd61ffa73ec96389d1e477647a8f4a2bc1a07259cb3b2",
+    "e14644a3470dab05.webp": "2abf68b08f63bcfe6bed408431489ad5bb8c2ba46c0b1abf011c9723711cd590",
+    "e1eccf176c187faf.webp": "be032b6154c5d3fe9951eeb7030c4d4d85f5eb37a5b487fa33abb17522ee2c2f",
+    "f93f4ddbd5eaa174.webp": "ca543caac727172c9010db263cb6a8059d6e9f4e8001f4263573964d21c814bf",
+    "f9d4649bf774abae.webp": "51e918769a502029be54cb916baa067ad7f2b7a72d4a72dd1d21f84107e4e905",
+    "fd4244524a22cb33.webp": "330a7cf98e5006c30d2e03d255fa6c578ea242603a611ba0f963713548b92581"
+  },
+  "pendingAtStart": 26,
+  "results": [
+    {
+      "candidateDomOrdinal": 57,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocqeKVAFeAEGAzGTBeBKvtQARL7miSiANaIIBS~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=s6cTVGwiSh4px73Lk4qA%2FXX5elM%3D",
+      "startedAt": "2026-10-27T12:38:37.432395+00:00",
+      "status": "saved",
+      "filename": "b72df440c83a1fa2.webp",
+      "sha256": "b72df440c83a1fa24af3519bd1bce676385811ff82199de8f5fb316d17e07c70",
+      "bytes": 91320,
+      "dimensions": {
+        "width": 1071,
+        "height": 1506
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.334
+    },
+    {
+      "candidateDomOrdinal": 55,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oMFIBADOILAtlSAAQ7jGaTRNiqKAveVKaBzeEe~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=LZI%2FpsFVR5MmAvVyGLRndaypj5w%3D",
+      "startedAt": "2026-10-27T12:38:37.429202+00:00",
+      "status": "saved",
+      "filename": "ede6e13c73ae2b6e.webp",
+      "sha256": "ede6e13c73ae2b6e151d23f58067349f2b2e1acfdf91bb56360b215cc48a0730",
+      "bytes": 100698,
+      "dimensions": {
+        "width": 1194,
+        "height": 1688
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.343
+    },
+    {
+      "candidateDomOrdinal": 58,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oYKeqLtBIQFIAhSNiKevUATA7AzlVGaRBAOeEg~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=aWDzU9Y%2BqNDrAgWNbJ9BUo5TamM%3D",
+      "startedAt": "2026-10-27T12:38:37.432761+00:00",
+      "status": "saved",
+      "filename": "ce3da1b1d2033d35.webp",
+      "sha256": "ce3da1b1d2033d35db112ee809c4513a2a3173609e273cf26828938912cfac02",
+      "bytes": 190158,
+      "dimensions": {
+        "width": 2132,
+        "height": 1493
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.357
+    },
+    {
+      "candidateDomOrdinal": 56,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/owF7GIARItVANOBeQEKAqaLAzSQQKBeie3AnvT~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=%2FkmmX60Tu7Gi%2FeGPL9iOfvcG1Co%3D",
+      "startedAt": "2026-10-27T12:38:37.431902+00:00",
+      "status": "saved",
+      "filename": "d03c99a886622585.webp",
+      "sha256": "d03c99a886622585ed3e4e539c8f47a1c09cc142306e7d96d4014fffc606d826",
+      "bytes": 183204,
+      "dimensions": {
+        "width": 2200,
+        "height": 1524
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.36
+    },
+    {
+      "candidateDomOrdinal": 59,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o8AUmTse7VIeKaBwEiGUbvLiA6fSAA9QbdVAgB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QyjKeN%2FNZlhxtIU3nCmNmsgOek8%3D",
+      "startedAt": "2026-10-27T12:38:37.766831+00:00",
+      "status": "saved",
+      "filename": "b3d70427fb229ee1.webp",
+      "sha256": "b3d70427fb229ee174dfd24000588923c2b58d3c30dac31a759fbbd4dea04c0e",
+      "bytes": 77764,
+      "dimensions": {
+        "width": 1183,
+        "height": 1579
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.073
+    },
+    {
+      "candidateDomOrdinal": 60,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogABAeqKntVQeEiAeFGiNITcaSK7IvLAAcRBYz~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=zNP3CGoD4sOiY7O6l%2F8cOfeovqo%3D",
+      "startedAt": "2026-10-27T12:38:37.773339+00:00",
+      "status": "saved",
+      "filename": "4c4ca1eb3c341f5f.webp",
+      "sha256": "4c4ca1eb3c341f5f1ac4a55788339a5552d3aa7b6cad25b8096acbe77e934a5e",
+      "bytes": 162320,
+      "dimensions": {
+        "width": 1961,
+        "height": 1386
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.099
+    },
+    {
+      "candidateDomOrdinal": 61,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osK1VWstAAA3AeDmgEiFUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=L6%2FGutaF8eagI5MvGGynaNz9KZc%3D",
+      "startedAt": "2026-10-27T12:38:37.791674+00:00",
+      "status": "saved",
+      "filename": "ecaafd9dc7bb0598.webp",
+      "sha256": "ecaafd9dc7bb059844e985c844651a31bf3a89edfa3474b3122f7eb411b313ec",
+      "bytes": 167080,
+      "dimensions": {
+        "width": 1365,
+        "height": 1869
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.11
+    },
+    {
+      "candidateDomOrdinal": 62,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooViGACxE0eNCsACRf3KlIot1gAF5BVLUAigAA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fKlKtWcdd%2FSCw2mvcZmTvufkggo%3D",
+      "startedAt": "2026-10-27T12:38:37.793163+00:00",
+      "status": "saved",
+      "filename": "2b8363ea1b40ef9c.webp",
+      "sha256": "2b8363ea1b40ef9c347466a712f5b393667475ecd1c65a7971ecd0bcfdeaa574",
+      "bytes": 286870,
+      "dimensions": {
+        "width": 2273,
+        "height": 1568
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.122
+    },
+    {
+      "candidateDomOrdinal": 63,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o4NBHALAiC7AIgig1XVAtFofKs3eCCAUlEAj5x~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=3f8Jlx2aF2tklUORBbjpLh76SLI%3D",
+      "startedAt": "2026-10-27T12:38:37.840279+00:00",
+      "status": "saved",
+      "filename": "65a09eabe1644520.webp",
+      "sha256": "65a09eabe164452056cd322a45d15787fcb03d803c70118a58485d4f88366ef1",
+      "bytes": 89530,
+      "dimensions": {
+        "width": 1195,
+        "height": 1644
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.094
+    },
+    {
+      "candidateDomOrdinal": 65,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/ooK1WtstAAA3AeI6gEiJUFNBCf5VxgoiAACClI~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=rHemuFQ1gcWqKpIkRiaxjIcMoe8%3D",
+      "startedAt": "2026-10-27T12:38:37.903021+00:00",
+      "status": "saved",
+      "filename": "246197ed6800a311.webp",
+      "sha256": "246197ed6800a3118d3601040b16683df3ccf70147ad642e0968892b332af874",
+      "bytes": 106480,
+      "dimensions": {
+        "width": 1123,
+        "height": 1538
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.08
+    },
+    {
+      "candidateDomOrdinal": 64,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/okoA5UACKixIACNAt13Ce7gAsiElfAVBIlFgW7~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=nH3%2B92ADOw3kk8MXq89Ky4R%2FnsA%3D",
+      "startedAt": "2026-10-27T12:38:37.873886+00:00",
+      "status": "saved",
+      "filename": "8bd4f00fac36f980.webp",
+      "sha256": "8bd4f00fac36f980ebcc3f6c98ec80ac69cd2a0e540c758bca799fd1c936a38f",
+      "bytes": 228670,
+      "dimensions": {
+        "width": 2369,
+        "height": 1638
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.137
+    },
+    {
+      "candidateDomOrdinal": 66,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/osAtFoUKBICgKl3sAxiANreCVCfG1AAEiWg5AU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GBR0176D9SzuHknWe2%2FNW1uvWyQ%3D",
+      "startedAt": "2026-10-27T12:38:37.916451+00:00",
+      "status": "saved",
+      "filename": "552ac4965b807626.webp",
+      "sha256": "552ac4965b8076262df50692e92c897ce5cb0b3dde4fee6362df0b8dd202aa64",
+      "bytes": 165674,
+      "dimensions": {
+        "width": 1964,
+        "height": 1335
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.1
+    },
+    {
+      "candidateDomOrdinal": 67,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ogxIg0UEKtAFAS1L5ioCAEiAlB3gfUAVeACsCN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=Nb4arHjMzIYqdO6eiVkFvgZi7pI%3D",
+      "startedAt": "2026-10-27T12:38:37.935923+00:00",
+      "status": "saved",
+      "filename": "147c200af1b0b31d.webp",
+      "sha256": "147c200af1b0b31d62f520c21b47307f808247d675b656649a03e546c56ddb7b",
+      "bytes": 76576,
+      "dimensions": {
+        "width": 1089,
+        "height": 1572
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.092
+    },
+    {
+      "candidateDomOrdinal": 69,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAiQgXpIVbALAeqazFRFA3EAKDuAfvAq9ACYFN~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=bsnUhZk0Ag6wOvdO2ch8sJoPyRU%3D",
+      "startedAt": "2026-10-27T12:38:38.012444+00:00",
+      "status": "saved",
+      "filename": "947078209d187ff7.webp",
+      "sha256": "947078209d187ff73c5b8d9a548f8d44a52a2d3c8979a5629392cd1c19d4925b",
+      "bytes": 63096,
+      "dimensions": {
+        "width": 1165,
+        "height": 1647
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.069
+    },
+    {
+      "candidateDomOrdinal": 68,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/owgle1AKUC5iAFb7AAIAV3sfCtXgqiEBAxNCMo~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=ZxHPOaAduu9mrENnHA4eagzWP28%3D",
+      "startedAt": "2026-10-27T12:38:37.984100+00:00",
+      "status": "saved",
+      "filename": "65a574027315cd33.webp",
+      "sha256": "65a574027315cd33ca580d4f44855c3988204bfc4d5d67f40663edf7574f31f4",
+      "bytes": 211890,
+      "dimensions": {
+        "width": 2275,
+        "height": 1503
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.126
+    },
+    {
+      "candidateDomOrdinal": 70,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oggAxiot1AAUFVC3ABCgCp5UiAsENIfegA5KlO~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=YIhWB29ZhdlSHD0jVBBvKYLP5kk%3D",
+      "startedAt": "2026-10-27T12:38:38.017426+00:00",
+      "status": "saved",
+      "filename": "ee7ea946e3c6ca97.webp",
+      "sha256": "ee7ea946e3c6ca970a64311c1680f7a95ccf79195c75790a9a27d8e243a52091",
+      "bytes": 189906,
+      "dimensions": {
+        "width": 2154,
+        "height": 1476
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.108
+    },
+    {
+      "candidateDomOrdinal": 71,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oseCbACtA3AIVAg1PoNiisxUEC5fvAXlDgBFAK~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=kcUhjo%2B040GBtxPDEscXK%2BAmSmU%3D",
+      "startedAt": "2026-10-27T12:38:38.028595+00:00",
+      "status": "saved",
+      "filename": "6d32d20d75165f92.webp",
+      "sha256": "6d32d20d75165f92c9aa0373f62506bf57338f8a793b5a46927a8905d93f5015",
+      "bytes": 103116,
+      "dimensions": {
+        "width": 1285,
+        "height": 1792
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.108
+    },
+    {
+      "candidateDomOrdinal": 73,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/o0qFYuAiIEqbrfAARLqAKDACpQPzNiAfgAVFF9~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=pzyVZ7zuspi%2B2fnST%2BDUs4SC9pE%3D",
+      "startedAt": "2026-10-27T12:38:38.111393+00:00",
+      "status": "saved",
+      "filename": "7269aee9ae4cfc48.webp",
+      "sha256": "7269aee9ae4cfc4897ae3edf55f0eab66ba722128abfe495144a7764ba12991a",
+      "bytes": 78776,
+      "dimensions": {
+        "width": 1060,
+        "height": 1486
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.079
+    },
+    {
+      "candidateDomOrdinal": 72,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/ocFIAAigEFAVspAgQ9eDNFbiRqLAYuqKYAzfCA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=TWDic420fTyzwnJm7Gaeoa2aI5Q%3D",
+      "startedAt": "2026-10-27T12:38:38.082620+00:00",
+      "status": "saved",
+      "filename": "fd829ad608cac48e.webp",
+      "sha256": "fd829ad608cac48ebfa5dc0e5492e4fc76b3a9b8105d403f56f5858598bf5905",
+      "bytes": 197276,
+      "dimensions": {
+        "width": 2279,
+        "height": 1556
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.113
+    },
+    {
+      "candidateDomOrdinal": 75,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oggATfolxgXeBCAIAt3iACCNFAUiEmI51VsKAC~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=soME6cDHgSyrDfWKhypw5ixpp9E%3D",
+      "startedAt": "2026-10-27T12:38:38.137241+00:00",
+      "status": "saved",
+      "filename": "9414297694aaf061.webp",
+      "sha256": "9414297694aaf061a645f18250adb1eede7c9403a99ca628b37806437b7dca08",
+      "bytes": 111494,
+      "dimensions": {
+        "width": 1298,
+        "height": 1778
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.085
+    },
+    {
+      "candidateDomOrdinal": 74,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oMAtsCEgNMAiSioFCWeV3Uf5AsBrACAIxAg1Kl~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=QPQCpRX1vLml%2BmG2tqTKG%2BdeB40%3D",
+      "startedAt": "2026-10-27T12:38:38.126592+00:00",
+      "status": "saved",
+      "filename": "64613fdec379daf2.webp",
+      "sha256": "64613fdec379daf2649b2f0b5b81ea020144b18a57864679362aca7f864dc3e0",
+      "bytes": 264658,
+      "dimensions": {
+        "width": 2069,
+        "height": 1428
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.109
+    },
+    {
+      "candidateDomOrdinal": 77,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oAfeEAsKV3CUCA5lVQCVIytFgAigA1AoUxBNAi~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=fLJLe8N7y3oE6lsCLP2heHNl7Kc%3D",
+      "startedAt": "2026-10-27T12:38:38.197100+00:00",
+      "status": "saved",
+      "filename": "5e1440d1e2c3957a.webp",
+      "sha256": "5e1440d1e2c3957a83cfd6daf804ba009aaf9ecc5b20b3a4108d9f4f583cbe71",
+      "bytes": 99072,
+      "dimensions": {
+        "width": 1254,
+        "height": 1773
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.082
+    },
+    {
+      "candidateDomOrdinal": 76,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUVg5VFCAKsAo3N1eTUCAxtcgiIEEAilACAUfB~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=c8V0Pq64ecET3NVLRwFILMYtPXE%3D",
+      "startedAt": "2026-10-27T12:38:38.191370+00:00",
+      "status": "saved",
+      "filename": "00d540d573d962d2.webp",
+      "sha256": "00d540d573d962d202a50b458b15e97772180cca33b338efefe908b175a6f73e",
+      "bytes": 199464,
+      "dimensions": {
+        "width": 2485,
+        "height": 1697
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.115
+    },
+    {
+      "candidateDomOrdinal": 78,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813/oUAV5CWfe1iMCNAiCtBlxsioAg6UgA3EKUFAIA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=9CyCgyjFqPILlCV4aLqdF%2FLLC1Y%3D",
+      "startedAt": "2026-10-27T12:38:38.223439+00:00",
+      "status": "saved",
+      "filename": "13d02ab71efd1e99.webp",
+      "sha256": "13d02ab71efd1e9900facbb1f2be37ff9c9546f8a72abcec210bc113891de53e",
+      "bytes": 177034,
+      "dimensions": {
+        "width": 2169,
+        "height": 1445
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.099
+    },
+    {
+      "candidateDomOrdinal": 79,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/oUlX3iCeNB1CUtAsFgA5A6gxEfVCKWAiwJIAoA~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=vlSvIyVYNv4wZXqPrMlO6INNQ0A%3D",
+      "startedAt": "2026-10-27T12:38:38.236665+00:00",
+      "status": "saved",
+      "filename": "404de94e118f7ab2.webp",
+      "sha256": "404de94e118f7ab2c5edda530ddad880aac6e61dbbe90ceb49b9006d17afc06a",
+      "bytes": 80834,
+      "dimensions": {
+        "width": 1159,
+        "height": 1678
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.097
+    },
+    {
+      "candidateDomOrdinal": 80,
+      "imageIndex": null,
+      "originalURL": "https://p3-pc-sign.douyinpic.com/tos-cn-i-0813c001/osNCUo5ACotBzK3OAAAegCfsAVAilFi1gEYIxU~tplv-dy-aweme-images:q75.webp?biz_tag=aweme_images&from=327834062&lk3s=138a59ce&s=PackSourceEnum_AWEME_DETAIL&sc=image&se=false&x-expires=1795690800&x-signature=GADSBGr%2BwP5was3hVvOqMyvzE5U%3D",
+      "startedAt": "2026-10-27T12:38:38.280423+00:00",
+      "status": "saved",
+      "filename": "da4a1cc732bae99a.webp",
+      "sha256": "da4a1cc732bae99a69358208099ba5bb5247d6f11389c4d130418078a19c702f",
+      "bytes": 228148,
+      "dimensions": {
+        "width": 2390,
+        "height": 1646
+      },
+      "deduplicated": false,
+      "elapsedSeconds": 0.117
+    }
+  ],
+  "updatedAt": "2026-10-27T12:38:38.399335+00:00",
+  "finishedAt": "2026-10-27T12:38:38.402268+00:00",
+  "originalHashesUnchanged": true,
+  "savedPhotoFiles": 80,
+  "newSavedResults": 26
+}
