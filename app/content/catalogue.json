@@ -1440,7 +1440,7 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "evidenceNotes": [
         {
           "zh": "名称、等级与体力已按所提供照片复核。未实现的效果保持不可用。",
@@ -1458,8 +1458,55 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "traitName": {
+            "zh": "飘浮",
+            "en": "Levitate"
+          },
+          "abilityText": {
+            "zh": "你可以将一张天气为“雨天”（[暴雨]/[雷雨]）的手牌当一张【快躲开！】使用。",
+            "en": "You may use a rainy hand card (heavy rain or thunderstorm) as a Dodge! card."
+          },
+          "effectStatus": "combat-preview",
+          "translationStatus": "working-english",
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "moves": [
+            {
+              "name": {
+                "zh": "舌舔",
+                "en": "Lick"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“雨天”（[暴雨]/[雷雨]），目标宝可梦陷入“麻痹”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If it is rainy (heavy rain or thunderstorm), the target becomes Paralyzed."
+              },
+              "effectKind": "paralysis-rainy-judgment",
+              "effectTiming": "after-dealing-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only"
+            }
+          ],
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/6ac040c2b49bb16b.webp",
@@ -1488,8 +1535,55 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "traitName": {
+            "zh": "飘浮",
+            "en": "Levitate"
+          },
+          "abilityText": {
+            "zh": "你可以将一张天气为“雨天”（[暴雨]/[雷雨]）的手牌当一张【快躲开！】使用。",
+            "en": "You may use a rainy hand card (heavy rain or thunderstorm) as a Dodge! card."
+          },
+          "effectStatus": "combat-preview",
+          "translationStatus": "working-english",
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "moves": [
+            {
+              "name": {
+                "zh": "暗影球",
+                "en": "Shadow Ball"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[暴雨]，你弃置目标宝可梦对应的训练家的一张手牌。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. On heavy rain, discard one card from the target Pokémon’s trainer."
+              },
+              "effectKind": "shadow-ball",
+              "effectTiming": "after-dealing-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only"
+            }
+          ],
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/c92ef6b729134c2c.webp",
@@ -1518,8 +1612,55 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "traitName": {
+            "zh": "咒术之躯",
+            "en": "Cursed Body"
+          },
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你可以获得伤害来源对应的训练家的一张手牌。",
+            "en": "After this Pokémon receives damage, you may take one hand card from the trainer corresponding to the damage source."
+          },
+          "effectStatus": "combat-preview",
+          "translationStatus": "working-english",
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "moves": [
+            {
+              "name": {
+                "zh": "祸不单行",
+                "en": "Hex"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 3,
+              "effectText": {
+                "zh": "若目标宝可梦处于特殊状态，此招式的伤害值+1。",
+                "en": "If the target Pokémon has a special status, this move’s damage is increased by 1."
+              },
+              "effectKind": "hex",
+              "effectTiming": "source-damage-modification",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only"
+            }
+          ],
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/c92ef6b729134c2c.webp",
@@ -1545,7 +1686,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-gastly-magikarp.md"
     },
     {
       "id": "caterpie",
@@ -4951,7 +5093,7 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "evidenceNotes": [
         {
           "zh": "名称、等级与体力已按所提供照片复核。未实现的效果保持不可用。",
@@ -4969,8 +5111,55 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "traitName": {
+            "zh": "胆怯",
+            "en": "Rattled"
+          },
+          "abilityText": {
+            "zh": "你跳过你的弃牌阶段。",
+            "en": "Skip your Discard phase."
+          },
+          "effectStatus": "combat-preview",
+          "translationStatus": "working-english",
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "moves": [
+            {
+              "name": {
+                "zh": "跃起",
+                "en": "Splash"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "此招式指定此宝可梦为目标。但是什么都没有发生。",
+                "en": "This move targets this Pokémon. But nothing happens."
+              },
+              "effectKind": "splash",
+              "effectTiming": "on-uncanceled-settlement",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "self",
+                "max": 1,
+                "description": "This Pokémon only."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only"
+            }
+          ],
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/947078209d187ff7.webp",
@@ -4999,8 +5188,55 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "traitName": {
+            "zh": "自信过度",
+            "en": "Moxie"
+          },
+          "abilityText": {
+            "zh": "当你使用【接招吧！】指定目标后，你摸一张牌。",
+            "en": "After you use Take this! and choose a target, draw one card."
+          },
+          "effectStatus": "combat-preview",
+          "translationStatus": "working-english",
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "moves": [
+            {
+              "name": {
+                "zh": "攀瀑",
+                "en": "Waterfall"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“畏缩”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. On thunderstorm, the target Flinches."
+              },
+              "effectKind": "flinch-after-damage",
+              "effectTiming": "after-dealing-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only"
+            }
+          ],
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/ee7ea946e3c6ca97.webp",
@@ -5029,8 +5265,55 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "traitName": {
+            "zh": "自信过度",
+            "en": "Moxie"
+          },
+          "abilityText": {
+            "zh": "当你使用【接招吧！】指定目标后，你摸一张牌。",
+            "en": "After you use Take this! and choose a target, draw one card."
+          },
+          "effectStatus": "combat-preview",
+          "translationStatus": "working-english",
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "moves": [
+            {
+              "name": {
+                "zh": "破坏光线",
+                "en": "Hyper Beam"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 3,
+              "effectText": {
+                "zh": "声明使用此招式时，你可以弃置一张手牌，然后本次使用此招式的伤害值+1。",
+                "en": "When declaring this move, you may discard one hand card; this use of the move deals 1 additional damage."
+              },
+              "effectKind": "hyper-beam",
+              "effectTiming": "on-declaration",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon identity per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "unresolvedSymbols": [],
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only"
+            }
+          ],
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/ee7ea946e3c6ca97.webp",
@@ -5056,7 +5339,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-gastly-magikarp.md"
     },
     {
       "id": "dratini",

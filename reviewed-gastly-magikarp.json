@@ -1,0 +1,15 @@
+{
+  "reviewedAt": "2026-10-29",
+  "edition": "unidentified",
+  "reviewStatus": "saved-visual-transcription-pending-root-signoff",
+  "faces": [
+    { "group": "gastly", "level": 1, "name": { "zh": "鬼斯", "en": "Gastly" }, "hp": 3, "traitName": { "zh": "飘浮", "en": "Levitate" }, "move": { "zh": "舌舔", "en": "Lick", "printedValue": 1, "effectKind": "paralysis-rainy-judgment" }, "source": { "filename": "research-assets/douyin-7684572630280187855/6ac040c2b49bb16b.webp", "sha256": "ac8bcd0934c941df0cb428aac376755abdec603c20ec3a33a457a5a50029f40f", "position": "whole", "ordinal": 45 } },
+    { "group": "gastly", "level": 2, "name": { "zh": "鬼斯通", "en": "Haunter" }, "hp": 3, "traitName": { "zh": "飘浮", "en": "Levitate" }, "move": { "zh": "暗影球", "en": "Shadow Ball", "printedValue": 2, "effectKind": "shadow-ball" }, "source": { "filename": "research-assets/douyin-7684572630280187855/c92ef6b729134c2c.webp", "sha256": "da6c10968393a5a9bd25abdcd17b258ee634349b9b1c1be1c7a393171ef85924", "position": "left", "ordinal": 46 } },
+    { "group": "gastly", "level": 3, "name": { "zh": "耿鬼", "en": "Gengar" }, "hp": 4, "traitName": { "zh": "咒术之躯", "en": "Cursed Body" }, "move": { "zh": "祸不单行", "en": "Hex", "printedValue": 3, "effectKind": "hex" }, "source": { "filename": "research-assets/douyin-7684572630280187855/c92ef6b729134c2c.webp", "sha256": "da6c10968393a5a9bd25abdcd17b258ee634349b9b1c1be1c7a393171ef85924", "position": "right", "ordinal": 46 } },
+    { "group": "magikarp", "level": 1, "name": { "zh": "鲤鱼王", "en": "Magikarp" }, "hp": 3, "traitName": { "zh": "胆怯", "en": "Rattled" }, "move": { "zh": "跃起", "en": "Splash", "printedValue": null, "effectKind": "splash" }, "source": { "filename": "research-assets/douyin-7684572630280187855/947078209d187ff7.webp", "sha256": "947078209d187ff73c5b8d9a548f8d44a52a2d3c8979a5629392cd1c19d4925b", "position": "whole", "ordinal": 69 } },
+    { "group": "magikarp", "level": 2, "name": { "zh": "暴鲤龙", "en": "Gyarados" }, "hp": 4, "traitName": { "zh": "自信过度", "en": "Moxie" }, "move": { "zh": "攀瀑", "en": "Waterfall", "printedValue": 2, "effectKind": "flinch-after-damage" }, "source": { "filename": "research-assets/douyin-7684572630280187855/ee7ea946e3c6ca97.webp", "sha256": "ee7ea946e3c6ca970a64311c1680f7a95ccf79195c75790a9a27d8e243a52091", "position": "left", "ordinal": 70 } },
+    { "group": "magikarp", "level": 3, "name": { "zh": "暴鲤龙", "en": "Gyarados" }, "hp": 4, "traitName": { "zh": "自信过度", "en": "Moxie" }, "move": { "zh": "破坏光线", "en": "Hyper Beam", "printedValue": 3, "effectKind": "hyper-beam" }, "source": { "filename": "research-assets/douyin-7684572630280187855/ee7ea946e3c6ca97.webp", "sha256": "ee7ea946e3c6ca970a64311c1680f7a95ccf79195c75790a9a27d8e243a52091", "position": "right", "ordinal": 70 } }
+  ],
+  "engineEligible": false,
+  "engineScope": "combat-preview-only"
+}

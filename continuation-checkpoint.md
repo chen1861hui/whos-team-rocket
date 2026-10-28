@@ -1,4 +1,8 @@
-## Current runtime and rule contracts — 2026-10-29
+## Gastly and Magikarp — 2026-10-29
+
+The project is now a standalone Git repository connected to `https://github.com/chen1861hui/whos-team-rocket.git`; the initial pushed baseline is commit `85b2202`. Combat supports 22 reviewed groups / 66 faces and 398/398 tests pass. Native controls cover Hyper Beam's optional declaration discard, Levitate rainy-card Dodge conversion and private Cursed Body choices. Both catalogue copies are byte-identical. See `gameplay-milestone-18.md` and `reviewed-gastly-magikarp.md/json`.
+
+## Current runtime and rule contracts — 2026-10-29 (historical)
 
 Project: C:\src\team-rocket-web, application app/. Main preview4173 runs milestone17 with existing saved rooms preserved. The current tool environment has unrestricted filesystem access; older statements requiring Csrc escalation are historical. No Git repository, commit, hosting or new asset download. Temporary QA used isolated Game/bug-work data and port4174; evidence was copied. Automatic approval review blocked recursive removal of the temporary folder with the reason blocked by policy, so Game/bug-work remains. The QA server is stopped.
 

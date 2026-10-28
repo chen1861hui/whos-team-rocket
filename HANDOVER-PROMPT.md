@@ -1,4 +1,10 @@
-## Caterpie and Weedle — 2026-10-29 (current)
+## Gastly and Magikarp — 2026-10-29 (current)
+
+**398/398 tests pass. Combat supports 22 groups / 66 faces**, adding Gastly/Haunter/Gengar and Magikarp/Gyarados/Gyarados. Levitate converts rainy hand cards into real Dodge responses; Lick, Shadow Ball and Waterfall use their reviewed judgments. Cursed Body privately takes from the source trainer, Hex gains damage against statused targets, Rattled skips only the discard phase, Splash does nothing after legal use, Moxie draws before defense, and Hyper Beam's optional declaration discard occurs before Moxie.
+
+The native UI supports Levitate, Cursed Body and Hyper Beam choices. Preserve the accepted arena, native cards, centered hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no guessed retail quantities. See gameplay-milestone-18.md and reviewed-gastly-magikarp.md/json. Earlier counts below are historical.
+
+## Caterpie and Weedle — 2026-10-29 (historical)
 
 **385/385 tests pass. Combat supports 20 groups / 60 faces**, adding Caterpie/Metapod/Butterfree and Weedle/Kakuna/Beedrill. Shield Dust blocks new statuses; Shed Skin discards selected own hand cards before HP loss. Compound Eyes filters other trainers’ actual intense-sun Dodges. Butterfree has rainy Whirlwind and sunny Sleep Powder. Beedrill’s Sniper removes trainer and move range limits. Fury Attack publicly reveals four actual cards and resolves one hit plus one per sunny card, with marker cleanup after the whole card.
 

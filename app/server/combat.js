@@ -124,6 +124,15 @@ function advanceJudgment(room,ctx) {
 }
 function continueJudgment(room,ctx,next,weather) {
   if(next.kind==='icicle-spear')return afterDamage(room,ctx);
+  if(next.kind==='shadow-ball') {
+    const owner=trainer(room,next.targetOwnerId),actor=trainer(room,next.sourcePlayerId);
+    if(weather==='rain'&&owner?.hand.length&&actor&&!actor.eliminated) {
+      room.resolution.handChoiceIds=shuffled(owner.hand.map(card=>card.id));
+      decision(room,'hand',actor.id,owner.id,ctx);
+      Object.assign(room.pendingBattle,{effect:'discard',choiceCount:owner.hand.length});return;
+    }
+    return afterDamage(room,ctx);
+  }
   if(next.kind==='status') {
     const matches=next.weathers?next.weathers.includes(weather):next.comparison==='not'?weather!==next.weather:weather===next.weather;
     if(matches)return applyStatus(room,ctx,creature(room,next.targetId),next.status,next.next);
@@ -217,6 +226,14 @@ function runReceivingEffect(room,effect,ctx) {
   if(effect==='synchronize' && resolution.card&&!resolution.cardClaimedBy) {
     decision(room,'synchronize',owner.id,owner.id,ctx);Object.assign(room.pendingBattle,{trait:'synchronize',canTrait:true,card:{name:resolution.card.name,weather:resolution.card.weather,kind:resolution.card.kind}});return;
   }
+  if(effect==='cursed-body') {
+    const sourceTrainer=trainer(room,resolution.sourcePlayerId);
+    if(sourceTrainer?.hand.length && sourceTrainer.id!==owner.id) {
+      resolution.handChoiceIds=shuffled(sourceTrainer.hand.map(card=>card.id));
+      decision(room,'cursed-body',owner.id,sourceTrainer.id,ctx);
+      Object.assign(room.pendingBattle,{choiceCount:sourceTrainer.hand.length,trait:'cursed-body',canTrait:true});return;
+    }
+  }
   if(effect==='oblivious') {
     room.turn.damageImmunityIds??=[];if(!room.turn.damageImmunityIds.includes(target.instanceId))room.turn.damageImmunityIds.push(target.instanceId);
     note(room,'迟钝使此宝可梦在当前训练家回合结束前不再受到伤害。','Oblivious prevents further damage to this Pokémon until the current trainer turn ends.');
@@ -307,7 +324,7 @@ export function publicBattleDecision(room,self) {
   if(pending.kind==='distribute'&&pending.actorId===self.id)pending.cards=(room.resolution.distributionCards||[]).map(({name,weather,kind},index)=>({index,name,weather,kind}));
   if(pending.kind==='cycle' && pending.actorId===self.id)pending.cards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='judgment' && pending.actorId===self.id)pending.replacementCards=self.hand.filter(card=>['intense-sun','clear'].includes(card.weather)).map(({id,name,weather,kind})=>({id,name,weather,kind}));
-  if(['hand','exile'].includes(pending.kind) && pending.actorId===self.id) {
+  if(['hand','exile','cursed-body'].includes(pending.kind) && pending.actorId===self.id) {
     const target=trainer(room,pending.targetId);
     pending.choices=(room.resolution.handChoiceIds||[]).map((id,index)=>{
       const card=target.hand.find(c=>c.id===id);
@@ -405,17 +422,26 @@ export function playBattleMove(room, player, input, ctx) {
   const selected=player.hand.find(card=>card.id===input.cardId);
   requireRule(selected && (command?selected.kind==='command':move.condition.weatherIconsInCondition.includes(selected.weather)),'INVALID_CARD','Choose one qualifying card from your own hand.');
   requireRule(!command||player.active.status!=='paralysis'||['intense-sun','clear'].includes(selected.weather),'INVALID_CARD','Paralysis permits only sunny-weather command cards.');
+  const mayBoost=command&&player.active.catalogueId==='magikarp'&&player.active.level===3;
+  requireRule(mayBoost||input.boostCardId===undefined,'INVALID_CARD','Only Hyper Beam accepts a declaration discard.');
+  const boost=input.boostCardId===undefined?null:player.hand.find(card=>card.id===input.boostCardId);
+  requireRule(input.boostCardId===undefined||(boost&&boost!==selected),'INVALID_CARD','Choose a different card from your own hand for Hyper Beam.');
+  if(boost)room.discardPile.push(...player.hand.splice(player.hand.indexOf(boost),1));
   player.hand.splice(player.hand.indexOf(selected),1);
   if(!command)room.discardPile.push(selected);
-  beginBattleMove(room,player,input.targetIds,command?selected:null,{...legal,move},ctx,command);
+  beginBattleMove(room,player,input.targetIds,command?selected:null,{...legal,move,damageBoost:boost?1:0},ctx,command);
 }
 function beginBattleMove(room,player,targetIds,command,legal,ctx,isCommand=true) {
   const source = player.active;
   if(isCommand)room.turn.commandCreatureId = source.instanceId;
   room.turn.usedMoves ??= []; room.turn.usedMoves.push(`${source.instanceId}:${legal.move.name.zh}`);
-  room.resolution = { kind: 'move', card: command, virtualCommand:isCommand&&!command, statusMove:!isCommand, moveIndex:legal.move.index??0,effectKind:legal.move.effectKind||null, ignoresReinforcements:source.catalogueId==='dratini'&&source.level>=2, sourceId: source.instanceId, sourcePlayerId: player.id, sourceLevel: source.level, sourceFamily: source.catalogueId, baseDamage: legal.move.printedValue, powerBoost: isCommand?beginCommand(source):0, targetIds: [...targetIds], index: 0, damagedIds: [], defenseIds: [] };
+  room.resolution = { kind: 'move', card: command, virtualCommand:isCommand&&!command, statusMove:!isCommand, moveIndex:legal.move.index??0,effectKind:legal.move.effectKind||null, ignoresReinforcements:source.catalogueId==='dratini'&&source.level>=2, sourceId: source.instanceId, sourcePlayerId: player.id, sourceLevel: source.level, sourceFamily: source.catalogueId, baseDamage: (legal.move.printedValue??0)+(legal.damageBoost||0), powerBoost: isCommand?beginCommand(source):0, targetIds: [...targetIds], index: 0, damagedIds: [], defenseIds: [] };
   if(!isCommand)note(room,`弃置一张符合天气的手牌使用${legal.move.name.zh}；目标正在决定响应。`,`One qualifying weather hand card was discarded to use ${legal.move.name.en}; the target is deciding a response.`);
   else note(room, command?'当前玩家使用接招吧！；目标正在决定响应。':'正义之心视为使用接招吧！；目标正在决定响应。', command?'The current trainer used Take this!; the target is deciding a response.':'Justified counted as using Take this!; the target is deciding a response.');
+  if(isCommand&&source.catalogueId==='magikarp'&&source.level>=2) {
+    if(room.drawPile.length+room.discardPile.length)drawBattleCards(room,player,1,'moxie');
+    else note(room,'自信过度已触发，但当前没有可摸取的牌。','Moxie triggered, but no card is currently available to draw.');
+  }
   if(source.catalogueId==='slowpoke' && source.level===3) {
     decision(room,'foresee',player.id,player.id,ctx);
     Object.assign(room.pendingBattle,{trait:'future-sight',canTrait:true});
@@ -455,6 +481,7 @@ function settleDamage(room, ctx) {
     }else note(room,'目标没有可以登场的备战搭档，吹飞未调换位置。','Whirlwind did not swap partners because the target has no living reserve.');
     return nextSettlement(room,ctx);
   }
+  if(resolution.sourceFamily==='magikarp'&&resolution.sourceLevel===1)return nextSettlement(room,ctx);
   if(resolution.effectKind==='sleep-judgment')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'sleep',weather:'thunderstorm',comparison:'not',next:'settlement'},resolution.sourcePlayerId);
   if(resolution.effectKind==='paralysis-judgment')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weather:'intense-sun',comparison:'not',next:'settlement'},resolution.sourcePlayerId);
   if(resolution.effectKind==='self-defense') {
@@ -480,13 +507,14 @@ function settleDamage(room, ctx) {
     }
     return nextSettlement(room,ctx);
   }
+  const printedDamage=resolution.baseDamage+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0);
   const reduction=resolution.dodgeReductions?.[target.instanceId]||0;
   if(reduction>0||hasShedSkin(target)) {
-    const amount=room.turn.damageImmunityIds?.includes(target.instanceId)?0:computeDamage(source,target,resolution.baseDamage,ctx.catalogue,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false});
+    const amount=room.turn.damageImmunityIds?.includes(target.instanceId)?0:computeDamage(source,target,printedDamage,ctx.catalogue,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false});
     resolution.modifierState={targetId:target.instanceId,amount,reduction,remaining:['dodge','defense','multiscale','marvel-scale','shed-skin']};
     return continueDamageModifiers(room,ctx);
   }
-  const amount = room.turn.damageImmunityIds?.includes(target.instanceId)?0:computeDamage(source, target, resolution.baseDamage, ctx.catalogue, { command: true, powerBoost: resolution.powerBoost, reinforcements:!resolution.ignoresReinforcements });
+  const amount = room.turn.damageImmunityIds?.includes(target.instanceId)?0:computeDamage(source, target, printedDamage, ctx.catalogue, { command: true, powerBoost: resolution.powerBoost, reinforcements:!resolution.ignoresReinforcements });
   receiveDamage(room,ctx,amount);
 }
 function continueDamageModifiers(room,ctx) {
@@ -564,7 +592,7 @@ function afterDamage(room,ctx) {
       if(resolution.effectKind==='pay-day') {
         decision(room,'pay-day',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);Object.assign(room.pendingBattle,{trait:'pay-day',canTrait:true});return;
       }
-      if(resolution.effectKind==='flinch-after-damage')return applyStatus(room,ctx,target,'flinch','afterDamage');
+      if(resolution.effectKind==='flinch-after-damage'&&resolution.sourceFamily!=='magikarp')return applyStatus(room,ctx,target,'flinch','afterDamage');
       if(family==='psyduck'&&level<=2&&activeOwner(room,target.instanceId)) {
         const markers=[...new Set(target.reinforcements||[])];
         if(markers.length) {
@@ -576,8 +604,12 @@ function afterDamage(room,ctx) {
         decision(room,'cycle',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);return;
       }
       if(family==='shellder' && level===3)return startJudgment(room,ctx,{kind:'icicle-spear',ownerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
-      const statusJudgment=(family==='charmander'||family==='vulpix'||(family==='growlithe'&&level>=2))?['burn','intense-sun']:['pikachu','magnemite'].includes(family)?['paralysis','thunderstorm']:family==='abra'&&level>=2?['confusion','intense-sun']:family==='psyduck'&&level===3?['confusion','rain']:(family==='slowpoke'&&level===2)||(family==='pidgey'&&level===3)?['flinch','thunderstorm']:family==='sandshrew'&&level===1||family==='grimer'&&level>=2||family==='weedle'&&level<=2?['poison','rain']:null;
-      if(statusJudgment)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:statusJudgment[0],weather:statusJudgment[1],...(['grimer','psyduck'].includes(family)&&level===3?{weathers:['rain','thunderstorm']}:{}),next:'afterDamage'},resolution.sourcePlayerId);
+      const statusJudgment=(family==='charmander'||family==='vulpix'||(family==='growlithe'&&level>=2))?['burn','intense-sun']:['pikachu','magnemite'].includes(family)?['paralysis','thunderstorm']:family==='gastly'&&level===1?['paralysis','rain']:family==='abra'&&level>=2?['confusion','intense-sun']:family==='psyduck'&&level===3?['confusion','rain']:(family==='slowpoke'&&level===2)||(family==='pidgey'&&level===3)||(family==='magikarp'&&level===2)?['flinch','thunderstorm']:family==='sandshrew'&&level===1||family==='grimer'&&level>=2||family==='weedle'&&level<=2?['poison','rain']:null;
+      if(statusJudgment)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:statusJudgment[0],weather:statusJudgment[1],...((['grimer','psyduck'].includes(family)&&level===3)||(family==='gastly'&&level===1)?{weathers:['rain','thunderstorm']}:{}),next:'afterDamage'},resolution.sourcePlayerId);
+      if(family==='gastly'&&level===2) {
+        const targetOwner=activeOwner(room,target.instanceId);
+        return startJudgment(room,ctx,{kind:'shadow-ball',targetOwnerId:targetOwner?.id,sourcePlayerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
+      }
       if(resolution.sourceFamily==='machop' && resolution.sourceLevel===3)return applyStatus(room,ctx,target,'confusion','afterDamage');
       if(resolution.sourceFamily==='sandshrew') {
         if(resolution.sourceLevel>=2) {
@@ -599,6 +631,7 @@ function afterDamage(room,ctx) {
       if(target.catalogueId==='pikachu'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('static');
       if(target.catalogueId==='abra'&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
       if(target.catalogueId==='slowpoke'&&room.turn.playerId!==targetOwner.id)resolution.receivingEffects.push('oblivious');
+      if(target.catalogueId==='gastly'&&target.level===3&&sourceOwner?.hand.length&&sourceOwner.id!==targetOwner.id)resolution.receivingEffects.push('cursed-body');
       if(itemEffective(room,target)&&sourceOwner&&!source.defeated){resolution.receivingEffects.push('rocky-helmet');resolution.helmetCardId=target.item.id;}
     }
   }
@@ -733,6 +766,18 @@ export function respondBattle(room,player,input,ctx) {
     }else requireRule(input.cardId===undefined,'INVALID_RESPONSE','Passing does not submit a card.');
     room.pendingBattle=null;afterDamage(room,ctx);return;
   }
+  if(pending.kind==='cursed-body') {
+    requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Take one source-trainer hand card with Cursed Body or pass.');
+    const ids=room.resolution.handChoiceIds||[],sourceTrainer=trainer(room,pending.targetId);
+    if(input.choice==='trait') {
+      requireRule(Number.isSafeInteger(input.handIndex)&&input.handIndex>=0&&input.handIndex<ids.length,'INVALID_RESPONSE','Choose an available hand-card slot.');
+      const index=sourceTrainer.hand.findIndex(card=>card.id===ids[input.handIndex]);
+      requireRule(index>=0,'STALE_DECISION','The source trainer hand changed.');
+      const [card]=sourceTrainer.hand.splice(index,1);gainBattleCards(room,player,[card],{reason:'take'});
+      note(room,'咒术之躯获得了伤害来源训练家的一张手牌。','Cursed Body took one hand card from the damage source’s trainer.');
+    }else requireRule(input.handIndex===undefined,'INVALID_RESPONSE','Passing does not choose a hand-card slot.');
+    delete room.resolution.handChoiceIds;room.pendingBattle=null;afterDamage(room,ctx);return;
+  }
   if(pending.kind==='scales') {
     requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Use Marvel Scale or pass.');
     const resolution=room.resolution;
@@ -841,8 +886,12 @@ export function respondBattle(room,player,input,ctx) {
     }
     if(input.choice==='dodge') {
       requireRule(!pending.cannotDodge,'INVALID_RESPONSE','This move cannot be canceled by Dodge!');
-      requireRule(!pending.blockedDodgeWeathers?.includes(player.hand.find(card=>card.id===input.cardId)?.weather),'INVALID_CARD','Compound Eyes prevents an intense-sun Dodge against this move.');
-      const response=takeCard(player,input.cardId,'dodge');room.discardPile.push(response);
+      const responseIndex=player.hand.findIndex(card=>card.id===input.cardId);
+      const response=player.hand[responseIndex];
+      const levitate=player.active?.catalogueId==='gastly'&&player.active.level<=2&&!player.active.defeated&&['rain','thunderstorm'].includes(response?.weather);
+      requireRule(responseIndex>=0&&(response.kind==='dodge'||levitate),'INVALID_CARD','Choose Dodge! or a rainy hand card with Levitate.');
+      requireRule(!pending.blockedDodgeWeathers?.includes(response.weather),'INVALID_CARD','Compound Eyes prevents an intense-sun Dodge against this move.');
+      player.hand.splice(responseIndex,1);room.discardPile.push(response);
       if(pending.dodgeReducesDamage) {
         pending.damageReduction=reduceMoveDamage(room,room.resolution.targetCreatureId);
         note(room,'锐利目光将快躲开！改为此招式对该宝可梦的伤害减1，持续到整个招式结束。','Keen Eye changed Dodge! into one damage reduction for this Pokémon until the whole move ends.');return;
