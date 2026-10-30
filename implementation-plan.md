@@ -1,4 +1,10 @@
-## Nidoran and Diglett — 2026-10-30 (current)
+## Clefairy and Exeggcute — 2026-10-30 (current)
+
+**492/492 tests pass. Combat supports 26 groups / 78 faces**, adding Clefairy/Clefairy/Clefable and Exeggcute/Exeggcute/Exeggutor. Cute Charm redirects a command target with one real intense-sun hand card before defense. Moonlight chooses heal2 or cure; Helping Hand draws2 through shared card gains. Harvest optionally draws1 in End after Discard. Leech Seed heals its source after damage, Seed Bomb deals2, and Psychic deals3 with intense-sun confusion judgment. Empty judgments now continue without inventing a weather result.
+
+GitHub: https://github.com/chen1861hui/whos-team-rocket.git. Branch codex/clefairy-exeggcute from1a5b1f3, retaining the previous Nidoran/Diglett work. No merge. PR creation remains unavailable under the documented GitHub integration403/sign-in limitation; no repeat attempt this batch. Preserve the accepted arena, native cards, centered three-level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no invented retail quantities. All26 reviewed groups execute;14 groups remain. See gameplay-milestone-20.md and reviewed-clefairy-exeggcute.md/json. Older counts below are historical.
+
+## Nidoran and Diglett — 2026-10-30 (historical)
 
 **442/442 tests pass. Combat supports 24 groups / 72 faces**, adding Nidoran♂/Nidorino/Nidoking and Diglett/Diglett/Dugtrio. Poison Point uses the original damage source and a non-intense-sun judgment. Double Kick resolves twice through the shared repeated-hit flow. Uninjured Horn Attack/Megahorn gain1 damage. Arena Trap pauses ordinary/effect switching for optional discard-or-cancel responses. Bulldoze/Earthquake remove one marker after positive damage; Earthquake supports two targets.
 

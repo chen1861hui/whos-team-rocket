@@ -1,0 +1,23 @@
+# Reviewed Clefairy and Exeggcute — 2026-10-30
+
+All six faces were visually read from four local S05 originals by root and an independent Sol agent. Edition unidentified; English names are working UI translations. Exact Chinese paragraphs, printed icons/values, HP and SHA256 provenance are saved in reviewed-clefairy-exeggcute.json and both catalogue copies. Photos remain research evidence, not game-card UI.
+
+Clefairy Lv1 HP3, Clefairy Lv2 HP4 and Clefable Lv3 HP4 are Support. All have Cute Charm: when targeted by Take this!, optionally discard one intense-sun hand card and redirect the move to another Pokémon within this Pokémon’s range, excluding the command user. Clear weather is not intense sun; the payment may be any hand-card kind. Pound costs one command and deals1. Lv2/3 Moonlight costs one command, has no damage numeral, ignores distance and chooses either restore2HP or recover special status. Clefable additionally has Helping Hand, one command/no damage numeral: the target Pokémon’s trainer draws2.
+
+Exeggcute Lv1 HP3, Exeggcute Lv2 HP4 and Exeggutor Lv3 HP4 are Offensive. All have Harvest: during own End, optionally draw1. Leech Seed costs one command/deals1; after causing damage with this move, restore source1HP. Seed Bomb costs one command/deals2 with no paragraph. Psychic costs one command/deals3; after causing damage, judge and confuse the target on intense sun. All use the shared actual damage, Drought, status immunity/replacement and original-instance continuations.
+
+## Booklet and explicit implementation policies
+
+Support moves carry the command icon. They spend real commands, obey command/move use limits, consume Power and permit normal Dodge cancellation. No weather payment or damage numeral is invented. Helping Hand uses actual finite cards (0–2 if exhausted), then one shared Pickup trigger. Healing/cure are separate declared choices, capped healing does not cure; curing does not heal.
+
+Booklet End follows Discard and precedes optional evolution. Harvest may therefore leave5 cards after a completed four-card Discard; no second Discard is printed. Once per instance per End is an explicit digital timing interpretation, not printed once text. Empty-pile activation spends that use without a fake draw. turn.discardComplete preserves the phase boundary through clocks, recovery and evolution.
+
+Cute Charm’s fine ordering/chaining/multi-target rules are not fully printed. Digital policies: process targets in chosen order, replace one slot, exclude other scheduled slots to retain distinct targets, offer each Clefairy instance once per whole command to prevent chains looping. Passive range includes self/neighbors, but redirect destination must be another supported active Pokémon, excluding the original user. Source-owner exclusion is equivalent in the active-only preview. Moxie draws first; assignment then precedes Future Sight, marker removal, item suppression, Fury reveal and defense. Repeated hits bind the final redirected instance and do not reopen Charm.
+
+Leech Seed/Psychic require positive actual move damage; they do not apply after cancellation, zero damage or to a deployed reserve. Source after-damage effects precede target receiving effects. The shared empty-judgment policy supplies no result when both piles are empty, offers no Drought exchange and triggers neither positive nor negative weather comparisons. This fixes an otherwise repeatable defense rollback/stall without inventing a weather or card.
+
+## Validation
+
+492 tests pass:442 baseline and50 independent cases for this batch. Coverage includes all six faces, real payment/strict field guards, passive range, virtual commands, chained and multi-target redirection, Future Sight/Moxie/Fury/Double Kick order, privacy, rollback, timeout, restart/retries, support cancellation and finite shared draws, Pickup, Harvest phases/limits/evolution/clocks/legacy saves, healing/damage/status order and four exhausted-judgment regressions. Independent read-only final source/code audit found no remaining actionable defects.
+
+Native browser QA used three trainers plus spectator in an isolated legally initialized room. Redirection choices survived polling and English→Chinese changes, with no private choices for the spectator. Double Kick hit only the new target (4→2HP), leaving Clefairy untouched. Moonlight cured Poison at1/3HP; a separate heal restored3/3 while keeping Poison. Helping Hand gave2 actual cards and Pickup1 (4→7 cards). Harvest gave a fifth card and successfully passed turn with optional Lv2 evolution. Four client warning/error lists empty. Screenshots were inspected and target label contrast fixed. Accepted arena/native cards/centered hover/setup preserved.

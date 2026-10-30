@@ -18,9 +18,9 @@
     "pokemonFaces": 120,
     "selectionReviewSpecification": "reviewed-selection-roster.md",
     "combatReviewSpecification": "reviewed-combat-spec.md",
-    "combatSupportedGroups": 24,
-    "effectReviewedGroups": 24,
-    "effectReviewedFaces": 72,
+    "combatSupportedGroups": 26,
+    "effectReviewedGroups": 26,
+    "effectReviewedFaces": 78,
     "reviewedHeldItems": 1
   },
   "entries": [
@@ -5991,7 +5991,7 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "evidenceNotes": [
         {
           "zh": "名称、等级与体力已按所提供照片复核。未实现的效果保持不可用。",
@@ -6009,8 +6009,11 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "abilityText": {
+            "zh": "当此宝可梦成为【接招吧！】的目标时，你可以弃置一张天气为[烈日]的手牌，并将此招式转移给一只在此宝可梦的距离限制范围内的其他宝可梦（【接招吧！】的使用者除外）。",
+            "en": "When this Pokémon becomes a target of Take this!, you may discard one intense-sun hand card and redirect this move to another Pokémon within this Pokémon’s distance limit, excluding the command user."
+          },
+          "effectStatus": "combat-preview",
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/3806ab68017599aa.webp",
@@ -6027,7 +6030,62 @@
             "kind": "standalone-pokemon-art",
             "dex": 35,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "迷人之躯",
+            "en": "Cute Charm"
+          },
+          "classification": {
+            "zh": "支援型",
+            "en": "Support"
+          },
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/3806ab68017599aa.webp",
+            "sha256": "f6adff34261725e4b01656074b7b5bd7d4a65c3249dd5bc01b03464fea235f9f",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 20,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-clefairy-exeggcute.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "拍击",
+                "en": "Pound"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": null,
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon, including self. Within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "no-paragraph-printed",
+              "unresolvedSymbols": []
+            }
+          ]
         },
         {
           "level": 2,
@@ -6039,8 +6097,11 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "abilityText": {
+            "zh": "当此宝可梦成为【接招吧！】的目标时，你可以弃置一张天气为[烈日]的手牌，并将此招式转移给一只在此宝可梦的距离限制范围内的其他宝可梦（【接招吧！】的使用者除外）。",
+            "en": "When this Pokémon becomes a target of Take this!, you may discard one intense-sun hand card and redirect this move to another Pokémon within this Pokémon’s distance limit, excluding the command user."
+          },
+          "effectStatus": "combat-preview",
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/9f65c439556c02e1.webp",
@@ -6057,7 +6118,68 @@
             "kind": "standalone-pokemon-art",
             "dex": 35,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "迷人之躯",
+            "en": "Cute Charm"
+          },
+          "classification": {
+            "zh": "支援型",
+            "en": "Support"
+          },
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/9f65c439556c02e1.webp",
+            "sha256": "6ca955a7c1454c6e26b6486d7526e53c004efe454f67935900c77a574880fc6e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 21,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-clefairy-exeggcute.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "月光",
+                "en": "Moonlight"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "此招式不受距离限制。你选择一项：1.目标宝可梦回复2点体力；2.目标宝可梦恢复特殊状态。",
+                "en": "This move ignores distance limits. Choose one: the target Pokémon recovers 2 HP, or recovers from its special status."
+              },
+              "effectKind": "moonlight",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon, including self. This move ignores distance limits.",
+                "ignoresDistance": true
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "on-uncanceled-settlement"
+            }
+          ]
         },
         {
           "level": 3,
@@ -6069,8 +6191,11 @@
           "hpStatus": "photo-reviewed",
           "hpEvidence": "source-backed-photo",
           "evidenceStatus": "source-backed",
-          "abilityText": null,
-          "effectStatus": "unavailable",
+          "abilityText": {
+            "zh": "当此宝可梦成为【接招吧！】的目标时，你可以弃置一张天气为[烈日]的手牌，并将此招式转移给一只在此宝可梦的距离限制范围内的其他宝可梦（【接招吧！】的使用者除外）。",
+            "en": "When this Pokémon becomes a target of Take this!, you may discard one intense-sun hand card and redirect this move to another Pokémon within this Pokémon’s distance limit, excluding the command user."
+          },
+          "effectStatus": "combat-preview",
           "provenance": {
             "sourceId": "S05",
             "filename": "research-assets/douyin-7684572630280187855/9f65c439556c02e1.webp",
@@ -6087,7 +6212,104 @@
             "kind": "standalone-pokemon-art",
             "dex": 36,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "迷人之躯",
+            "en": "Cute Charm"
+          },
+          "classification": {
+            "zh": "支援型",
+            "en": "Support"
+          },
+          "engineEligible": false,
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/9f65c439556c02e1.webp",
+            "sha256": "6ca955a7c1454c6e26b6486d7526e53c004efe454f67935900c77a574880fc6e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 21,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-clefairy-exeggcute.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "月光",
+                "en": "Moonlight"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "此招式不受距离限制。你选择一项：1.目标宝可梦回复2点体力；2.目标宝可梦恢复特殊状态。",
+                "en": "This move ignores distance limits. Choose one: the target Pokémon recovers 2 HP, or recovers from its special status."
+              },
+              "effectKind": "moonlight",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon, including self. This move ignores distance limits.",
+                "ignoresDistance": true
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "on-uncanceled-settlement"
+            },
+            {
+              "name": {
+                "zh": "帮助",
+                "en": "Helping Hand"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "目标宝可梦对应的训练家摸两张牌。",
+                "en": "The trainer corresponding to the target Pokémon draws two cards."
+              },
+              "effectKind": "helping-hand",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon, including self. Within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "on-uncanceled-settlement"
+            }
+          ]
         }
       ],
       "selectionEligible": true,
@@ -6096,7 +6318,9 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-clefairy-exeggcute.md",
+      "engineEligible": false
     },
     {
       "id": "vulpix",
@@ -7907,13 +8131,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的结束阶段，你可以摸一张牌。",
+            "en": "During your End phase, you may draw one card."
+          },
           "engineEligible": false,
           "name": {
             "zh": "蛋蛋",
@@ -7939,12 +8166,73 @@
             "kind": "standalone-pokemon-art",
             "dex": 102,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "收获",
+            "en": "Harvest"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/446dff6cad2bbf79.webp",
+            "sha256": "bba5b4a772d8f5cc71d193c38b5088400aa34de5004cee794a631a66c22044c6",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 47,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-clefairy-exeggcute.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "寄生种子",
+                "en": "Leech Seed"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，回复此宝可梦1点体力。",
+                "en": "After this Pokémon deals damage with this move, restore 1 HP to this Pokémon."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon, including self. Within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ]
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的结束阶段，你可以摸一张牌。",
+            "en": "During your End phase, you may draw one card."
+          },
           "engineEligible": false,
           "name": {
             "zh": "蛋蛋",
@@ -7970,12 +8258,69 @@
             "kind": "standalone-pokemon-art",
             "dex": 102,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "收获",
+            "en": "Harvest"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/c2c3b8e6271d44f3.webp",
+            "sha256": "f9ad64c8da47c84c6225684c74971b61ff70205bed1220a16753c6a6b21ed3a6",
+            "facePosition": "left",
+            "observedAssetOrdinal": 48,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-clefairy-exeggcute.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "种子炸弹",
+                "en": "Seed Bomb"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": null,
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon, including self. Within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "no-paragraph-printed",
+              "unresolvedSymbols": []
+            }
+          ]
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的结束阶段，你可以摸一张牌。",
+            "en": "During your End phase, you may draw one card."
+          },
           "engineEligible": false,
           "name": {
             "zh": "椰蛋树",
@@ -8001,7 +8346,65 @@
             "kind": "standalone-pokemon-art",
             "dex": 103,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "收获",
+            "en": "Harvest"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/c2c3b8e6271d44f3.webp",
+            "sha256": "f9ad64c8da47c84c6225684c74971b61ff70205bed1220a16753c6a6b21ed3a6",
+            "facePosition": "right",
+            "observedAssetOrdinal": 48,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-clefairy-exeggcute.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "精神强念",
+                "en": "Psychic"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 3,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[烈日]，目标宝可梦陷入“混乱”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is intense sun, the target Pokémon becomes Confused."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon, including self. Within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ]
         }
       ],
       "name": {
@@ -8022,7 +8425,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-clefairy-exeggcute.md"
     },
     {
       "id": "cubone",

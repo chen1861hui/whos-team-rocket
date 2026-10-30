@@ -57,6 +57,7 @@ export class RoomStore {
         if (room.turn) {
           room.turn.switchUsed ??= false;
           room.turn.phase ??= room.turn.drawRemaining > 0 ? 'draw' : 'play';
+          room.turn.discardComplete ??= room.turn.phase==='end';
           room.turn.clock ??= room.settings.turnSeconds > 0 ? { remainingMs: room.settings.turnSeconds * 1000, deadlineAt: null, pausedReason: 'disconnected', expired: false } : null;
           // Saved remaining time is a checkpoint. Never charge server downtime.
           if (room.turn.clock) {
@@ -99,7 +100,7 @@ export class RoomStore {
   }
   startTurn(room, playerId, number) {
     room.turn = {
-      playerId, number, drawRemaining: 2, phase: 'draw', switchUsed: false,
+      playerId, number, drawRemaining: 2, phase: 'draw', switchUsed: false, discardComplete:false,
       clock: room.settings.turnSeconds > 0 ? { remainingMs: room.settings.turnSeconds * 1000, deadlineAt: null, pausedReason: null, expired: false } : null,
     };
     const clock = room.turn.clock;
@@ -137,8 +138,8 @@ export class RoomStore {
     if (clock.expired && !room.pendingVote) {
       // Expiry only skips optional play. Draws and discard choices stay private decisions.
       const skipsDiscard=isBattle(room)&&player.active?.catalogueId==='magikarp'&&player.active.level===1&&!player.active.defeated;
-      if (turn.drawRemaining === 0 && turn.phase === 'play') turn.phase = skipsDiscard||player.hand.length <= handLimit(room,player) ? 'end' : 'discard';
-      if (turn.phase === 'end' && turn.drawRemaining === 0 && (skipsDiscard||player.hand.length <= handLimit(room,player))) this.advanceTurn(room);
+      if (turn.drawRemaining === 0 && turn.phase === 'play') {turn.phase = skipsDiscard||player.hand.length <= handLimit(room,player) ? 'end' : 'discard';turn.discardComplete=turn.phase==='end';}
+      if (turn.phase === 'end' && turn.drawRemaining === 0 && (turn.discardComplete||skipsDiscard||player.hand.length <= handLimit(room,player))) this.advanceTurn(room);
     }
     if (room.turn === turn) {
       const reason = room.pendingVote ? 'vote' : clock.expired ? 'mandatory' : !this.connected(player) ? 'disconnected' : null;
@@ -360,7 +361,7 @@ export class RoomStore {
         log(room, isBattle(room) ? '当前玩家摸取一张牌。' : '当前玩家抽取一张测试手牌。', isBattle(room) ? 'The current player drew one card.' : 'The current player drew one fixture card.');
         break;
       case 'attack':
-        check(['cardId', 'targetIds', 'moveIndex', 'boostCardId']); ownTurn();
+        check(['cardId', 'targetIds', 'moveIndex', 'boostCardId','effectChoice']); ownTurn();
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'Attacks are available in the combat preview.');
         this.battleCall(() => playBattleMove(room, player, input, this.battleContext()));
         break;
@@ -373,7 +374,7 @@ export class RoomStore {
         this.battleCall(() => giveBattleCards(room, player, input, this.battleContext()));
         break;
       case 'respondBattle':
-        check(['decisionId', 'choice', 'cardId', 'cardIds', 'handIndex', 'handIndices', 'order', 'reinforcement', 'effect','allocations']); seat(); status('playing');
+        check(['decisionId', 'choice', 'cardId', 'cardIds', 'handIndex', 'handIndices', 'order', 'reinforcement', 'effect','allocations','targetId']); seat(); status('playing');
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'There is no combat response.');
         this.battleCall(() => respondBattle(room, player, input, this.battleContext()));
         break;
@@ -415,6 +416,7 @@ export class RoomStore {
         room.turn.phase = isBattle(room) && player.active?.catalogueId === 'magikarp' && player.active.level === 1 && !player.active.defeated
           ? 'end'
           : player.hand.length > handLimit(room,player) ? 'discard' : 'end';
+        room.turn.discardComplete=room.turn.phase==='end';
         break;
       case 'discard': {
         check(['cardId']); ownTurn();
@@ -423,7 +425,7 @@ export class RoomStore {
         if (typeof input.cardId !== 'string' || index < 0) fail(400, 'INVALID_CARD', 'Choose a card from your own hand.');
         const discarded = player.hand.splice(index, 1)[0];
         if (isBattle(room)) room.discardPile.push(discarded);
-        if (player.hand.length <= handLimit(room,player)) room.turn.phase = 'end';
+        if (player.hand.length <= handLimit(room,player)){room.turn.phase = 'end';room.turn.discardComplete=true;}
         log(room, '当前玩家弃置一张测试手牌。', 'The current player discarded one fixture card.');
         break;
       }
@@ -431,7 +433,7 @@ export class RoomStore {
         check(['levelUp']); ownTurn();
         if (input.levelUp !== undefined && typeof input.levelUp !== 'boolean') fail(400, 'INVALID_INPUT', 'Level up must be a boolean.');
         const skipsDiscard=isBattle(room)&&player.active?.catalogueId==='magikarp'&&player.active.level===1&&!player.active.defeated;
-        if (room.turn.phase !== 'end' || room.turn.drawRemaining !== 0 || (!skipsDiscard&&player.hand.length > handLimit(room,player))) fail(409, 'TURN_INCOMPLETE', 'Finish play, complete both draws and discard down to four cards first.');
+        if (room.turn.phase !== 'end' || room.turn.drawRemaining !== 0 || (!room.turn.discardComplete&&!skipsDiscard&&player.hand.length > handLimit(room,player))) fail(409, 'TURN_INCOMPLETE', 'Finish play, complete both draws and discard down to four cards first.');
         if (input.levelUp === true) {
           if (player.active.level >= 3) fail(409, 'LEVEL_CAP', 'The active Pokémon is already at level 3.');
           player.active.level++;

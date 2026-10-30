@@ -492,7 +492,7 @@ function renderBattleRoom() {
     main.append(handPanel());
     main.append(el('div',{class:'battle-actions'},el('p',{},phaseHint()),
       view.self.battle?.canGive ? button('giveCards',()=>giftCardsDialog(combatKit()),'button secondary trait-control') : null,
-      view.self.battle?.canTrait ? (view.self.battle.trait?.kind==='analytic'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>analyticDialog(combatKit())},language==='zh'?'发动分析':'Use Analytic'):button('useTrait',()=>action('useTrait'),'button secondary trait-control')) : null,
+      view.self.battle?.canTrait ? (view.self.battle.trait?.kind==='analytic'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>analyticDialog(combatKit())},language==='zh'?'发动分析':'Use Analytic'):view.self.battle.trait?.kind==='harvest'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>action('useTrait')},language==='zh'?'发动收获':'Use Harvest'):button('useTrait',()=>action('useTrait'),'button secondary trait-control')) : null,
       turnPhase() === 'play' ? button(view.turn.switchUsed?'switchUsed':'switchPokemon',confirmPartnerSwitch,'button secondary switch-control',!myTurn()||view.turn.switchUsed||!view.self.reserve||(view.gameMode==='combat-preview'&&!view.self.battle?.canSwitch)) : null,
       turnPhase() === 'play' ? button('finishPlay',()=>action('finishPlay'),'button primary',!myTurn()) : button('draw',()=>action('draw'),'button primary',!myTurn()||turnPhase()!=='draw'||view.turn.drawRemaining<=0),
       button('endTurn',confirmTurnEnd,'button secondary',!myTurn()||turnPhase()!=='end')));

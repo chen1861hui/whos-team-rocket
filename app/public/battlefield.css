@@ -363,4 +363,6 @@ body:has(dialog[open]) .pokemon-hover-preview { display:none; }
 
 .combat-decision:has(.switch-payment-card){max-height:min(450px,calc(100vh - 170px));overflow-y:auto}
 
+.charm-controls{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.charm-controls label{display:grid;gap:6px;font-size:12px;color:#263e36}.charm-controls select{width:100%;min-width:0;color:#263e36;background:#f7edd4;border-color:#a5b294}.info-dialog .attack-target{color:#263e36}
+
 .shed-card-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:12px 0}.combat-decision .shed-card-choice[aria-pressed=true],.combat-decision .shed-card-choice[aria-pressed=true]:hover{background:#36564a;color:#fff3d6;border-color:#ac503b}.combat-decision:has(.shed-card-grid),.combat-decision:has(.fury-reveal-grid){max-height:min(450px,calc(100vh - 170px));overflow-y:auto}.fury-reveal-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.fury-revealed-card{display:grid;gap:5px;padding:7px;background:#f7edd4;border:1px solid #a5b294;color:#263e36}.fury-revealed-card strong{font-size:11px;color:#263e36}.fury-revealed-card small,.combat-decision:has(.fury-reveal-grid) .muted{color:#536b5c}.fury-hit-count{font-weight:700}

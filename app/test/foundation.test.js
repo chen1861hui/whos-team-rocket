@@ -94,7 +94,7 @@ test('authoritative turns enforce both draws, excess discards, player identity, 
   rejects(() => act(a, 'discard', { cardId: store.view(a.code, a.token).view.self.hand[0].id }), 'DISCARD_NOT_ALLOWED');
   rejects(() => act(a, 'playCard', { cardId: 'anything' }), 'UNKNOWN_ACTION');
   const result = act(a, 'endTurn').view;
-  assert.deepEqual(result.turn, { playerId: b.playerId, drawRemaining: 2, number: 2, phase: 'draw', switchUsed: false, clock: null });
+  assert.deepEqual(result.turn, { playerId: b.playerId, drawRemaining: 2, number: 2, phase: 'draw', switchUsed: false, discardComplete: false, clock: null });
   assert.ok(result.log.every(entry => !entry.text.en.includes('pokemon-')));
 });
 
