@@ -1,5 +1,7 @@
 ## Clefairy and Exeggcute — 2026-10-30 (current)
 
+Git publication: implementation commit4b34ace pushed to origin/codex/clefairy-exeggcute. No PR or merge created. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/clefairy-exeggcute .
+
 **492/492 tests pass. Combat supports 26 groups / 78 faces**, adding Clefairy/Clefairy/Clefable and Exeggcute/Exeggcute/Exeggutor. Cute Charm redirects a command target with one real intense-sun hand card before defense. Moonlight chooses heal2 or cure; Helping Hand draws2 through shared card gains. Harvest optionally draws1 in End after Discard. Leech Seed heals its source after damage, Seed Bomb deals2, and Psychic deals3 with intense-sun confusion judgment. Empty judgments now continue without inventing a weather result.
 
 GitHub: https://github.com/chen1861hui/whos-team-rocket.git. Branch codex/clefairy-exeggcute from1a5b1f3, retaining the previous Nidoran/Diglett work. No merge. PR creation remains unavailable under the documented GitHub integration403/sign-in limitation; no repeat attempt this batch. Preserve the accepted arena, native cards, centered three-level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no invented retail quantities. All26 reviewed groups execute;14 groups remain. See gameplay-milestone-20.md and reviewed-clefairy-exeggcute.md/json. Older counts below are historical.

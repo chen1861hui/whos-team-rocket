@@ -1,5 +1,7 @@
 # Gameplay milestone20 — Clefairy and Exeggcute
 
+Git publication: implementation commit4b34ace pushed to origin/codex/clefairy-exeggcute. No PR or merge created. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/clefairy-exeggcute .
+
 2026-10-30. **492/492 tests pass. Combat supports26/40 groups and78/120 faces**, with14 groups still incomplete. Added Cute Charm, Pound, Moonlight, Helping Hand, Harvest, Leech Seed, Seed Bomb and Psychic. Source text/provenance and interpretation boundaries are in reviewed-clefairy-exeggcute.md/json.
 
 The main shared changes are target reassignment before command use/defense, harmless support settlement, saved Discard completion for End-phase card gains, and no-result judgment continuation when both piles are empty. No synthetic card/weather is created. Private choices remain actor-only, and authority, clocks, atomic rejection, restart and exact retries are covered.
