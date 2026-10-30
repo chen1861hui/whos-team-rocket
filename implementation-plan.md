@@ -1,3 +1,9 @@
+## Nidoran and Diglett — 2026-10-30 (current)
+
+**442/442 tests pass. Combat supports 24 groups / 72 faces**, adding Nidoran♂/Nidorino/Nidoking and Diglett/Diglett/Dugtrio. Poison Point uses the original damage source and a non-intense-sun judgment. Double Kick resolves twice through the shared repeated-hit flow. Uninjured Horn Attack/Megahorn gain1 damage. Arena Trap pauses ordinary/effect switching for optional discard-or-cancel responses. Bulldoze/Earthquake remove one marker after positive damage; Earthquake supports two targets.
+
+GitHub repository: https://github.com/chen1861hui/whos-team-rocket.git. This batch is developed on codex/nidoran-diglett from9f900f1. Preserve the accepted arena, native cards, centered level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no invented retail quantities. All24 reviewed groups execute;16 groups remain. See gameplay-milestone-19.md and reviewed-nidoran-diglett.md/json. Older counts and no-Git statements below are historical.
+
 ## Caterpie and Weedle — 2026-10-29 (current)
 
 **385/385 tests pass. Combat supports 20 groups / 60 faces**, adding Caterpie/Metapod/Butterfree and Weedle/Kakuna/Beedrill. Shield Dust blocks new statuses; Shed Skin discards selected own hand cards before HP loss. Compound Eyes filters other trainers’ actual intense-sun Dodges. Butterfree has rainy Whirlwind and sunny Sleep Powder. Beedrill’s Sniper removes trainer and move range limits. Fury Attack publicly reveals four actual cards and resolves one hit plus one per sunny card, with marker cleanup after the whole card.
@@ -199,5 +205,3 @@ Phases now overlap under the user's placeholder authorization. Prototype fixture
 - Complete 3D/2D coverage and provenance audit; animated models have not been tested.
 - Select the low-HP track and approve the visual screen prototype. No need to repeat already accepted broad preferences.
 - Finalize implementation details such as simultaneous-response presentation, animation durations, performance targets, input accessibility and provider limits using the verified rules and prototype results.
-
-

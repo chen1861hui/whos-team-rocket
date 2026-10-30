@@ -18,9 +18,9 @@
     "pokemonFaces": 120,
     "selectionReviewSpecification": "reviewed-selection-roster.md",
     "combatReviewSpecification": "reviewed-combat-spec.md",
-    "combatSupportedGroups": 20,
-    "effectReviewedGroups": 20,
-    "effectReviewedFaces": 60,
+    "combatSupportedGroups": 24,
+    "effectReviewedGroups": 24,
+    "effectReviewedFaces": 72,
     "reviewedHeldItems": 1
   },
   "entries": [
@@ -6563,13 +6563,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你可以进行一次判定，若结果不为[烈日]，伤害来源陷入“中毒”状态。",
+            "en": "After this Pokémon receives damage, you may make a judgment. If the result is not intense sun, the damage source becomes Poisoned."
+          },
           "engineEligible": false,
           "name": {
             "zh": "尼多朗",
@@ -6595,12 +6598,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 32,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "毒刺",
+            "en": "Poison Point"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/70fa7ae258309b0a.webp",
+            "sha256": "254a97594b012c1d901e58602561709b4b169a5c5bb0f39eeebd43be4f9ffad4",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 16,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-nidoran-diglett.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "二连踢",
+                "en": "Double Kick"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": {
+                "zh": "此招式会结算两次。",
+                "en": "This move resolves twice."
+              },
+              "effectKind": "double-kick",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "repeated-settlement"
+            }
+          ]
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你可以进行一次判定，若结果不为[烈日]，伤害来源陷入“中毒”状态。",
+            "en": "After this Pokémon receives damage, you may make a judgment. If the result is not intense sun, the damage source becomes Poisoned."
+          },
           "engineEligible": false,
           "name": {
             "zh": "尼多力诺",
@@ -6626,12 +6691,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 33,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "毒刺",
+            "en": "Poison Point"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d12d2615c2459559.webp",
+            "sha256": "026a221c8ee477ac1f6505b0c6a07dced56b12cd1c74c9ebfcb1c80db95cc749",
+            "facePosition": "left",
+            "observedAssetOrdinal": 18,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-nidoran-diglett.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "角撞",
+                "en": "Horn Attack"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "若此宝可梦未受伤，此招式的伤害值+1。",
+                "en": "If this Pokémon is uninjured, increase this move’s damage by 1."
+              },
+              "effectKind": "uninjured-bonus",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "dealing-damage"
+            }
+          ]
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你可以进行一次判定，若结果不为[烈日]，伤害来源陷入“中毒”状态。",
+            "en": "After this Pokémon receives damage, you may make a judgment. If the result is not intense sun, the damage source becomes Poisoned."
+          },
           "engineEligible": false,
           "name": {
             "zh": "尼多王",
@@ -6657,7 +6784,66 @@
             "kind": "standalone-pokemon-art",
             "dex": 34,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "毒刺",
+            "en": "Poison Point"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d12d2615c2459559.webp",
+            "sha256": "026a221c8ee477ac1f6505b0c6a07dced56b12cd1c74c9ebfcb1c80db95cc749",
+            "facePosition": "right",
+            "observedAssetOrdinal": 18,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-nidoran-diglett.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "超级角击",
+                "en": "Megahorn"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 3,
+              "effectText": {
+                "zh": "若此宝可梦未受伤，此招式的伤害值+1。",
+                "en": "If this Pokémon is uninjured, increase this move’s damage by 1."
+              },
+              "effectKind": "uninjured-bonus",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "dealing-damage"
+            }
+          ]
         }
       ],
       "name": {
@@ -6678,7 +6864,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-nidoran-diglett.md"
     },
     {
       "id": "diglett",
@@ -6691,13 +6878,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当在此宝可梦的距离限制范围内的宝可梦与其对应的备战宝可梦交替时，你可以令其训练家弃置一张手牌，若该训练家不弃置或没有手牌，则无法进行交替。",
+            "en": "When a Pokémon within this Pokémon’s distance limit switches with its corresponding reserve, you may require its trainer to discard one hand card. If that trainer declines or has no hand cards, the switch cannot occur."
+          },
           "engineEligible": false,
           "name": {
             "zh": "地鼠",
@@ -6723,12 +6913,69 @@
             "kind": "standalone-pokemon-art",
             "dex": 50,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "沙穴",
+            "en": "Arena Trap"
+          },
+          "classification": {
+            "zh": "平衡型",
+            "en": "Balanced"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/8eae984590659cfe.webp",
+            "sha256": "1afc0be56bf872417f2cd4772b37214dbd64175b0ddd06646688436e59b4b8b9",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 23,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-nidoran-diglett.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "掷泥",
+                "en": "Mud-Slap"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": null,
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "no-paragraph-printed",
+              "unresolvedSymbols": []
+            }
+          ]
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当在此宝可梦的距离限制范围内的宝可梦与其对应的备战宝可梦交替时，你可以令其训练家弃置一张手牌，若该训练家不弃置或没有手牌，则无法进行交替。",
+            "en": "When a Pokémon within this Pokémon’s distance limit switches with its corresponding reserve, you may require its trainer to discard one hand card. If that trainer declines or has no hand cards, the switch cannot occur."
+          },
           "engineEligible": false,
           "name": {
             "zh": "地鼠",
@@ -6754,12 +7001,73 @@
             "kind": "standalone-pokemon-art",
             "dex": 50,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "沙穴",
+            "en": "Arena Trap"
+          },
+          "classification": {
+            "zh": "平衡型",
+            "en": "Balanced"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b7f7b17669cbcf18.webp",
+            "sha256": "5355c0073aaa8faa8e35ff28717a02d448d4bb5333c51b6b96c08dcce05ce2ed",
+            "facePosition": "left",
+            "observedAssetOrdinal": 26,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-nidoran-diglett.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "重踏",
+                "en": "Bulldoze"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你弃置受伤宝可梦的一枚强化指示物。",
+                "en": "After this Pokémon deals damage with this move, discard one reinforcement marker from the damaged Pokémon."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "One active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ]
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当在此宝可梦的距离限制范围内的宝可梦与其对应的备战宝可梦交替时，你可以令其训练家弃置一张手牌，若该训练家不弃置或没有手牌，则无法进行交替。",
+            "en": "When a Pokémon within this Pokémon’s distance limit switches with its corresponding reserve, you may require its trainer to discard one hand card. If that trainer declines or has no hand cards, the switch cannot occur."
+          },
           "engineEligible": false,
           "name": {
             "zh": "三地鼠",
@@ -6785,7 +7093,65 @@
             "kind": "standalone-pokemon-art",
             "dex": 51,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "沙穴",
+            "en": "Arena Trap"
+          },
+          "classification": {
+            "zh": "平衡型",
+            "en": "Balanced"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/b7f7b17669cbcf18.webp",
+            "sha256": "5355c0073aaa8faa8e35ff28717a02d448d4bb5333c51b6b96c08dcce05ce2ed",
+            "facePosition": "right",
+            "observedAssetOrdinal": 26,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-nidoran-diglett.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "地震",
+                "en": "Earthquake"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "此招式可以指定至多两只在此宝可梦的距离限制范围内的宝可梦为目标。当此宝可梦因此招式而造成伤害后，你弃置受伤宝可梦的一枚强化指示物。",
+                "en": "Choose up to two Pokémon within this Pokémon’s distance limit. After this Pokémon deals damage with this move, discard one reinforcement marker from the damaged Pokémon."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 2,
+                "description": "Up to two active Pokémon within this Pokémon’s distance limit, including self."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ]
         }
       ],
       "name": {
@@ -6806,7 +7172,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-nidoran-diglett.md"
     },
     {
       "id": "growlithe",

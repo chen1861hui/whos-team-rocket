@@ -1,8 +1,7 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision } from './combat.js';
-import { ordinarySwitch } from './battle-rules.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch } from './combat.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
 
 export const IDLE_MS = 7 * 60 * 60 * 1000;
@@ -394,9 +393,7 @@ export class RoomStore {
         if (!player.active || !player.reserve) fail(409, 'SWITCH_UNAVAILABLE', 'An active and reserve partner are required.');
         if (isBattle(room)) {
           if (!previewActions(room, player, this.catalogue)?.canSwitch) fail(409, 'SWITCH_UNAVAILABLE', 'The current battle state forbids switching.');
-          this.battleCall(() => ordinarySwitch(player, this.catalogue));
-          player.reserve.revealed = true; room.turn.switchUsed = true;
-          log(room, '当前玩家交替了出场与备战宝可梦。', 'The current trainer switched active and reserve Pokémon.');
+          this.battleCall(() => requestBattleSwitch(room,player,'ordinary',this.battleContext()));
           break;
         }
         // Booklet p.5: the creatures and their attached state move between zones.
@@ -478,7 +475,7 @@ export class RoomStore {
     const vote = room.pendingVote;
     if (!vote.requiredIds.every(id => vote.approvedIds.includes(id))) return;
     room.pendingVote = null;
-    delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent;delete room.turnStart; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
+    delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent;delete room.turnStart;delete room.switchEvent; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
     room.turn = null;
     room.status = vote.kind === 'endRoom' ? 'closed' : 'lobby';
     for (const player of room.players) {

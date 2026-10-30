@@ -1,3 +1,9 @@
+## Nidoran and Diglett — 2026-10-30 (current)
+
+**442/442 tests pass. Combat supports 24 groups / 72 faces**, adding Nidoran♂/Nidorino/Nidoking and Diglett/Diglett/Dugtrio. Poison Point uses the original damage source and a non-intense-sun judgment. Double Kick resolves twice through the shared repeated-hit flow. Uninjured Horn Attack/Megahorn gain1 damage. Arena Trap pauses ordinary/effect switching for optional discard-or-cancel responses. Bulldoze/Earthquake remove one marker after positive damage; Earthquake supports two targets.
+
+GitHub repository: https://github.com/chen1861hui/whos-team-rocket.git. This batch is developed on codex/nidoran-diglett from9f900f1. Preserve the accepted arena, native cards, centered level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no invented retail quantities. All24 reviewed groups execute;16 groups remain. See gameplay-milestone-19.md and reviewed-nidoran-diglett.md/json. Older counts and no-Git statements below are historical.
+
 ## Gastly and Magikarp — 2026-10-29 (current)
 
 **398/398 tests pass. Combat supports 22 groups / 66 faces**, adding Gastly/Haunter/Gengar and Magikarp/Gyarados/Gyarados. Levitate converts rainy hand cards into real Dodge responses; Lick, Shadow Ball and Waterfall use their reviewed judgments. Cursed Body privately takes from the source trainer, Hex gains damage against statused targets, Rattled skips only the discard phase, Splash does nothing after legal use, Moxie draws before defense, and Hyper Beam's optional declaration discard occurs before Moxie.
@@ -236,5 +242,3 @@ The catalogue currently has 21 preview Pokémon rows/63 faces and 15 separate pl
 6. Update the plan, source ledger, validation record, README and continuation checkpoint to match what is actually complete. Report remaining limitations plainly. Public hosting and actual Pokémon models remain later milestones.
 
 Do not claim the game is complete merely because tests pass. Completion requires a supported playable rules/deck slice and reviewable evidence; unknown effects stay unavailable or clearly identified as development fixtures. Keep working within the authorized scope and ask only for information or approvals that are genuinely necessary.
-
-

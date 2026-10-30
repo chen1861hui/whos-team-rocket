@@ -1,3 +1,9 @@
+## Nidoran and Diglett — 2026-10-30 (current)
+
+**442/442 tests pass. Combat supports 24 groups / 72 faces**, adding Nidoran♂/Nidorino/Nidoking and Diglett/Diglett/Dugtrio. Poison Point uses the original damage source and a non-intense-sun judgment. Double Kick resolves twice through the shared repeated-hit flow. Uninjured Horn Attack/Megahorn gain1 damage. Arena Trap pauses ordinary/effect switching for optional discard-or-cancel responses. Bulldoze/Earthquake remove one marker after positive damage; Earthquake supports two targets.
+
+GitHub repository: https://github.com/chen1861hui/whos-team-rocket.git. This batch is developed on codex/nidoran-diglett from9f900f1. Preserve the accepted arena, native cards, centered level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no invented retail quantities. All24 reviewed groups execute;16 groups remain. See gameplay-milestone-19.md and reviewed-nidoran-diglett.md/json. Older counts and no-Git statements below are historical.
+
 ## Caterpie and Weedle — 2026-10-29 (current)
 
 **385/385 tests pass. Combat supports 20 groups / 60 faces**, adding Caterpie/Metapod/Butterfree and Weedle/Kakuna/Beedrill. Shield Dust blocks new statuses; Shed Skin discards selected own hand cards before HP loss. Compound Eyes filters other trainers’ actual intense-sun Dodges. Butterfree has rainy Whirlwind and sunny Sleep Powder. Beedrill’s Sniper removes trainer and move range limits. Fury Attack publicly reveals four actual cards and resolves one hit plus one per sunny card, with marker cleanup after the whole card.
@@ -50,5 +56,3 @@ The accepted3D arena, stadium/gym/floating themes, table/overhead cameras and2D 
 `npm.cmd test`: **310 passed**. Tests cover authority/privacy, retry/restart recovery, room lifecycle, identities/setup, clocks, switching/levels, damage/rescue/results and the new source-derived ability scenarios. New UI effects were checked in isolated deterministic local fixtures with English/Chinese clients; no full random-roster or remote playtest is claimed.
 
 The9 supplied booklet photos,80 gallery photos and7 supplied posters stay in `research-assets/`. All names/HP have source hashes; exact effect text and narrow unknowns are in `reviewed-combat-spec.md`, `reviewed-next-pokemon.md`, `reviewed-pokemon-batch-3.md`, `reviewed-pokemon-batch-4.md`, `reviewed-grimer.md`, `reviewed-psyduck.md`, `reviewed-meowth.md` and `reviewed-playcard-spec.md`. Original photos are not public routes. Source/public catalogue JSON files match. See `continuation-checkpoint.md` for next work and `foundation-contract.md` for protocol details.
-
-

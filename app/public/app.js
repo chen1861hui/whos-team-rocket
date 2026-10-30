@@ -46,7 +46,7 @@ const strings = {
   pickCopy: ['Choose an active partner first, then a private reserve. Your selection stays private until confirmed.', '先选出场搭档，再选私密后备。确认前，你的选择保持私密。'],
   fixture: ['Provisional setup fixture: 5 choices, keep 2 at level 1. Candidates may repeat across players; real deck quantities are not asserted.', '临时设置流程：5 选 2，均为 1 级。不同玩家的候选可能重复，不代表正式牌库数量。'],
   switchPokemon: ['Switch partners', '交替搭档'], switchUsed: ['Switch used', '已交替'],
-  switchConfirm: ['Switch active and reserve partners? Your incoming partner is revealed to everyone. This uses your one ordinary switch this play phase.', '交替出场与备战搭档？新出场搭档将向所有人公开，并用掉本出牌阶段的一次普通交替。'],
+  switchConfirm: ['Attempt to switch active and reserve partners? A completed switch reveals the incoming partner and uses your one ordinary switch this play phase. Arena Trap may require a hand-card discard or cancel the switch.', '尝试交替出场与备战搭档？交替成功后，新出场搭档将公开，并用掉本出牌阶段的一次普通交替。沙穴可能要求弃置手牌，否则取消交替。'],
   switchHelp: ['Switch once this play phase, or finish playing. Card effects remain unavailable.', '本出牌阶段可交替一次，或完成出牌阶段。卡牌效果仍不可用。'],
   switchUsedHelp: ['Ordinary switching is used. Finish playing to continue.', '本阶段已进行普通交替，可完成出牌阶段继续。'],
   publicReserve: ['Revealed reserve', '已公开备战'], switchUnavailable: ['Switching needs an active and reserve partner.', '交替需要出场与备战搭档。'],

@@ -31,7 +31,7 @@ export function setupBattle(room, catalogue) {
   seats.forEach((p, index) => { p.role = roles[index]; p.eliminated = false; p.candidates = []; p.candidateDeal = []; p.identityAcknowledged = false; p.setupComplete = false; p.active = null; p.reserve = null; p.hand = []; p.exiledCards=[]; });
   const leaderIndex = seats.findIndex(p => p.role === 'leader');
   room.players = [...seats.slice(leaderIndex), ...seats.slice(0, leaderIndex), ...room.players.filter(p => p.spectator)];
-  delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.turnStart;
+  delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.turnStart;delete room.switchEvent;
   room.gameMode = 'combat-preview'; room.result = null; room.pendingBattle = null; room.resolution = null; room.status = 'identity';
   room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, cardsPerSeat: 12, commandPerSeat: 6, dodgePerSeat: 6, potionSupported: false };
   note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
@@ -142,6 +142,10 @@ function continueJudgment(room,ctx,next,weather) {
     if(weather!=='intense-sun')return applyStatus(room,ctx,creature(room,next.sourceId),'paralysis','afterDamage');
     return afterDamage(room,ctx);
   }
+  if(next.kind==='poison-point') {
+    if(weather!=='intense-sun')return applyStatus(room,ctx,creature(room,next.sourceId),'poison','afterDamage');
+    return afterDamage(room,ctx);
+  }
   if(next.kind==='sand-veil') {
     if(['intense-sun','clear'].includes(weather)) {
       if(!next.defense.dodgeReducesDamage) {
@@ -223,6 +227,9 @@ function runReceivingEffect(room,effect,ctx) {
   if(effect==='static' && sourceOwner && !source.defeated) {
     decision(room,'static',owner.id,sourceOwner.id,ctx);Object.assign(room.pendingBattle,{trait:'static',canTrait:true});return;
   }
+  if(effect==='poison-point'&&sourceOwner&&!source.defeated&&room.drawPile.length+room.discardPile.length>0) {
+    decision(room,'poison-point',owner.id,sourceOwner.id,ctx);Object.assign(room.pendingBattle,{trait:'poison-point',canTrait:true});return;
+  }
   if(effect==='synchronize' && resolution.card&&!resolution.cardClaimedBy) {
     decision(room,'synchronize',owner.id,owner.id,ctx);Object.assign(room.pendingBattle,{trait:'synchronize',canTrait:true,card:{name:resolution.card.name,weather:resolution.card.weather,kind:resolution.card.kind}});return;
   }
@@ -262,6 +269,41 @@ function canSandVeil(player) {
 const hasShedSkin=pokemon=>['caterpie','weedle'].includes(pokemon?.catalogueId)&&pokemon.level===2&&!pokemon.defeated;
 function activeOwner(room,instanceId) {
   return live(room).find(player=>player.active?.instanceId===instanceId&&!player.active.defeated);
+}
+function switchStillValid(room,event,ctx) {
+  const player=trainer(room,event.playerId);
+  return player&&!player.eliminated&&player.active?.instanceId===event.activeId&&player.reserve?.instanceId===event.reserveId&&!player.active.defeated&&!player.reserve.defeated&&currentHp(player.active,ctx.catalogue)>0&&currentHp(player.reserve,ctx.catalogue)>0;
+}
+function finishBattleSwitch(room,ctx,success) {
+  const event=room.switchEvent,player=trainer(room,event.playerId);
+  const valid=switchStillValid(room,event,ctx);
+  delete room.switchEvent;room.pendingBattle=null;
+  if(success&&valid) {
+    ordinarySwitch(player,ctx.catalogue);player.reserve.revealed=true;
+    if(event.kind==='ordinary')room.turn.switchUsed=true;
+    note(room,'出战与备战宝可梦已交替。','The active and reserve Pokémon switched.');
+  }else note(room,'本次交替未完成，已经支付的费用不退还。','The switch did not complete; any cards already paid remain discarded.');
+  if(event.kind!=='ordinary')return nextSettlement(room,ctx);
+}
+function advanceBattleSwitch(room,ctx) {
+  const event=room.switchEvent;
+  if(!switchStillValid(room,event,ctx))return finishBattleSwitch(room,ctx,false);
+  while(event.index<event.actorIds.length) {
+    const actor=trainer(room,event.actorIds[event.index]);
+    if(actor&&!actor.eliminated&&actor.active?.instanceId===event.actorInstances[actor.id]&&actor.active.catalogueId==='diglett'&&!actor.active.defeated&&currentHp(actor.active,ctx.catalogue)>0) {
+      decision(room,'arena-trap',actor.id,event.playerId,ctx);Object.assign(room.pendingBattle,{trait:'arena-trap',canTrait:true,switchKind:event.kind});return;
+    }
+    event.index++;
+  }
+  finishBattleSwitch(room,ctx,true);
+}
+export function requestBattleSwitch(room,player,kind,ctx) {
+  requireRule(!room.switchEvent,'SWITCH_PENDING','Finish the current switch first.');
+  const start=Math.max(0,room.players.findIndex(p=>p.id===room.turn.playerId));
+  // Speed removes card/move distance only; Arena Trap uses passive base adjacency.
+  const actors=[...room.players.slice(start),...room.players.slice(0,start)].filter(actor=>!actor.spectator&&!actor.eliminated&&actor.active?.catalogueId==='diglett'&&!actor.active.defeated&&currentHp(actor.active,ctx.catalogue)>0&&eligibleTargetIds(room.players,actor.id).includes(player.id));
+  room.switchEvent={kind,playerId:player.id,activeId:player.active?.instanceId??null,reserveId:player.reserve?.instanceId??null,actorIds:actors.map(actor=>actor.id),actorInstances:Object.fromEntries(actors.map(actor=>[actor.id,actor.active.instanceId])),index:0};
+  advanceBattleSwitch(room,ctx);
 }
 function resumeStatusContinuation(room,ctx,next) {
   return next==='settlement'?nextSettlement(room,ctx):afterDamage(room,ctx);
@@ -318,8 +360,13 @@ function advancePoisonTouch(room,ctx) {
 export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
-  const fury=[room.resolution,...(room.resolutionStack||[])].find(resolution=>resolution?.effectKind==='fury-attack');
-  if(fury)Object.assign(pending,{revealedCards:(fury.revealedCards||[]).map(({name,weather,kind})=>({name,weather,kind})),settlementNumber:fury.settlementIndex+1,settlementCount:fury.settlementCount});
+  const repeated=[room.resolution,...(room.resolutionStack||[])].find(resolution=>resolution?.settlementCount!==undefined);
+  if(repeated) {
+    Object.assign(pending,{settlementNumber:repeated.settlementIndex+1,settlementCount:repeated.settlementCount});
+    if(repeated.revealedCards)pending.revealedCards=repeated.revealedCards.map(({name,weather,kind})=>({name,weather,kind}));
+    if(repeated.effectKind==='double-kick')pending.settlementMove={zh:'二连踢',en:'Double Kick'};
+  }
+  if(pending.kind==='switch-payment'&&pending.actorId===self.id)pending.cards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='shed-skin'&&pending.actorId===self.id)pending.cards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='distribute'&&pending.actorId===self.id)pending.cards=(room.resolution.distributionCards||[]).map(({name,weather,kind},index)=>({index,name,weather,kind}));
   if(pending.kind==='cycle' && pending.actorId===self.id)pending.cards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
@@ -342,6 +389,10 @@ export function publicBattleDecision(room,self) {
 // Move-use effects finish before the first target receives a defense window.
 function openMoveUse(room, ctx) {
   const resolution = room.resolution;
+  if(resolution.effectKind==='double-kick'&&resolution.settlementCount===undefined) {
+    resolution.settlementIndex=0;resolution.settlementCount=2;
+    resolution.originalTargetId=trainer(room,resolution.targetIds[0]).active.instanceId;
+  }
   if(resolution.effectKind==='fury-attack'&&resolution.settlementCount===undefined) {
     if(room.drawPile.length<4&&room.discardPile.length){room.drawPile=[...shuffled(room.discardPile),...room.drawPile];room.discardPile=[];}
     const count=Math.min(4,room.drawPile.length);
@@ -367,7 +418,7 @@ function openDefense(room, ctx) {
   const resolution = room.resolution;
   if (resolution.index >= resolution.targetIds.length) return finishResolution(room, ctx);
   const target = trainer(room, resolution.targetIds[resolution.index]);
-  if(resolution.effectKind==='fury-attack'&&(!activeOwner(room,resolution.sourceId)||!activeOwner(room,resolution.originalTargetId)||target.active.instanceId!==resolution.originalTargetId||currentHp(creature(room,resolution.sourceId),ctx.catalogue)<=0||currentHp(target.active,ctx.catalogue)<=0))return finishResolution(room,ctx);
+  if(resolution.settlementCount!==undefined&&(!activeOwner(room,resolution.sourceId)||!activeOwner(room,resolution.originalTargetId)||target.active.instanceId!==resolution.originalTargetId||currentHp(creature(room,resolution.sourceId),ctx.catalogue)<=0||currentHp(target.active,ctx.catalogue)<=0))return finishResolution(room,ctx);
   if (target.eliminated || target.active.defeated) { resolution.index++; return openDefense(room, ctx); }
   resolution.targetCreatureId = target.active.instanceId;
   delete resolution.incomingDamage;delete resolution.modifierState;
@@ -377,7 +428,7 @@ function openDefense(room, ctx) {
   room.pendingBattle.canTrait=!room.pendingBattle.cannotDodge && canSandVeil(target) && room.drawPile.length+room.discardPile.length>0;
   if(room.pendingBattle.canTrait)room.pendingBattle.trait='sand-veil';
   if(resolution.sourceFamily==='caterpie'&&resolution.sourceLevel===3&&resolution.sourcePlayerId!==target.id)room.pendingBattle.blockedDodgeWeathers=['intense-sun'];
-  if(resolution.effectKind==='fury-attack')Object.assign(room.pendingBattle,{settlementNumber:resolution.settlementIndex+1,settlementCount:resolution.settlementCount});
+  if(resolution.settlementCount!==undefined)Object.assign(room.pendingBattle,{settlementNumber:resolution.settlementIndex+1,settlementCount:resolution.settlementCount});
   if(resolution.sourceFamily==='pidgey'&&resolution.sourcePlayerId!==target.id) {
     room.pendingBattle.dodgeReducesDamage=true;room.pendingBattle.damageReduction=resolution.dodgeReductions?.[target.active.instanceId]||0;
   }
@@ -476,8 +527,7 @@ function settleDamage(room, ctx) {
   if(resolution.effectKind==='forced-switch') {
     const owner=activeOwner(room,target.instanceId),reserve=owner?.reserve;
     if(reserve&&!reserve.defeated&&currentHp(reserve,ctx.catalogue)>0) {
-      ordinarySwitch(owner,ctx.catalogue);
-      note(room,'吹飞调换目标的出战与备战搭档，不消耗普通交替次数。','Whirlwind swapped the target’s active and reserve partners without consuming ordinary switching.');
+      return requestBattleSwitch(room,owner,'whirlwind',ctx);
     }else note(room,'目标没有可以登场的备战搭档，吹飞未调换位置。','Whirlwind did not swap partners because the target has no living reserve.');
     return nextSettlement(room,ctx);
   }
@@ -502,12 +552,11 @@ function settleDamage(room, ctx) {
     const owner=trainer(room,resolution.sourcePlayerId);
     drawBattleCards(room,owner);
     if(owner.reserve && !owner.reserve.defeated) {
-      ordinarySwitch(owner,ctx.catalogue);owner.reserve.revealed=true;
-      note(room,'瞬间移动交替搭档，不消耗普通交替次数。','Teleport switched partners without consuming ordinary switching.');
+      return requestBattleSwitch(room,owner,'teleport',ctx);
     }
     return nextSettlement(room,ctx);
   }
-  const printedDamage=resolution.baseDamage+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0);
+  const printedDamage=resolution.baseDamage+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
   const reduction=resolution.dodgeReductions?.[target.instanceId]||0;
   if(reduction>0||hasShedSkin(target)) {
     const amount=room.turn.damageImmunityIds?.includes(target.instanceId)?0:computeDamage(source,target,printedDamage,ctx.catalogue,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false});
@@ -593,7 +642,7 @@ function afterDamage(room,ctx) {
         decision(room,'pay-day',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);Object.assign(room.pendingBattle,{trait:'pay-day',canTrait:true});return;
       }
       if(resolution.effectKind==='flinch-after-damage'&&resolution.sourceFamily!=='magikarp')return applyStatus(room,ctx,target,'flinch','afterDamage');
-      if(family==='psyduck'&&level<=2&&activeOwner(room,target.instanceId)) {
+      if(((family==='psyduck'&&level<=2)||(family==='diglett'&&level>=2))&&activeOwner(room,target.instanceId)) {
         const markers=[...new Set(target.reinforcements||[])];
         if(markers.length) {
           resolution.markerTargetId=target.instanceId;decision(room,'reinforcement',resolution.sourcePlayerId,activeOwner(room,target.instanceId).id,ctx);
@@ -629,6 +678,7 @@ function afterDamage(room,ctx) {
     const targetOwner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=room.players.find(p=>p.active?.instanceId===source?.instanceId&&!p.eliminated);
     if(targetOwner&&!target.defeated) {
       if(target.catalogueId==='pikachu'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('static');
+      if(target.catalogueId==='nidoran-m'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('poison-point');
       if(target.catalogueId==='abra'&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
       if(target.catalogueId==='slowpoke'&&room.turn.playerId!==targetOwner.id)resolution.receivingEffects.push('oblivious');
       if(target.catalogueId==='gastly'&&target.level===3&&sourceOwner?.hand.length&&sourceOwner.id!==targetOwner.id)resolution.receivingEffects.push('cursed-body');
@@ -640,7 +690,7 @@ function afterDamage(room,ctx) {
 function nextSettlement(room, ctx) {
   room.pendingBattle = null;
   if (['turn-start','item'].includes(room.resolution.kind)) return finishResolution(room, ctx);
-  if(room.resolution.effectKind==='fury-attack') {
+  if(room.resolution.settlementCount!==undefined) {
     room.resolution.settlementIndex++;
     if(room.resolution.settlementIndex<room.resolution.settlementCount)return openDefense(room,ctx);
   }
@@ -671,7 +721,7 @@ function defeat(room, targetPlayerId, ctx) {
   }
   const result = evaluateVictory(room.players);
   if (result) {
-    for(const pending of [room.resolution,...(room.resolutionStack||[])])cleanResolution(room,pending);room.resolution=null;room.pendingBattle=null;delete room.resolutionStack;delete room.judgment;delete room.statusEvent;delete room.turnStart; room.result = { ...result, completedAt: ctx.now(), developmentFixture: true };
+    for(const pending of [room.resolution,...(room.resolutionStack||[])])cleanResolution(room,pending);room.resolution=null;room.pendingBattle=null;delete room.resolutionStack;delete room.judgment;delete room.statusEvent;delete room.turnStart;delete room.switchEvent; room.result = { ...result, completedAt: ctx.now(), developmentFixture: true };
     room.status = 'finished'; room.turn = null;
     note(room, '胜利条件已达成，所有身份与剩余手牌公开。', 'A victory condition was met; all identities and remaining hands are revealed.');
     return;
@@ -685,6 +735,28 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(pending.kind==='distribute'||input.allocations===undefined,'INVALID_RESPONSE','This decision does not distribute cards.');
   requireRule(pending.kind==='exile'||input.handIndices===undefined,'INVALID_RESPONSE','This decision does not select multiple hand slots.');
   requireRule(pending.kind==='shed-skin'||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
+  if(pending.kind==='arena-trap') {
+    requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Use Arena Trap or allow this switch.');
+    const event=room.switchEvent;
+    requireRule(event&&switchStillValid(room,event,ctx)&&event.actorIds[event.index]===player.id&&event.actorInstances[player.id]===player.active.instanceId&&player.active.catalogueId==='diglett'&&!player.active.defeated,'STALE_DECISION','The switch or trapper changed.');
+    room.pendingBattle=null;
+    if(input.choice==='trait') {
+      const switching=trainer(room,event.playerId);
+      if(!switching.hand.length)return finishBattleSwitch(room,ctx,false);
+      decision(room,'switch-payment',switching.id,switching.id,ctx);Object.assign(room.pendingBattle,{switchKind:event.kind});return;
+    }
+    event.index++;return advanceBattleSwitch(room,ctx);
+  }
+  if(pending.kind==='switch-payment') {
+    requireRule(['discard','pass'].includes(input.choice)&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Discard one own hand card or cancel the switch.');
+    const event=room.switchEvent;
+    requireRule(event&&event.playerId===player.id&&switchStillValid(room,event,ctx),'STALE_DECISION','The switching Pokémon changed.');
+    if(input.choice==='pass'){requireRule(input.cardId===undefined,'INVALID_RESPONSE','Canceling does not submit a card.');return finishBattleSwitch(room,ctx,false);}
+    const index=player.hand.findIndex(card=>card.id===input.cardId);requireRule(index>=0,'INVALID_CARD','Choose one actual own hand card.');
+    room.discardPile.push(...player.hand.splice(index,1));room.pendingBattle=null;event.index++;
+    note(room,'沙穴使交替的训练家弃置一张手牌。','Arena Trap made the switching trainer discard one hand card.');
+    return advanceBattleSwitch(room,ctx);
+  }
   if(pending.kind==='shed-skin') {
     requireRule(['shed','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Discard selected hand cards with Shed Skin or pass.');
     const state=room.resolution.modifierState,ids=input.choice==='pass'?[]:input.cardIds;
@@ -872,6 +944,11 @@ export function respondBattle(room,player,input,ctx) {
     if(input.choice==='trait') {
       return startJudgment(room,ctx,{kind:'static',sourceId:room.resolution.sourceId},player.id);
     }
+    room.pendingBattle=null;afterDamage(room,ctx);return;
+  }
+  if(pending.kind==='poison-point') {
+    requireRule(input.choice==='pass'||input.choice==='trait','INVALID_RESPONSE','Use Poison Point or pass.');
+    if(input.choice==='trait')return startJudgment(room,ctx,{kind:'poison-point',sourceId:room.resolution.sourceId},player.id);
     room.pendingBattle=null;afterDamage(room,ctx);return;
   }
   if(pending.kind==='defense') {

@@ -1,0 +1,25 @@
+# Reviewed Nidoran and Diglett — 2026-10-30
+
+All six faces were independently read from four local S05 originals by root and Sol. Edition unidentified; English labels are working translations. Exact Chinese paragraphs, HP, conditions and SHA256 provenance are saved in reviewed-nidoran-diglett.json and both catalogue copies. Photos remain research evidence rather than game UI.
+
+Nidoran♂ Lv1 HP3, Nidorino Lv2 HP4 and Nidoking Lv3 HP4 are Offensive. All have Poison Point: after receiving damage, may judge; any result except intense sun Poisons the damage source. Clear therefore succeeds. This is optional, not automatic and has no printed once cap. It uses actual positive damage, final Drought result, original source instance and shared status immunity/replacement rules. It may be ordered with other receiving effects. Source-free damage has no invented damage source.
+
+Double Kick uses one command, damage1, default single target, and resolves exactly twice. Booklet07 explicitly uses it as the example requiring two Dodges to cancel both settlements. Horn Attack uses one command/base2; Megahorn one command/base3. Each gains1 damage if this Pokémon is uninjured (injuries0, not equality to printed HP). This is a move modifier, so item/status channels do not inherit it. Burn and receiving defenses still apply.
+
+Diglett Lv1/Lv2 and Dugtrio Lv3 have HP3/3/4 and are Balanced. All have Arena Trap: when a Pokémon within this Pokémon’s range exchanges with its corresponding reserve, may require that trainer to discard one hand card; refusal or no hand cards prevents the exchange. It includes its owner/self, with no printed once cap. Only active traits apply.
+
+Mud-Slap Lv1 costs one command, damage2, no paragraph. Bulldoze Lv2 costs one command, damage2, default max1; after damage, discard one reinforcement from the damaged Pokémon. Earthquake Lv3 costs one command, damage2, max2 legal targets; remove one reinforcement from each positively damaged original target. Marker choice is mandatory and precedes the target’s receiving effects. Damage canceled or reduced to0 causes no removal; a deployed reserve never inherits it.
+
+## Switch evidence and explicit policies
+
+Booklet05 defines switching as exchanging active/reserve positions. Thus Arena Trap applies to ordinary switching, Teleport and Whirlwind; the latter’s “swap positions” is the same defined operation. Booklet06 explicitly says faint deployment behaves similarly but does NOT count as a switch, so it bypasses Arena Trap. Booklet07 includes self and current neighboring living seats in distance. Booklet08 orders simultaneous different trainers current-turn-first counterclockwise and deactivates reserve traits. Booklet09 p11 grants Speed distance removal only for card use/moves, not passive traits; Arena Trap keeps base adjacency, including while Paralyzed.
+
+The engine captures partners and eligible trap instances at the attempt. Each owner may invoke, followed by the switching trainer’s actual one-card discard or cancellation. Multiple fees are sequential; prior paid cards remain discarded if a later fee is declined. This no-refund sequencing is an explicit implementation policy, not extra printed text. Ordinary allowance is used only on success. Already-paid effect cards and Teleport’s completed draw are retained if the switch is blocked. Optional response expiry passes; choices pause during votes/disconnects and survive persistence/retry. An invoked trap with an empty hand immediately blocks. No automatic private-card selection occurs.
+
+Repeated Double Kick retains Fury’s existing conservative policy: if the original source or target leaves active/faints, skip later hits, complete nested effects and normal card cleanup, and never substitute replacements. Source stoppage is not explicitly printed; target binding follows repeated settlements against the same Pokémon. No Fury reveal/disposal rule is added to Double Kick.
+
+## Validation
+
+442 tests pass, including44 independent cases for this batch. Coverage includes all six faces, damage modifiers, judgment weather/replacement/immunity, repeated settlements, individual defenses, marker timing, Arena Trap range/fees/declines, multiple owners, forced deployment, effect continuations, privacy, strict fields, atomic rejection, expiry, votes/disconnects, restart and exact retry. A read-only source/code audit found no remaining actionable defects after verifying shared response guards.
+
+Native browser QA used three clients in an isolated legally initialized room. English/Chinese payment labels worked; canceling then retrying preserved ordinary switching; paying one real card switched and revealed the injured incoming Pokémon with HP unchanged. Spectators had no private card choices. Double Kick showed two separate windows and no reveal UI. Clear Poison Point poisoned the original source before the next hit. Earthquake resolved two targets and offered marker removal before Static. Client warning/error logs were empty. Accepted arena preserved.

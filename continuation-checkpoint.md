@@ -1,3 +1,24 @@
+## Nidoran and Diglett — 2026-10-30 (current)
+
+**442/442 tests pass. Combat supports 24 groups / 72 faces**, adding Nidoran♂/Nidorino/Nidoking and Diglett/Diglett/Dugtrio. Poison Point uses the original damage source and a non-intense-sun judgment. Double Kick resolves twice through the shared repeated-hit flow. Uninjured Horn Attack/Megahorn gain1 damage. Arena Trap pauses ordinary/effect switching for optional discard-or-cancel responses. Bulldoze/Earthquake remove one marker after positive damage; Earthquake supports two targets.
+
+GitHub repository: https://github.com/chen1861hui/whos-team-rocket.git. This batch is developed on codex/nidoran-diglett from9f900f1. Preserve the accepted arena, native cards, centered level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no invented retail quantities. All24 reviewed groups execute;16 groups remain. See gameplay-milestone-19.md and reviewed-nidoran-diglett.md/json. Older counts and no-Git statements below are historical.
+
+### Runtime and implementation contracts
+
+Project C:\src\team-rocket-web; app app/. Main preview4173 runs this batch with existing saved rooms preserved. QA used isolated Game/nidoran-diglett-work data on4174 after legal full setup; QA server stopped. Filesystem permissions currently unrestricted. No hosting or arena/model changes. No assets downloaded. All source files were already local.
+
+New private room.switchEvent stores kind (ordinary/teleport/whirlwind), switching playerId, captured activeId/reserveId, ordered actorIds/actorInstances and index. requestBattleSwitch intercepts all living active/reserve exchanges, including Abra after its draw and Butterfree after weather payment/defense. Current-turn-first living-seat order; active Diglett only, self included, base adjacency at attempt. Speed grants card/move range only, so it does not enlarge this passive trait. Paralysis leaves Arena Trap active. Faint deployment is explicitly not switching in booklet06 and bypasses interception.
+
+Optional pending arena-trap belongs to trap owner (trait/pass); accepting opens switch-payment for the switching trainer (discard actual own cardId/pass to cancel). Only payment actor sees safe own card choices; event identities and hidden reserve stay private. Multiple trappers charge sequentially. Earlier completed discards remain discarded if a later fee is declined (explicit no-refund policy). No cards are automatically chosen. Empty hand blocks an invoked trap. Ordinary switchUsed is committed only after a successful exchange. Effect payment/draw already completed stays committed if the exchange fails. Canceling an ordinary attempt leaves its once allowance available. Both response kinds expire as pass, pause for vote/disconnect and persist through restart/exact retry. Captured partners/actors are validated; invalid later actors are skipped. Reset and victory clear switchEvent.
+
+Double Kick effectKind:double-kick initializes settlementCount2/settlementIndex0 and originalTargetId. Repeated-hit public projection exposes settlementNumber/count and localized settlementMove for this move, with NO reveal cards or Fury hint. Fury still exposes its actual held reveals. Each hit has separate defense, source/receiving effects and rescue; Power and Defense retain whole-card lifetime. Original source/target leaving active stops remaining hits under the existing conservative policy. Poison Point is a receiving effect alongside items and uses shared judgment/Drought/status continuations. Source-free Poison has no target for Poison Point; nested item damage uses the nested source. Horn Attack/Megahorn add1 at move damage arithmetic only when original source injuries==0; Burn/receiving caps remain and item/status damage receives no move bonus.
+
+Diglett Lv1 Mud-Slap command damage2 is plain. Lv2 Bulldoze damage2/max1 and Lv3 Earthquake damage2/max2 reuse after-damage reinforcement choice (kind:reinforcement,timing:after-damage) on the original surviving target before receiving traits. Default own/adjacent active target rules and normal Dodge remain.
+
+44 independent new tests plus398 baseline cases pass. Browser3 clients verified Arena Trap cancellation/retry/payment, own-card privacy, Chinese labels, two Double Kick defenses without reveal UI, clear Poison Point, two-target Earthquake and marker choice before Static. Source audit initially suspected a validation gap; direct tests confirmed shared guards reject all unrelated fields, so no defect remained. Inspected client warnings/errors empty. Five screenshots saved in milestone19. Source/public catalogue copies byte-match; metadata24 supported/24 reviewed/72 faces, roster flags24. All six face hashes verified. Full-retail engineEligible remainsfalse. Next priority: continue complete effects for remaining16 groups; Clefairy and Exeggcute are reasonable bounded source-review candidates. No pending acquisition is needed.
+
+
 ## Gastly and Magikarp — 2026-10-29
 
 The project is now a standalone Git repository connected to `https://github.com/chen1861hui/whos-team-rocket.git`; the initial pushed baseline is commit `85b2202`. Combat supports 22 reviewed groups / 66 faces and 398/398 tests pass. Native controls cover Hyper Beam's optional declaration discard, Levitate rainy-card Dodge conversion and private Cursed Body choices. Both catalogue copies are byte-identical. See `gameplay-milestone-18.md` and `reviewed-gastly-magikarp.md/json`.
@@ -134,6 +155,3 @@ Earlier milestone12:221/221 tests passed, including29 independent shell/dragon c
 4. Continue multiplayer checks. Public hosting, Malaysia/Singapore tests, models/audio and arena polish remain later.
 
 Psyduck UI follow-up: selected exile slots keep dark green/cream contrast under hover/focus, verified with a separate real fixture; selection screenshot refreshed. CSS-only follow-up leaves the 278-test engine result unchanged.
-
-
-
