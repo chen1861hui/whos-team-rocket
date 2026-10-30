@@ -1,5 +1,7 @@
 ## Nidoran and Diglett — 2026-10-30 (current)
 
+Git publication: implementation commit dfe596e was pushed to origin/codex/nidoran-diglett. Draft PR creation was attempted, but the GitHub connector returned403 Resource not accessible by integration; the browser fallback requires sign-in. No PR or merge was created. Review/create from https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/nidoran-diglett .
+
 **442/442 tests pass. Combat supports 24 groups / 72 faces**, adding Nidoran♂/Nidorino/Nidoking and Diglett/Diglett/Dugtrio. Poison Point uses the original damage source and a non-intense-sun judgment. Double Kick resolves twice through the shared repeated-hit flow. Uninjured Horn Attack/Megahorn gain1 damage. Arena Trap pauses ordinary/effect switching for optional discard-or-cancel responses. Bulldoze/Earthquake remove one marker after positive damage; Earthquake supports two targets.
 
 GitHub repository: https://github.com/chen1861hui/whos-team-rocket.git. This batch is developed on codex/nidoran-diglett from9f900f1. Preserve the accepted arena, native cards, centered level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun, with no invented retail quantities. All24 reviewed groups execute;16 groups remain. See gameplay-milestone-19.md and reviewed-nidoran-diglett.md/json. Older counts and no-Git statements below are historical.

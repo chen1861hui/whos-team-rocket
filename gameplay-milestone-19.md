@@ -1,5 +1,7 @@
 # Gameplay milestone19 — Nidoran and Diglett
 
+Git publication: implementation commit dfe596e was pushed to origin/codex/nidoran-diglett. Draft PR creation was attempted, but the GitHub connector returned403 Resource not accessible by integration; the browser fallback requires sign-in. No PR or merge was created. Review/create from https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/nidoran-diglett .
+
 2026-10-30. **442/442 tests pass. Combat supports24/40 groups and72/120 faces**, with16 groups still incomplete. Added Poison Point, Double Kick, uninjured Horn Attack/Megahorn bonuses, Arena Trap, Mud-Slap, Bulldoze and Earthquake. Source text and interpretations are in reviewed-nidoran-diglett.md/json.
 
 The main change is a saved switch-interception flow: optional trap owner invocation, actual one-card payment or cancellation by the switching trainer, and continuation of the original ordinary/Teleport/Whirlwind exchange. Private cards and hidden partner identities stay private. Multiple owners, finite payments, phase allowances, response clocks, reconnect/restart and retries are covered. Double Kick shares repeated settlement lifecycle without revealing deck cards. Diglett's after-damage marker removal reuses the existing choice queue.
