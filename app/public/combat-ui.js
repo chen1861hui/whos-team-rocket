@@ -162,6 +162,35 @@ function distributionControls(pending,kit) {
   update();return [grid,node('div',{class:'action-row'},confirm)];
 }
 let charmDraft={id:null,cardId:'',targetId:''};
+const paidEffectDrafts=new Map();
+function paidEffectControls(pending,kit) {
+  if(!paidEffectDrafts.has(pending.id))paidEffectDrafts.set(pending.id,{cardId:'',targetId:''});
+  const paidEffectDraft=paidEffectDrafts.get(pending.id);
+  if(paidEffectDrafts.size>16)paidEffectDrafts.delete(paidEffectDrafts.keys().next().value);
+  const language=kit.language,view=kit.getView(),cards=pending.paymentCards||[],gas=pending.kind==='neutralizing-gas';
+  const names={'battle-armor':['Battle Armor','战斗盔甲'],bonemerang:['Bonemerang','骨头回力镖'],'neutralizing-gas':['Neutralizing Gas','化学变化气体']},name=say(language,...names[pending.kind]);
+  if(!cards.some(card=>card.id===paidEffectDraft.cardId))paidEffectDraft.cardId='';
+  if(gas&&!pending.legalTargetIds.includes(paidEffectDraft.targetId))paidEffectDraft.targetId='';
+  const payment=node('select',{'aria-label':`${name} ${say(language,'payment','弃牌')}`},node('option',{value:''},say(language,'Choose a hand card','选择一张手牌')));
+  for(const card of cards)payment.append(node('option',{value:card.id},`${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
+  payment.value=paidEffectDraft.cardId;
+  const controls=node('div',{class:'charm-controls paid-effect-controls'},node('label',{},say(language,'Discard card','弃置手牌'),payment));
+  let target;
+  if(gas) {
+    target=node('select',{'aria-label':say(language,'Suppress trainer traits','特性失效的训练家')},node('option',{value:''},say(language,'Choose a trainer','选择训练家')));
+    for(const id of pending.legalTargetIds)target.append(node('option',{value:id},view.players.find(p=>p.id===id).nickname));
+    target.value=paidEffectDraft.targetId;
+    controls.append(node('label',{},say(language,'Trainer','训练家'),target));
+    target.addEventListener('change',()=>{paidEffectDraft.targetId=target.value;update();});
+  }
+  const choice=gas?'suppress':pending.kind==='bonemerang'?'repeat':'armor';
+  const label=gas?['Discard and suppress','弃牌并令特性失效']:pending.kind==='bonemerang'?['Discard and repeat','弃牌并再次结算']:['Discard and gain Defense','弃牌并获得防御强化'];
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-paid-effect',onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice,cardId:paidEffectDraft.cardId,...(gas?{targetId:paidEffectDraft.targetId}:{})})},say(language,...label));
+  const update=()=>{confirm.disabled=kit.busy||Boolean(kit.getView().pendingVote)||!paidEffectDraft.cardId||(gas&&!paidEffectDraft.targetId);};
+  payment.addEventListener('change',()=>{paidEffectDraft.cardId=payment.value;update();});
+  const pass=node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},say(language,'Pass effect','放弃本次效果'));
+  update();return [controls,node('div',{class:'action-row'},confirm,pass)];
+}
 function charmControls(pending,kit) {
   if(charmDraft.id!==pending.id)charmDraft={id:pending.id,cardId:'',targetId:''};
   const language=kit.language,cards=pending.paymentCards||[],view=kit.getView();
@@ -252,13 +281,16 @@ export function decisionPanel(view,kit) {
   const pending=view.pendingBattle;if(!pending)return null;
   const language=kit.language,actor=view.players.find(p=>p.id===pending.actorId),target=view.players.find(p=>p.id===pending.targetId);
   const titles={'poison-touch':['Poison Touch · optional ability','毒手 · 可选特性'],cycle:['Spike Cannon · cycle a card','尖刺加农炮 · 交换手牌'],scales:['Marvel Scale · reduce damage','神奇鳞片 · 减少伤害'],effects:['Choose effect order','选择效果结算顺序'],defiant:['Defiant · optional ability','不服输 · 可选特性'],judgment:['Drought · replace judgment','日照 · 替换判定'],defense:['Respond to the move','响应招式'],static:['Static · optional ability','静电 · 可选特性'],synchronize:['Synchronize · optional ability','同步 · 可选特性'],'cursed-body':['Cursed Body · optional ability','咒术之躯 · 可选特性'],foresee:['Future Sight','预知未来'],reorder:['Choose the deck order','选择牌堆顺序'],reinforcement:['Remove a reinforcement','弃置强化指示物'],hand:['Choose a hand card','选择一张手牌'],rescue:['Rescue settlement','昏厥救援结算']};
-  Object.assign(titles,{'cute-charm':['Cute Charm · redirect the move','迷人之躯 · 转移招式'],'arena-trap':['Arena Trap · interrupt switch','沙穴 · 响应交替'],'switch-payment':['Arena Trap · pay or cancel switch','沙穴 · 弃牌或取消交替'],'poison-point':['Poison Point · optional ability','毒刺 · 可选特性']});
+  Object.assign(titles,{'battle-armor':['Battle Armor · gain Defense','战斗盔甲 · 获得防御强化'],bonemerang:['Bonemerang · one more settlement','骨头回力镖 · 再次结算'],'neutralizing-gas':['Neutralizing Gas · suppress traits','化学变化气体 · 特性失效'],'cute-charm':['Cute Charm · redirect the move','迷人之躯 · 转移招式'],'arena-trap':['Arena Trap · interrupt switch','沙穴 · 响应交替'],'switch-payment':['Arena Trap · pay or cancel switch','沙穴 · 弃牌或取消交替'],'poison-point':['Poison Point · optional ability','毒刺 · 可选特性']});
   const title=pending.kind==='shed-skin'?['Shed Skin · discard to reduce damage','蜕皮 · 弃牌减少伤害']:pending.kind==='damage-order'?['Choose damage modifier order','选择伤害修正顺序']:pending.kind==='pay-day'?['Pay Day · inspect and give cards','聚宝功 · 观看并分配牌']:pending.kind==='distribute'?['Distribute Pay Day cards','分配聚宝功的牌']:pending.kind==='exile'?['Disable · remove hand cards','定身法 · 移出手牌']:pending.kind==='turn-start-order'?['Choose turn-start order','选择回合开始的结算顺序']:titles[pending.kind]||titles.rescue;
   const panel=node('section',{class:`combat-decision ${pending.kind==='hand'?'hand-choice-decision':pending.kind==='reorder'?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
   if(pending.kind==='effects')panel.append(node('p',{},say(language,'These effects triggered together. Choose which one resolves next.','这些效果在同一时机触发，请选择下一个结算的效果。')));
   if(pending.kind==='damage-order')panel.append(node('p',{},say(language,`Current damage: ${pending.damage}. Choose which receiving-damage effect resolves next. Damage reduced to zero ends this settlement.`,`当前伤害值：${pending.damage}。请选择下一个结算的受到伤害时效果。伤害减至零时，本次伤害结算终止。`)));
   if(pending.kind==='shed-skin')panel.append(node('p',{},say(language,`Incoming damage: ${pending.damage}. You may discard any number of hand cards; each reduces this damage by 1.`,`本次伤害值：${pending.damage}。可以弃置任意数量的手牌，每张使本次伤害减1。`)));
   if(pending.kind==='cute-charm')panel.append(node('p',{},say(language,'Before the move continues, you may discard one intense-sun hand card to redirect this target. The command user and other already chosen targets cannot be selected.','招式继续前，你可以弃置一张烈日手牌并转移此目标。不能选择指令使用者或其他已被指定的目标。')));
+  if(pending.kind==='battle-armor')panel.append(node('p',{},say(language,'After receiving damage, discard one hand card to gain Defense. It can protect against later hits, then is discarded when this damaging card ends. No duplicate marker is added.','受到伤害后，可弃置一张手牌获得防御强化。可抵御后续结算；此伤害牌结算完毕后弃置。相同指示物不叠加。')));
+  if(pending.kind==='bonemerang')panel.append(node('p',{},say(language,'The first settlement is complete. You may discard one hand card to resolve this move once more against the same Pokémon.','首次结算已结束。可以弃置一张手牌，使此招式对同一只宝可梦再结算一次。')));
+  if(pending.kind==='neutralizing-gas')panel.append(node('p',{},say(language,'Discard one hand card to suppress all Pokémon traits of one trainer, including reserves, until this turn ends. Moves, status, items and reinforcement markers remain in effect.','可弃置一张手牌，使一名训练家的所有宝可梦（含备战）特性失效至当前回合结束。招式、特殊状态、持有物及强化指示物仍生效。')));
   if(pending.kind==='arena-trap')panel.append(node('p',{},say(language,'You may require the switching trainer to discard one hand card. If they cannot or decline, this switch is canceled.','你可以令交替的训练家弃置一张手牌。若其无法弃置或拒绝，本次交替取消。')));
   if(pending.kind==='switch-payment')panel.append(node('p',{},say(language,'Discard one hand card to continue the switch, or cancel. Cards already paid to earlier trappers stay discarded.','弃置一张手牌以继续交替，或取消。之前因其他沙穴而弃置的牌不会退还。')));
   if(pending.kind==='poison-point')panel.append(node('p',{},say(language,'After receiving damage, you may judge. Any result other than intense sun Poisons the original damage source.','受到伤害后，你可以进行判定。结果不为烈日时，原伤害来源陷入中毒。')));
@@ -296,7 +328,8 @@ export function decisionPanel(view,kit) {
     panel.append(node('p',{class:'response-clock'},clock.pausedReason==='mandatory'?say(language,'Time expired · complete this choice to continue','时间已到 · 请完成当前选择以继续'):clock.pausedReason?say(language,'Paused · waiting for connection or vote','暂停 · 等待连接或表决'):`${seconds}s`));
   }
   if(pending.actorId===view.selfId && !view.self.spectator) {
-    if(pending.kind==='cute-charm')panel.append(...charmControls(pending,kit));
+    if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind))panel.append(...paidEffectControls(pending,kit));
+    else if(pending.kind==='cute-charm')panel.append(...charmControls(pending,kit));
     else if(pending.kind==='shed-skin')panel.append(...shedControls(pending,kit));
     else if(pending.kind==='distribute')panel.append(...distributionControls(pending,kit));
     else if(pending.kind==='exile')panel.append(...exileControls(pending,kit));
@@ -307,10 +340,10 @@ export function decisionPanel(view,kit) {
         const names={dodge:[`Dodge reduction −${pending.damageReduction}`,`躲闪减伤 −${pending.damageReduction}`],defense:['Defense · cap at 1','防御强化 · 伤害改为1'],multiscale:['Multiscale · cap at 1','多重鳞片 · 伤害改为1'],'marvel-scale':['Marvel Scale · optional reduction','神奇鳞片 · 可选减伤'],'shed-skin':['Shed Skin · discard to reduce','蜕皮 · 弃牌减伤']};
         row.append(node('button',{type:'button',class:'button primary',id:`damage-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'damage-effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='turn-start-order')for(const effect of pending.effects) {
-        const names={'return-cards':['Return removed cards','返回移出的牌'],status:['Resolve special status','结算特殊状态']};
+        const names={'return-cards':['Return removed cards','返回移出的牌'],status:['Resolve special status','结算特殊状态'],'neutralizing-gas':['Neutralizing Gas','化学变化气体']};
         row.append(node('button',{type:'button',class:'button primary',id:`start-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'start-effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='effects')for(const effect of pending.effects) {
-        const names={static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'rocky-helmet':['Rocky Helmet','凸凸头盔']};
+        const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'rocky-helmet':['Rocky Helmet','凸凸头盔']};
         row.append(node('button',{type:'button',class:'button primary effect-choice',id:`effect-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='reinforcement')for(const kind of pending.reinforcements||[]) {
         const names={power:['Power','力量'],defense:['Defense','防御'],speed:['Speed','速度']};

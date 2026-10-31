@@ -76,22 +76,22 @@ export function beginCommand(source) {
   return 1;
 }
 
-export function computeDamage(source, target, base, catalogue, { command = true, powerBoost = 0, channel = 'move', reinforcements = true, receiving = true } = {}) {
+export function computeDamage(source, target, base, catalogue, { command = true, powerBoost = 0, channel = 'move', reinforcements = true, receiving = true, sourceTraits = true, targetTraits = true } = {}) {
   integer(base, 'Base damage');
   integer(powerBoost, 'Power boost');
   // Dealing-damage changes precede receiving-damage changes (photo 08 p.11).
   let damage = base;
-  const guts = source?.catalogueId === 'machop';
+  const guts = sourceTraits && source?.catalogueId === 'machop';
   if (source?.status === 'burn' && !guts && channel === 'move') {
     damage = Math.min(damage, 1);
   } else {
-    if (source?.catalogueId === 'charmander' && currentHp(source, catalogue) * 2 <= maxHp(source, catalogue)) damage += 2;
+    if (sourceTraits && source?.catalogueId === 'charmander' && currentHp(source, catalogue) * 2 <= maxHp(source, catalogue)) damage += 2;
     if (command && reinforcements) damage += powerBoost;
     if (guts && source.status) damage += 1;
   }
   if(!receiving)return damage;
   // Multiscale is compulsory and uses injuries, not a record of prior hits.
-  if (damage > 1 && target?.catalogueId === 'dratini' && target.level === 3 && injuries(target) === 0) damage = 1;
+  if (damage > 1 && targetTraits && target?.catalogueId === 'dratini' && target.level === 3 && injuries(target) === 0) damage = 1;
   if (damage > 1 && reinforcements && reinforcementEffective(target, 'defense')) damage = 1;
   return damage;
 }

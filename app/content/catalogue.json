@@ -18,9 +18,9 @@
     "pokemonFaces": 120,
     "selectionReviewSpecification": "reviewed-selection-roster.md",
     "combatReviewSpecification": "reviewed-combat-spec.md",
-    "combatSupportedGroups": 26,
-    "effectReviewedGroups": 26,
-    "effectReviewedFaces": 78,
+    "combatSupportedGroups": 28,
+    "effectReviewedGroups": 28,
+    "effectReviewedFaces": 84,
     "reviewedHeldItems": 1
   },
   "entries": [
@@ -8439,13 +8439,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你可以弃置一张手牌，然后此宝可梦获得一枚“防御强化”指示物。",
+            "en": "After this Pokémon receives damage, you may discard one hand card. Then this Pokémon gains one Defense reinforcement marker."
+          },
           "engineEligible": false,
           "name": {
             "zh": "卡拉卡拉",
@@ -8471,12 +8474,69 @@
             "kind": "standalone-pokemon-art",
             "dex": 104,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "战斗盔甲",
+            "en": "Battle Armor"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/f9d4649bf774abae.webp",
+            "sha256": "51e918769a502029be54cb916baa067ad7f2b7a72d4a72dd1d21f84107e4e905",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 49,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-cubone-koffing.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "撞击",
+                "en": "Tackle"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": null,
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "no-paragraph-printed",
+              "unresolvedSymbols": []
+            }
+          ]
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你可以弃置一张手牌，然后此宝可梦获得一枚“防御强化”指示物。",
+            "en": "After this Pokémon receives damage, you may discard one hand card. Then this Pokémon gains one Defense reinforcement marker."
+          },
           "engineEligible": false,
           "name": {
             "zh": "卡拉卡拉",
@@ -8502,12 +8562,73 @@
             "kind": "standalone-pokemon-art",
             "dex": 104,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "战斗盔甲",
+            "en": "Battle Armor"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/884282a55b1f31ba.webp",
+            "sha256": "873093999e8df1c7e62cd6a85260d2cfa502cfd194b87586b424c98ea501f4bb",
+            "facePosition": "left",
+            "observedAssetOrdinal": 51,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-cubone-koffing.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "骨棒乱打",
+                "en": "Bone Rush"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "使用此招式不受次数限制。",
+                "en": "This move has no limit on the number of uses."
+              },
+              "uses": {
+                "faceOverridePrinted": true,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase",
+                "unlimited": true
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ]
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你可以弃置一张手牌，然后此宝可梦获得一枚“防御强化”指示物。",
+            "en": "After this Pokémon receives damage, you may discard one hand card. Then this Pokémon gains one Defense reinforcement marker."
+          },
           "engineEligible": false,
           "name": {
             "zh": "嘎啦嘎啦",
@@ -8533,7 +8654,65 @@
             "kind": "standalone-pokemon-art",
             "dex": 105,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "战斗盔甲",
+            "en": "Battle Armor"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/884282a55b1f31ba.webp",
+            "sha256": "873093999e8df1c7e62cd6a85260d2cfa502cfd194b87586b424c98ea501f4bb",
+            "facePosition": "right",
+            "observedAssetOrdinal": 51,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-cubone-koffing.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "骨头回力镖",
+                "en": "Bonemerang"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "每当此招式被使用，首次结算结束后，你可以弃置一张手牌使此招式再结算一次。",
+                "en": "Whenever this move is used, after its first settlement ends, you may discard one hand card to make this move settle once more."
+              },
+              "effectKind": "bonemerang",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ]
         }
       ],
       "name": {
@@ -8554,7 +8733,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-cubone-koffing.md"
     },
     {
       "id": "koffing",
@@ -8567,13 +8747,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "一名训练家的回合开始时，你可以弃置一张手牌，然后令任意一名训练家的所有宝可梦的特性失效，直到当前训练家的回合结束。",
+            "en": "At the start of a trainer’s turn, you may discard one hand card, then suppress the traits of all Pokémon belonging to any one trainer until the current trainer’s turn ends."
+          },
           "engineEligible": false,
           "name": {
             "zh": "瓦斯弹",
@@ -8599,12 +8782,69 @@
             "kind": "standalone-pokemon-art",
             "dex": 109,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "化学变化气体",
+            "en": "Neutralizing Gas"
+          },
+          "classification": {
+            "zh": "平衡型",
+            "en": "Balanced"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/969aaeb98538b1a7.webp",
+            "sha256": "1bb4bdcd69cb4986d73a17d8cfa37e865c5116b81d0d08a25a246f8747df2608",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 50,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-cubone-koffing.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "酸液炸弹",
+                "en": "Acid Spray"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": null,
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "no-paragraph-printed",
+              "unresolvedSymbols": []
+            }
+          ]
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "一名训练家的回合开始时，你可以弃置一张手牌，然后令任意一名训练家的所有宝可梦的特性失效，直到当前训练家的回合结束。",
+            "en": "At the start of a trainer’s turn, you may discard one hand card, then suppress the traits of all Pokémon belonging to any one trainer until the current trainer’s turn ends."
+          },
           "engineEligible": false,
           "name": {
             "zh": "瓦斯弹",
@@ -8630,12 +8870,72 @@
             "kind": "standalone-pokemon-art",
             "dex": 109,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "化学变化气体",
+            "en": "Neutralizing Gas"
+          },
+          "classification": {
+            "zh": "平衡型",
+            "en": "Balanced"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/5afd461637ceef9f.webp",
+            "sha256": "55f5804f8d810a0abcd5f1eb5ee621434f8f91e7966125a125f132351257204e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 52,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-cubone-koffing.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "污泥炸弹",
+                "en": "Sludge Bomb"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式造成伤害后，你进行一次判定，若结果为[暴雨]，目标宝可梦陷入“中毒”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. On heavy rain, the target Pokémon becomes Poisoned."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ]
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "一名训练家的回合开始时，你可以弃置一张手牌，然后令任意一名训练家的所有宝可梦的特性失效，直到当前训练家的回合结束。",
+            "en": "At the start of a trainer’s turn, you may discard one hand card, then suppress the traits of all Pokémon belonging to any one trainer until the current trainer’s turn ends."
+          },
           "engineEligible": false,
           "name": {
             "zh": "双弹瓦斯",
@@ -8661,7 +8961,64 @@
             "kind": "standalone-pokemon-art",
             "dex": 110,
             "source": "research-assets/pokemon-form-art.json"
-          }
+          },
+          "traitName": {
+            "zh": "化学变化气体",
+            "en": "Neutralizing Gas"
+          },
+          "classification": {
+            "zh": "平衡型",
+            "en": "Balanced"
+          },
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/5afd461637ceef9f.webp",
+            "sha256": "55f5804f8d810a0abcd5f1eb5ee621434f8f91e7966125a125f132351257204e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 52,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-cubone-koffing.md"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "污泥波",
+                "en": "Sludge Wave"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "此招式可以指定至多两只在此宝可梦的距离限制范围内的宝可梦为目标。当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[暴雨]，目标宝可梦陷入“中毒”状态。",
+                "en": "This move may target up to two Pokémon within this Pokémon’s distance limit. After this Pokémon deals damage with this move, make a judgment. On heavy rain, the target becomes Poisoned."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 2,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ]
         }
       ],
       "name": {
@@ -8682,7 +9039,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-cubone-koffing.md"
     },
     {
       "id": "rhyhorn",

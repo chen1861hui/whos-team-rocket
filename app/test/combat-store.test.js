@@ -24,7 +24,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
   for (const who of seats) act(who, 'acknowledgeIdentity');
   for (const who of seats) {
     for (let draw = 0; draw < 5; draw++) act(who, 'drawPokemon');
-    const picks = store.view(owner.code, who.token).view.self.candidates;
+    const picks = store.view(owner.code, who.token).view.self.candidates.filter(id => id !== 'koffing');
     act(who, 'selectPokemon', { activeId: picks[0], reserveId: picks[1] });
   }
   // These pre-existing combat scenarios intentionally seed starter creatures after

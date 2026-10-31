@@ -1,4 +1,10 @@
-## Clefairy and Exeggcute — 2026-10-30 (current)
+## Cubone and Koffing — 2026-10-31 (current)
+
+**553/553 tests pass. Combat supports 28 groups / 84 faces**, adding Cubone/Cubone/Marowak and Koffing/Koffing/Weezing. Battle Armor discards a real card after damage to gain Defense. Bone Rush allows repeated paid command uses; Bonemerang offers one paid extra settlement after the first finishes. Neutralizing Gas suppresses all Pokémon traits of a chosen trainer until the current turn ends, including after reserve switching. Sludge Bomb and two-target Sludge Wave poison only on heavy-rain judgment after positive damage.
+
+Branch codex/cubone-koffing from f7d217c retains the previous batches. Repository: https://github.com/chen1861hui/whos-team-rocket.git. No PR or merge; the documented integration403/browser-sign-in limit remains, with no repeated attempt. Preserve the accepted arena, native cards, centered three-level hover and identity-first unique setup. Production remains six command/six Dodge per seat, all intense sun; full retail quantities are unverified. All28 reviewed groups execute;12 remain. See gameplay-milestone-21.md and reviewed-cubone-koffing.md/json. Earlier counts below are historical.
+
+## Clefairy and Exeggcute — 2026-10-30 (historical)
 
 Git publication: implementation commit4b34ace pushed to origin/codex/clefairy-exeggcute. No PR or merge created. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/clefairy-exeggcute .
 

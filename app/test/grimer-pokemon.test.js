@@ -23,7 +23,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
   seats.forEach(who => act(who, 'ready', { ready: true })); act(owner, 'startBattlePreview');
   const leader = byId(room().players.find(p => p.role === 'leader').id);
   seats.forEach(who => act(who, 'acknowledgeIdentity'));
-  for (const who of seats) { for (let i = 0; i < 5; i++) act(who, 'drawPokemon'); const candidates = view(who).self.candidates; act(who, 'selectPokemon', { activeId: candidates[0], reserveId: candidates[1] }); }
+  for (const who of seats) { for (let i = 0; i < 5; i++) act(who, 'drawPokemon'); const candidates = view(who).self.candidates.filter(id => id !== 'koffing'); act(who, 'selectPokemon', { activeId: candidates[0], reserveId: candidates[1] }); }
   const seed = (who, family = 'squirtle', level = 1, extra = {}) => Object.assign(player(who).active, { instanceId: `private-active-${who.playerId}`, catalogueId: family, level, damage: 0, status: null, reinforcements: [], hpBonus: 20, defeated: false, revealed: true, ...extra });
   for (const who of seats) { seed(who); Object.assign(player(who).reserve, { instanceId: `private-reserve-${who.playerId}`, catalogueId: 'squirtle', level: 1, damage: 0, status: null, reinforcements: [], hpBonus: 20, defeated: false, revealed: false }); player(who).hand = []; }
   const makeCard = (kind = 'event', weather = 'clear') => ({ id: `private-grimer-${++serial}`, kind, weather, fixture: true, privateMarker: `secret-${serial}`, name: { zh: `私牌${serial}`, en: `Private Grimer card ${serial}` } });

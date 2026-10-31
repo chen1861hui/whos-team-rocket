@@ -32,7 +32,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
   seats.forEach(who => act(who, 'acknowledgeIdentity'));
   for (const who of seats) {
     for (let i = 0; i < 5; i++) act(who, 'drawPokemon');
-    const candidates = view(who).self.candidates;
+    const candidates = view(who).self.candidates.filter(id => id !== 'koffing');
     act(who, 'selectPokemon', { activeId: candidates[0], reserveId: candidates[1] });
   }
   // Legal shared-deck setup precedes explicit isolated combat scenarios. Some

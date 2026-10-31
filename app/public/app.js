@@ -458,7 +458,7 @@ function worldPanel(players, viewerId, turnId, theme) {
       const names={power:language==='zh'?'力量强化':'Power',defense:language==='zh'?'防御强化':'Defense',speed:language==='zh'?'速度强化':'Speed'};
       label.append(el('small',{class:'world-reinforcements'},player.active.reinforcements.map(kind=>names[kind]||kind).join(' · '),player.active.status==='paralysis'?(language==='zh'?' · 不生效':' · inactive'):''));
     }
-    if (Number.isFinite(player.active?.hp)) label.append(el('div',{class:'world-health'},`${player.active.hp}/${player.active.maxHp} HP`,player.active.status?` · ${statusName(player.active.status,language)}`:'',player.active.damageProtected?` · ${t('damageProtected')}`:'',player.eliminated?` · ${t('eliminated')}`:''));
+    if (Number.isFinite(player.active?.hp)) label.append(el('div',{class:'world-health'},`${player.active.hp}/${player.active.maxHp} HP`,player.active.status?` · ${statusName(player.active.status,language)}`:'',player.active.traitsSuppressed?(language==='zh'?' · 特性失效':' · Traits suppressed'):'',player.active.damageProtected?` · ${t('damageProtected')}`:'',player.eliminated?` · ${t('eliminated')}`:''));
     labels.append(label);
   }
   host.append(el('div',{class:'flat-field','aria-hidden':'true'},el('div',{class:'field-centre'})),labels,

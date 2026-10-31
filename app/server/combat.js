@@ -14,6 +14,10 @@ const trainer = (room, id) => room.players.find(p => p.id === id);
 const live = room => room.players.filter(p => !p.spectator && !p.eliminated);
 const face = (pokemon, catalogue) => catalogue.entries.find(p => p.id === pokemon.catalogueId)?.levels.find(p => p.level === pokemon.level);
 const creature = (room, id) => room.players.flatMap(p => [p.active, p.reserve]).find(p => p?.instanceId === id);
+// Suppression belongs to the trainer for the entire global turn, including reserves.
+export const battleTraitsEffective=(room,pokemon)=>Boolean(pokemon&&!pokemon.defeated&&!room?.turn?.suppressedTraitPlayerIds?.some(id=>{const owner=trainer(room,id);return [owner?.active,owner?.reserve].some(partner=>partner?.instanceId===pokemon.instanceId);}));
+const damageOptions=(room,source,target,options={})=>({...options,sourceTraits:battleTraitsEffective(room,source),targetTraits:battleTraitsEffective(room,target)});
+const damageImmune=(room,pokemon)=>battleTraitsEffective(room,pokemon)&&room.turn?.damageImmunityIds?.includes(pokemon.instanceId);
 function note(room, zh, en) { room.log.push({ id: randomUUID(), text: { zh, en } }); room.log = room.log.slice(-80); }
 function shuffled(values) {
   const copy = [...values];
@@ -67,7 +71,7 @@ function topCard(room) {
 function tryPickup(room,player,reason) {
   const pokemon=player.active;
   const ownDraw=room.turn?.playerId===player.id&&room.turn.phase==='draw'&&!room.turnStart;
-  if(reason==='setup'||!room.turn||room.status!=='playing'||ownDraw||player.spectator||player.eliminated||!pokemon||pokemon.defeated||pokemon.catalogueId!=='meowth'||pokemon.level>=3)return;
+  if(reason==='setup'||!room.turn||room.status!=='playing'||ownDraw||player.spectator||player.eliminated||!pokemon||pokemon.defeated||pokemon.catalogueId!=='meowth'||pokemon.level>=3||!battleTraitsEffective(room,pokemon))return;
   room.turn.pickupUsedIds??=[];
   if(room.turn.pickupUsedIds.includes(pokemon.instanceId))return;
   room.turn.pickupUsedIds.push(pokemon.instanceId);
@@ -102,7 +106,7 @@ function startJudgment(room,ctx,continuation,judgeId) {
     return continueJudgment(room,ctx,continuation,null);
   }
   const card=topCard(room),seats=live(room),start=seats.findIndex(p=>p.id===room.turn.playerId);
-  const ordered=[...seats.slice(start),...seats.slice(0,start)].filter(p=>p.active?.catalogueId==='vulpix'&&!p.active.defeated);
+  const ordered=[...seats.slice(start),...seats.slice(0,start)].filter(p=>p.active?.catalogueId==='vulpix'&&battleTraitsEffective(room,p.active));
   room.judgment={card,actorIds:ordered.map(p=>p.id),actorInstances:Object.fromEntries(ordered.map(p=>[p.id,p.active.instanceId])),index:0,continuation,judgeId};
   const names={'intense-sun':['烈日','intense sun'],clear:['晴朗','clear'],rain:['暴雨','heavy rain'],thunderstorm:['雷雨','thunderstorm']}[card.weather];
   note(room,`判定展示一张牌，天气为${names[0]}；判定结果等待生效。`,`A judgment revealed ${names[1]}; its result is pending.`);
@@ -112,7 +116,7 @@ function advanceJudgment(room,ctx) {
   const judgment=room.judgment;
   while(judgment.index<judgment.actorIds.length) {
     const actor=trainer(room,judgment.actorIds[judgment.index]);
-    if(actor && !actor.eliminated && !actor.active.defeated && actor.active.catalogueId==='vulpix' && actor.active.instanceId===judgment.actorInstances[actor.id]) {
+    if(actor && !actor.eliminated && !actor.active.defeated && actor.active.catalogueId==='vulpix' && battleTraitsEffective(room,actor.active) && actor.active.instanceId===judgment.actorInstances[actor.id]) {
       decision(room,'judgment',actor.id,judgment.judgeId,ctx);
       const card=judgment.card;
       room.pendingBattle.judgmentCard={name:card.name,weather:card.weather,kind:card.kind};
@@ -214,7 +218,7 @@ export function equipBattleItem(room,player,input,ctx) {
   const [card]=player.hand.splice(index,1),old=pokemon.item;pokemon.item=card;
   if(old)room.discardPile.push(old);
   note(room,old?'使用持有物并弃置原来的持有物。':'宝可梦携带了一件持有物。',old?'The held item was equipped and the old item discarded.':'The Pokémon equipped a held item.');
-  if(old && input.slot==='active' && pokemon.catalogueId==='mankey') {
+  if(old && input.slot==='active' && pokemon.catalogueId==='mankey' && battleTraitsEffective(room,pokemon)) {
     decision(room,'defiant',player.id,player.id,ctx);
     room.pendingBattle.trait='defiant';room.pendingBattle.canTrait=true;
   }
@@ -234,6 +238,10 @@ function runReceivingEffect(room,effect,ctx) {
   const resolution=room.resolution,target=creature(room,resolution.targetCreatureId),source=creature(room,resolution.sourceId);
   const owner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=room.players.find(p=>p.active?.instanceId===source?.instanceId&&!p.eliminated);
   if(!owner||target.defeated)return continueReceiving(room,ctx);
+  if(effect!=='rocky-helmet'&&!battleTraitsEffective(room,target))return continueReceiving(room,ctx);
+  if(effect==='battle-armor'&&owner.hand.length) {
+    decision(room,'battle-armor',owner.id,owner.id,ctx);return;
+  }
   if(effect==='static' && sourceOwner && !source.defeated) {
     decision(room,'static',owner.id,sourceOwner.id,ctx);Object.assign(room.pendingBattle,{trait:'static',canTrait:true});return;
   }
@@ -258,7 +266,7 @@ function runReceivingEffect(room,effect,ctx) {
   if(effect==='rocky-helmet' && sourceOwner && !source.defeated && itemEffective(room,target) && target.item.id===resolution.helmetCardId) {
     room.resolutionStack??=[];room.resolutionStack.push(resolution);
     room.resolution={kind:'item',card:null,channelCard:target.item,sourceId:target.instanceId,sourcePlayerId:owner.id,targetCreatureId:source.instanceId,targetIds:[sourceOwner.id],index:0,damagedIds:[],defenseIds:[],actualDamage:0};
-    const amount=room.turn.damageImmunityIds?.includes(source.instanceId)?0:computeDamage(target,source,1,ctx.catalogue,{command:false,channel:'item',receiving:!hasShedSkin(source)});
+    const amount=damageImmune(room,source)?0:computeDamage(target,source,1,ctx.catalogue,damageOptions(room,target,source,{command:false,channel:'item',receiving:!hasShedSkin(room,source)}));
     receiveDamage(room,ctx,amount);
     return;
   }
@@ -273,10 +281,10 @@ function cleanResolution(room,resolution) {
   }
 }
 
-function canSandVeil(player) {
-  return Boolean(player?.active && !player.active.defeated && player.active.catalogueId==='sandshrew' && !player.active.item);
+function canSandVeil(room,player) {
+  return Boolean(player?.active && !player.active.defeated && player.active.catalogueId==='sandshrew' && !player.active.item && battleTraitsEffective(room,player.active));
 }
-const hasShedSkin=pokemon=>['caterpie','weedle'].includes(pokemon?.catalogueId)&&pokemon.level===2&&!pokemon.defeated;
+const hasShedSkin=(room,pokemon)=>['caterpie','weedle'].includes(pokemon?.catalogueId)&&pokemon.level===2&&battleTraitsEffective(room,pokemon);
 function activeOwner(room,instanceId) {
   return live(room).find(player=>player.active?.instanceId===instanceId&&!player.active.defeated);
 }
@@ -300,7 +308,7 @@ function advanceBattleSwitch(room,ctx) {
   if(!switchStillValid(room,event,ctx))return finishBattleSwitch(room,ctx,false);
   while(event.index<event.actorIds.length) {
     const actor=trainer(room,event.actorIds[event.index]);
-    if(actor&&!actor.eliminated&&actor.active?.instanceId===event.actorInstances[actor.id]&&actor.active.catalogueId==='diglett'&&!actor.active.defeated&&currentHp(actor.active,ctx.catalogue)>0) {
+    if(actor&&!actor.eliminated&&actor.active?.instanceId===event.actorInstances[actor.id]&&actor.active.catalogueId==='diglett'&&battleTraitsEffective(room,actor.active)&&currentHp(actor.active,ctx.catalogue)>0) {
       decision(room,'arena-trap',actor.id,event.playerId,ctx);Object.assign(room.pendingBattle,{trait:'arena-trap',canTrait:true,switchKind:event.kind});return;
     }
     event.index++;
@@ -311,7 +319,7 @@ export function requestBattleSwitch(room,player,kind,ctx) {
   requireRule(!room.switchEvent,'SWITCH_PENDING','Finish the current switch first.');
   const start=Math.max(0,room.players.findIndex(p=>p.id===room.turn.playerId));
   // Speed removes card/move distance only; Arena Trap uses passive base adjacency.
-  const actors=[...room.players.slice(start),...room.players.slice(0,start)].filter(actor=>!actor.spectator&&!actor.eliminated&&actor.active?.catalogueId==='diglett'&&!actor.active.defeated&&currentHp(actor.active,ctx.catalogue)>0&&eligibleTargetIds(room.players,actor.id).includes(player.id));
+  const actors=[...room.players.slice(start),...room.players.slice(0,start)].filter(actor=>!actor.spectator&&!actor.eliminated&&actor.active?.catalogueId==='diglett'&&battleTraitsEffective(room,actor.active)&&currentHp(actor.active,ctx.catalogue)>0&&eligibleTargetIds(room.players,actor.id).includes(player.id));
   room.switchEvent={kind,playerId:player.id,activeId:player.active?.instanceId??null,reserveId:player.reserve?.instanceId??null,actorIds:actors.map(actor=>actor.id),actorInstances:Object.fromEntries(actors.map(actor=>[actor.id,actor.active.instanceId])),index:0};
   advanceBattleSwitch(room,ctx);
 }
@@ -322,11 +330,11 @@ function applyStatus(room,ctx,pokemon,status,next='afterDamage') {
   // One-status restriction precedes replacement. Never redirect to a reserve
   // deployed after the original target fainted.
   if(!pokemon || !activeOwner(room,pokemon.instanceId) || pokemon.status)return resumeStatusContinuation(room,ctx,next);
-  if(['caterpie','weedle'].includes(pokemon.catalogueId)&&pokemon.level===1) {
+  if(['caterpie','weedle'].includes(pokemon.catalogueId)&&pokemon.level===1&&battleTraitsEffective(room,pokemon)) {
     note(room,'鳞粉阻止此宝可梦陷入特殊状态。','Shield Dust prevented this Pokémon from gaining a special status.');
     return resumeStatusContinuation(room,ctx,next);
   }
-  if(status==='paralysis'&&pokemon.catalogueId==='meowth'&&pokemon.level===3) {
+  if(status==='paralysis'&&pokemon.catalogueId==='meowth'&&pokemon.level===3&&battleTraitsEffective(room,pokemon)) {
     note(room,'柔软阻止此宝可梦陷入麻痹。','Limber prevented this Pokémon from becoming Paralyzed.');
     return resumeStatusContinuation(room,ctx,next);
   }
@@ -335,7 +343,7 @@ function applyStatus(room,ctx,pokemon,status,next='afterDamage') {
 function startPoisonTouch(room,ctx,event) {
   requireRule(!room.statusEvent,'STATUS_PENDING','Finish the current status effect first.');
   const start=Math.max(0,room.players.findIndex(player=>player.id===room.turn.playerId));
-  const ordered=[...room.players.slice(start),...room.players.slice(0,start)].filter(player=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='grimer'&&!player.active.defeated&&currentHp(player.active,ctx.catalogue)>0);
+  const ordered=[...room.players.slice(start),...room.players.slice(0,start)].filter(player=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='grimer'&&battleTraitsEffective(room,player.active)&&currentHp(player.active,ctx.catalogue)>0);
   room.statusEvent={...event,actorIds:ordered.map(player=>player.id),actorInstances:Object.fromEntries(ordered.map(player=>[player.id,player.active.instanceId])),index:0};
   // Replacing Poison with Poison cannot change the outcome. Accepting once
   // also makes subsequent identical replacements/setters irrelevant.
@@ -346,7 +354,7 @@ function advancePoisonTouch(room,ctx) {
   const event=room.statusEvent,owner=activeOwner(room,event.targetId);
   while(owner&&event.index<event.actorIds.length) {
     const actor=trainer(room,event.actorIds[event.index]);
-    if(actor&&!actor.eliminated&&actor.active?.instanceId===event.actorInstances[actor.id]&&actor.active.catalogueId==='grimer'&&!actor.active.defeated&&currentHp(actor.active,ctx.catalogue)>0) {
+    if(actor&&!actor.eliminated&&actor.active?.instanceId===event.actorInstances[actor.id]&&actor.active.catalogueId==='grimer'&&battleTraitsEffective(room,actor.active)&&currentHp(actor.active,ctx.catalogue)>0) {
       decision(room,'poison-touch',actor.id,owner.id,ctx);
       Object.assign(room.pendingBattle,{trait:'poison-touch',canTrait:true,mode:event.kind,...(event.kind==='status'?{status:event.status}:{damage:event.damage})});return;
     }
@@ -364,18 +372,20 @@ function advancePoisonTouch(room,ctx) {
   if(!owner || owner.active.status!=='poison')return finishResolution(room,ctx);
   // Poison has no damage source or resolving card, but receiving modifiers
   // still apply before the shared optional Marvel Scale / HP pipeline.
-  const amount=computeDamage(null,owner.active,event.damage,ctx.catalogue,{command:false,channel:'status',receiving:!hasShedSkin(owner.active)});
+  const amount=computeDamage(null,owner.active,event.damage,ctx.catalogue,damageOptions(room,null,owner.active,{command:false,channel:'status',receiving:!hasShedSkin(room,owner.active)}));
   receiveDamage(room,ctx,amount);
 }
 export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
+  if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind)&&pending.actorId===self.id)pending.paymentCards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='cute-charm'&&pending.actorId===self.id)pending.paymentCards=self.hand.filter(card=>card.weather==='intense-sun').map(({id,name,weather,kind})=>({id,name,weather,kind}));
   const repeated=[room.resolution,...(room.resolutionStack||[])].find(resolution=>resolution?.settlementCount!==undefined);
   if(repeated) {
     Object.assign(pending,{settlementNumber:repeated.settlementIndex+1,settlementCount:repeated.settlementCount});
     if(repeated.revealedCards)pending.revealedCards=repeated.revealedCards.map(({name,weather,kind})=>({name,weather,kind}));
     if(repeated.effectKind==='double-kick')pending.settlementMove={zh:'二连踢',en:'Double Kick'};
+    if(repeated.effectKind==='bonemerang')pending.settlementMove={zh:'骨头回力镖',en:'Bonemerang'};
   }
   if(pending.kind==='switch-payment'&&pending.actorId===self.id)pending.cards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='shed-skin'&&pending.actorId===self.id)pending.cards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
@@ -414,7 +424,7 @@ function advanceCommandTargets(room,ctx) {
   resolution.targetingIndex??=0;resolution.charmSeenIds??=[];
   while(resolution.targetingIndex<resolution.targetIds.length) {
     const owner=trainer(room,resolution.targetIds[resolution.targetingIndex]),pokemon=owner.active;
-    if(pokemon.catalogueId==='clefairy'&&!pokemon.defeated&&!owner.eliminated&&!resolution.charmSeenIds.includes(pokemon.instanceId)) {
+    if(pokemon.catalogueId==='clefairy'&&battleTraitsEffective(room,pokemon)&&!owner.eliminated&&!resolution.charmSeenIds.includes(pokemon.instanceId)) {
       resolution.charmSeenIds.push(pokemon.instanceId);
       const targets=charmTargets(room,owner,ctx);
       if(targets.length&&owner.hand.some(card=>card.weather==='intense-sun')) {
@@ -430,6 +440,10 @@ function advanceCommandTargets(room,ctx) {
 // Target assignment, including Cute Charm, precedes move-use effects and defense.
 function openMoveUse(room, ctx) {
   const resolution = room.resolution;
+  if(resolution.effectKind==='bonemerang'&&resolution.settlementCount===undefined) {
+    resolution.settlementCount=1;resolution.settlementIndex=0;
+    resolution.originalTargetId=trainer(room,resolution.targetIds[0]).active.instanceId;
+  }
   if(resolution.effectKind==='double-kick'&&resolution.settlementCount===undefined) {
     resolution.settlementIndex=0;resolution.settlementCount=2;
     resolution.originalTargetId=trainer(room,resolution.targetIds[0]).active.instanceId;
@@ -466,11 +480,11 @@ function openDefense(room, ctx) {
   resolution.sourceAfterDone=false; resolution.staticDone=false; delete resolution.receivingEffects;delete resolution.helmetCardId; resolution.actualDamage=0; delete resolution.handChoiceIds;
   decision(room, 'defense', target.id, target.id, ctx);
   room.pendingBattle.cannotDodge=Boolean(resolution.ignoresReinforcements);
-  room.pendingBattle.canTrait=!room.pendingBattle.cannotDodge && canSandVeil(target) && room.drawPile.length+room.discardPile.length>0;
+  room.pendingBattle.canTrait=!room.pendingBattle.cannotDodge && canSandVeil(room,target) && room.drawPile.length+room.discardPile.length>0;
   if(room.pendingBattle.canTrait)room.pendingBattle.trait='sand-veil';
-  if(resolution.sourceFamily==='caterpie'&&resolution.sourceLevel===3&&resolution.sourcePlayerId!==target.id)room.pendingBattle.blockedDodgeWeathers=['intense-sun'];
+  if(resolution.sourceFamily==='caterpie'&&resolution.sourceLevel===3&&battleTraitsEffective(room,creature(room,resolution.sourceId))&&resolution.sourcePlayerId!==target.id)room.pendingBattle.blockedDodgeWeathers=['intense-sun'];
   if(resolution.settlementCount!==undefined)Object.assign(room.pendingBattle,{settlementNumber:resolution.settlementIndex+1,settlementCount:resolution.settlementCount});
-  if(resolution.sourceFamily==='pidgey'&&resolution.sourcePlayerId!==target.id) {
+  if(resolution.sourceFamily==='pidgey'&&battleTraitsEffective(room,creature(room,resolution.sourceId))&&resolution.sourcePlayerId!==target.id) {
     room.pendingBattle.dodgeReducesDamage=true;room.pendingBattle.damageReduction=resolution.dodgeReductions?.[target.active.instanceId]||0;
   }
 }
@@ -478,8 +492,8 @@ function reduceMoveDamage(room,targetId) {
   room.resolution.dodgeReductions??={};
   return room.resolution.dodgeReductions[targetId]=(room.resolution.dodgeReductions[targetId]||0)+1;
 }
-const hasSniper=player=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&!player.active.defeated;
-export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||hasSniper(player);
+const hasSniper=(room,player)=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&battleTraitsEffective(room,player.active);
+export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||hasSniper(room,player);
 const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment']);
 export function previewActions(room, player, catalogue) {
   if (room.status !== 'playing' || player.spectator || player.eliminated || !player.active) return null;
@@ -489,7 +503,7 @@ export function previewActions(room, player, catalogue) {
   const move = face(pokemon, catalogue)?.moves?.[0];
   const unlocked = !room.turn.commandCreatureId || room.turn.commandCreatureId === pokemon.instanceId;
   const ignoresReinforcements=pokemon.catalogueId==='dratini' && pokemon.level>=2;
-  const targetsFor=ignoreDistance=>eligibleTargetIds(room.players,player.id,{ignoreDistance:ignoreDistance||hasSniper(player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&reinforcementEffective(pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
+  const targetsFor=ignoreDistance=>eligibleTargetIds(room.players,player.id,{ignoreDistance:ignoreDistance||hasSniper(room,player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&reinforcementEffective(pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
   const traitUsed = (room.turn.traitsUsed || []).includes(pokemon.instanceId);
   const teleport=pokemon.catalogueId==='abra' && pokemon.level===1;
   const teleportBlocked=teleport && room.turn.switchBlocked && player.reserve && !player.reserve.defeated;
@@ -497,14 +511,14 @@ export function previewActions(room, player, catalogue) {
   const moves=(face(pokemon,catalogue)?.moves||[]).map((item,index)=>{
     const command=item.condition?.kind==='command';
     const supported=command||(item.condition?.kind==='weather-card'&&weatherMoveEffects.has(item.effectKind)&&item.condition.weatherIconsInCondition?.length>0);
-    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:item.targeting?.max||1,legalTargetIds:own?(teleport||item.targeting?.kind==='self'?[player.id]:targetsFor(item.targeting?.ignoresDistance===true)):[],canUse:Boolean(moveAvailable&&supported&&(!command||(!teleportBlocked&&unlocked))&&(pokemon.catalogueId==='shellder'||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
+    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:item.targeting?.max||1,legalTargetIds:own?(teleport||item.targeting?.kind==='self'?[player.id]:targetsFor(item.targeting?.ignoresDistance===true)):[],canUse:Boolean(moveAvailable&&supported&&(!command||(!teleportBlocked&&unlocked))&&((pokemon.catalogueId==='shellder'&&battleTraitsEffective(room,pokemon))||item.uses?.unlimited===true||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
   });
   const canCommand=Boolean(move?.condition?.kind==='command'&&moves[0]?.canUse);
   const giveRecipientIds = live(room).filter(p=>p.id!==player.id).map(p=>p.id);
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
-  const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(!pokemon.defeated&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
+  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx) {
   const legal=previewActions(room,player,ctx.catalogue),index=input.moveIndex===undefined?0:input.moveIndex;
@@ -532,7 +546,7 @@ function beginBattleMove(room,player,targetIds,command,legal,ctx,isCommand=true)
   if(legal.effectChoice)room.resolution.effectChoice=legal.effectChoice;
   if(!isCommand)note(room,`弃置一张符合天气的手牌使用${legal.move.name.zh}；目标正在决定响应。`,`One qualifying weather hand card was discarded to use ${legal.move.name.en}; the target is deciding a response.`);
   else note(room, command?'当前玩家使用接招吧！；目标正在决定响应。':'正义之心视为使用接招吧！；目标正在决定响应。', command?'The current trainer used Take this!; the target is deciding a response.':'Justified counted as using Take this!; the target is deciding a response.');
-  if(isCommand&&source.catalogueId==='magikarp'&&source.level>=2) {
+  if(isCommand&&source.catalogueId==='magikarp'&&source.level>=2&&battleTraitsEffective(room,source)) {
     if(room.drawPile.length+room.discardPile.length)drawBattleCards(room,player,1,'moxie');
     else note(room,'自信过度已触发，但当前没有可摸取的牌。','Moxie triggered, but no card is currently available to draw.');
   }
@@ -610,12 +624,12 @@ function settleDamage(room, ctx) {
   }
   const printedDamage=resolution.baseDamage+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
   const reduction=resolution.dodgeReductions?.[target.instanceId]||0;
-  if(reduction>0||hasShedSkin(target)) {
-    const amount=room.turn.damageImmunityIds?.includes(target.instanceId)?0:computeDamage(source,target,printedDamage,ctx.catalogue,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false});
+  if(reduction>0||hasShedSkin(room,target)) {
+    const amount=damageImmune(room,target)?0:computeDamage(source,target,printedDamage,ctx.catalogue,damageOptions(room,source,target,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false}));
     resolution.modifierState={targetId:target.instanceId,amount,reduction,remaining:['dodge','defense','multiscale','marvel-scale','shed-skin']};
     return continueDamageModifiers(room,ctx);
   }
-  const amount = room.turn.damageImmunityIds?.includes(target.instanceId)?0:computeDamage(source, target, printedDamage, ctx.catalogue, { command: true, powerBoost: resolution.powerBoost, reinforcements:!resolution.ignoresReinforcements });
+  const amount = damageImmune(room,target)?0:computeDamage(source, target, printedDamage, ctx.catalogue, damageOptions(room,source,target,{ command: true, powerBoost: resolution.powerBoost, reinforcements:!resolution.ignoresReinforcements }));
   receiveDamage(room,ctx,amount);
 }
 function continueDamageModifiers(room,ctx) {
@@ -624,11 +638,11 @@ function continueDamageModifiers(room,ctx) {
   const eligible=effect=>{
     if(state.amount<=0)return false;
     if(effect==='dodge')return state.reduction>0;
-    if(effect==='shed-skin')return hasShedSkin(target)&&owner.hand.length>0;
+    if(effect==='shed-skin')return hasShedSkin(room,target)&&owner.hand.length>0;
     if(state.amount<=1)return false;
     if(effect==='defense')return !resolution.ignoresReinforcements&&reinforcementEffective(target,'defense');
-    if(effect==='multiscale')return target.catalogueId==='dratini'&&target.level===3&&(target.damage||0)===0;
-    return effect==='marvel-scale'&&target.catalogueId==='dratini'&&target.level<=2&&Boolean(target.status);
+    if(effect==='multiscale')return battleTraitsEffective(room,target)&&target.catalogueId==='dratini'&&target.level===3&&(target.damage||0)===0;
+    return effect==='marvel-scale'&&battleTraitsEffective(room,target)&&target.catalogueId==='dratini'&&target.level<=2&&Boolean(target.status);
   };
   state.remaining=state.remaining.filter(eligible);
   if(!state.remaining.length) {
@@ -657,10 +671,10 @@ function runDamageModifier(room,effect,ctx) {
 // optional receiving change. The saved amount belongs to this exact event.
 function receiveDamage(room,ctx,amount) {
   const resolution=room.resolution,target=creature(room,resolution.targetCreatureId);
-  if(hasShedSkin(target)) {
+  if(hasShedSkin(room,target)) {
     resolution.modifierState={targetId:target.instanceId,amount,reduction:0,remaining:['defense','shed-skin']};return continueDamageModifiers(room,ctx);
   }
-  if(amount>1 && target.catalogueId==='dratini' && target.level<=2 && target.status && !target.defeated) {
+  if(amount>1 && battleTraitsEffective(room,target) && target.catalogueId==='dratini' && target.level<=2 && target.status && !target.defeated) {
     resolution.incomingDamage=amount;
     const owner=room.players.find(p=>p.active?.instanceId===target.instanceId&&!p.eliminated);
     decision(room,'scales',owner.id,owner.id,ctx);
@@ -713,6 +727,7 @@ function afterDamage(room,ctx) {
         return startJudgment(room,ctx,{kind:'shadow-ball',targetOwnerId:targetOwner?.id,sourcePlayerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
       }
       if(family==='exeggcute'&&level===3)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'confusion',weather:'intense-sun',next:'afterDamage'},resolution.sourcePlayerId);
+      if(family==='koffing'&&level>=2)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'poison',weather:'rain',next:'afterDamage'},resolution.sourcePlayerId);
       if(resolution.sourceFamily==='machop' && resolution.sourceLevel===3)return applyStatus(room,ctx,target,'confusion','afterDamage');
       if(resolution.sourceFamily==='sandshrew') {
         if(resolution.sourceLevel>=2) {
@@ -731,11 +746,13 @@ function afterDamage(room,ctx) {
     resolution.staticDone=true;resolution.receivingEffects=[];
     const targetOwner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=room.players.find(p=>p.active?.instanceId===source?.instanceId&&!p.eliminated);
     if(targetOwner&&!target.defeated) {
-      if(target.catalogueId==='pikachu'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('static');
-      if(target.catalogueId==='nidoran-m'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('poison-point');
-      if(target.catalogueId==='abra'&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
-      if(target.catalogueId==='slowpoke'&&room.turn.playerId!==targetOwner.id)resolution.receivingEffects.push('oblivious');
-      if(target.catalogueId==='gastly'&&target.level===3&&sourceOwner?.hand.length&&sourceOwner.id!==targetOwner.id)resolution.receivingEffects.push('cursed-body');
+      const traits=battleTraitsEffective(room,target);
+      if(traits&&target.catalogueId==='cubone'&&targetOwner.hand.length)resolution.receivingEffects.push('battle-armor');
+      if(traits&&target.catalogueId==='pikachu'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('static');
+      if(traits&&target.catalogueId==='nidoran-m'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('poison-point');
+      if(traits&&target.catalogueId==='abra'&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
+      if(traits&&target.catalogueId==='slowpoke'&&room.turn.playerId!==targetOwner.id)resolution.receivingEffects.push('oblivious');
+      if(traits&&target.catalogueId==='gastly'&&target.level===3&&sourceOwner?.hand.length&&sourceOwner.id!==targetOwner.id)resolution.receivingEffects.push('cursed-body');
       if(itemEffective(room,target)&&sourceOwner&&!source.defeated){resolution.receivingEffects.push('rocky-helmet');resolution.helmetCardId=target.item.id;}
     }
   }
@@ -744,6 +761,14 @@ function afterDamage(room,ctx) {
 function nextSettlement(room, ctx) {
   room.pendingBattle = null;
   if (['turn-start','item'].includes(room.resolution.kind)) return finishResolution(room, ctx);
+  const resolution=room.resolution;
+  if(resolution.effectKind==='bonemerang'&&resolution.settlementIndex===0&&!resolution.repeatOffered) {
+    resolution.repeatOffered=true;
+    const owner=activeOwner(room,resolution.sourceId),target=activeOwner(room,resolution.originalTargetId);
+    if(owner&&target&&currentHp(owner.active,ctx.catalogue)>0&&currentHp(target.active,ctx.catalogue)>0&&owner.hand.length) {
+      decision(room,'bonemerang',owner.id,target.id,ctx);return;
+    }
+  }
   if(room.resolution.settlementCount!==undefined) {
     room.resolution.settlementIndex++;
     if(room.resolution.settlementIndex<room.resolution.settlementCount)return openDefense(room,ctx);
@@ -789,11 +814,39 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(pending.kind==='distribute'||input.allocations===undefined,'INVALID_RESPONSE','This decision does not distribute cards.');
   requireRule(pending.kind==='exile'||input.handIndices===undefined,'INVALID_RESPONSE','This decision does not select multiple hand slots.');
   requireRule(pending.kind==='shed-skin'||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
-  requireRule(pending.kind==='cute-charm'||input.targetId===undefined,'INVALID_RESPONSE','This decision does not redirect a target.');
+  requireRule(['cute-charm','neutralizing-gas'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
+  if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind)) {
+    const kind=pending.kind,choice=kind==='battle-armor'?'armor':kind==='bonemerang'?'repeat':'suppress';
+    requireRule(['pass',choice].includes(input.choice)&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Pay one actual hand card for this effect or pass.');
+    if(input.choice==='pass')requireRule(input.cardId===undefined&&input.targetId===undefined,'INVALID_RESPONSE','Passing does not pay or choose a target.');
+    const resolution=room.resolution;
+    if(kind==='battle-armor')requireRule(resolution?.targetCreatureId===player.active.instanceId&&resolution.actualDamage>0&&player.active.catalogueId==='cubone'&&battleTraitsEffective(room,player.active),'STALE_DECISION','The Battle Armor recipient changed.');
+    if(kind==='bonemerang')requireRule(resolution?.effectKind==='bonemerang'&&resolution.settlementIndex===0&&activeOwner(room,resolution.sourceId)?.id===player.id&&activeOwner(room,resolution.originalTargetId)&&currentHp(player.active,ctx.catalogue)>0&&currentHp(creature(room,resolution.originalTargetId),ctx.catalogue)>0,'STALE_DECISION','The Bonemerang partners changed.');
+    if(kind==='neutralizing-gas')requireRule(room.turnStart?.actorIds?.[room.turnStart.index]===player.id&&room.turnStart.actorInstances[player.id]===player.active.instanceId&&player.active.catalogueId==='koffing'&&battleTraitsEffective(room,player.active),'STALE_DECISION','The Neutralizing Gas actor changed.');
+    if(input.choice!=='pass') {
+      const index=player.hand.findIndex(card=>card.id===input.cardId);requireRule(index>=0,'INVALID_CARD','Choose one actual own hand card.');
+      if(kind==='neutralizing-gas')requireRule(pending.legalTargetIds.includes(input.targetId)&&live(room).some(p=>p.id===input.targetId),'INVALID_TARGET','Choose one living trainer.');
+      room.discardPile.push(...player.hand.splice(index,1));
+      if(kind==='battle-armor') {
+        if(!player.active.reinforcements.includes('defense'))player.active.reinforcements.push('defense');
+        // The booklet removes even a newly gained Defense at this damaging card's end.
+        if(resolution.kind!=='turn-start')resolution.defenseIds.push(player.active.instanceId);
+        note(room,'战斗盔甲弃置一张手牌，获得一枚防御强化（不叠加）。','Battle Armor discarded one card and gained one Defense reinforcement, without stacking.');
+      }else if(kind==='bonemerang') {
+        resolution.settlementCount=2;
+        note(room,'骨头回力镖弃置一张手牌，将再结算一次。','Bonemerang discarded one card and will settle once more.');
+      }else {
+        if(!room.turn.suppressedTraitPlayerIds.includes(input.targetId))room.turn.suppressedTraitPlayerIds.push(input.targetId);
+        note(room,'化学变化气体弃置一张手牌，使所选训练家的所有宝可梦特性失效至当前回合结束。','Neutralizing Gas discarded one card and suppressed the chosen trainer’s Pokémon traits until this turn ends.');
+      }
+    }
+    room.pendingBattle=null;
+    return kind==='battle-armor'?continueReceiving(room,ctx):kind==='bonemerang'?nextSettlement(room,ctx):continueTurnStart(room,ctx);
+  }
   if(pending.kind==='cute-charm') {
     requireRule(['redirect','pass'].includes(input.choice)&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Redirect with one intense-sun hand card or pass.');
     const resolution=room.resolution;
-    requireRule(resolution&&player.active.instanceId===resolution.charmActorInstance&&resolution.targetIds[resolution.targetingIndex]===player.id&&!player.active.defeated&&player.active.catalogueId==='clefairy','STALE_DECISION','The Cute Charm target changed.');
+    requireRule(resolution&&player.active.instanceId===resolution.charmActorInstance&&resolution.targetIds[resolution.targetingIndex]===player.id&&!player.active.defeated&&player.active.catalogueId==='clefairy'&&battleTraitsEffective(room,player.active),'STALE_DECISION','The Cute Charm target changed.');
     if(input.choice==='pass') {
       requireRule(input.cardId===undefined&&input.targetId===undefined,'INVALID_RESPONSE','Passing does not pay or choose a target.');
       resolution.targetingIndex++;
@@ -809,7 +862,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='arena-trap') {
     requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Use Arena Trap or allow this switch.');
     const event=room.switchEvent;
-    requireRule(event&&switchStillValid(room,event,ctx)&&event.actorIds[event.index]===player.id&&event.actorInstances[player.id]===player.active.instanceId&&player.active.catalogueId==='diglett'&&!player.active.defeated,'STALE_DECISION','The switch or trapper changed.');
+    requireRule(event&&switchStillValid(room,event,ctx)&&event.actorIds[event.index]===player.id&&event.actorInstances[player.id]===player.active.instanceId&&player.active.catalogueId==='diglett'&&battleTraitsEffective(room,player.active),'STALE_DECISION','The switch or trapper changed.');
     room.pendingBattle=null;
     if(input.choice==='trait') {
       const switching=trainer(room,event.playerId);
@@ -831,7 +884,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='shed-skin') {
     requireRule(['shed','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Discard selected hand cards with Shed Skin or pass.');
     const state=room.resolution.modifierState,ids=input.choice==='pass'?[]:input.cardIds;
-    requireRule(state&&state.targetId===player.active.instanceId&&hasShedSkin(player.active),'STALE_DECISION','The Shed Skin Pokémon changed.');
+    requireRule(state&&state.targetId===player.active.instanceId&&hasShedSkin(room,player.active),'STALE_DECISION','The Shed Skin Pokémon changed.');
     requireRule((input.choice!=='pass'||input.cardIds===undefined)&&Array.isArray(ids)&&ids.length<=player.hand.length&&new Set(ids).size===ids.length&&ids.every(id=>typeof id==='string'&&player.hand.some(card=>card.id===id)),'INVALID_CARD','Choose distinct own hand cards.');
     const selected=new Set(ids),cards=player.hand.filter(card=>selected.has(card.id));player.hand=player.hand.filter(card=>!selected.has(card.id));room.discardPile.push(...cards);
     state.amount=Math.max(0,state.amount-cards.length);room.pendingBattle=null;
@@ -846,7 +899,7 @@ export function respondBattle(room,player,input,ctx) {
   }
   if(pending.kind==='turn-start-order') {
     requireRule(input.choice==='start-effect'&&pending.effects.includes(input.effect)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Choose one pending turn-start effect.');
-    requireRule(room.turnStart?.playerId===player.id&&room.turnStart.remaining.includes(input.effect),'STALE_DECISION','The turn-start effects changed.');
+    requireRule((room.turnStart?.actorIds?.[room.turnStart.index]??room.turnStart?.playerId)===player.id&&room.turnStart.remaining.includes(input.effect),'STALE_DECISION','The turn-start effects changed.');
     room.pendingBattle=null;runTurnStartEffect(room,input.effect,ctx);return;
   }
   if(pending.kind==='effects') {
@@ -891,7 +944,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='poison-touch') {
     requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Use Poison Touch or pass.');
     const event=room.statusEvent;
-    requireRule(event&&event.actorIds[event.index]===player.id&&event.actorInstances[player.id]===player.active?.instanceId&&player.active.catalogueId==='grimer'&&!player.active.defeated&&currentHp(player.active,ctx.catalogue)>0,'STALE_DECISION','The Poison Touch responder changed.');
+    requireRule(event&&event.actorIds[event.index]===player.id&&event.actorInstances[player.id]===player.active?.instanceId&&player.active.catalogueId==='grimer'&&battleTraitsEffective(room,player.active)&&currentHp(player.active,ctx.catalogue)>0,'STALE_DECISION','The Poison Touch responder changed.');
     if(input.choice==='trait') {
       if(event.kind==='status')event.status='poison';else event.damage=2;
       event.index=event.actorIds.length;
@@ -924,7 +977,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='scales') {
     requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Use Marvel Scale or pass.');
     const resolution=room.resolution;
-    requireRule(player.active.instanceId===resolution.targetCreatureId&&player.active.catalogueId==='dratini'&&player.active.level<=2&&player.active.status&&!player.active.defeated&&resolution.incomingDamage>1,'STALE_DECISION','The incoming damage changed.');
+    requireRule(player.active.instanceId===resolution.targetCreatureId&&player.active.catalogueId==='dratini'&&battleTraitsEffective(room,player.active)&&player.active.level<=2&&player.active.status&&!player.active.defeated&&resolution.incomingDamage>1,'STALE_DECISION','The incoming damage changed.');
     const amount=resolution.incomingDamage-(input.choice==='trait'?1:0);
     room.pendingBattle=null;
     if(resolution.modifierState){resolution.modifierState.amount=amount;delete resolution.incomingDamage;continueDamageModifiers(room,ctx);}else commitDamage(room,ctx,amount);
@@ -938,7 +991,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='judgment') {
     requireRule(input.reinforcement===undefined&&input.order===undefined&&input.handIndex===undefined,'INVALID_RESPONSE','This judgment only accepts replacement or pass.');
     const judgment=room.judgment;
-    requireRule(judgment && judgment.actorIds[judgment.index]===player.id && judgment.actorInstances[player.id]===player.active.instanceId && player.active.catalogueId==='vulpix' && !player.active.defeated,'STALE_DECISION','The judgment responder changed.');
+    requireRule(judgment && judgment.actorIds[judgment.index]===player.id && judgment.actorInstances[player.id]===player.active.instanceId && player.active.catalogueId==='vulpix' && battleTraitsEffective(room,player.active),'STALE_DECISION','The judgment responder changed.');
     requireRule(input.choice==='replace'||input.choice==='pass','INVALID_RESPONSE','Replace with a sunny hand card or pass.');
     if(input.choice==='replace') {
       const index=player.hand.findIndex(card=>card.id===input.cardId && ['intense-sun','clear'].includes(card.weather));
@@ -1025,7 +1078,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='defense') {
     requireRule(['pass','dodge','trait'].includes(input.choice),'INVALID_RESPONSE','Choose a defense or pass.');
     if(input.choice==='trait') {
-      requireRule(pending.canTrait && !pending.traitAttempted && canSandVeil(player),'TRAIT_UNAVAILABLE','Sand Veil is unavailable for this settlement.');
+      requireRule(pending.canTrait && !pending.traitAttempted && canSandVeil(room,player),'TRAIT_UNAVAILABLE','Sand Veil is unavailable for this settlement.');
       pending.traitAttempted=true;pending.canTrait=false;
       const defense=structuredClone(pending);
       if(defense.clock){if(defense.clock.deadlineAt!==null)defense.clock.remainingMs=Math.max(0,defense.clock.deadlineAt-ctx.now());defense.clock.deadlineAt=null;}
@@ -1036,7 +1089,7 @@ export function respondBattle(room,player,input,ctx) {
       requireRule(!pending.cannotDodge,'INVALID_RESPONSE','This move cannot be canceled by Dodge!');
       const responseIndex=player.hand.findIndex(card=>card.id===input.cardId);
       const response=player.hand[responseIndex];
-      const levitate=player.active?.catalogueId==='gastly'&&player.active.level<=2&&!player.active.defeated&&['rain','thunderstorm'].includes(response?.weather);
+      const levitate=player.active?.catalogueId==='gastly'&&player.active.level<=2&&battleTraitsEffective(room,player.active)&&['rain','thunderstorm'].includes(response?.weather);
       requireRule(responseIndex>=0&&(response.kind==='dodge'||levitate),'INVALID_CARD','Choose Dodge! or a rainy hand card with Levitate.');
       requireRule(!pending.blockedDodgeWeathers?.includes(response.weather),'INVALID_CARD','Compound Eyes prevents an intense-sun Dodge against this move.');
       player.hand.splice(responseIndex,1);room.discardPile.push(response);
@@ -1077,6 +1130,7 @@ export function useBattleTrait(room, player, ctx,input={}) {
   startJudgment(room,ctx,{kind:'trait',sourceId:player.active.instanceId,family:player.active.catalogueId,ownerId:player.id},player.id);
 }
 export function beginBattleTurn(room, player, ctx) {
+  room.turn.suppressedTraitPlayerIds=[];
   room.turn.noHandLimitIds=[];
   room.turn.justifiedUsed = false;
   room.turn.pickupUsedIds=[];
@@ -1085,8 +1139,9 @@ export function beginBattleTurn(room, player, ctx) {
   room.turn.movesBlocked = false; room.turn.switchBlocked = false;
   room.turn.blockedMoveIds = []; room.turn.damageImmunityIds = [];
   delete room.turnStart;
-  const remaining=[...(player.exiledCards?.length?['return-cards']:[]),...(['flinch','sleep','confusion','poison'].includes(player.active.status)?['status']:[])];
-  if(remaining.length){room.turnStart={playerId:player.id,pokemonId:player.active.instanceId,remaining};continueTurnStart(room,ctx);}
+  const remaining=[...(player.exiledCards?.length?['return-cards']:[]),...(['flinch','sleep','confusion','poison'].includes(player.active.status)?['status']:[]),...(player.active.catalogueId==='koffing'?['neutralizing-gas']:[])];
+  const index=room.players.findIndex(p=>p.id===player.id),actors=[player,...[...room.players.slice(index+1),...room.players.slice(0,index)].filter(p=>!p.spectator&&!p.eliminated&&p.active?.catalogueId==='koffing'&&!p.active.defeated)];
+  if(remaining.length||actors.length>1){room.turnStart={playerId:player.id,pokemonId:player.active.instanceId,remaining,actorIds:actors.map(p=>p.id),actorInstances:Object.fromEntries(actors.map(p=>[p.id,p.active.instanceId])),index:0};continueTurnStart(room,ctx);}
 }
 function returnExiledCards(room,player) {
   const cards=player.exiledCards||[];player.exiledCards=[];
@@ -1096,20 +1151,30 @@ function returnExiledCards(room,player) {
 }
 function continueTurnStart(room,ctx) {
   const start=room.turnStart;if(!start)return;
-  const player=trainer(room,start.playerId);
-  if(!start.remaining.length){delete room.turnStart;room.pendingBattle=null;return;}
-  if(player.eliminated) {
-    if(start.remaining.includes('return-cards'))returnExiledCards(room,player);
-    delete room.turnStart;room.pendingBattle=null;return;
+  // Legacy saved local turn-start queues retain their original continuation.
+  start.actorIds??=[start.playerId];start.actorInstances??={[start.playerId]:start.pokemonId};start.index??=0;
+  while(start.index<start.actorIds.length) {
+    const actor=trainer(room,start.actorIds[start.index]);
+    if(actor?.id===start.playerId&&actor.eliminated&&start.remaining.includes('return-cards'))returnExiledCards(room,actor);
+    if(!actor||actor.eliminated)start.remaining=[];
+    if(start.remaining.includes('neutralizing-gas')&&(!actor||actor.active?.instanceId!==start.actorInstances[actor.id]||actor.active.catalogueId!=='koffing'||!battleTraitsEffective(room,actor.active)||(!actor.hand.length&&start.remaining.length===1)))start.remaining=start.remaining.filter(effect=>effect!=='neutralizing-gas');
+    if(start.remaining.length) {
+      if(start.remaining.length>1) {
+        decision(room,'turn-start-order',actor.id,actor.id,ctx);room.pendingBattle.effects=[...start.remaining];return;
+      }
+      return runTurnStartEffect(room,start.remaining[0],ctx);
+    }
+    start.index++;start.remaining=start.index<start.actorIds.length?['neutralizing-gas']:[];
   }
-  if(start.remaining.length>1) {
-    decision(room,'turn-start-order',player.id,player.id,ctx);room.pendingBattle.effects=[...start.remaining];return;
-  }
-  runTurnStartEffect(room,start.remaining[0],ctx);
+  delete room.turnStart;room.pendingBattle=null;
 }
 function runTurnStartEffect(room,effect,ctx) {
-  const start=room.turnStart,player=trainer(room,start.playerId);
+  const start=room.turnStart,player=trainer(room,start.actorIds?.[start.index]??start.playerId);
   start.remaining.splice(start.remaining.indexOf(effect),1);
+  if(effect==='neutralizing-gas') {
+    if(!player.hand.length)return continueTurnStart(room,ctx);
+    decision(room,'neutralizing-gas',player.id,player.id,ctx);room.pendingBattle.legalTargetIds=live(room).map(p=>p.id);return;
+  }
   if(effect==='return-cards'){returnExiledCards(room,player);return continueTurnStart(room,ctx);}
   const pokemon=creature(room,start.pokemonId);
   if(!pokemon||player.active.instanceId!==pokemon.instanceId||pokemon.defeated)return continueTurnStart(room,ctx);
@@ -1118,7 +1183,7 @@ function runTurnStartEffect(room,effect,ctx) {
   if (status === 'sleep') { player.active.status = null; room.turn.blockedMoveIds.push(player.active.instanceId); room.turn.switchBlocked = true; }
   if (status === 'confusion') { player.active.status = null; room.turn.blockedMoveIds.push(player.active.instanceId); }
   if (status === 'poison' || status === 'confusion') {
-    const damage = status === 'confusion' ? computeDamage(pokemon, pokemon, 1, ctx.catalogue, { command: false,receiving:!hasShedSkin(pokemon) }) : 1;
+    const damage = status === 'confusion' ? computeDamage(pokemon, pokemon, 1, ctx.catalogue, damageOptions(room,pokemon,pokemon,{ command: false,receiving:!hasShedSkin(room,pokemon) })) : 1;
     room.resolution = { kind: 'turn-start', targetCreatureId: pokemon.instanceId, sourceId: status === 'confusion' ? pokemon.instanceId : null, sourcePlayerId: status === 'confusion' ? player.id : null, damagedIds: [], defenseIds: [], actualDamage: 0 };
     if(status==='poison')return startPoisonTouch(room,ctx,{kind:'poison',targetId:pokemon.instanceId,damage:1});
     receiveDamage(room,ctx,damage);
@@ -1128,5 +1193,5 @@ function runTurnStartEffect(room,effect,ctx) {
 }
 export function publicBattlePokemon(pokemon, catalogue, room) {
   if (!pokemon) return null;
-  return { catalogueId: pokemon.catalogueId, level: pokemon.level, hp: currentHp(pokemon, catalogue), maxHp: maxHp(pokemon, catalogue), status: pokemon.status, damageProtected:Boolean(room?.turn?.damageImmunityIds?.includes(pokemon.instanceId)), ...(pokemon.item?{item:publicItem(pokemon.item),itemSuppressed:!itemEffective(room,pokemon)}:{}), defeated: Boolean(pokemon.defeated), reinforcements: [...(pokemon.reinforcements || [])] };
+  return { catalogueId: pokemon.catalogueId, level: pokemon.level, hp: currentHp(pokemon, catalogue), maxHp: maxHp(pokemon, catalogue), status: pokemon.status, damageProtected:Boolean(room&&damageImmune(room,pokemon)),traitsSuppressed:!pokemon.defeated&&!battleTraitsEffective(room,pokemon), ...(pokemon.item?{item:publicItem(pokemon.item),itemSuppressed:!itemEffective(room,pokemon)}:{}), defeated: Boolean(pokemon.defeated), reinforcements: [...(pokemon.reinforcements || [])] };
 }

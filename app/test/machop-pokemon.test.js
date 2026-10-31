@@ -32,7 +32,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
   seats.forEach(who => act(who, 'acknowledgeIdentity'));
   for (const who of seats) {
     for (let draw = 0; draw < 5; draw++) act(who, 'drawPokemon');
-    const candidates = view(who).self.candidates;
+    const candidates = view(who).self.candidates.filter(id => id !== 'koffing');
     act(who, 'selectPokemon', { activeId: candidates[0], reserveId: candidates[1] });
   }
   // Exercise legal setup, then isolate reviewed combat behavior with explicit fixtures.
