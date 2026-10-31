@@ -1,5 +1,5 @@
 import {seatLayout} from './battlefield-layout.js';
-import {roleName,statusName,weatherLabel,attackDialog,giftCardsDialog,equipItemDialog,analyticDialog,decisionPanel,resultPanel} from './combat-ui.js';
+import {roleName,statusName,weatherLabel,attackDialog,giftCardsDialog,equipItemDialog,analyticDialog,recklessDialog,decisionPanel,resultPanel} from './combat-ui.js';
 const $ = (selector, root = document) => root.querySelector(selector);
 const root = $('#app');
 const strings = {
@@ -492,7 +492,7 @@ function renderBattleRoom() {
     main.append(handPanel());
     main.append(el('div',{class:'battle-actions'},el('p',{},phaseHint()),
       view.self.battle?.canGive ? button('giveCards',()=>giftCardsDialog(combatKit()),'button secondary trait-control') : null,
-      view.self.battle?.canTrait ? (view.self.battle.trait?.kind==='analytic'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>analyticDialog(combatKit())},language==='zh'?'发动分析':'Use Analytic'):view.self.battle.trait?.kind==='harvest'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>action('useTrait')},language==='zh'?'发动收获':'Use Harvest'):button('useTrait',()=>action('useTrait'),'button secondary trait-control')) : null,
+      view.self.battle?.canTrait ? (view.self.battle.trait?.kind==='reckless'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>recklessDialog(combatKit())},language==='zh'?'发动舍身':'Use Reckless'):view.self.battle.trait?.kind==='analytic'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>analyticDialog(combatKit())},language==='zh'?'发动分析':'Use Analytic'):view.self.battle.trait?.kind==='harvest'?el('button',{type:'button',class:'button secondary trait-control',disabled:busy||Boolean(view.pendingVote),onclick:()=>action('useTrait')},language==='zh'?'发动收获':'Use Harvest'):button('useTrait',()=>action('useTrait'),'button secondary trait-control')) : null,
       turnPhase() === 'play' ? button(view.turn.switchUsed?'switchUsed':'switchPokemon',confirmPartnerSwitch,'button secondary switch-control',!myTurn()||view.turn.switchUsed||!view.self.reserve||(view.gameMode==='combat-preview'&&!view.self.battle?.canSwitch)) : null,
       turnPhase() === 'play' ? button('finishPlay',()=>action('finishPlay'),'button primary',!myTurn()) : button('draw',()=>action('draw'),'button primary',!myTurn()||turnPhase()!=='draw'||view.turn.drawRemaining<=0),
       button('endTurn',confirmTurnEnd,'button secondary',!myTurn()||turnPhase()!=='end')));
@@ -609,7 +609,8 @@ function pokemonDetails(entry, selectedLevel) {
         el('p',{},move.effectParagraphStatus==='none-printed'?(language==='zh'?'此招式没有额外的效果段落。':'No additional printed effect.'):move.effectText?localized(move.effectText):t('movesPending')),
         ...(move.unresolvedSymbols||[]).map(symbol=>el('p',{class:'pokemon-uncertainty'},localized(symbol)))
       )):[el('p',{class:'muted'},t('movesPending'))])),
-    el('p',{class:'pokemon-effect-status'},t(face.effectStatus==='combat-preview'?'previewEffects':'effectsPending')));
+    el('p',{class:'pokemon-effect-status'},t(face.effectStatus==='combat-preview'?'previewEffects':'effectsPending')),
+    face.effectUnavailableReason?el('p',{class:'pokemon-uncertainty'},localized(face.effectUnavailableReason)):null);
   return [el('p',{class:'pokemon-detail-help'},t('abilityHelp')),tabs,panel];
 }
 function openDialog(kind) {

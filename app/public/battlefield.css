@@ -182,6 +182,7 @@ body.battle-view { background:#d8e8e6; color:var(--stadium-ink); overflow:hidden
 .battle-actions:has(.trait-control) .button { min-height:27px; }.battle-actions:has(.trait-control) p { font-size:10px; margin-bottom:1px; }
 .attack-target { display:flex; align-items:center; gap:10px; margin:12px 0; font-size:14px; }
 .attack-target input { width:18px; min-height:18px; }
+.attack-target input[type=number] { width:20ch; max-width:65%; min-height:42px; padding:8px 12px; }
 .combat-result { position:absolute; inset:75px 10% 35px; z-index:8; padding:28px; overflow:auto; background:#f6f0dff5; border:2px solid #405b50; color:#263e38; }
 .combat-result h1 { font-size:25px; }.combat-result h2 { font-size:15px; margin:0 0 6px; }.combat-result p { font-size:12px; }
 .combat-result article { padding:14px 0 4px; border-top:1px solid #bac4b3; }

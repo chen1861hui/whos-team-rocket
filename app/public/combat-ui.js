@@ -76,6 +76,28 @@ export function equipItemDialog(card,kit) {
   confirm.addEventListener('click',()=>{dialog.close();const current=kit.getView();if(current.code===initial.code&&current.turn?.number===turn&&current.self.battle?.canEquip&&current.self.hand.some(c=>c.id===card.id))kit.action('equipItem',{cardId:card.id,slot:selected});});
   dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
 }
+export function recklessDialog(kit) {
+  const initial=kit.getView(),language=kit.language,turn=initial.turn.number,pokemon=initial.players.find(player=>player.id===initial.selfId).active;
+  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'reckless-title'},node('h2',{id:'reckless-title'},say(language,'Reckless · trade HP for cards','舍身 · 失去体力并摸牌')),
+    node('p',{},say(language,`Current HP: ${pokemon.hp}/${pokemon.maxHp}. Choose HP to lose, then draw that many cards. This uses Reckless once this Play phase.`,`当前体力：${pokemon.hp}/${pokemon.maxHp}。选择失去的体力，然后摸取等量的牌。本出牌阶段此宝可梦的舍身限一次。`)));
+  const input=node('input',{type:'number',id:'reckless-hp-loss',min:'0',max:String(initial.self.battle.trait.maxHpLoss),step:'1',value:'1','aria-label':say(language,'HP to lose','失去体力点数')});
+  const consequence=node('p',{class:'muted','aria-live':'polite'}),confirm=node('button',{type:'button',class:'button primary',id:'confirm-reckless'},say(language,'Lose HP and draw','失去体力并摸牌'));
+  const update=()=>{
+    const loss=input.valueAsNumber,valid=Number.isSafeInteger(loss)&&loss>=0&&loss<=initial.self.battle.trait.maxHpLoss;
+    confirm.disabled=!valid;
+    consequence.textContent=!valid?say(language,'Enter a nonnegative whole number.','请输入非负整数。'):loss>=pokemon.hp?say(language,'This will cause fainting and rescue before drawing. With no rescue, your reserve must deploy; if you leave the game, you draw no cards.','这将先进入昏厥救援。未获救时备战宝可梦登场；若你退场，则不再摸牌。'):say(language,`After this choice: ${pokemon.hp-loss} HP. Only available real cards can be drawn. Choosing zero still uses this ability.`,`选择后剩余体力：${pokemon.hp-loss}。仅摸取实际可用的牌。选择零点仍消耗本次特性。`);
+  };
+  input.addEventListener('input',update);
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  confirm.addEventListener('click',()=>{
+    const loss=input.valueAsNumber,current=kit.getView();
+    if(!Number.isSafeInteger(loss)||loss<0||loss>initial.self.battle.trait.maxHpLoss)return;
+    dialog.close();
+    if(current.code===initial.code&&current.turn?.number===turn&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='reckless'&&current.players.find(player=>player.id===current.selfId)?.active.catalogueId===pokemon.catalogueId)kit.action('useTrait',{hpLoss:loss});
+  });
+  dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,'HP to lose','失去体力点数')),input),consequence,node('div',{class:'action-row'},cancel,confirm));
+  dialog.addEventListener('close',()=>dialog.remove(),{once:true});update();document.body.append(dialog);dialog.showModal();input.focus();
+}
 export function analyticDialog(kit) {
   const initial=kit.getView(),language=kit.language,turn=initial.turn.number,max=initial.self.battle.trait.maxCards,selected=new Set();
   const dialog=node('dialog',{class:'info-dialog confirmation-dialog analytic-dialog','aria-labelledby':'analytic-title'},node('h2',{id:'analytic-title'},say(language,'Analytic · exchange hand cards','分析 · 更换手牌')),
@@ -291,6 +313,7 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='battle-armor')panel.append(node('p',{},say(language,'After receiving damage, discard one hand card to gain Defense. It can protect against later hits, then is discarded when this damaging card ends. No duplicate marker is added.','受到伤害后，可弃置一张手牌获得防御强化。可抵御后续结算；此伤害牌结算完毕后弃置。相同指示物不叠加。')));
   if(pending.kind==='bonemerang')panel.append(node('p',{},say(language,'The first settlement is complete. You may discard one hand card to resolve this move once more against the same Pokémon.','首次结算已结束。可以弃置一张手牌，使此招式对同一只宝可梦再结算一次。')));
   if(pending.kind==='neutralizing-gas')panel.append(node('p',{},say(language,'Discard one hand card to suppress all Pokémon traits of one trainer, including reserves, until this turn ends. Moves, status, items and reinforcement markers remain in effect.','可弃置一张手牌，使一名训练家的所有宝可梦（含备战）特性失效至当前回合结束。招式、特殊状态、持有物及强化指示物仍生效。')));
+  if(pending.kind==='rescue'&&pending.potionRestrictedToOwner)panel.append(node('p',{},say(language,'During this rock move, only the fainting Pokémon’s own trainer may use Potion. This also applies during nested effects.','此岩石招式结算期间，只有昏厥宝可梦对应的训练家可以使用伤药；嵌套效果结算期间亦如此。')));
   if(pending.kind==='arena-trap')panel.append(node('p',{},say(language,'You may require the switching trainer to discard one hand card. If they cannot or decline, this switch is canceled.','你可以令交替的训练家弃置一张手牌。若其无法弃置或拒绝，本次交替取消。')));
   if(pending.kind==='switch-payment')panel.append(node('p',{},say(language,'Discard one hand card to continue the switch, or cancel. Cards already paid to earlier trappers stay discarded.','弃置一张手牌以继续交替，或取消。之前因其他沙穴而弃置的牌不会退还。')));
   if(pending.kind==='poison-point')panel.append(node('p',{},say(language,'After receiving damage, you may judge. Any result other than intense sun Poisons the original damage source.','受到伤害后，你可以进行判定。结果不为烈日时，原伤害来源陷入中毒。')));

@@ -378,6 +378,11 @@ function advancePoisonTouch(room,ctx) {
 export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
+  if(pending.kind==='rescue') {
+    const restricted=[room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.effectKind==='fainting-owner-potion-only');
+    pending.canUsePotion=!restricted||pending.actorId===pending.targetId;
+    if(restricted)pending.potionRestrictedToOwner=true;
+  }
   if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind)&&pending.actorId===self.id)pending.paymentCards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='cute-charm'&&pending.actorId===self.id)pending.paymentCards=self.hand.filter(card=>card.weather==='intense-sun').map(({id,name,weather,kind})=>({id,name,weather,kind}));
   const repeated=[room.resolution,...(room.resolutionStack||[])].find(resolution=>resolution?.settlementCount!==undefined);
@@ -518,7 +523,7 @@ export function previewActions(room, player, catalogue) {
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
   const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx) {
   const legal=previewActions(room,player,ctx.catalogue),index=input.moveIndex===undefined?0:input.moveIndex;
@@ -696,6 +701,17 @@ function commitDamage(room,ctx,amount) {
 }
 function afterDamage(room,ctx) {
   const resolution=room.resolution;
+  // HP loss is not damage (booklet p.10). Resume its draw only after rescue,
+  // deployment and immediate victory, without entering either damage stage.
+  if(resolution.kind==='hp-loss') {
+    const draw=resolution.lossDraw,owner=trainer(room,draw.playerId);
+    if(owner&&!owner.eliminated) {
+      const count=Math.min(draw.count,room.drawPile.length+room.discardPile.length);
+      drawBattleCards(room,owner,count,'reckless');
+      note(room,`舍身摸取${count}张牌。`,`Reckless drew ${count} card(s).`);
+    }
+    return finishResolution(room,ctx);
+  }
   if(resolution.actualDamage<=0)return nextSettlement(room,ctx);
   const source=creature(room,resolution.sourceId),target=creature(room,resolution.targetCreatureId);
   // Booklet p.11: after-dealing effects precede after-receiving effects.
@@ -1109,6 +1125,17 @@ export function respondBattle(room,player,input,ctx) {
 }
 export function useBattleTrait(room, player, ctx,input={}) {
   requireRule(previewActions(room, player, ctx.catalogue)?.canTrait, 'TRAIT_UNAVAILABLE', 'This optional trait is unavailable now.');
+  requireRule(player.active.catalogueId==='rhyhorn'||input.hpLoss===undefined,'INVALID_INPUT','Only Reckless chooses HP loss.');
+  if(player.active.catalogueId==='rhyhorn') {
+    const loss=input.hpLoss,pokemon=player.active;
+    requireRule(input.cardIds===undefined&&Number.isSafeInteger(loss)&&loss>=0&&Number.isSafeInteger((pokemon.damage||0)+loss),'INVALID_INPUT','Choose a nonnegative whole HP loss within the safe numeric range.');
+    room.turn.traitsUsed??=[];room.turn.traitsUsed.push(pokemon.instanceId);
+    room.resolution={kind:'hp-loss',card:null,sourceId:null,sourcePlayerId:player.id,targetCreatureId:pokemon.instanceId,targetIds:[player.id],index:0,damagedIds:[],defenseIds:[],actualDamage:0,lossDraw:{playerId:player.id,count:loss}};
+    pokemon.damage=(pokemon.damage||0)+loss;
+    note(room,`舍身失去${loss}点体力；这不是伤害。`,`Reckless lost ${loss} HP; this is not damage.`);
+    if(currentHp(pokemon,ctx.catalogue)<=0)return beginRescue(room,player.id,ctx);
+    return afterDamage(room,ctx);
+  }
   if(player.active.catalogueId==='magnemite') {
     const ids=input.cardIds,max=previewActions(room,player,ctx.catalogue).trait.maxCards;
     requireRule(Array.isArray(ids)&&ids.length<=max&&new Set(ids).size===ids.length&&ids.every(id=>typeof id==='string'&&player.hand.some(card=>card.id===id)),'INVALID_CARD','Choose distinct own hand cards up to this Pokémon’s current HP.');

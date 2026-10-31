@@ -1,4 +1,24 @@
-## Cubone and Koffing — 2026-10-31 (current)
+## Rhyhorn and reviewed Chansey — 2026-10-31 (current)
+
+**603/603 tests pass. Combat supports29 groups /87 faces; effects reviewed for30 groups /90 faces.** Rhyhorn’s Reckless loses chosen HP, resolves fainting first if needed, then draws actual cards for its surviving trainer. HP loss bypasses damage effects. Rock Throw/Rock Slide/Stone Edge deal1/2/3 and preserve their owner-only Potion permission through nested resolution. Chansey’s three complete source-reviewed faces are reference-only because Healer depends on Potion’s still-covered rescue clause; its readable ordinary heal2 does not establish rescue healing.
+
+Branch codex/rhyhorn-chansey from9aa0bba retains all prior work. Repo https://github.com/chen1861hui/whos-team-rocket.git . No merge/hosting/repeated PR-access attempt. Preserve accepted arena/native cards/centered hover/identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no Potion/items or invented retail quantities. See gameplay-milestone-22.md and reviewed-rhyhorn-chansey.md/json. Earlier counts below are historical.
+
+### Current continuation contracts
+
+Project C:\src\team-rocket-web, application app/. Main4173 restarted latest with existing saves retained. Isolated QA4174 used Game/rhyhorn-chansey-work data after legal setup; QA stopped. No downloads or accepted-arena changes. No PR-access rediscovery.
+
+Reckless: useTrait {hpLoss}, nonnegative safe integer with safe damage+loss, zero spends once-use, loss above currentHP allowed as recorded interpretation of printed 任意点体力/no stated cap. Preview trait kind reckless/maxHpLoss. Gas gates activation; rock restriction is move text unaffected. room.resolution kind hp-loss, card/sourceId null, actualDamage0, lossDraw:{playerId,count} persists original trainer. Direct injury increment avoids all damage hooks/modifiers/rewards. HP<=0 immediately begins shared rescue; afterDamage special branch resumes the base draw only for still-living trainer before normal cleanup. Draw min(count,available actual cards); new Meowth reserve Pickup sees full batch; elimination/result draws none. Existing normalizeBattleTurn handles eliminated current trainer.
+
+Rhyhorn move effectKind fainting-owner-potion-only. publicBattleDecision rescue scans current resolution AND resolutionStack. canUsePotion is permission only, not implemented availability; false for nonowner during any unresolved rock move, potionRestrictedToOwner:true explains in English/Chinese. Each rescue owner is current targetId, including nested Helmet source fainting. Other trainers still pass in usual order. No Potion response/Heal amount added.
+
+Chansey all3faces/moves reference-only. effectUnavailableReason renders in native level modal. Healer sunny-card-as-Potion cannot execute without verified Potion rescue text; Charm rainy-discard, Life Dew any-number sunny-heal1/no distance and Double-Edge optionalpre-damage+1 then sourceHP loss are saved exactly for future. Life Dew active/reserve scope and aborted/zero-damage Double-Edge recoil remain explicit. Do not mark Chansey complete or reduce it to a generic attack. Metadata supported29/87, reviewed30/90; ten unreviewed groups plus Chansey dependency remain.
+
+50 independent new tests +553 baseline =603 pass. Four browser clients no inspected warnings/errors: nonlethal HP5→3+draw2; lethal5HP→rescue→injuredreserve2/3+draw5; Stone Edge3damage preserved negativeHP and bilingual restriction; actor/spectator privacy; negative-input disable; Chansey3 native reference. Numeric input received scoped width fix after visual inspection. Source/public catalogue byte-match, six hashesverified, roster29supported. Screenshots and source policies in milestone22.
+
+Next bounded source-order pair Kangaskhan +Staryu; saved S05 sourcefiles: b72df440c83a1fa2.webp (Kangaskhan1), ce3da1b1d2033d35.webp (2/3), b3d70427fb229ee1.webp (Staryu1), 4c4ca1eb3c341f5f.webp (2/3). Root + independent visual review then implementation; no acquisition needed. Chansey remains reviewed reference-only until Potion dependency is established.
+
+## Cubone and Koffing — 2026-10-31 (historical)
 
 Git publication: implementation commit d8514cd pushed to origin/codex/cubone-koffing. No PR or merge created. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/cubone-koffing .
 

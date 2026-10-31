@@ -379,7 +379,7 @@ export class RoomStore {
         this.battleCall(() => respondBattle(room, player, input, this.battleContext()));
         break;
       case 'useTrait':
-        check(['cardIds']); ownTurn();
+        check(['cardIds','hpLoss']); ownTurn();
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'Traits are available in the combat preview.');
         this.battleCall(() => useBattleTrait(room, player, this.battleContext(),input));
         break;

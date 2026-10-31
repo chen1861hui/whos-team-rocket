@@ -18,9 +18,9 @@
     "pokemonFaces": 120,
     "selectionReviewSpecification": "reviewed-selection-roster.md",
     "combatReviewSpecification": "reviewed-combat-spec.md",
-    "combatSupportedGroups": 28,
-    "effectReviewedGroups": 28,
-    "effectReviewedFaces": 84,
+    "combatSupportedGroups": 29,
+    "effectReviewedGroups": 30,
+    "effectReviewedFaces": 90,
     "reviewedHeldItems": 1
   },
   "entries": [
@@ -9053,13 +9053,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的出牌阶段限一次，你可以令此宝可梦失去任意点体力，然后你摸等量的牌。",
+            "en": "Once during your Play phase, you may have this Pokémon lose any number of HP, then draw the same number of cards."
+          },
           "engineEligible": false,
           "name": {
             "zh": "独角犀牛",
@@ -9085,12 +9088,73 @@
             "kind": "standalone-pokemon-art",
             "dex": 111,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "traitName": {
+            "zh": "舍身",
+            "en": "Reckless"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Attack"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "落石",
+                "en": "Rock Throw"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": {
+                "zh": "此招式的结算过程中，只有处于昏厥状态的宝可梦对应的训练家可以使用【伤药】。",
+                "en": "During this move’s resolution, only the trainer of the fainting Pokémon may use Potion."
+              },
+              "effectKind": "fainting-owner-potion-only",
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/37aa792489c5744b.webp",
+            "sha256": "ab9a9291431a9f07a237898e2ff32fbbffc577f499c277e8e9bb190df2a3bf17",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 53,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-rhyhorn-chansey.md"
           }
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的出牌阶段限一次，你可以令此宝可梦失去任意点体力，然后你摸等量的牌。",
+            "en": "Once during your Play phase, you may have this Pokémon lose any number of HP, then draw the same number of cards."
+          },
           "engineEligible": false,
           "name": {
             "zh": "独角犀牛",
@@ -9116,12 +9180,73 @@
             "kind": "standalone-pokemon-art",
             "dex": 111,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "traitName": {
+            "zh": "舍身",
+            "en": "Reckless"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Attack"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "岩崩",
+                "en": "Rock Slide"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "此招式的结算过程中，只有处于昏厥状态的宝可梦对应的训练家可以使用【伤药】。",
+                "en": "During this move’s resolution, only the trainer of the fainting Pokémon may use Potion."
+              },
+              "effectKind": "fainting-owner-potion-only",
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2ce6114721e23bda.webp",
+            "sha256": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+            "facePosition": "left",
+            "observedAssetOrdinal": 54,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-rhyhorn-chansey.md"
           }
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的出牌阶段限一次，你可以令此宝可梦失去任意点体力，然后你摸等量的牌。",
+            "en": "Once during your Play phase, you may have this Pokémon lose any number of HP, then draw the same number of cards."
+          },
           "engineEligible": false,
           "name": {
             "zh": "钻角犀兽",
@@ -9147,6 +9272,64 @@
             "kind": "standalone-pokemon-art",
             "dex": 112,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "traitName": {
+            "zh": "舍身",
+            "en": "Reckless"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Attack"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "尖石攻击",
+                "en": "Stone Edge"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 3,
+              "effectText": {
+                "zh": "此招式的结算过程中，只有处于昏厥状态的宝可梦对应的训练家可以使用【伤药】。",
+                "en": "During this move’s resolution, only the trainer of the fainting Pokémon may use Potion."
+              },
+              "effectKind": "fainting-owner-potion-only",
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/2ce6114721e23bda.webp",
+            "sha256": "2ce6114721e23bda31f5cb679d1832a400b62594f7b9b994e0016d0e5cf8cfc6",
+            "facePosition": "right",
+            "observedAssetOrdinal": 54,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-rhyhorn-chansey.md"
           }
         }
       ],
@@ -9168,7 +9351,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-rhyhorn-chansey.md"
     },
     {
       "id": "chansey",
@@ -9181,13 +9365,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "reference-only",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "reference-only",
+          "abilityText": {
+            "zh": "当一只宝可梦处于昏厥状态时，你可以在昏厥结算期间将一张天气为“晴天”（[烈日]/[晴朗]）的手牌当【伤药】使用。",
+            "en": "While a Pokémon is fainting, during its fainting settlement you may use one sunny-weather hand card (intense sun or clear) as Potion."
+          },
           "engineEligible": false,
           "name": {
             "zh": "吉利蛋",
@@ -9213,12 +9400,76 @@
             "kind": "standalone-pokemon-art",
             "dex": 113,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "traitName": {
+            "zh": "治愈之心",
+            "en": "Healer"
+          },
+          "classification": {
+            "zh": "支援型",
+            "en": "Support"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "撒娇",
+                "en": "Charm"
+              },
+              "condition": {
+                "kind": "weather-card",
+                "count": 1,
+                "weatherIconsInCondition": [
+                  "rain",
+                  "thunderstorm"
+                ]
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "弃置一名其他训练家的一张手牌。",
+                "en": "Discard one hand card from one other trainer."
+              },
+              "effectKind": "discard-other-hand",
+              "targeting": {
+                "kind": "other-trainer",
+                "max": 1
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "reference-only",
+              "engineScope": "reference-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "reference-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/ede6e13c73ae2b6e.webp",
+            "sha256": "ede6e13c73ae2b6e151d23f58067349f2b2e1acfdf91bb56360b215cc48a0730",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 55,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-rhyhorn-chansey.md"
+          },
+          "effectUnavailableReason": {
+            "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
+            "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
           }
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "reference-only",
+          "abilityText": {
+            "zh": "当一只宝可梦处于昏厥状态时，你可以在昏厥结算期间将一张天气为“晴天”（[烈日]/[晴朗]）的手牌当【伤药】使用。",
+            "en": "While a Pokémon is fainting, during its fainting settlement you may use one sunny-weather hand card (intense sun or clear) as Potion."
+          },
           "engineEligible": false,
           "name": {
             "zh": "吉利蛋",
@@ -9244,12 +9495,112 @@
             "kind": "standalone-pokemon-art",
             "dex": 113,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "traitName": {
+            "zh": "治愈之心",
+            "en": "Healer"
+          },
+          "classification": {
+            "zh": "支援型",
+            "en": "Support"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "撒娇",
+                "en": "Charm"
+              },
+              "condition": {
+                "kind": "weather-card",
+                "count": 1,
+                "weatherIconsInCondition": [
+                  "rain",
+                  "thunderstorm"
+                ]
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "弃置一名其他训练家的一张手牌。",
+                "en": "Discard one hand card from one other trainer."
+              },
+              "effectKind": "discard-other-hand",
+              "targeting": {
+                "kind": "other-trainer",
+                "max": 1
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "reference-only",
+              "engineScope": "reference-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            },
+            {
+              "name": {
+                "zh": "生命水滴",
+                "en": "Life Dew"
+              },
+              "condition": {
+                "kind": "weather-card",
+                "count": 1,
+                "weatherIconsInCondition": [
+                  "intense-sun",
+                  "clear"
+                ]
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "此招式不受距离限制，可以指定任意只宝可梦为目标。目标宝可梦回复1点体力。",
+                "en": "This move ignores distance and may target any number of Pokémon. Each target Pokémon recovers 1 HP."
+              },
+              "effectKind": "life-dew",
+              "targeting": {
+                "kind": "printed-any-pokemon",
+                "max": null,
+                "ignoresDistance": true,
+                "scopeUnresolved": "Active-only versus reserve targets not independently established."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "reference-only",
+              "engineScope": "reference-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "reference-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d03c99a886622585.webp",
+            "sha256": "d03c99a886622585ed3e4e539c8f47a1c09cc142306e7d96d4014fffc606d826",
+            "facePosition": "left",
+            "observedAssetOrdinal": 56,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-rhyhorn-chansey.md"
+          },
+          "effectUnavailableReason": {
+            "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
+            "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
           }
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "reference-only",
+          "abilityText": {
+            "zh": "当一只宝可梦处于昏厥状态时，你可以在昏厥结算期间将一张天气为“晴天”（[烈日]/[晴朗]）的手牌当【伤药】使用。",
+            "en": "While a Pokémon is fainting, during its fainting settlement you may use one sunny-weather hand card (intense sun or clear) as Potion."
+          },
           "engineEligible": false,
           "name": {
             "zh": "吉利蛋",
@@ -9275,6 +9626,104 @@
             "kind": "standalone-pokemon-art",
             "dex": 113,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "traitName": {
+            "zh": "治愈之心",
+            "en": "Healer"
+          },
+          "classification": {
+            "zh": "支援型",
+            "en": "Support"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "舍身冲撞",
+                "en": "Double-Edge"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害时，你可以令此伤害值+1，然后此伤害结算结束后，伤害来源失去1点体力。",
+                "en": "When this Pokémon deals damage with this move, you may increase that damage by 1. Then, after that damage settlement ends, the damage source loses 1 HP."
+              },
+              "effectKind": "double-edge",
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "reference-only",
+              "engineScope": "reference-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            },
+            {
+              "name": {
+                "zh": "生命水滴",
+                "en": "Life Dew"
+              },
+              "condition": {
+                "kind": "weather-card",
+                "count": 1,
+                "weatherIconsInCondition": [
+                  "intense-sun",
+                  "clear"
+                ]
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "此招式不受距离限制，可以指定任意只宝可梦为目标。目标宝可梦回复1点体力。",
+                "en": "This move ignores distance and may target any number of Pokémon. Each target Pokémon recovers 1 HP."
+              },
+              "effectKind": "life-dew",
+              "targeting": {
+                "kind": "printed-any-pokemon",
+                "max": null,
+                "ignoresDistance": true,
+                "scopeUnresolved": "Active-only versus reserve targets not independently established."
+              },
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "engineEligible": false,
+              "effectStatus": "reference-only",
+              "engineScope": "reference-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "reference-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/d03c99a886622585.webp",
+            "sha256": "d03c99a886622585ed3e4e539c8f47a1c09cc142306e7d96d4014fffc606d826",
+            "facePosition": "right",
+            "observedAssetOrdinal": 56,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-rhyhorn-chansey.md"
+          },
+          "effectUnavailableReason": {
+            "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
+            "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
           }
         }
       ],
@@ -9296,6 +9745,11 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
+      },
+      "effectReviewSpecification": "reviewed-rhyhorn-chansey.md",
+      "effectUnavailableReason": {
+        "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
+        "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
       }
     },
     {
