@@ -1,5 +1,7 @@
 # Milestone22 — Rhyhorn HP loss and reviewed Chansey
 
+Implementation commit9ee833f pushed to origin/codex/rhyhorn-chansey. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/rhyhorn-chansey . No PR or merge created.
+
 Rhyhorn can exchange a chosen amount of HP for real cards once per Pokémon instance/Play phase. Its native confirmation shows current HP, validates the integer, and warns when the choice causes fainting. Lethal choices resolve rescue, deployment and victory before a saved draw continuation. HP loss never enters damage modifiers, after-damage traits or damage-source rewards. Rock Throw/Rock Slide/Stone Edge pay actual commands and deal1/2/3 with normal defense. The rescue projection carries the printed owner-only Potion permission through nested effects.
 
 Chansey’s exact three faces now appear in the native field guide and level modal with Healer, Charm, Life Dew and Double-Edge. The visible dependency notice explains that Potion’s covered rescue clause prevents complete execution. No Potion amount, retail quantity, partial Chansey attack or reserve-healing scope was guessed. See `reviewed-rhyhorn-chansey.md/json`.

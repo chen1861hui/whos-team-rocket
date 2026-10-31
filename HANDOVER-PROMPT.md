@@ -1,5 +1,7 @@
 ## Rhyhorn and reviewed Chansey — 2026-10-31 (current)
 
+Git publication: implementation commit9ee833f pushed to origin/codex/rhyhorn-chansey. No PR or merge. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/rhyhorn-chansey .
+
 **603/603 tests pass. Combat supports29 groups /87 faces; effects reviewed for30 groups /90 faces.** Rhyhorn’s Reckless loses chosen HP, resolves fainting first if needed, then draws actual cards for its surviving trainer. HP loss bypasses damage effects. Rock Throw/Rock Slide/Stone Edge deal1/2/3 and preserve their owner-only Potion permission through nested resolution. Chansey’s three complete source-reviewed faces are reference-only because Healer depends on Potion’s still-covered rescue clause; its readable ordinary heal2 does not establish rescue healing.
 
 Branch codex/rhyhorn-chansey from9aa0bba retains all prior work. Repo https://github.com/chen1861hui/whos-team-rocket.git . No merge/hosting/repeated PR-access attempt. Preserve accepted arena/native cards/centered hover/identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no Potion/items or invented retail quantities. See gameplay-milestone-22.md and reviewed-rhyhorn-chansey.md/json. Earlier counts below are historical.
