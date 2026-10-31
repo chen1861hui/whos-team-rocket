@@ -1,5 +1,7 @@
 # Gameplay milestone21 — Cubone and Koffing
 
+Git publication: implementation commit d8514cd pushed to origin/codex/cubone-koffing. No PR or merge created. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/cubone-koffing .
+
 2026-10-31. **553/553 tests pass;28/40 groups and84/120 faces execute**, leaving12 groups incomplete. Added Battle Armor, Tackle, Bone Rush, Bonemerang, Neutralizing Gas, Acid Spray, Sludge Bomb and Sludge Wave. Exact source text and interpretation boundaries are in reviewed-cubone-koffing.md/json.
 
 Shared changes: trainer-wide, turn-duration trait suppression across all existing ability hooks; ordered global turn-start actor queues preserving local status/return choices; optional one-card repeat after a completed settlement; and current-card Defense cleanup after a new Armor grant. Moves/statuses/items/markers remain effective under Gas. Actor-only payment controls retain choices across polling/language changes. Public arena labels show suppressed traits. Accepted arena geometry/themes/cameras/model slots and centered native level cards are unchanged.
