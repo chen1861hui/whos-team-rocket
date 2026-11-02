@@ -1,0 +1,419 @@
+{
+  "reviewedAt": "2026-11-02",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "faces": [
+    {
+      "group": "electabuzz",
+      "level": 1,
+      "name": {
+        "zh": "电击兽",
+        "en": "Electabuzz"
+      },
+      "hp": 3,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "干劲",
+        "en": "Vital Spirit"
+      },
+      "abilityText": {
+        "zh": "此宝可梦无法陷入“睡眠”状态。在你的摸牌阶段，你可以改为观看牌堆顶的三张牌并选择其中两张获得，并将剩余的牌放回牌堆顶。",
+        "en": "This Pokémon cannot fall asleep. During your Draw phase, you may instead view the top three cards of the deck, choose two of them to obtain, and return the remaining card to the top of the deck."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "电击波",
+            "en": "Shock Wave"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": null,
+          "effectKind": "damage",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/246197ed6800a311.webp",
+        "sha256": "246197ed6800a3118d3601040b16683df3ccf70147ad642e0968892b332af874",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 65,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-electabuzz-tauros.md"
+      }
+    },
+    {
+      "group": "electabuzz",
+      "level": 2,
+      "name": {
+        "zh": "电击兽",
+        "en": "Electabuzz"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "干劲",
+        "en": "Vital Spirit"
+      },
+      "abilityText": {
+        "zh": "此宝可梦无法陷入“睡眠”状态。在你的摸牌阶段，你可以改为观看牌堆顶的三张牌并选择其中两张获得，并将剩余的牌放回牌堆顶。",
+        "en": "This Pokémon cannot fall asleep. During your Draw phase, you may instead view the top three cards of the deck, choose two of them to obtain, and return the remaining card to the top of the deck."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "十万伏特",
+            "en": "Thunderbolt"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "当此宝可梦因此招式造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes Paralyzed."
+          },
+          "effectKind": "paralysis-judgment",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/552ac4965b807626.webp",
+        "sha256": "552ac4965b8076262df50692e92c897ce5cb0b3dde4fee6362df0b8dd202aa64",
+        "facePosition": "left",
+        "observedAssetOrdinal": 66,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-electabuzz-tauros.md"
+      }
+    },
+    {
+      "group": "electabuzz",
+      "level": 3,
+      "name": {
+        "zh": "电击兽",
+        "en": "Electabuzz"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "干劲",
+        "en": "Vital Spirit"
+      },
+      "abilityText": {
+        "zh": "此宝可梦无法陷入“睡眠”状态。在你的摸牌阶段，你可以改为观看牌堆顶的三张牌并选择其中两张获得，并将剩余的牌放回牌堆顶。",
+        "en": "This Pokémon cannot fall asleep. During your Draw phase, you may instead view the top three cards of the deck, choose two of them to obtain, and return the remaining card to the top of the deck."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "电网",
+            "en": "Electroweb"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "此招式可以指定至多两只在此宝可梦的距离限制范围内的宝可梦为目标。当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+            "en": "This move may target up to two Pokémon within this Pokémon’s distance limit. After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes Paralyzed."
+          },
+          "effectKind": "paralysis-judgment",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 2,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/552ac4965b807626.webp",
+        "sha256": "552ac4965b8076262df50692e92c897ce5cb0b3dde4fee6362df0b8dd202aa64",
+        "facePosition": "right",
+        "observedAssetOrdinal": 66,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-electabuzz-tauros.md"
+      }
+    },
+    {
+      "group": "tauros",
+      "level": 1,
+      "name": {
+        "zh": "肯泰罗",
+        "en": "Tauros"
+      },
+      "hp": 3,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "威吓",
+        "en": "Intimidate"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦登场时，你弃置一名训练家的一张手牌。",
+        "en": "When this Pokémon enters play, discard one hand card from one trainer."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "踩踏",
+            "en": "Stomp"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": null,
+          "effectKind": "damage",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/147c200af1b0b31d.webp",
+        "sha256": "147c200af1b0b31d62f520c21b47307f808247d675b656649a03e546c56ddb7b",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 67,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-electabuzz-tauros.md"
+      }
+    },
+    {
+      "group": "tauros",
+      "level": 2,
+      "name": {
+        "zh": "肯泰罗",
+        "en": "Tauros"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "威吓",
+        "en": "Intimidate"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦登场时，你弃置一名训练家的一张手牌。",
+        "en": "When this Pokémon enters play, discard one hand card from one trainer."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "泰山压顶",
+            "en": "Body Slam"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“晴天”（[烈日]/[晴朗]），目标宝可梦陷入“麻痹”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is sunny weather (intense sun or clear), the target Pokémon becomes Paralyzed."
+          },
+          "effectKind": "paralysis-judgment",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/65a574027315cd33.webp",
+        "sha256": "65a574027315cd33ca580d4f44855c3988204bfc4d5d67f40663edf7574f31f4",
+        "facePosition": "left",
+        "observedAssetOrdinal": 68,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-electabuzz-tauros.md"
+      }
+    },
+    {
+      "group": "tauros",
+      "level": 3,
+      "name": {
+        "zh": "肯泰罗",
+        "en": "Tauros"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "威吓",
+        "en": "Intimidate"
+      },
+      "abilityText": {
+        "zh": "当此宝可梦登场时，你弃置一名训练家的一张手牌。",
+        "en": "When this Pokémon enters play, discard one hand card from one trainer."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "地震",
+            "en": "Earthquake"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "此招式可以指定至多两只在此宝可梦的距离限制范围内的宝可梦为目标。当此宝可梦因此招式而造成伤害后，你弃置受伤宝可梦的一枚强化指示物。",
+            "en": "This move may target up to two Pokémon within this Pokémon’s distance limit. After this Pokémon deals damage with this move, discard one reinforcement marker from the damaged Pokémon."
+          },
+          "effectKind": "reinforcement-after-damage",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 2,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": [],
+          "effectTiming": "after-dealing-damage"
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/65a574027315cd33.webp",
+        "sha256": "65a574027315cd33ca580d4f44855c3988204bfc4d5d67f40663edf7574f31f4",
+        "facePosition": "right",
+        "observedAssetOrdinal": 68,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-electabuzz-tauros.md"
+      }
+    }
+  ]
+}

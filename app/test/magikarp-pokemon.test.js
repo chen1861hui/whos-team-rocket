@@ -29,7 +29,7 @@ function fixture(t) {
   seats.forEach(who => act(who, 'acknowledgeIdentity'));
   for (const who of seats) {
     for (let i = 0; i < 5; i++) act(who, 'drawPokemon');
-    const candidates = view(who).self.candidates.filter(id => !['koffing','jynx'].includes(id));
+    const candidates = view(who).self.candidates.filter(id => !['koffing','jynx','tauros'].includes(id));
     act(who, 'selectPokemon', { activeId: candidates[0], reserveId: candidates[1] });
   }
   const seed = (who, family = 'squirtle', level = 1, extra = {}) => Object.assign(player(who).active, {

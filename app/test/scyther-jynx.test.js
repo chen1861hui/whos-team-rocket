@@ -25,7 +25,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
   seats.forEach(who => act(who, 'ready', { ready: true })); act(owner, 'startBattlePreview');
   const leader = byId(room().players.find(p => p.role === 'leader').id);
   seats.forEach(who => act(who, 'acknowledgeIdentity'));
-  for (const who of seats) { for (let i = 0; i < 5; i++) act(who, 'drawPokemon'); const candidates = view(who).self.candidates, activeId = candidates.find(id => !['koffing','jynx'].includes(id)); act(who, 'selectPokemon', { activeId, reserveId: candidates.find(id => id !== activeId) }); }
+  for (const who of seats) { for (let i = 0; i < 5; i++) act(who, 'drawPokemon'); const candidates = view(who).self.candidates, activeId = candidates.find(id => !['koffing','jynx','tauros'].includes(id)); act(who, 'selectPokemon', { activeId, reserveId: candidates.find(id => id !== activeId) }); }
   const seed = (who, family = 'squirtle', level = 1, extra = {}) => Object.assign(player(who).active, { instanceId: `private-active-${who.playerId}`, catalogueId: family, level, damage: 0, status: null, reinforcements: [], hpBonus: 20, defeated: false, revealed: true, ...extra });
   for (const who of seats) { seed(who); Object.assign(player(who).reserve, { instanceId: `private-reserve-${who.playerId}`, catalogueId: 'squirtle', level: 1, damage: 0, status: null, reinforcements: [], hpBonus: 20, defeated: false, revealed: false }); player(who).hand = []; }
   const makeCard = (kind = 'event', weather = 'clear') => ({ id: `private-scyther-jynx-${++serial}`, kind, weather, fixture: true, privateMarker: `secret-${serial}`, name: { zh: `私牌${serial}`, en: `Private Scyther Jynx card ${serial}` } });
@@ -66,10 +66,10 @@ test('both families expose reviewed HP and native face damage values', t => {
   }
 });
 
-test('catalogue and roster distinguish 33 executable from 34 reviewed groups', () => {
-  assert.equal(catalogue.metadata.combatSupportedGroups, 33); assert.equal(catalogue.metadata.effectReviewedGroups, 34); assert.equal(catalogue.metadata.effectReviewedFaces, 102);
-  const supported = catalogue.entries.filter(entry => entry.levels.every(face => face.effectStatus === 'combat-preview')); assert.equal(supported.length, 33); assert.equal(supported.flatMap(entry => entry.levels).length, 99);
-  const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8')); assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, 33); for (const id of ['scyther', 'jynx']) assert.equal(roster.entries.find(entry => entry.id === id).supportedEffects, true); assert.notEqual(catalogue.entries.find(entry => entry.id === 'chansey').levels[0].effectStatus, 'combat-preview');
+test('catalogue and roster retain the Scyther/Jynx baseline and agree on current coverage', () => {
+  assert.ok(catalogue.metadata.combatSupportedGroups >= 33); assert.ok(catalogue.metadata.effectReviewedGroups >= 34); assert.ok(catalogue.metadata.effectReviewedFaces >= 102);
+  const supported = catalogue.entries.filter(entry => entry.levels.every(face => face.effectStatus === 'combat-preview')); assert.equal(supported.length, catalogue.metadata.combatSupportedGroups); assert.equal(supported.flatMap(entry => entry.levels).length, supported.length * 3);
+  const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8')); assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, supported.length); for (const id of ['scyther', 'jynx']) assert.equal(roster.entries.find(entry => entry.id === id).supportedEffects, true); assert.notEqual(catalogue.entries.find(entry => entry.id === 'chansey').levels[0].effectStatus, 'combat-preview');
 });
 
 test('Technician exposes native moves first then lower faces in ascending order', t => {

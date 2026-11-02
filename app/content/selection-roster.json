@@ -2488,9 +2488,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,
@@ -2565,9 +2565,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,

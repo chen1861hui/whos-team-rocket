@@ -169,7 +169,7 @@ export class RoomStore {
         clock.remainingMs = Math.max(0, clock.deadlineAt - until);
       }
       if (clock.remainingMs === 0 && !room.pendingVote) {
-        if(['hand','reorder','forewarn-order','sweet-kiss','reinforcement','effects','turn-start-order','distribute','damage-order'].includes(pending.kind)) {
+        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','intimidate','intimidate-hand','reinforcement','effects','turn-start-order','distribute','damage-order'].includes(pending.kind)) {
           const reason=this.connected(actor)?'mandatory':'disconnected';
           structural ||= !clock.expired || clock.pausedReason!==reason;
           clock.expired=true;clock.deadlineAt=null;clock.pausedReason=reason;
@@ -356,6 +356,7 @@ export class RoomStore {
         check([]); ownTurn();
         if (room.turn.drawRemaining <= 0 || room.turn.phase !== 'draw') fail(409, 'DRAW_EXHAUSTED', 'Both mandatory draws are already complete.');
         if (isBattle(room)) this.battleCall(() => drawBattleCards(room, player,1,'draw-phase')); else player.hand.push(placeholder());
+        room.turn.drawStarted=true;
         room.turn.drawRemaining--;
         if (room.turn.drawRemaining === 0) room.turn.phase = 'play';
         log(room, isBattle(room) ? '当前玩家摸取一张牌。' : '当前玩家抽取一张测试手牌。', isBattle(room) ? 'The current player drew one card.' : 'The current player drew one fixture card.');
@@ -477,7 +478,7 @@ export class RoomStore {
     const vote = room.pendingVote;
     if (!vote.requiredIds.every(id => vote.approvedIds.includes(id))) return;
     room.pendingVote = null;
-    delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent;delete room.turnStart;delete room.switchEvent; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
+    delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
     room.turn = null;
     room.status = vote.kind === 'endRoom' ? 'closed' : 'lobby';
     for (const player of room.players) {

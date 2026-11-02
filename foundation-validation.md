@@ -1,4 +1,10 @@
-## Scyther and Jynx — 2026-11-02 (current)
+## Electabuzz and Tauros — 2026-11-02 (current)
+
+**773/773 tests pass. Combat supports 35 groups / 105 faces; effects reviewed for 36 groups / 108 faces.** Electabuzz has sleep immunity, a private whole-Draw replacement that chooses two actual top cards from three, and thunderstorm paralysis commands including two-target Electroweb. Tauros has mandatory Intimidate on initial entry, successful switching and forced deployment, sunny Body Slam paralysis, and two-target Earthquake reinforcement removal. Chansey remains reviewed reference-only pending Potion's covered rescue text.
+
+Project: C:\src\team-rocket-web, app app/. Branch codex/electabuzz-tauros from a2653d8 retains prior work. Repository: https://github.com/chen1861hui/whos-team-rocket.git . Main4173 restarted with saved rooms retained; isolated QA4174 stopped. Preserve the accepted arena, native cards, centered hover and identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. No merge, hosting or repeated unavailable PR-access attempt. See gameplay-milestone-25.md and reviewed-electabuzz-tauros.md/json. Earlier counts below are historical.
+
+## Scyther and Jynx — 2026-11-02 (historical)
 
 **716/716 tests pass. Combat supports33 groups /99 faces; effects reviewed for34 groups /102 faces.** Scyther has Technician inheritance, stacked Power, Fury Cutter’s dealing-stage grant, X-Scissor’s same-settlement two-Dodge requirement and optional U-turn switching after whole-move cleanup. Jynx has private Preparation-phase Forewarn top/bottom arrangement, non-damaging Sweet Kiss discard/draw and sunny Light Screen Defense. Chansey remains reviewed reference-only pending Potion’s covered rescue text.
 

@@ -39,6 +39,19 @@ export function moveChoiceDialog(card,kit) {
   dialog.append(node('label',{class:'attack-target',for:'move-choice-select'},node('strong',{},say(language,'Available moves','可选招式')),selector),node('div',{class:'action-row'},cancel,confirm));
   dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();selector.focus();
 }
+export function vitalSpiritDialog(kit) {
+  const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number;
+  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'vital-spirit-title'},
+    node('h2',{id:'vital-spirit-title'},say(language,'Vital Spirit · replace Draw','干劲 · 替代摸牌阶段')),
+    node('p',{},say(language,'Before drawing normally, you may replace your entire ordinary Draw phase: privately view up to 3 top cards, take 2, and return the rest to the top. If fewer than 2 cards are available, take all available cards.','正常摸牌前，可以替代整个通常摸牌阶段：私下观看牌堆顶至多3张牌，获得其中2张，其余放回牌堆顶。可用牌不足2张时，获得全部可用牌。')),
+    node('p',{class:'muted'},say(language,'Vital Spirit still takes 2 cards when Flinch reduces your ordinary draw. After viewing, you must complete the card choice. Canceling here leaves ordinary Draw available.','即使畏缩令通常摸牌数减少，干劲仍选择2张牌。观看后必须完成选牌。此处取消则仍可正常摸牌。')));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Keep ordinary Draw','保留通常摸牌'));
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-vital-spirit',disabled:kit.busy||Boolean(initial.pendingVote),onclick:()=>{
+    const current=kit.getView();dialog.close();
+    if(current.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turnNumber&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='vital-spirit'&&!kit.busy&&!current.pendingVote)kit.action('useTrait');
+  }},say(language,'Replace Draw · view cards','替代摸牌 · 观看牌'));
+  dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
+}
 export function attackDialog(card, kit, moveIndex=0) {
   const initial = kit.getView(), battle = initial.self.battle, choice=battle.moves?.[moveIndex], legal=choice?{move:choice,legalTargetIds:choice.legalTargetIds}:battle, turnNumber = initial.turn.number;
   const language = kit.language, selected = new Set();
@@ -404,14 +417,45 @@ function sweetKissControls(pending,kit) {
   confirm.addEventListener('click',()=>kit.action('respondBattle',{decisionId:pending.id,choice:'discard',cardIds:[...draft.cardIds]}));
   update();return [grid,node('div',{class:'action-row'},confirm)];
 }
+function vitalSpiritControls(pending,kit) {
+  const draft=privateDecisionDraft(pending,kit,()=>({order:[]})),cards=pending.cards||[],language=kit.language,required=pending.requiredCards;
+  draft.order=draft.order.filter(index=>cards.some(card=>card.index===index));
+  const grid=node('div',{class:'deck-order-grid'}),buttons=[];
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-vital-spirit-cards'});
+  const update=()=>{
+    const blocked=kit.busy||Boolean(kit.getView().pendingVote);
+    for(const [card,button,badge] of buttons) {
+      const index=draft.order.indexOf(card.index),selected=index>=0;
+      button.setAttribute('aria-pressed',String(selected));button.disabled=blocked||(!selected&&draft.order.length>=required);
+      badge.textContent=selected?String(index+1):'—';
+      button.setAttribute('aria-label',`${kit.localized(card.name)} · ${weatherLabel(card.weather,language)} · ${selected?say(language,`Gain ${index+1}`,`第${index+1}张获得`):say(language,'Not selected','未选择')}`);
+    }
+    confirm.disabled=blocked||draft.order.length!==required;
+    confirm.textContent=say(language,`Gain selected cards (${draft.order.length}/${required})`,`获得所选牌（${draft.order.length}/${required}）`);
+  };
+  for(const card of cards) {
+    const badge=node('span',{class:'order-sequence','aria-hidden':'true'},'—');
+    const button=node('button',{type:'button',class:'deck-order-card',id:`vital-spirit-card-${card.index}`,'aria-pressed':'false',onclick:()=>{
+      const index=draft.order.indexOf(card.index);if(index>=0)draft.order.splice(index,1);else if(draft.order.length<required)draft.order.push(card.index);update();
+    }},badge,node('strong',{},kit.localized(card.name)),node('small',{},weatherLabel(card.weather,language)));
+    buttons.push([card,button,badge]);grid.append(button);
+  }
+  confirm.addEventListener('click',()=>kit.action('respondBattle',{decisionId:pending.id,choice:'gain',order:[...draft.order]}));
+  const clear=node('button',{type:'button',class:'button secondary',id:'clear-vital-spirit-cards',disabled:kit.busy||Boolean(kit.getView().pendingVote),onclick:()=>{draft.order=[];update();}},say(language,'Clear selection','清空选择'));
+  update();return [grid,node('p',{class:'muted'},say(language,'Click cards in the order you want to gain them. Click a selected card again to deselect it. Unselected cards return to the top of the deck.','按希望获得的顺序点击牌。再次点击已选牌可取消选择。未选的牌放回牌堆顶。')),node('div',{class:'action-row'},confirm,clear)];
+}
 export function decisionPanel(view,kit) {
   const pending=view.pendingBattle;if(!pending)return null;
   const language=kit.language,actor=view.players.find(p=>p.id===pending.actorId),target=view.players.find(p=>p.id===pending.targetId);
   const titles={'poison-touch':['Poison Touch · optional ability','毒手 · 可选特性'],cycle:['Spike Cannon · cycle a card','尖刺加农炮 · 交换手牌'],scales:['Marvel Scale · reduce damage','神奇鳞片 · 减少伤害'],effects:['Choose effect order','选择效果结算顺序'],defiant:['Defiant · optional ability','不服输 · 可选特性'],judgment:['Drought · replace judgment','日照 · 替换判定'],defense:['Respond to the move','响应招式'],static:['Static · optional ability','静电 · 可选特性'],synchronize:['Synchronize · optional ability','同步 · 可选特性'],'cursed-body':['Cursed Body · optional ability','咒术之躯 · 可选特性'],foresee:['Future Sight','预知未来'],reorder:['Choose the deck order','选择牌堆顺序'],reinforcement:['Remove a reinforcement','弃置强化指示物'],hand:['Choose a hand card','选择一张手牌'],rescue:['Rescue settlement','昏厥救援结算']};
   Object.assign(titles,{'battle-armor':['Battle Armor · gain Defense','战斗盔甲 · 获得防御强化'],bonemerang:['Bonemerang · one more settlement','骨头回力镖 · 再次结算'],'neutralizing-gas':['Neutralizing Gas · suppress traits','化学变化气体 · 特性失效'],'cute-charm':['Cute Charm · redirect the move','迷人之躯 · 转移招式'],'arena-trap':['Arena Trap · interrupt switch','沙穴 · 响应交替'],'switch-payment':['Arena Trap · pay or cancel switch','沙穴 · 弃牌或取消交替'],'poison-point':['Poison Point · optional ability','毒刺 · 可选特性']});
   Object.assign(titles,{'u-turn':['U-turn · optional move switch','急速折返 · 招式可选交替'],forewarn:['Forewarn · optional Prep ability','预知梦 · 准备阶段可选特性'],'forewarn-order':['Forewarn · arrange top and bottom','预知梦 · 调整牌堆顶与底'],'sweet-kiss':['Sweet Kiss · discard, then draw','天使之吻 · 弃牌后摸牌']});
+  Object.assign(titles,{'vital-spirit':['Vital Spirit · choose cards to gain','干劲 · 选择获得的牌'],intimidate:['Intimidate · choose a trainer','威吓 · 选择训练家'],'intimidate-hand':['Intimidate · discard a hand card','威吓 · 弃置一张手牌']});
   const title=pending.kind==='double-edge'?['Double-Edge · optional boost','舍身冲撞 · 可选增伤']:pending.kind==='shed-skin'?['Shed Skin · discard to reduce damage','蜕皮 · 弃牌减少伤害']:pending.kind==='damage-order'?['Choose damage modifier order','选择伤害修正顺序']:pending.kind==='pay-day'?['Pay Day · inspect and give cards','聚宝功 · 观看并分配牌']:pending.kind==='distribute'?['Distribute Pay Day cards','分配聚宝功的牌']:pending.kind==='exile'?['Disable · remove hand cards','定身法 · 移出手牌']:pending.kind==='turn-start-order'?['Choose turn-start order','选择回合开始的结算顺序']:titles[pending.kind]||titles.rescue;
-  const panel=node('section',{class:`combat-decision ${pending.kind==='hand'?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  if(pending.kind==='vital-spirit')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Choose exactly ${pending.requiredCards} cards to gain. This replaces your entire ordinary Draw phase. The choice is mandatory now that you have viewed the cards; only you can see their faces.`,`选择恰好${pending.requiredCards}张牌获得。此效果替代整个通常摸牌阶段。观看后必须完成选择；仅你能看到牌面。`):say(language,'The indicated trainer is privately choosing cards with Vital Spirit, replacing their ordinary Draw phase.','指定训练家正在通过干劲私下选择获得的牌，以替代通常摸牌阶段。')));
+  if(pending.kind==='intimidate')panel.append(node('p',{},say(language,'Tauros entered play. Choose one living trainer with hand cards, including yourself, then choose one of that trainer’s hand cards to discard. This ability is mandatory.','肯泰罗登场。必须选择一名有手牌的存活训练家（可以是自己），然后选择其一张手牌弃置。此特性必须结算。')));
+  if(pending.kind==='intimidate-hand')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,'Choose one hand card to discard. Another trainer’s card faces stay hidden; your own card faces are visible. This choice cannot be passed.','选择并弃置一张手牌。其他训练家的手牌保持背面；自己的手牌可见。此选择不可放弃。'):say(language,'The indicated trainer is choosing one hand card to discard for Intimidate. Card choices stay private.','指定训练家正在为威吓选择弃置一张手牌；选牌保持私密。')));
   if(pending.kind==='u-turn')panel.append(node('p',{},say(language,'The whole move has finished. You may switch this move’s source with its reserve. Arena Trap still applies. This move effect does not spend the ordinary switch allowance.','整个招式已结束。你可以将此招式的来源与其备战宝可梦交替。沙穴仍然适用。此招式效果不消耗通常交替次数。')));
   if(pending.kind==='forewarn')panel.append(node('p',{},say(language,'During Prep, you may privately view up to four top cards, then place every viewed card on the top or bottom in your chosen order. You may pass before viewing; afterward the placement is mandatory.','准备阶段，你可以私下观看牌堆顶至多四张牌，然后将所有观看的牌按所选顺序放回堆顶或堆底。观看前可以放弃，观看后必须完成放置。')));
   if(pending.kind==='forewarn-order')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,'Only you can see these cards. Arrange every card on the top or bottom of the deck.','仅你能看到这些牌。请将每张牌放到牌堆顶或牌堆底。'):say(language,'The indicated trainer is privately arranging the viewed cards on the top and bottom of the deck.','指定训练家正在私下安排所观看的牌放回牌堆顶与底的顺序。')));
@@ -471,9 +515,20 @@ export function decisionPanel(view,kit) {
     else if(pending.kind==='reorder')panel.append(...deckOrderControls(pending,kit));
     else if(pending.kind==='forewarn-order')panel.append(...forewarnOrderControls(pending,kit));
     else if(pending.kind==='sweet-kiss')panel.append(...sweetKissControls(pending,kit));
+    else if(pending.kind==='vital-spirit')panel.append(...vitalSpiritControls(pending,kit));
     else {
-      const row=node('div',{class:pending.kind==='hand'?'hand-choice-grid':'action-row'});
-      if(pending.kind==='u-turn') {
+      const row=node('div',{class:['hand','intimidate-hand'].includes(pending.kind)?'hand-choice-grid':'action-row'});
+      if(pending.kind==='intimidate') {
+        for(const id of pending.legalTargetIds||[]) {
+          const player=view.players.find(player=>player.id===id);
+          row.append(node('button',{type:'button',class:'button primary',id:`intimidate-target-${id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'target',targetId:id})},`${player?.nickname||'—'}${id===view.selfId?say(language,' · you',' · 你'):''}`));
+        }
+      }else if(pending.kind==='intimidate-hand') {
+        for(const choice of pending.choices||[]) {
+          const label=choice.name?`${kit.localized(choice.name)} · ${weatherLabel(choice.weather,language)}`:say(language,`Face-down card ${choice.index+1}`,`背面手牌 ${choice.index+1}`);
+          row.append(node('button',{type:'button',class:`button ${choice.name?'known-hand-choice':'blind-hand-choice'}`,id:`intimidate-hand-${choice.index}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'card',handIndex:choice.index})},label));
+        }
+      }else if(pending.kind==='u-turn') {
         row.append(node('button',{type:'button',class:'button primary',id:'u-turn-switch',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'switch'})},say(language,'Use U-turn switch','执行急速折返交替')),
           node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},say(language,'Keep active Pokémon','保持出场宝可梦')));
       }else if(pending.kind==='forewarn') {

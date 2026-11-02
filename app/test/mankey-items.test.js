@@ -29,7 +29,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, originalD
   seats.forEach(who => act(who, 'acknowledgeIdentity'));
   for (const who of seats) {
     for (let draw = 0; draw < 5; draw++) act(who, 'drawPokemon');
-    const candidates = view(who).self.candidates.filter(id => !['koffing','jynx'].includes(id));
+    const candidates = view(who).self.candidates.filter(id => !['koffing','jynx','tauros'].includes(id));
     act(who, 'selectPokemon', { activeId: candidates[0], reserveId: candidates[1] });
   }
   const seed = (who, family = 'mankey', level = 1, extra = {}) => Object.assign(player(who).active, {
