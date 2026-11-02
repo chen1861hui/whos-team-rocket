@@ -1,5 +1,7 @@
 ## Kangaskhan and Staryu — 2026-10-31 (current)
 
+Publication checkpoint — 2026-11-02: implementation commit4304bf1 pushed to origin/codex/kangaskhan-staryu. No PR or merge. Main4173 restarted with saved rooms retained. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/kangaskhan-staryu .
+
 **654/654 tests pass. Combat supports31 groups /93 faces; effects reviewed for32 groups /96 faces.** Kangaskhan has Fake Out Flinch, optional Double-Edge boost with source HP loss after receiving effects, Reversal’s strict current-HP comparison and exact Early Bird named-event permissions. Staryu/Starmie have optional Illuminate during Draw, Water Gun, intense-sun Confusion judgment and two-target Psybeam. Chansey remains reviewed reference-only pending Potion’s covered rescue text.
 
 Branch codex/kangaskhan-staryu from219c71f retains all prior work. Repo https://github.com/chen1861hui/whos-team-rocket.git . No merge/hosting/repeated PR-access attempt. Preserve accepted arena/native cards/centered hover/identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no items/Potion/events or invented quantities. See gameplay-milestone-23.md and reviewed-kangaskhan-staryu.md/json. Earlier counts below are historical.

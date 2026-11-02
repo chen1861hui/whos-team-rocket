@@ -1,5 +1,7 @@
 # Milestone23 — Kangaskhan and Staryu
 
+Published 2026-11-02: implementation commit4304bf1 pushed to origin/codex/kangaskhan-staryu. No PR or merge. Main4173 restarted with saved rooms retained. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/kangaskhan-staryu .
+
 Kangaskhan now has direct Fake Out Flinch, optional Double-Edge boost with delayed source HP loss, and Reversal’s strict current-HP comparison. Early Bird’s exact two named-event targeting exclusions are encoded without granting general status immunity or enabling unreviewed event cards. Staryu/Starmie gain the optional native Illuminate draw control, plain Water Gun, intense-sun Confusion judgment and two-target Psybeam.
 
 **654/654 tests pass:**603 baseline plus51 independent tests in `app/test/kangaskhan-staryu.test.js`. Includes source-exact values, real payment and cleanup, event permission/suppression gates, source-free recoil versus damage, Burn/Defense/zero policies, receiving-order/Helmet nesting, original-source defeat, lethal recoil, immediate victory, restart/retry, clocks/votes/privacy, current-HP Reversal, Illuminate before/between mandatory draws/Flinch/finite supply and two independent weather judgments. The older Rhyhorn count check now verifies its baseline minimum plus live metadata/roster consistency so later source batches can grow the roster. No engine defects were found by the independent source/code audit or focused new tests.
