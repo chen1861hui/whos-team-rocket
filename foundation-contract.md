@@ -1,4 +1,10 @@
-## Kangaskhan and Staryu — 2026-10-31 (current)
+## Scyther and Jynx — 2026-11-02 (current)
+
+**716/716 tests pass. Combat supports33 groups /99 faces; effects reviewed for34 groups /102 faces.** Scyther has Technician inheritance, stacked Power, Fury Cutter’s dealing-stage grant, X-Scissor’s same-settlement two-Dodge requirement and optional U-turn switching after whole-move cleanup. Jynx has private Preparation-phase Forewarn top/bottom arrangement, non-damaging Sweet Kiss discard/draw and sunny Light Screen Defense. Chansey remains reviewed reference-only pending Potion’s covered rescue text.
+
+Branch codex/scyther-jynx from2f9952e retains all prior work. Repo https://github.com/chen1861hui/whos-team-rocket.git . No merge/hosting/repeated PR-access attempt. Preserve accepted arena/native cards/centered hover/identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. See gameplay-milestone-24.md and reviewed-scyther-jynx.md/json. Earlier counts below are historical.
+
+## Kangaskhan and Staryu — 2026-10-31 (historical)
 
 **654/654 tests pass. Combat supports31 groups /93 faces; effects reviewed for32 groups /96 faces.** Kangaskhan has Fake Out Flinch, optional Double-Edge boost with source HP loss after receiving effects, Reversal’s strict current-HP comparison and exact Early Bird named-event permissions. Staryu/Starmie have optional Illuminate during Draw, Water Gun, intense-sun Confusion judgment and two-target Psybeam. Chansey remains reviewed reference-only pending Potion’s covered rescue text.
 

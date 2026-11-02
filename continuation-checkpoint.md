@@ -1,4 +1,26 @@
-## Kangaskhan and Staryu — 2026-10-31 (current)
+## Scyther and Jynx — 2026-11-02 (current)
+
+**716/716 tests pass. Combat supports33 groups /99 faces; effects reviewed for34 groups /102 faces.** Scyther has Technician inheritance, stacked Power, Fury Cutter’s dealing-stage grant, X-Scissor’s same-settlement two-Dodge requirement and optional U-turn switching after whole-move cleanup. Jynx has private Preparation-phase Forewarn top/bottom arrangement, non-damaging Sweet Kiss discard/draw and sunny Light Screen Defense. Chansey remains reviewed reference-only pending Potion’s covered rescue text.
+
+Branch codex/scyther-jynx from2f9952e retains all prior work. Repo https://github.com/chen1861hui/whos-team-rocket.git . No merge/hosting/repeated PR-access attempt. Preserve accepted arena/native cards/centered hover/identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. See gameplay-milestone-24.md and reviewed-scyther-jynx.md/json. Earlier counts below are historical.
+
+### Current continuation contracts
+
+Project C:\src\team-rocket-web, app app/. Main4173 restarted current with existing saves retained. Isolated QA4174 in Game/scyther-jynx-work after legal setup; stopped after checks. No downloads, arena geometry/theme/camera/model changes or PR-access discovery. Scoped response-control CSS only.
+
+Scyther battleMoves returns native first +lowerfaces ascending if battleTraitsEffective. Lv2 [Fury0,Swords1,Uturn2]; Lv3 [XScissor0,Uturn1,Fury2,Swords3]. Gas removesinherited moves/staleindex rejectedbeforepayment;native move text remains. Instance+move-name usekeys andcommandlock unchanged. beginCommand consumesALL effectivePower/countsboost;Para leavesinactivePower. XScissor attackeffectChoice double-dodge paysonephysicalPower BEFOREbeginCommand takesremaining; normal/undefined default. PhysicalinactivePower maypay as explicitpolicy. Defense pendingdodgesRequired2/dodgesPlayed0, firstactual/virtualSandVeilholdsID/clock, secondcancel, pass/expiryafteronefullhit. FuryCutter source-stagecompute receiving:false grantsPowerbeforetargetmods; no current-use retroboost, keepgrantiflaterShedreduces0 perdocumented no-rollbackinterpretation. SwordsDance sunnyweather selfgain1 ignoringcap. Powerlabelsaggregatecounts.
+
+Uturn finishResolution cleanscard/Defenseidempotently (resolution.cleaned), thenoptionalpendingu-turn originalaliveactive+livingreserve evenDodge/0. choicesswitch/pass; capturesource; requestBattleSwitch kindu-turn runsArenaTrap andfinishBattleSwitch returnsfinishResolution. Preservesordinaryswitchused/blocked, commanduser andmoveusage. Source defeated skips. uTurnOffered preventsrepeat; immediatevictorycleanup safe.
+
+Forewarn occursAFTERallglobalturnStart actors/returns/status/Gas. continueTurnStart sets preparationDone, evaluates CURRENTactiveJynx includingnewreserve, capturepreparationPokemonId, optionalpendingforewarn choice trait/pass. Publicturn retainsDrawcontainerbutpendingblocksdraw andpromptnamesPreparation. OncePrep interpretation. Acceptance peeks actualtop4 withrefillunderexistingtop; optionalempty skip. Private turnStart.forewarnCardIds; actoronlycards indexed{name,weather,kind}, noIDs. Mandatoryforewarn-order choiceorder/topOrder/bottomOrder partitionexacteachindexonce;top nextdrawfirst,bottom firstafteruntouchedmiddle; actualsnapshotvalidated/preserved. Nopeekdraw/judgment/Drought/Pickup. Pendingmandatorytimerwait,optionalofferexpirespass. Strictfieldguards acrossallresponses.
+
+SweetKiss commandprintedValuenull/nodamage: effectbindsoriginalactive; targettrainer mandatorychoice discard/cardIds exactlyrequiredCards=min2hand; private safeowncards onlyactor. Afterdiscard drawmin2actualavailablevia sharedgain(Pickupafterfullbatch). Emptyhandautodraw. NoPowerboostdamage/status/damagehooks butcommandPowerconsumptionstillnormal. LightScreen sunnycard singledefaultactive/self/inrange gainsDefenseonlyifabsent; nodamage/commandlock/Powerconsume. Source/publiccopiesmatch,6hashesverified,supportedEffects33 andmetadata33/99supported34/102reviewed. Six unreviewedgroups plusChanseydependency remain.
+
+716pass=654baseline+62newindependentcases. ExistingfocusedfixturesexcludeinitialJynx/Koffingbeforetheirseededscenario; production/fullselectiondealsunchanged. OlderKangcounttestnowdynamicconsistency. Threebrowserclients0warn/error: Fury2oldPower→3grantbeforeDefensecap1, doubledXScissorfirstDodgeholds1/2/secondcancels, Forewarnprivate[2,0]top/[3,1]bottomretainedacrosslanguage andnextdrawC,A; SweetKiss2selectionprivate/Pickuphand4→5/noHPdamage; UturnafterDodgeinjuredreserve2/3+ordinaryswitchavailable; LightScreenDefense4/4HP. VisualUI refinements/nativepicker andevidenceinmilestone24.
+
+Next saved source-order pair Electabuzz +Tauros: research-assets/douyin-7684572630280187855/246197ed6800a311.webp (Electabuzz1),552ac4965b807626.webp (2/3),147c200af1b0b31d.webp (Tauros1),65a574027315cd33.webp (2/3). Root+independentvisualreview thencompleteeffects; noacquisitionneeded. ChanseyreviewalreadycompletebutrescuePotiondependencyremains.
+
+## Kangaskhan and Staryu — 2026-10-31 (historical)
 
 Publication checkpoint — 2026-11-02: implementation commit4304bf1 pushed to origin/codex/kangaskhan-staryu. No PR or merge. Main4173 restarted with saved rooms retained. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/kangaskhan-staryu .
 

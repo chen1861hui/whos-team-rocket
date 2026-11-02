@@ -1,0 +1,517 @@
+{
+  "reviewedAt": "2026-11-02",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "faces": [
+    {
+      "group": "scyther",
+      "level": 1,
+      "name": {
+        "zh": "飞天螳螂",
+        "en": "Scyther"
+      },
+      "hp": 3,
+      "classification": {
+        "zh": "攻击型",
+        "en": "Attack"
+      },
+      "traitName": {
+        "zh": "技术高手",
+        "en": "Technician"
+      },
+      "abilityText": {
+        "zh": "此宝可梦可以使用其低等级的招式。",
+        "en": "This Pokémon may use moves from its lower-level faces."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "急速折返",
+            "en": "U-turn"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectKind": "u-turn",
+          "effectText": {
+            "zh": "此招式结算结束后，若你的备战宝可梦未失去战斗能力，你可以进行交替，此交替不计入次数限制。",
+            "en": "After this move finishes resolving, if your reserve Pokémon is undefeated, you may switch. This switch does not count toward the ordinary switch limit."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/ecaafd9dc7bb0598.webp",
+        "sha256": "ecaafd9dc7bb059844e985c844651a31bf3a89edfa3474b3122f7eb411b313ec",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 61,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-scyther-jynx.md"
+      }
+    },
+    {
+      "group": "scyther",
+      "level": 2,
+      "name": {
+        "zh": "飞天螳螂",
+        "en": "Scyther"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "攻击型",
+        "en": "Attack"
+      },
+      "traitName": {
+        "zh": "技术高手",
+        "en": "Technician"
+      },
+      "abilityText": {
+        "zh": "此宝可梦可以使用其低等级的招式。",
+        "en": "This Pokémon may use moves from its lower-level faces."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "连斩",
+            "en": "Fury Cutter"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectKind": "fury-cutter",
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害时，无视上限获得等同于造成的伤害值的数量的“力量强化”指示物。",
+            "en": "When this Pokémon deals damage with this move, it gains Power reinforcement markers equal to that damage value, ignoring the normal limit."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        },
+        {
+          "name": {
+            "zh": "剑舞",
+            "en": "Swords Dance"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "count": 1,
+            "weatherIconsInCondition": [
+              "intense-sun",
+              "clear"
+            ]
+          },
+          "printedValue": null,
+          "effectKind": "swords-dance",
+          "effectText": {
+            "zh": "此招式指定此宝可梦为目标。无视上限获得一枚“力量强化”指示物。",
+            "en": "This move targets this Pokémon. Gain one Power reinforcement marker, ignoring the normal limit."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "self",
+            "max": 1
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/2b8363ea1b40ef9c.webp",
+        "sha256": "2b8363ea1b40ef9c347466a712f5b393667475ecd1c65a7971ecd0bcfdeaa574",
+        "facePosition": "left",
+        "observedAssetOrdinal": 62,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-scyther-jynx.md"
+      }
+    },
+    {
+      "group": "scyther",
+      "level": 3,
+      "name": {
+        "zh": "飞天螳螂",
+        "en": "Scyther"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "攻击型",
+        "en": "Attack"
+      },
+      "traitName": {
+        "zh": "技术高手",
+        "en": "Technician"
+      },
+      "abilityText": {
+        "zh": "此宝可梦可以使用其低等级的招式。",
+        "en": "This Pokémon may use moves from its lower-level faces."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "十字剪",
+            "en": "X-Scissor"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 3,
+          "effectKind": "x-scissor",
+          "effectText": {
+            "zh": "声明使用此招式时，若此宝可梦有“力量强化”指示物，你可以弃置一枚“力量强化”指示物，然后本次使用此招式需要两张【快躲开！】才能抵消。",
+            "en": "When declaring this move, if this Pokémon has a Power marker, you may discard one Power marker. This use then requires two Dodge! cards to cancel."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/2b8363ea1b40ef9c.webp",
+        "sha256": "2b8363ea1b40ef9c347466a712f5b393667475ecd1c65a7971ecd0bcfdeaa574",
+        "facePosition": "right",
+        "observedAssetOrdinal": 62,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-scyther-jynx.md"
+      }
+    },
+    {
+      "group": "jynx",
+      "level": 1,
+      "name": {
+        "zh": "迷唇姐",
+        "en": "Jynx"
+      },
+      "hp": 3,
+      "classification": {
+        "zh": "支援型",
+        "en": "Support"
+      },
+      "traitName": {
+        "zh": "预知梦",
+        "en": "Forewarn"
+      },
+      "abilityText": {
+        "zh": "在你的准备阶段，你可以观看牌堆顶的四张牌，然后将其中任意数量的牌以任意顺序置于牌堆顶，将其余的牌以任意顺序置于牌堆底。",
+        "en": "During your Preparation phase, you may privately view the top four cards. Put any number on top in any order, and put the rest on the bottom in any order."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "拍击",
+            "en": "Pound"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": null,
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/65a09eabe1644520.webp",
+        "sha256": "65a09eabe164452056cd322a45d15787fcb03d803c70118a58485d4f88366ef1",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 63,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-scyther-jynx.md"
+      }
+    },
+    {
+      "group": "jynx",
+      "level": 2,
+      "name": {
+        "zh": "迷唇姐",
+        "en": "Jynx"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "支援型",
+        "en": "Support"
+      },
+      "traitName": {
+        "zh": "预知梦",
+        "en": "Forewarn"
+      },
+      "abilityText": {
+        "zh": "在你的准备阶段，你可以观看牌堆顶的四张牌，然后将其中任意数量的牌以任意顺序置于牌堆顶，将其余的牌以任意顺序置于牌堆底。",
+        "en": "During your Preparation phase, you may privately view the top four cards. Put any number on top in any order, and put the rest on the bottom in any order."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "拍击",
+            "en": "Pound"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": null,
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": []
+        },
+        {
+          "name": {
+            "zh": "光墙",
+            "en": "Light Screen"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "count": 1,
+            "weatherIconsInCondition": [
+              "intense-sun",
+              "clear"
+            ]
+          },
+          "printedValue": null,
+          "effectKind": "light-screen",
+          "effectText": {
+            "zh": "若目标宝可梦没有“防御强化”指示物，其获得一枚“防御强化”指示物。",
+            "en": "If the target Pokémon has no Defense reinforcement marker, it gains one."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/8bd4f00fac36f980.webp",
+        "sha256": "8bd4f00fac36f980ebcc3f6c98ec80ac69cd2a0e540c758bca799fd1c936a38f",
+        "facePosition": "left",
+        "observedAssetOrdinal": 64,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-scyther-jynx.md"
+      }
+    },
+    {
+      "group": "jynx",
+      "level": 3,
+      "name": {
+        "zh": "迷唇姐",
+        "en": "Jynx"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "支援型",
+        "en": "Support"
+      },
+      "traitName": {
+        "zh": "预知梦",
+        "en": "Forewarn"
+      },
+      "abilityText": {
+        "zh": "在你的准备阶段，你可以观看牌堆顶的四张牌，然后将其中任意数量的牌以任意顺序置于牌堆顶，将其余的牌以任意顺序置于牌堆底。",
+        "en": "During your Preparation phase, you may privately view the top four cards. Put any number on top in any order, and put the rest on the bottom in any order."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "天使之吻",
+            "en": "Sweet Kiss"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": null,
+          "effectKind": "sweet-kiss",
+          "effectText": {
+            "zh": "目标宝可梦对应的训练家弃置两张手牌（若不足两张则全部弃置）并摸两张牌。",
+            "en": "The target Pokémon’s trainer discards two hand cards (all if fewer than two), then draws two cards."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        },
+        {
+          "name": {
+            "zh": "光墙",
+            "en": "Light Screen"
+          },
+          "condition": {
+            "kind": "weather-card",
+            "count": 1,
+            "weatherIconsInCondition": [
+              "intense-sun",
+              "clear"
+            ]
+          },
+          "printedValue": null,
+          "effectKind": "light-screen",
+          "effectText": {
+            "zh": "若目标宝可梦没有“防御强化”指示物，其获得一枚“防御强化”指示物。",
+            "en": "If the target Pokémon has no Defense reinforcement marker, it gains one."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/8bd4f00fac36f980.webp",
+        "sha256": "8bd4f00fac36f980ebcc3f6c98ec80ac69cd2a0e540c758bca799fd1c936a38f",
+        "facePosition": "right",
+        "observedAssetOrdinal": 64,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-scyther-jynx.md"
+      }
+    }
+  ]
+}

@@ -72,8 +72,9 @@ export function reinforcementEffective(creature, kind) {
 
 export function beginCommand(source) {
   if (!reinforcementEffective(source, 'power')) return 0;
+  const count=source.reinforcements.filter(kind=>kind==='power').length;
   source.reinforcements = source.reinforcements.filter(kind => kind !== 'power');
-  return 1;
+  return count;
 }
 
 export function computeDamage(source, target, base, catalogue, { command = true, powerBoost = 0, channel = 'move', reinforcements = true, receiving = true, sourceTraits = true, targetTraits = true } = {}) {

@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceRoster": "reviewed-selection-roster.md",
   "evidenceStatus": "source-backed-identity-and-hp",
-  "reviewedAt": "2026-10-31",
+  "reviewedAt": "2026-11-02",
   "completeGroups": 40,
   "photoReviewedFaces": 120,
   "notes": {
@@ -2332,9 +2332,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,
@@ -2399,7 +2399,8 @@
             "specification": "reviewed-selection-roster.md"
           }
         }
-      ]
+      ],
+      "effectReviewSpecification": "reviewed-scyther-jynx.md"
     },
     {
       "id": "jynx",
@@ -2409,9 +2410,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,
@@ -2476,7 +2477,8 @@
             "specification": "reviewed-selection-roster.md"
           }
         }
-      ]
+      ],
+      "effectReviewSpecification": "reviewed-scyther-jynx.md"
     },
     {
       "id": "electabuzz",

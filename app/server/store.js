@@ -169,7 +169,7 @@ export class RoomStore {
         clock.remainingMs = Math.max(0, clock.deadlineAt - until);
       }
       if (clock.remainingMs === 0 && !room.pendingVote) {
-        if(['hand','reorder','reinforcement','effects','turn-start-order','distribute','damage-order'].includes(pending.kind)) {
+        if(['hand','reorder','forewarn-order','sweet-kiss','reinforcement','effects','turn-start-order','distribute','damage-order'].includes(pending.kind)) {
           const reason=this.connected(actor)?'mandatory':'disconnected';
           structural ||= !clock.expired || clock.pausedReason!==reason;
           clock.expired=true;clock.deadlineAt=null;clock.pausedReason=reason;
@@ -374,7 +374,7 @@ export class RoomStore {
         this.battleCall(() => giveBattleCards(room, player, input, this.battleContext()));
         break;
       case 'respondBattle':
-        check(['decisionId', 'choice', 'cardId', 'cardIds', 'handIndex', 'handIndices', 'order', 'reinforcement', 'effect','allocations','targetId']); seat(); status('playing');
+        check(['decisionId', 'choice', 'cardId', 'cardIds', 'handIndex', 'handIndices', 'order', 'topOrder','bottomOrder', 'reinforcement', 'effect','allocations','targetId']); seat(); status('playing');
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'There is no combat response.');
         this.battleCall(() => respondBattle(room, player, input, this.battleContext()));
         break;

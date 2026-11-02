@@ -1,5 +1,5 @@
 import {seatLayout} from './battlefield-layout.js';
-import {roleName,statusName,weatherLabel,attackDialog,giftCardsDialog,equipItemDialog,analyticDialog,recklessDialog,decisionPanel,resultPanel} from './combat-ui.js';
+import {roleName,statusName,weatherLabel,attackDialog,moveChoiceDialog,giftCardsDialog,equipItemDialog,analyticDialog,recklessDialog,decisionPanel,resultPanel} from './combat-ui.js';
 const $ = (selector, root = document) => root.querySelector(selector);
 const root = $('#app');
 const strings = {
@@ -456,7 +456,8 @@ function worldPanel(players, viewerId, turnId, theme) {
     if(player.active?.item)label.append(el('small',{class:'world-held-item'},localized(player.active.item.name),player.active.itemSuppressed?` · ${t('itemSuppressed')}`:''));
     if(player.active?.reinforcements?.length) {
       const names={power:language==='zh'?'力量强化':'Power',defense:language==='zh'?'防御强化':'Defense',speed:language==='zh'?'速度强化':'Speed'};
-      label.append(el('small',{class:'world-reinforcements'},player.active.reinforcements.map(kind=>names[kind]||kind).join(' · '),player.active.status==='paralysis'?(language==='zh'?' · 不生效':' · inactive'):''));
+      const markers=player.active.reinforcements,powerCount=markers.filter(kind=>kind==='power').length;
+      label.append(el('small',{class:'world-reinforcements'},markers.filter((kind,index)=>kind!=='power'||index===markers.indexOf('power')).map(kind=>kind==='power'?`${names.power}${language==='zh'?'':' '}×${powerCount}`:names[kind]||kind).join(' · '),player.active.status==='paralysis'?(language==='zh'?' · 不生效':' · inactive'):''));
     }
     if (Number.isFinite(player.active?.hp)) label.append(el('div',{class:'world-health'},`${player.active.hp}/${player.active.maxHp} HP`,player.active.status?` · ${statusName(player.active.status,language)}`:'',player.active.traitsSuppressed?(language==='zh'?' · 特性失效':' · Traits suppressed'):'',player.active.damageProtected?` · ${t('damageProtected')}`:'',player.eliminated?` · ${t('eliminated')}`:''));
     labels.append(label);
@@ -516,11 +517,13 @@ function handPanel() {
   const cards = el('div', { class: 'hand-cards' });
   for (const [index, card] of view.self.hand.entries()) {
     const commandMoves=(view.self.battle?.moves||[]).filter(move=>move.condition?.kind==='command');
-    const use=card.kind==='command'?commandMoves.map(move=>{
+    const weatherMoves=(view.self.battle?.moves||[]).filter(move=>move.condition?.kind==='weather-card'&&move.condition.weatherIconsInCondition.includes(card.weather));
+    const applicableMoves=[...(card.kind==='command'?commandMoves:[]),...weatherMoves],chooseMove=applicableMoves.length>2;
+    const use=chooseMove?el('button',{type:'button',class:'button card-play',disabled:busy||!applicableMoves.some(move=>move.canUse&&!(move.condition?.kind==='command'&&ownPlayer()?.active?.status==='paralysis'&&!['intense-sun','clear'].includes(card.weather))),onclick:()=>moveChoiceDialog(card,combatKit())},language==='zh'?'选择招式':'Choose move'):card.kind==='command'?commandMoves.map(move=>{
       const blocked=!move.canUse||(ownPlayer()?.active?.status==='paralysis'&&!['intense-sun','clear'].includes(card.weather));
       return commandMoves.length===1?button('playMove',()=>attackDialog(card,combatKit(),move.index),'button card-play',blocked):el('button',{type:'button',class:'button card-play',disabled:busy||blocked,onclick:()=>attackDialog(card,combatKit(),move.index)},`${language==='zh'?'使用':'Use '}${localized(move.name)}`);
     }):null;
-    const weatherUses=(view.self.battle?.moves||[]).filter(move=>move.condition?.kind==='weather-card'&&move.condition.weatherIconsInCondition.includes(card.weather)).map(move=>el('button',{type:'button',class:'button card-play',disabled:busy||!move.canUse,onclick:()=>attackDialog(card,combatKit(),move.index)},`${language==='zh'?'使用':'Use '}${localized(move.name)}`));
+    const weatherUses=chooseMove?[]:weatherMoves.map(move=>el('button',{type:'button',class:'button card-play',disabled:busy||!move.canUse,onclick:()=>attackDialog(card,combatKit(),move.index)},`${language==='zh'?'使用':'Use '}${localized(move.name)}`));
     cards.append(el('article', { class: 'hand-card' }, el('div', { class: 'hand-card-symbol', 'aria-hidden': true }, card.kind==='dodge'?'◇':'✦'), el('span', { class: 'hand-card-number' }, String(index + 1).padStart(2, '0')), el('strong', {}, localized(card.name)), card.kind==='held-item'&&card.itemType==='rocky-helmet'?button('equipItem',()=>equipItemDialog(card,combatKit()),'button card-play',!view.self.battle?.canEquip):null, card.weather?el('small',{class:'hand-card-weather'},weatherLabel(card.weather,language)):null, use, weatherUses, button('discard', () => action('discard', { cardId: card.id }), 'button card-discard', !canDiscard, { id: `discard-${card.id}` })));
   }
   return el('section', { class: 'panel hand-panel' }, el('div', { class: 'section-heading' }, el('h2', {}, t('handTitle')), view.self.role ? el('small',{class:'own-role'},`${t('yourRole')}: ${roleName(view.self.role,language)}`) : null, tag(`${view.self.hand.length} / ${ownHandLimit()===Infinity?'∞':ownHandLimit()}`, view.self.hand.length > ownHandLimit() ? 'warning-tag' : 'private-tag'),view.self.exiledCount?el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`):null), el('p', { class: 'muted' }, t(view.gameMode==='combat-preview'?'combatPreview':'handFixture')), cards, el('p', { class: `hand-hint ${canDiscard ? 'warning-text' : ''}` }, phaseHint()), privateReserve());
