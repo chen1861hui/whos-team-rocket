@@ -16,6 +16,9 @@ const face = (pokemon, catalogue) => catalogue.entries.find(p => p.id === pokemo
 const creature = (room, id) => room.players.flatMap(p => [p.active, p.reserve]).find(p => p?.instanceId === id);
 // Suppression belongs to the trainer for the entire global turn, including reserves.
 export const battleTraitsEffective=(room,pokemon)=>Boolean(pokemon&&!pokemon.defeated&&!room?.turn?.suppressedTraitPlayerIds?.some(id=>{const owner=trainer(room,id);return [owner?.active,owner?.reserve].some(partner=>partner?.instanceId===pokemon.instanceId);}));
+// Named-event permission for the future reviewed event-card pipeline. This
+// query grants no general status immunity and does not enable either event.
+export const battleEventTargetAllowed=(room,pokemon,eventNameZh)=>!(pokemon?.catalogueId==='kangaskhan'&&activeOwner(room,pokemon.instanceId)&&battleTraitsEffective(room,pokemon)&&['胖丁的表演','魔墙人偶的戏法'].includes(eventNameZh));
 const damageOptions=(room,source,target,options={})=>({...options,sourceTraits:battleTraitsEffective(room,source),targetTraits:battleTraitsEffective(room,target)});
 const damageImmune=(room,pokemon)=>battleTraitsEffective(room,pokemon)&&room.turn?.damageImmunityIds?.includes(pokemon.instanceId);
 function note(room, zh, en) { room.log.push({ id: randomUUID(), text: { zh, en } }); room.log = room.log.slice(-80); }
@@ -523,7 +526,7 @@ export function previewActions(room, player, catalogue) {
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
   const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx) {
   const legal=previewActions(room,player,ctx.catalogue),index=input.moveIndex===undefined?0:input.moveIndex;
@@ -627,7 +630,10 @@ function settleDamage(room, ctx) {
     }
     return nextSettlement(room,ctx);
   }
-  const printedDamage=resolution.baseDamage+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
+  if(resolution.effectKind==='double-edge'&&!resolution.doubleEdgeDecided&&!damageImmune(room,target)&&activeOwner(room,source?.instanceId)) {
+    decision(room,'double-edge',resolution.sourcePlayerId,trainer(room,resolution.targetIds[resolution.index]).id,ctx);return;
+  }
+  const printedDamage=resolution.baseDamage+(resolution.doubleEdgeBoost?1:0)+(resolution.effectKind==='reversal'&&currentHp(target,ctx.catalogue)>currentHp(source,ctx.catalogue)?1:0)+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
   const reduction=resolution.dodgeReductions?.[target.instanceId]||0;
   if(reduction>0||hasShedSkin(room,target)) {
     const amount=damageImmune(room,target)?0:computeDamage(source,target,printedDamage,ctx.catalogue,damageOptions(room,source,target,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false}));
@@ -704,7 +710,7 @@ function afterDamage(room,ctx) {
   // HP loss is not damage (booklet p.10). Resume its draw only after rescue,
   // deployment and immediate victory, without entering either damage stage.
   if(resolution.kind==='hp-loss') {
-    const draw=resolution.lossDraw,owner=trainer(room,draw.playerId);
+    const draw=resolution.lossDraw,owner=draw?trainer(room,draw.playerId):null;
     if(owner&&!owner.eliminated) {
       const count=Math.min(draw.count,room.drawPile.length+room.discardPile.length);
       drawBattleCards(room,owner,count,'reckless');
@@ -742,7 +748,7 @@ function afterDamage(room,ctx) {
         const targetOwner=activeOwner(room,target.instanceId);
         return startJudgment(room,ctx,{kind:'shadow-ball',targetOwnerId:targetOwner?.id,sourcePlayerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
       }
-      if(family==='exeggcute'&&level===3)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'confusion',weather:'intense-sun',next:'afterDamage'},resolution.sourcePlayerId);
+      if((family==='exeggcute'&&level===3)||(family==='staryu'&&level>=2))return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'confusion',weather:'intense-sun',next:'afterDamage'},resolution.sourcePlayerId);
       if(family==='koffing'&&level>=2)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'poison',weather:'rain',next:'afterDamage'},resolution.sourcePlayerId);
       if(resolution.sourceFamily==='machop' && resolution.sourceLevel===3)return applyStatus(room,ctx,target,'confusion','afterDamage');
       if(resolution.sourceFamily==='sandshrew') {
@@ -778,6 +784,18 @@ function nextSettlement(room, ctx) {
   room.pendingBattle = null;
   if (['turn-start','item'].includes(room.resolution.kind)) return finishResolution(room, ctx);
   const resolution=room.resolution;
+  if(resolution.effectKind==='double-edge'&&resolution.doubleEdgeBoost&&resolution.actualDamage>0&&!resolution.recoilDone) {
+    resolution.recoilDone=true;
+    const owner=activeOwner(room,resolution.sourceId),source=creature(room,resolution.sourceId);
+    if(owner&&currentHp(source,ctx.catalogue)>0) {
+      room.resolutionStack??=[];room.resolutionStack.push(resolution);
+      room.resolution={kind:'hp-loss',card:null,sourceId:null,sourcePlayerId:owner.id,targetCreatureId:source.instanceId,targetIds:[owner.id],index:0,damagedIds:[],defenseIds:[],actualDamage:0};
+      source.damage=(source.damage||0)+1;
+      note(room,'舍身冲撞的伤害结算结束，原伤害来源失去1点体力；这不是伤害。','After Double-Edge’s damage settlement, the original damage source lost 1 HP; this is not damage.');
+      if(currentHp(source,ctx.catalogue)<=0)return beginRescue(room,owner.id,ctx);
+      return afterDamage(room,ctx);
+    }
+  }
   if(resolution.effectKind==='bonemerang'&&resolution.settlementIndex===0&&!resolution.repeatOffered) {
     resolution.repeatOffered=true;
     const owner=activeOwner(room,resolution.sourceId),target=activeOwner(room,resolution.originalTargetId);
@@ -831,6 +849,13 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(pending.kind==='exile'||input.handIndices===undefined,'INVALID_RESPONSE','This decision does not select multiple hand slots.');
   requireRule(pending.kind==='shed-skin'||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
   requireRule(['cute-charm','neutralizing-gas'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
+  if(pending.kind==='double-edge') {
+    requireRule(['boost','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Boost Double-Edge or pass without extra fields.');
+    const resolution=room.resolution;
+    requireRule(resolution?.effectKind==='double-edge'&&!resolution.doubleEdgeDecided&&resolution.sourceId===player.active.instanceId&&!player.active.defeated&&currentHp(player.active,ctx.catalogue)>0,'STALE_DECISION','The Double-Edge source changed.');
+    resolution.doubleEdgeDecided=true;resolution.doubleEdgeBoost=input.choice==='boost';room.pendingBattle=null;
+    return settleDamage(room,ctx);
+  }
   if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind)) {
     const kind=pending.kind,choice=kind==='battle-armor'?'armor':kind==='bonemerang'?'repeat':'suppress';
     requireRule(['pass',choice].includes(input.choice)&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Pay one actual hand card for this effect or pass.');
@@ -1147,6 +1172,11 @@ export function useBattleTrait(room, player, ctx,input={}) {
   }
   requireRule(input.cardIds===undefined,'INVALID_INPUT','This trait does not choose hand cards.');
   room.turn.traitsUsed ??= []; room.turn.traitsUsed.push(player.active.instanceId);
+  if(player.active.catalogueId==='staryu') {
+    if(room.drawPile.length+room.discardPile.length)drawBattleCards(room,player,1,'illuminate');
+    else note(room,'发光已发动，但当前没有可摸取的牌。','Illuminate was used, but no card is currently available to draw.');
+    return;
+  }
   if(player.active.catalogueId==='exeggcute') {
     room.turn.discardComplete=true;
     if(room.drawPile.length+room.discardPile.length)drawBattleCards(room,player,1,'harvest');

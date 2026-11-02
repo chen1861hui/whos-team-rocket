@@ -1,4 +1,24 @@
-## Rhyhorn and reviewed Chansey — 2026-10-31 (current)
+## Kangaskhan and Staryu — 2026-10-31 (current)
+
+**654/654 tests pass. Combat supports31 groups /93 faces; effects reviewed for32 groups /96 faces.** Kangaskhan has Fake Out Flinch, optional Double-Edge boost with source HP loss after receiving effects, Reversal’s strict current-HP comparison and exact Early Bird named-event permissions. Staryu/Starmie have optional Illuminate during Draw, Water Gun, intense-sun Confusion judgment and two-target Psybeam. Chansey remains reviewed reference-only pending Potion’s covered rescue text.
+
+Branch codex/kangaskhan-staryu from219c71f retains all prior work. Repo https://github.com/chen1861hui/whos-team-rocket.git . No merge/hosting/repeated PR-access attempt. Preserve accepted arena/native cards/centered hover/identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no items/Potion/events or invented quantities. See gameplay-milestone-23.md and reviewed-kangaskhan-staryu.md/json. Earlier counts below are historical.
+
+### Current continuation contracts
+
+Project C:\src\team-rocket-web, app app/. Main4173 restarted current engine with existing saved rooms retained. Isolated QA4174 data in Game/kangaskhan-staryu-work; server stopped after four-client checks. No downloads, arena layout/theme/camera/model/CSS changes, or repeated PR-access discovery.
+
+Double-Edge effectKind double-edge opens pending kind double-edge after failed defense and before computeDamage. Source actor responds choice boost or pass, no card/extra fields. The move remains effective under Gas. resolution.doubleEdgeDecided prevents repeated offer; doubleEdgeBoost adds1 before Burn/receiving modifiers. Known Oblivious immunity and Dodge skip the offer. After all source/receiving effects and nested Helmet/rescue, nextSettlement checks positiveactualdamage +chosenboost +!recoilDone, marksrecoilDone, and creates source-free hp-loss child (card/sourceId null, actualDamage0, no lossDraw) for original living active source only. Loss1 bypasses damage hooks/modifiers/rewards; lethal uses shared rescue/deployment/result. Generic hp-loss afterDamage tolerates missing lossDraw; Reckless still draws its saved original-trainer amount. Child cleanup restores parent receiving completion then whole-command cleanup. Defeated/inactive source or immediatevictory skips recoil, never transfers to reserve. Explicit policies: reduced0→no recoil; Burn-blockedchosenbonus withpositive1→recoil1; Defense1→recoil1. See reviewed spec.
+
+Reversal effectKind reversal compares currentHp(target)>currentHp(originalsource) atsettlement, includesinjuries/HPbonus, adds1beforeothermodifiers. FakeOut directFlinch uses existing source-after-damage/status pipeline. EarlyBird export battleEventTargetAllowed(room,pokemon,eventNameZh) rejects only exact胖丁的表演/魔墙人偶的戏法 for anactiveunsuppressedKangaskhan. It grants no generalstatusimmunity and enables neither event. Future reviewed event action must callpermissionquerybeforepayment.
+
+Illuminate useTrait {} optional duringownDraw afterturnstart beforelastmandatorydrawcompletes; traitkind illuminate, realimmediate1gain leavesdrawRemainingunchanged. Onceinstance/Draw interpretation usesexisting traitsUsed reset; Gasgatesactivation. Flinch1base+1extra stays2total, normal2base+1extra3total. Finiteempty spendsoptionaluse/draws0; mandatorybase strict. Own Draw suppressesPickup. NativeEnglish/Chinesebutton availablebesidemandatoryDraw. Staryu2/3 moves useafterpositiveintensesunonlyconfusionjudgment; Psybeam max2 eachindependentdefense/judgment. No status/payments guessed.
+
+654pass =603baseline+51new independenttests. Older Rhyhorn metadata test nowassertsbaselineminimum anddynamicrosterconsistency instead of freezingcounts29. Syntaxchecks, all6sourcehashes andbyteidentityverified; supportedEffects31 andmetadata31/93supported32/96reviewed agree. Fourbrowserclients no inspectedwarn/error: boostedDoubleEdge3→target2/5HP, Helmet1+recoil1→source2/4HP; IlluminateafterFlinch hand4→5 with1mandatoryremaining→6/Play; Psybeam2targets both3/5HP+Confusion; lethalrecoilsource0→threepasses→injuredreserve2/3withoutfurtherloss. English/Chinesecontrolsandprivacychecked. Evidence/specinmilestone23.
+
+Next saved source-order pair Scyther +Jynx: research-assets/douyin-7684572630280187855/ecaafd9dc7bb0598.webp (Scyther1),2b8363ea1b40ef9c.webp (2/3),65a09eabe1644520.webp (Jynx1),8bd4f00fac36f980.webp (2/3). Root +independentvisualreview then complete effects. Eight groups unreviewed plusChanseydependent remain; no acquisition needed.
+
+## Rhyhorn and reviewed Chansey — 2026-10-31 (historical)
 
 Git publication: implementation commit9ee833f pushed to origin/codex/rhyhorn-chansey. No PR or merge. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/rhyhorn-chansey .
 

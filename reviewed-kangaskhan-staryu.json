@@ -1,0 +1,415 @@
+{
+  "reviewedAt": "2026-10-31",
+  "edition": "unidentified",
+  "reviewStatus": "root-and-independent-Sol-visual-review",
+  "faces": [
+    {
+      "group": "kangaskhan",
+      "level": 1,
+      "name": {
+        "zh": "袋兽",
+        "en": "Kangaskhan"
+      },
+      "hp": 3,
+      "classification": {
+        "zh": "攻击型",
+        "en": "Attack"
+      },
+      "traitName": {
+        "zh": "早起",
+        "en": "Early Bird"
+      },
+      "abilityText": {
+        "zh": "此宝可梦不能成为【胖丁的表演】和【魔墙人偶的戏法】的目标。",
+        "en": "This Pokémon cannot be targeted by Jigglypuff’s Performance or Mr. Mime’s Tricks."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "击掌奇袭",
+            "en": "Fake Out"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 1,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，目标宝可梦陷入“畏缩”状态。",
+            "en": "After this Pokémon deals damage with this move, the target Pokémon becomes Flinched."
+          },
+          "effectKind": "flinch-after-damage",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/b72df440c83a1fa2.webp",
+        "sha256": "b72df440c83a1fa24af3519bd1bce676385811ff82199de8f5fb316d17e07c70",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 57,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-kangaskhan-staryu.md"
+      }
+    },
+    {
+      "group": "kangaskhan",
+      "level": 2,
+      "name": {
+        "zh": "袋兽",
+        "en": "Kangaskhan"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "攻击型",
+        "en": "Attack"
+      },
+      "traitName": {
+        "zh": "早起",
+        "en": "Early Bird"
+      },
+      "abilityText": {
+        "zh": "此宝可梦不能成为【胖丁的表演】和【魔墙人偶的戏法】的目标。",
+        "en": "This Pokémon cannot be targeted by Jigglypuff’s Performance or Mr. Mime’s Tricks."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "舍身冲撞",
+            "en": "Double-Edge"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害时，你可以令此伤害值+1，然后此伤害结算结束后，伤害来源失去1点体力。",
+            "en": "When this Pokémon deals damage with this move, you may increase that damage by 1. Then, after that damage settlement ends, the damage source loses 1 HP."
+          },
+          "effectKind": "double-edge",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/ce3da1b1d2033d35.webp",
+        "sha256": "ce3da1b1d2033d35db112ee809c4513a2a3173609e273cf26828938912cfac02",
+        "facePosition": "left",
+        "observedAssetOrdinal": 58,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-kangaskhan-staryu.md"
+      }
+    },
+    {
+      "group": "kangaskhan",
+      "level": 3,
+      "name": {
+        "zh": "袋兽",
+        "en": "Kangaskhan"
+      },
+      "hp": 5,
+      "classification": {
+        "zh": "攻击型",
+        "en": "Attack"
+      },
+      "traitName": {
+        "zh": "早起",
+        "en": "Early Bird"
+      },
+      "abilityText": {
+        "zh": "此宝可梦不能成为【胖丁的表演】和【魔墙人偶的戏法】的目标。",
+        "en": "This Pokémon cannot be targeted by Jigglypuff’s Performance or Mr. Mime’s Tricks."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "绝处逢生",
+            "en": "Reversal"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 3,
+          "effectText": {
+            "zh": "若目标宝可梦的体力值大于此宝可梦，此招式的伤害值+1。",
+            "en": "If the target Pokémon’s current HP is greater than this Pokémon’s current HP, this move’s damage increases by 1."
+          },
+          "effectKind": "reversal",
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/ce3da1b1d2033d35.webp",
+        "sha256": "ce3da1b1d2033d35db112ee809c4513a2a3173609e273cf26828938912cfac02",
+        "facePosition": "right",
+        "observedAssetOrdinal": 58,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-kangaskhan-staryu.md"
+      }
+    },
+    {
+      "group": "staryu",
+      "level": 1,
+      "name": {
+        "zh": "海星星",
+        "en": "Staryu"
+      },
+      "hp": 3,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "发光",
+        "en": "Illuminate"
+      },
+      "abilityText": {
+        "zh": "在你的摸牌阶段，你可以多摸一张牌。",
+        "en": "During your Draw phase, you may draw one extra card."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "水枪",
+            "en": "Water Gun"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": null,
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "no-paragraph-printed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/b3d70427fb229ee1.webp",
+        "sha256": "b3d70427fb229ee174dfd24000588923c2b58d3c30dac31a759fbbd4dea04c0e",
+        "facePosition": "whole",
+        "observedAssetOrdinal": 59,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-kangaskhan-staryu.md"
+      }
+    },
+    {
+      "group": "staryu",
+      "level": 2,
+      "name": {
+        "zh": "海星星",
+        "en": "Staryu"
+      },
+      "hp": 3,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "发光",
+        "en": "Illuminate"
+      },
+      "abilityText": {
+        "zh": "在你的摸牌阶段，你可以多摸一张牌。",
+        "en": "During your Draw phase, you may draw one extra card."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "念力",
+            "en": "Confusion"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[烈日]，目标宝可梦陷入“混乱”状态。",
+            "en": "After this Pokémon deals damage with this move, make a judgment. If the result is intense sun, the target Pokémon becomes Confused."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 1,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/4c4ca1eb3c341f5f.webp",
+        "sha256": "4c4ca1eb3c341f5f1ac4a55788339a5552d3aa7b6cad25b8096acbe77e934a5e",
+        "facePosition": "left",
+        "observedAssetOrdinal": 60,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-kangaskhan-staryu.md"
+      }
+    },
+    {
+      "group": "staryu",
+      "level": 3,
+      "name": {
+        "zh": "宝石海星",
+        "en": "Starmie"
+      },
+      "hp": 4,
+      "classification": {
+        "zh": "平衡型",
+        "en": "Balanced"
+      },
+      "traitName": {
+        "zh": "发光",
+        "en": "Illuminate"
+      },
+      "abilityText": {
+        "zh": "在你的摸牌阶段，你可以多摸一张牌。",
+        "en": "During your Draw phase, you may draw one extra card."
+      },
+      "moves": [
+        {
+          "name": {
+            "zh": "幻象光线",
+            "en": "Psybeam"
+          },
+          "condition": {
+            "kind": "command",
+            "cardName": {
+              "zh": "接招吧！",
+              "en": "Take this!"
+            },
+            "count": 1
+          },
+          "printedValue": 2,
+          "effectText": {
+            "zh": "此招式可以指定至多两只在此宝可梦的距离限制范围内的宝可梦为目标。当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[烈日]，目标宝可梦陷入“混乱”状态。",
+            "en": "This move may target up to two Pokémon within this Pokémon’s distance limit. After this Pokémon deals damage with this move, make a judgment. If the result is intense sun, the target Pokémon becomes Confused."
+          },
+          "uses": {
+            "faceOverridePrinted": false,
+            "bookletDefault": "once per Pokémon/move per Play phase",
+            "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+          },
+          "targeting": {
+            "kind": "booklet-default",
+            "max": 2,
+            "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+          },
+          "engineEligible": false,
+          "effectStatus": "combat-preview",
+          "engineScope": "combat-preview-only",
+          "effectParagraphStatus": "visually-transcribed",
+          "unresolvedSymbols": []
+        }
+      ],
+      "provenance": {
+        "sourceId": "S05",
+        "filename": "research-assets/douyin-7684572630280187855/4c4ca1eb3c341f5f.webp",
+        "sha256": "4c4ca1eb3c341f5f1ac4a55788339a5552d3aa7b6cad25b8096acbe77e934a5e",
+        "facePosition": "right",
+        "observedAssetOrdinal": 60,
+        "imageIndex": null,
+        "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+        "edition": "unidentified",
+        "specification": "reviewed-kangaskhan-staryu.md"
+      }
+    }
+  ]
+}

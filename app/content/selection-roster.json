@@ -2176,9 +2176,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,
@@ -2243,7 +2243,8 @@
             "specification": "reviewed-selection-roster.md"
           }
         }
-      ]
+      ],
+      "effectReviewSpecification": "reviewed-kangaskhan-staryu.md"
     },
     {
       "id": "staryu",
@@ -2253,9 +2254,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,
@@ -2320,7 +2321,8 @@
             "specification": "reviewed-selection-roster.md"
           }
         }
-      ]
+      ],
+      "effectReviewSpecification": "reviewed-kangaskhan-staryu.md"
     },
     {
       "id": "scyther",
