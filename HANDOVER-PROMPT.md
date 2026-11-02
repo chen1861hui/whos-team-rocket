@@ -1,5 +1,7 @@
 ## Scyther and Jynx — 2026-11-02 (current)
 
+Publication checkpoint — 2026-11-02: implementation commit ea39f06 pushed to origin/codex/scyther-jynx. Main4173 restarted with saved rooms retained; isolated QA4174 stopped. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/scyther-jynx . No PR or merge.
+
 **716/716 tests pass. Combat supports33 groups /99 faces; effects reviewed for34 groups /102 faces.** Scyther has Technician inheritance, stacked Power, Fury Cutter’s dealing-stage grant, X-Scissor’s same-settlement two-Dodge requirement and optional U-turn switching after whole-move cleanup. Jynx has private Preparation-phase Forewarn top/bottom arrangement, non-damaging Sweet Kiss discard/draw and sunny Light Screen Defense. Chansey remains reviewed reference-only pending Potion’s covered rescue text.
 
 Branch codex/scyther-jynx from2f9952e retains all prior work. Repo https://github.com/chen1861hui/whos-team-rocket.git . No merge/hosting/repeated PR-access attempt. Preserve accepted arena/native cards/centered hover/identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. See gameplay-milestone-24.md and reviewed-scyther-jynx.md/json. Earlier counts below are historical.
