@@ -1,5 +1,7 @@
 # Milestone 26 — Lapras and Porygon
 
+Published 2026-11-03: implementation commit `0fdf562` on `origin/codex/lapras-porygon`. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/lapras-porygon . No PR or merge.
+
 Lapras now uses mandatory Water Absorb judgments after receiving damage, removes Speed with Ice Shard/Ice Beam, and suppresses then removes target reinforcements with Freeze-Dry. Porygon can replace ordinary Draw with private Download transfers, resolve Tri Attack from one weather judgment, and prevent an original Pokémon's actual or virtual Dodge with Lock-On. All six faces execute in combat preview: 37 supported groups / 111 faces, 38 reviewed groups / 114 faces. Chansey remains reference-only pending covered Potion rescue text.
 
 **824/824 tests pass:** 773 baseline plus51 independent cases in `app/test/lapras-porygon.test.js`. Tests cover receiving effect order, Water Absorb across move/item/status damage and rescue, final Drought/empty-deck behavior, Speed-only removal, Freeze-Dry target suppression/Defense modifiers/nested scope/restart/zero-Dodge cleanup/self-target captured Power, Download0/1/2 actual private transfers/held cards/conservation/whole-Draw/legacy/Flinch/privacy/authority/retry/vote/mandatory clock/restart, Tri Attack's single judgment and status branches, and Lock-On lifetime/original instance/range/weather/actual and converted Dodges/Gas. All changed JS syntax and whitespace checks pass. No baseline fixture changes were needed.

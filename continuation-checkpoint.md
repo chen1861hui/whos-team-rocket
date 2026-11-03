@@ -1,5 +1,7 @@
 ## Lapras and Porygon — 2026-11-03 (current)
 
+Publication checkpoint — 2026-11-03: implementation commit `0fdf562` pushed to `origin/codex/lapras-porygon`. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/lapras-porygon . Main4173 healthy with saved rooms retained; isolated QA4174 stopped. No PR or merge.
+
 **824/824 tests pass. Combat supports 37 groups / 111 faces; effects reviewed for 38 groups / 114 faces.** Lapras has mandatory Water Absorb weather judgments after receiving damage, Ice Shard/Ice Beam Speed removal and Freeze-Dry's temporary target reinforcement suppression followed by removal after damage. Porygon has private Download instead of ordinary Draw, single-judgment Tri Attack and sunny Lock-On preventing actual/virtual Dodge for the current global turn. Chansey remains reviewed reference-only pending Potion's covered rescue text.
 
 Project: C:\src\team-rocket-web, app app/. Branch codex/lapras-porygon from 52c730c retains prior work. Repository: https://github.com/chen1861hui/whos-team-rocket.git . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. Preserve the accepted arena, native cards, centered hover and identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. No merge, hosting or repeated unavailable PR-access attempt. See gameplay-milestone-26.md and reviewed-lapras-porygon.md/json. Earlier counts below are historical.
