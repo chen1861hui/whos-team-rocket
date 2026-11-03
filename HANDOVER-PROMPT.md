@@ -1,5 +1,7 @@
 ## Aerodactyl and Snorlax — 2026-11-04 (current)
 
+Publication checkpoint — 2026-11-04: implementation commit `db77d89` pushed to `origin/codex/aerodactyl-snorlax`. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/aerodactyl-snorlax . Main4173 healthy with saved rooms retained; isolated QA4174 stopped. No PR or merge.
+
 **875/875 tests pass. Combat supports 39 groups / 117 faces; all 40 groups / 120 faces have reviewed effects.** Aerodactyl has Pressure's two private discard choices, rainy Bite Flinch and optional boosted Hyper Beam. Snorlax replaces its held item's effect with Gluttony's own-turn-end healing, has rainy Bite and sunny Body Slam. Chansey alone remains reviewed reference-only pending Potion's covered rescue wording; the Pokémon source-review queue is complete.
 
 Project: C:\src\team-rocket-web, app app/. Branch codex/aerodactyl-snorlax from 1c85e0c retains prior work. Repository: https://github.com/chen1861hui/whos-team-rocket.git . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. Preserve the accepted arena, native cards, centered hover and identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. No merge, hosting or repeated unavailable PR-access attempt. See gameplay-milestone-27.md and reviewed-aerodactyl-snorlax.md/json. Earlier counts below are historical.
