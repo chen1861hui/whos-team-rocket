@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "sourceRoster": "reviewed-selection-roster.md",
   "evidenceStatus": "source-backed-identity-and-hp",
-  "reviewedAt": "2026-11-02",
+  "reviewedAt": "2026-11-03",
   "completeGroups": 40,
   "photoReviewedFaces": 120,
   "notes": {
@@ -2719,9 +2719,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,
@@ -2796,9 +2796,9 @@
       },
       "evidenceStatus": "source-backed",
       "selectionEligible": true,
-      "supportedEffects": false,
+      "supportedEffects": true,
       "engineEligible": false,
-      "effectStatus": "unsupported",
+      "effectStatus": "existing-reviewed-combat-preview",
       "levels": [
         {
           "level": 1,

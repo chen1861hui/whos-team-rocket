@@ -18,9 +18,9 @@
     "pokemonFaces": 120,
     "selectionReviewSpecification": "reviewed-selection-roster.md",
     "combatReviewSpecification": "reviewed-combat-spec.md",
-    "combatSupportedGroups": 35,
-    "effectReviewedGroups": 36,
-    "effectReviewedFaces": 108,
+    "combatSupportedGroups": 37,
+    "effectReviewedGroups": 38,
+    "effectReviewedFaces": 114,
     "reviewedHeldItems": 1
   },
   "entries": [
@@ -11723,13 +11723,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你进行一次判定，若结果为[暴雨]，其回复1点体力；若结果为[雷雨]，你摸一张牌。",
+            "en": "After this Pokémon receives damage, make a judgment. If the result is heavy rain, it recovers 1 HP; if the result is thunderstorm, you draw one card."
+          },
           "engineEligible": false,
           "name": {
             "zh": "拉普拉斯",
@@ -11755,12 +11758,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 131,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "traitName": {
+            "zh": "储水",
+            "en": "Water Absorb"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "冰砾",
+                "en": "Ice Shard"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你弃置目标宝可梦的“速度强化”指示物。",
+                "en": "After this Pokémon deals damage with this move, discard the target Pokémon’s Speed reinforcement marker."
+              },
+              "effectKind": "remove-speed-after-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/6d32d20d75165f92.webp",
+            "sha256": "6d32d20d75165f92c9aa0373f62506bf57338f8a793b5a46927a8905d93f5015",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 71,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-lapras-porygon.md"
           }
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你进行一次判定，若结果为[暴雨]，其回复1点体力；若结果为[雷雨]，你摸一张牌。",
+            "en": "After this Pokémon receives damage, make a judgment. If the result is heavy rain, it recovers 1 HP; if the result is thunderstorm, you draw one card."
+          },
           "engineEligible": false,
           "name": {
             "zh": "拉普拉斯",
@@ -11786,12 +11851,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 131,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "traitName": {
+            "zh": "储水",
+            "en": "Water Absorb"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "冰冻光束",
+                "en": "Ice Beam"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你弃置目标宝可梦的“速度强化”指示物。",
+                "en": "After this Pokémon deals damage with this move, discard the target Pokémon’s Speed reinforcement marker."
+              },
+              "effectKind": "remove-speed-after-damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd829ad608cac48e.webp",
+            "sha256": "fd829ad608cac48ebfa5dc0e5492e4fc76b3a9b8105d403f56f5858598bf5905",
+            "facePosition": "left",
+            "observedAssetOrdinal": 72,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-lapras-porygon.md"
           }
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦受到伤害后，你进行一次判定，若结果为[暴雨]，其回复1点体力；若结果为[雷雨]，你摸一张牌。",
+            "en": "After this Pokémon receives damage, make a judgment. If the result is heavy rain, it recovers 1 HP; if the result is thunderstorm, you draw one card."
+          },
           "engineEligible": false,
           "name": {
             "zh": "拉普拉斯",
@@ -11817,6 +11944,65 @@
             "kind": "standalone-pokemon-art",
             "dex": 131,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "traitName": {
+            "zh": "储水",
+            "en": "Water Absorb"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "冷冻干燥",
+                "en": "Freeze-Dry"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此招式被使用时，你令目标宝可梦的强化指示物失效，直到此招式结算结束。当此宝可梦因此招式而造成伤害后，你弃置目标宝可梦的全部强化指示物。",
+                "en": "When this move is used, make the target Pokémon’s reinforcement markers ineffective until this move finishes resolving. After this Pokémon deals damage with this move, discard all of the target Pokémon’s reinforcement markers."
+              },
+              "effectKind": "freeze-dry",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "on-use-and-after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/fd829ad608cac48e.webp",
+            "sha256": "fd829ad608cac48ebfa5dc0e5492e4fc76b3a9b8105d403f56f5858598bf5905",
+            "facePosition": "right",
+            "observedAssetOrdinal": 72,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-lapras-porygon.md"
           }
         }
       ],
@@ -11838,7 +12024,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-lapras-porygon.md"
     },
     {
       "id": "porygon",
@@ -11851,13 +12038,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的摸牌阶段，你可以改为获得至多两名其他训练家的各一张手牌。",
+            "en": "During your Draw phase, you may instead obtain one hand card from each of up to two other trainers."
+          },
           "engineEligible": false,
           "name": {
             "zh": "多边兽",
@@ -11883,12 +12073,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 137,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "干扰型",
+            "en": "Disruptive"
+          },
+          "traitName": {
+            "zh": "下载",
+            "en": "Download"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "电击",
+                "en": "Thunder Shock"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is thunderstorm, the target Pokémon becomes Paralyzed."
+              },
+              "effectKind": "paralysis-judgment",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/7269aee9ae4cfc48.webp",
+            "sha256": "7269aee9ae4cfc4897ae3edf55f0eab66ba722128abfe495144a7764ba12991a",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 73,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-lapras-porygon.md"
           }
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的摸牌阶段，你可以改为获得至多两名其他训练家的各一张手牌。",
+            "en": "During your Draw phase, you may instead obtain one hand card from each of up to two other trainers."
+          },
           "engineEligible": false,
           "name": {
             "zh": "多边兽",
@@ -11914,12 +12166,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 137,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "干扰型",
+            "en": "Disruptive"
+          },
+          "traitName": {
+            "zh": "下载",
+            "en": "Download"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "三重攻击",
+                "en": "Tri Attack"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[烈日]，目标宝可梦陷入“灼伤”状态；若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+                "en": "After this Pokémon deals damage with this move, make one judgment. If the result is intense sun, the target Pokémon becomes Burned; if the result is thunderstorm, it becomes Paralyzed."
+              },
+              "effectKind": "tri-attack",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/64613fdec379daf2.webp",
+            "sha256": "64613fdec379daf2649b2f0b5b81ea020144b18a57864679362aca7f864dc3e0",
+            "facePosition": "left",
+            "observedAssetOrdinal": 74,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-lapras-porygon.md"
           }
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "在你的摸牌阶段，你可以改为获得至多两名其他训练家的各一张手牌。",
+            "en": "During your Draw phase, you may instead obtain one hand card from each of up to two other trainers."
+          },
           "engineEligible": false,
           "name": {
             "zh": "多边兽",
@@ -11945,6 +12259,101 @@
             "kind": "standalone-pokemon-art",
             "dex": 137,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "干扰型",
+            "en": "Disruptive"
+          },
+          "traitName": {
+            "zh": "下载",
+            "en": "Download"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "三重攻击",
+                "en": "Tri Attack"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为[烈日]，目标宝可梦陷入“灼伤”状态；若结果为[雷雨]，目标宝可梦陷入“麻痹”状态。",
+                "en": "After this Pokémon deals damage with this move, make one judgment. If the result is intense sun, the target Pokémon becomes Burned; if the result is thunderstorm, it becomes Paralyzed."
+              },
+              "effectKind": "tri-attack",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            },
+            {
+              "name": {
+                "zh": "锁定",
+                "en": "Lock-On"
+              },
+              "condition": {
+                "kind": "weather-card",
+                "count": 1,
+                "weatherIconsInCondition": [
+                  "intense-sun",
+                  "clear"
+                ]
+              },
+              "printedValue": null,
+              "effectText": {
+                "zh": "目标宝可梦本回合无法使用【快躲开！】。",
+                "en": "The target Pokémon cannot use Dodge! for the current turn."
+              },
+              "effectKind": "lock-on",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "on-uncanceled-settlement"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/64613fdec379daf2.webp",
+            "sha256": "64613fdec379daf2649b2f0b5b81ea020144b18a57864679362aca7f864dc3e0",
+            "facePosition": "right",
+            "observedAssetOrdinal": 74,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-lapras-porygon.md"
           }
         }
       ],
@@ -11966,7 +12375,8 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "effectReviewSpecification": "reviewed-lapras-porygon.md"
     },
     {
       "id": "aerodactyl",

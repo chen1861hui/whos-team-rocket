@@ -77,7 +77,7 @@ export function beginCommand(source) {
   return count;
 }
 
-export function computeDamage(source, target, base, catalogue, { command = true, powerBoost = 0, channel = 'move', reinforcements = true, receiving = true, sourceTraits = true, targetTraits = true } = {}) {
+export function computeDamage(source, target, base, catalogue, { command = true, powerBoost = 0, channel = 'move', reinforcements = true, targetReinforcements = true, receiving = true, sourceTraits = true, targetTraits = true } = {}) {
   integer(base, 'Base damage');
   integer(powerBoost, 'Power boost');
   // Dealing-damage changes precede receiving-damage changes (photo 08 p.11).
@@ -93,7 +93,7 @@ export function computeDamage(source, target, base, catalogue, { command = true,
   if(!receiving)return damage;
   // Multiscale is compulsory and uses injuries, not a record of prior hits.
   if (damage > 1 && targetTraits && target?.catalogueId === 'dratini' && target.level === 3 && injuries(target) === 0) damage = 1;
-  if (damage > 1 && reinforcements && reinforcementEffective(target, 'defense')) damage = 1;
+  if (damage > 1 && reinforcements && targetReinforcements && reinforcementEffective(target, 'defense')) damage = 1;
   return damage;
 }
 

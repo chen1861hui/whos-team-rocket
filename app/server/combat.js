@@ -19,7 +19,9 @@ export const battleTraitsEffective=(room,pokemon)=>Boolean(pokemon&&!pokemon.def
 // Named-event permission for the future reviewed event-card pipeline. This
 // query grants no general status immunity and does not enable either event.
 export const battleEventTargetAllowed=(room,pokemon,eventNameZh)=>!(pokemon?.catalogueId==='kangaskhan'&&activeOwner(room,pokemon.instanceId)&&battleTraitsEffective(room,pokemon)&&['胖丁的表演','魔墙人偶的戏法'].includes(eventNameZh));
-const damageOptions=(room,source,target,options={})=>({...options,sourceTraits:battleTraitsEffective(room,source),targetTraits:battleTraitsEffective(room,target)});
+const reinforcementsSuppressed=(room,pokemon)=>Boolean(pokemon&&[room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.suppressedReinforcementIds?.includes(pokemon.instanceId)));
+export const battleReinforcementEffective=(room,pokemon,kind)=>!reinforcementsSuppressed(room,pokemon)&&reinforcementEffective(pokemon,kind);
+const damageOptions=(room,source,target,options={})=>({...options,targetReinforcements:!reinforcementsSuppressed(room,target),sourceTraits:battleTraitsEffective(room,source),targetTraits:battleTraitsEffective(room,target)});
 const damageImmune=(room,pokemon)=>battleTraitsEffective(room,pokemon)&&room.turn?.damageImmunityIds?.includes(pokemon.instanceId);
 function note(room, zh, en) { room.log.push({ id: randomUUID(), text: { zh, en } }); room.log = room.log.slice(-80); }
 function shuffled(values) {
@@ -136,6 +138,19 @@ function advanceJudgment(room,ctx) {
   continueJudgment(room,ctx,continuation,card.weather);
 }
 function continueJudgment(room,ctx,next,weather) {
+  if(next.kind==='water-absorb') {
+    const owner=activeOwner(room,next.pokemonId);
+    if(owner&&battleTraitsEffective(room,owner.active)) {
+      if(weather==='rain')heal(owner.active,1,ctx.catalogue);
+      if(weather==='thunderstorm'&&room.drawPile.length+room.discardPile.length)drawBattleCards(room,owner,1,'water-absorb');
+    }
+    return continueReceiving(room,ctx);
+  }
+  if(next.kind==='tri-attack') {
+    const status=weather==='intense-sun'?'burn':weather==='thunderstorm'?'paralysis':null;
+    if(status)return applyStatus(room,ctx,creature(room,next.targetId),status,'afterDamage');
+    return afterDamage(room,ctx);
+  }
   // No real card means no result, including for "not this weather" clauses.
   if(weather===null) {
     if(next.kind==='status')return resumeStatusContinuation(room,ctx,next.next);
@@ -244,6 +259,7 @@ function runReceivingEffect(room,effect,ctx) {
   const owner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=room.players.find(p=>p.active?.instanceId===source?.instanceId&&!p.eliminated);
   if(!owner||target.defeated)return continueReceiving(room,ctx);
   if(effect!=='rocky-helmet'&&!battleTraitsEffective(room,target))return continueReceiving(room,ctx);
+  if(effect==='water-absorb')return startJudgment(room,ctx,{kind:'water-absorb',pokemonId:target.instanceId},owner.id);
   if(effect==='battle-armor'&&owner.hand.length) {
     decision(room,'battle-armor',owner.id,owner.id,ctx);return;
   }
@@ -458,7 +474,25 @@ export function publicBattleDecision(room,self) {
     const card=trainer(room,pending.targetId).hand.find(card=>card.id===id);
     return pending.targetId===self.id?{index,name:card.name,weather:card.weather,kind:card.kind}:{index};
   });
+  if(pending.kind==='download-hand'&&pending.actorId===self.id)pending.choices=room.drawChoice.handChoiceIds.map((id,index)=>({index}));
   return pending;
+}
+function finishDownload(room,player) {
+  gainBattleCards(room,player,room.drawChoice.cards,{reason:'download'});
+  delete room.drawChoice;room.pendingBattle=null;room.turn.drawRemaining=0;room.turn.phase='play';
+  note(room,'下载获得所选手牌并替代通常摸牌。','Download gained the selected hand cards and replaced the ordinary draws.');
+}
+function advanceDownload(room,player,ctx) {
+  const choice=room.drawChoice;
+  while(choice.index<choice.targetIds.length) {
+    const target=trainer(room,choice.targetIds[choice.index]);
+    if(target&&!target.eliminated&&target.hand.length) {
+      choice.handChoiceIds=shuffled(target.hand.map(card=>card.id));
+      decision(room,'download-hand',player.id,target.id,ctx);room.pendingBattle.choiceCount=choice.handChoiceIds.length;return;
+    }
+    choice.index++;
+  }
+  return finishDownload(room,player);
 }
 function charmTargets(room,owner,ctx) {
   const resolution=room.resolution,index=resolution.targetingIndex;
@@ -493,6 +527,7 @@ function advanceCommandTargets(room,ctx) {
 // Target assignment, including Cute Charm, precedes move-use effects and defense.
 function openMoveUse(room, ctx) {
   const resolution = room.resolution;
+  if(resolution.effectKind==='freeze-dry'&&!resolution.suppressedReinforcementIds)resolution.suppressedReinforcementIds=resolution.targetIds.map(id=>trainer(room,id).active.instanceId);
   if(resolution.effectKind==='bonemerang'&&resolution.settlementCount===undefined) {
     resolution.settlementCount=1;resolution.settlementIndex=0;
     resolution.originalTargetId=trainer(room,resolution.targetIds[0]).active.instanceId;
@@ -533,6 +568,7 @@ function openDefense(room, ctx) {
   resolution.sourceAfterDone=false; resolution.staticDone=false; delete resolution.receivingEffects;delete resolution.helmetCardId; resolution.actualDamage=0; delete resolution.handChoiceIds;
   decision(room, 'defense', target.id, target.id, ctx);
   room.pendingBattle.cannotDodge=Boolean(resolution.ignoresReinforcements);
+  if(room.turn.dodgeBlockedCreatureIds?.includes(target.active.instanceId)){room.pendingBattle.cannotDodge=true;room.pendingBattle.dodgeBlockedBy='lock-on';}
   if(resolution.dodgesRequired===2){room.pendingBattle.dodgesRequired=2;room.pendingBattle.dodgesPlayed=0;}
   room.pendingBattle.canTrait=!room.pendingBattle.cannotDodge && canSandVeil(room,target) && room.drawPile.length+room.discardPile.length>0;
   if(room.pendingBattle.canTrait)room.pendingBattle.trait='sand-veil';
@@ -548,7 +584,7 @@ function reduceMoveDamage(room,targetId) {
 }
 const hasSniper=(room,player)=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&battleTraitsEffective(room,player.active);
 export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||hasSniper(room,player);
-const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen']);
+const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen','lock-on']);
 function battleMoves(room,pokemon,catalogue) {
   const native=face(pokemon,catalogue)?.moves||[];
   if(pokemon.catalogueId!=='scyther'||!battleTraitsEffective(room,pokemon))return native;
@@ -562,7 +598,7 @@ export function previewActions(room, player, catalogue) {
   const move = face(pokemon, catalogue)?.moves?.[0];
   const unlocked = !room.turn.commandCreatureId || room.turn.commandCreatureId === pokemon.instanceId;
   const ignoresReinforcements=pokemon.catalogueId==='dratini' && pokemon.level>=2;
-  const targetsFor=ignoreDistance=>eligibleTargetIds(room.players,player.id,{ignoreDistance:ignoreDistance||hasSniper(room,player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&reinforcementEffective(pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
+  const targetsFor=ignoreDistance=>eligibleTargetIds(room.players,player.id,{ignoreDistance:ignoreDistance||hasSniper(room,player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&battleReinforcementEffective(room,pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
   const traitUsed = (room.turn.traitsUsed || []).includes(pokemon.instanceId);
   const teleport=pokemon.catalogueId==='abra' && pokemon.level===1;
   const teleportBlocked=teleport && room.turn.switchBlocked && player.reserve && !player.reserve.defeated;
@@ -577,7 +613,7 @@ export function previewActions(room, player, catalogue) {
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
   const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (pokemon.catalogueId==='electabuzz'&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx) {
   const legal=previewActions(room,player,ctx.catalogue),index=input.moveIndex===undefined?0:input.moveIndex;
@@ -604,7 +640,7 @@ function beginBattleMove(room,player,targetIds,command,legal,ctx,isCommand=true)
   const source = player.active;
   if(isCommand)room.turn.commandCreatureId = source.instanceId;
   room.turn.usedMoves ??= []; room.turn.usedMoves.push(`${source.instanceId}:${legal.move.name.zh}`);
-  room.resolution = { kind: 'move', card: command, virtualCommand:isCommand&&!command, statusMove:!isCommand, moveIndex:legal.move.index??0,effectKind:legal.move.effectKind||null, ignoresReinforcements:source.catalogueId==='dratini'&&source.level>=2, sourceId: source.instanceId, sourcePlayerId: player.id, sourceLevel: source.level, sourceFamily: source.catalogueId, baseDamage: (legal.move.printedValue??0)+(legal.damageBoost||0), powerBoost: isCommand?beginCommand(source):0, targetIds: [...targetIds], index: 0, damagedIds: [], defenseIds: [] };
+  room.resolution = { kind: 'move', card: command, virtualCommand:isCommand&&!command, statusMove:!isCommand, moveIndex:legal.move.index??0,effectKind:legal.move.effectKind||null, ignoresReinforcements:source.catalogueId==='dratini'&&source.level>=2, sourceId: source.instanceId, sourcePlayerId: player.id, sourceLevel: source.level, sourceFamily: source.catalogueId, baseDamage: (legal.move.printedValue??0)+(legal.damageBoost||0), powerBoost: isCommand&&!reinforcementsSuppressed(room,source)?beginCommand(source):0, targetIds: [...targetIds], index: 0, damagedIds: [], defenseIds: [] };
   if(legal.effectChoice)room.resolution.effectChoice=legal.effectChoice;
   if(legal.dodgesRequired===2)room.resolution.dodgesRequired=2;
   if(!isCommand)note(room,`弃置一张符合天气的手牌使用${legal.move.name.zh}；目标正在决定响应。`,`One qualifying weather hand card was discarded to use ${legal.move.name.en}; the target is deciding a response.`);
@@ -641,6 +677,14 @@ function beginRescue(room, targetId, ctx) {
 function settleDamage(room, ctx) {
   const resolution = room.resolution;
   const target = creature(room, resolution.targetCreatureId), source = creature(room, resolution.sourceId);
+  if(resolution.effectKind==='lock-on') {
+    if(activeOwner(room,target.instanceId)) {
+      room.turn.dodgeBlockedCreatureIds??=[];
+      if(!room.turn.dodgeBlockedCreatureIds.includes(target.instanceId))room.turn.dodgeBlockedCreatureIds.push(target.instanceId);
+      note(room,'锁定令目标宝可梦在本回合内无法使用快躲开！。','Lock-On prevents this Pokémon from using Dodge! for this global turn.');
+    }
+    return nextSettlement(room,ctx);
+  }
   if(resolution.effectKind==='swords-dance') {
     if(activeOwner(room,target.instanceId))target.reinforcements.push('power');
     note(room,'剑舞无视上限获得一枚力量强化。','Swords Dance gained one Power marker, ignoring the normal duplicate limit.');return nextSettlement(room,ctx);
@@ -724,7 +768,7 @@ function continueDamageModifiers(room,ctx) {
     if(effect==='dodge')return state.reduction>0;
     if(effect==='shed-skin')return hasShedSkin(room,target)&&owner.hand.length>0;
     if(state.amount<=1)return false;
-    if(effect==='defense')return !resolution.ignoresReinforcements&&reinforcementEffective(target,'defense');
+    if(effect==='defense')return !resolution.ignoresReinforcements&&battleReinforcementEffective(room,target,'defense');
     if(effect==='multiscale')return battleTraitsEffective(room,target)&&target.catalogueId==='dratini'&&target.level===3&&(target.damage||0)===0;
     return effect==='marvel-scale'&&battleTraitsEffective(room,target)&&target.catalogueId==='dratini'&&target.level<=2&&Boolean(target.status);
   };
@@ -772,7 +816,7 @@ function commitDamage(room,ctx,amount) {
   const result = applyDamage(target, amount, ctx.catalogue);
   resolution.actualDamage = amount;
   if (amount > 0) resolution.damagedIds.push(target.instanceId);
-  if (amount > 0 && resolution.kind!=='turn-start' && reinforcementEffective(target, 'defense')) resolution.defenseIds.push(target.instanceId);
+  if (amount > 0 && resolution.kind!=='turn-start' && battleReinforcementEffective(room,target, 'defense')) resolution.defenseIds.push(target.instanceId);
   const labels=resolution.kind==='item'?['凸凸头盔','Rocky Helmet']:resolution.kind==='turn-start'?['特殊状态','The special status']:['招式','The move'];
   note(room, `${labels[0]}造成${amount}点伤害。`, `${labels[1]} dealt ${amount} damage.`);
   if (result.fainting) beginRescue(room, room.players.find(p=>p.active?.instanceId===target.instanceId).id, ctx);
@@ -800,6 +844,8 @@ function afterDamage(room,ctx) {
       if(resolution.sourceFamily==='bulbasaur') {heal(source,1,ctx.catalogue);if(resolution.sourceLevel===3)drawBattleCards(room,trainer(room,resolution.sourcePlayerId));}
       if(resolution.sourceFamily==='exeggcute'&&resolution.sourceLevel===1)heal(source,1,ctx.catalogue);
       const family=resolution.sourceFamily,level=resolution.sourceLevel;
+      if(['remove-speed-after-damage','freeze-dry'].includes(resolution.effectKind)&&activeOwner(room,target.instanceId))target.reinforcements=resolution.effectKind==='freeze-dry'?[]:target.reinforcements.filter(marker=>marker!=='speed');
+      if(family==='porygon'&&resolution.effectKind==='tri-attack')return startJudgment(room,ctx,{kind:'tri-attack',targetId:target.instanceId},resolution.sourcePlayerId);
       if(resolution.effectKind==='pay-day') {
         decision(room,'pay-day',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);Object.assign(room.pendingBattle,{trait:'pay-day',canTrait:true});return;
       }
@@ -815,7 +861,7 @@ function afterDamage(room,ctx) {
         decision(room,'cycle',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);return;
       }
       if(family==='shellder' && level===3)return startJudgment(room,ctx,{kind:'icicle-spear',ownerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
-      if(resolution.effectKind==='paralysis-judgment'&&['electabuzz','tauros'].includes(family))return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weathers:family==='tauros'?['intense-sun','clear']:['thunderstorm'],next:'afterDamage'},resolution.sourcePlayerId);
+      if(resolution.effectKind==='paralysis-judgment'&&['electabuzz','tauros','porygon'].includes(family))return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weathers:family==='tauros'?['intense-sun','clear']:['thunderstorm'],next:'afterDamage'},resolution.sourcePlayerId);
       const statusJudgment=(family==='charmander'||family==='vulpix'||(family==='growlithe'&&level>=2))?['burn','intense-sun']:['pikachu','magnemite'].includes(family)?['paralysis','thunderstorm']:family==='gastly'&&level===1?['paralysis','rain']:family==='abra'&&level>=2?['confusion','intense-sun']:family==='psyduck'&&level===3?['confusion','rain']:(family==='slowpoke'&&level===2)||(family==='pidgey'&&level===3)||(family==='magikarp'&&level===2)?['flinch','thunderstorm']:family==='sandshrew'&&level===1||family==='grimer'&&level>=2||family==='weedle'&&level<=2?['poison','rain']:null;
       if(statusJudgment)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:statusJudgment[0],weather:statusJudgment[1],...((['grimer','psyduck'].includes(family)&&level===3)||(family==='gastly'&&level===1)?{weathers:['rain','thunderstorm']}:{}),next:'afterDamage'},resolution.sourcePlayerId);
       if(family==='gastly'&&level===2) {
@@ -844,6 +890,7 @@ function afterDamage(room,ctx) {
     if(targetOwner&&!target.defeated) {
       const traits=battleTraitsEffective(room,target);
       if(traits&&target.catalogueId==='cubone'&&targetOwner.hand.length)resolution.receivingEffects.push('battle-armor');
+      if(traits&&target.catalogueId==='lapras')resolution.receivingEffects.push('water-absorb');
       if(traits&&target.catalogueId==='pikachu'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('static');
       if(traits&&target.catalogueId==='nidoran-m'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('poison-point');
       if(traits&&target.catalogueId==='abra'&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
@@ -932,6 +979,24 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(['shed-skin','sweet-kiss'].includes(pending.kind)||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
   requireRule(['cute-charm','neutralizing-gas','intimidate'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
   requireRule(pending.kind==='forewarn-order'||(input.topOrder===undefined&&input.bottomOrder===undefined),'INVALID_RESPONSE','Only Forewarn chooses the deck top and bottom.');
+  requireRule(pending.kind==='download'||input.targetIds===undefined,'INVALID_RESPONSE','Only Download chooses multiple trainers.');
+  if(['download','download-hand'].includes(pending.kind)) {
+    const choice=room.drawChoice;
+    requireRule(choice?.kind==='download'&&choice.playerId===player.id&&choice.pokemonId===player.active.instanceId&&room.turn.playerId===player.id&&room.turn.phase==='draw'&&player.active.catalogueId==='porygon'&&battleTraitsEffective(room,player.active),'STALE_DECISION','The Download actor changed.');
+    requireRule(input.cardId===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Use the Download controls only.');
+    if(pending.kind==='download') {
+      const ids=input.targetIds;
+      requireRule(input.choice==='targets'&&input.handIndex===undefined&&Array.isArray(ids)&&ids.length<=pending.maxTargets&&new Set(ids).size===ids.length&&ids.every(id=>pending.legalTargetIds.includes(id)&&live(room).some(target=>target.id===id&&target.id!==player.id&&target.hand.length)),'INVALID_RESPONSE','Choose up to two distinct other trainers with hand cards.');
+      Object.assign(choice,{targetIds:[...ids],index:0,cards:[]});return advanceDownload(room,player,ctx);
+    }
+    const ids=choice.handChoiceIds,target=trainer(room,pending.targetId);
+    requireRule(input.choice==='card'&&Number.isSafeInteger(input.handIndex)&&input.handIndex>=0&&input.handIndex<ids.length,'INVALID_RESPONSE','Choose one face-down hand-card slot.');
+    requireRule(target&&!target.eliminated&&target.id===choice.targetIds[choice.index],'STALE_DECISION','The chosen trainer changed.');
+    const index=target.hand.findIndex(card=>card.id===ids[input.handIndex]);
+    requireRule(index>=0,'STALE_DECISION','The selected hand card changed.');
+    choice.cards.push(...target.hand.splice(index,1));delete choice.handChoiceIds;choice.index++;
+    return advanceDownload(room,player,ctx);
+  }
   if(['intimidate','intimidate-hand'].includes(pending.kind)) {
     const event=room.entryEvent;
     requireRule(event&&event.actorIds[event.index]===player.id&&event.actorInstances[player.id]===player.active.instanceId&&player.active.catalogueId==='tauros'&&battleTraitsEffective(room,player.active),'STALE_DECISION','The Intimidate actor changed.');
@@ -1320,6 +1385,12 @@ export function useBattleTrait(room, player, ctx,input={}) {
   }
   requireRule(input.cardIds===undefined,'INVALID_INPUT','This trait does not choose hand cards.');
   room.turn.traitsUsed ??= []; room.turn.traitsUsed.push(player.active.instanceId);
+  if(player.active.catalogueId==='porygon') {
+    room.turn.drawStarted=true;
+    room.drawChoice={kind:'download',playerId:player.id,pokemonId:player.active.instanceId};
+    const targets=live(room).filter(target=>target.id!==player.id&&target.hand.length).map(target=>target.id);
+    decision(room,'download',player.id,player.id,ctx);Object.assign(room.pendingBattle,{legalTargetIds:targets,maxTargets:Math.min(2,targets.length)});return;
+  }
   if(player.active.catalogueId==='electabuzz') {
     room.turn.drawStarted=true;
     if(room.drawPile.length<3&&room.discardPile.length){room.drawPile=[...shuffled(room.discardPile),...room.drawPile];room.discardPile=[];}
@@ -1348,6 +1419,7 @@ export function beginBattleTurn(room, player, ctx) {
     return beginBattleEntries(room,players,ctx,{kind:'turn',playerId:player.id});
   }
   room.turn.drawStarted=false;
+  room.turn.dodgeBlockedCreatureIds=[];
   room.turn.suppressedTraitPlayerIds=[];
   room.turn.noHandLimitIds=[];
   room.turn.justifiedUsed = false;
@@ -1416,5 +1488,5 @@ function runTurnStartEffect(room,effect,ctx) {
 }
 export function publicBattlePokemon(pokemon, catalogue, room) {
   if (!pokemon) return null;
-  return { catalogueId: pokemon.catalogueId, level: pokemon.level, hp: currentHp(pokemon, catalogue), maxHp: maxHp(pokemon, catalogue), status: pokemon.status, damageProtected:Boolean(room&&damageImmune(room,pokemon)),traitsSuppressed:!pokemon.defeated&&!battleTraitsEffective(room,pokemon), ...(pokemon.item?{item:publicItem(pokemon.item),itemSuppressed:!itemEffective(room,pokemon)}:{}), defeated: Boolean(pokemon.defeated), reinforcements: [...(pokemon.reinforcements || [])] };
+  return { catalogueId: pokemon.catalogueId, level: pokemon.level, hp: currentHp(pokemon, catalogue), maxHp: maxHp(pokemon, catalogue), status: pokemon.status, damageProtected:Boolean(room&&damageImmune(room,pokemon)),traitsSuppressed:!pokemon.defeated&&!battleTraitsEffective(room,pokemon),reinforcementsSuppressed:Boolean(room&&reinforcementsSuppressed(room,pokemon)), ...(pokemon.item?{item:publicItem(pokemon.item),itemSuppressed:!itemEffective(room,pokemon)}:{}), defeated: Boolean(pokemon.defeated), reinforcements: [...(pokemon.reinforcements || [])] };
 }

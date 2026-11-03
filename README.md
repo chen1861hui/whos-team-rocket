@@ -1,4 +1,10 @@
-## Electabuzz and Tauros — 2026-11-02 (current)
+## Lapras and Porygon — 2026-11-03 (current)
+
+**824/824 tests pass. Combat supports 37 groups / 111 faces; effects reviewed for 38 groups / 114 faces.** Lapras has mandatory Water Absorb weather judgments after receiving damage, Ice Shard/Ice Beam Speed removal and Freeze-Dry's temporary target reinforcement suppression followed by removal after damage. Porygon has private Download instead of ordinary Draw, single-judgment Tri Attack and sunny Lock-On preventing actual/virtual Dodge for the current global turn. Chansey remains reviewed reference-only pending Potion's covered rescue text.
+
+Project: C:\src\team-rocket-web, app app/. Branch codex/lapras-porygon from 52c730c retains prior work. Repository: https://github.com/chen1861hui/whos-team-rocket.git . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. Preserve the accepted arena, native cards, centered hover and identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. No merge, hosting or repeated unavailable PR-access attempt. See gameplay-milestone-26.md and reviewed-lapras-porygon.md/json. Earlier counts below are historical.
+
+## Electabuzz and Tauros — 2026-11-02 (historical)
 
 **773/773 tests pass. Combat supports 35 groups / 105 faces; effects reviewed for 36 groups / 108 faces.** Electabuzz has sleep immunity, a private whole-Draw replacement that chooses two actual top cards from three, and thunderstorm paralysis commands including two-target Electroweb. Tauros has mandatory Intimidate on initial entry, successful switching and forced deployment, sunny Body Slam paralysis, and two-target Earthquake reinforcement removal. Chansey remains reviewed reference-only pending Potion's covered rescue text.
 

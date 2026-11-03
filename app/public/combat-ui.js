@@ -52,6 +52,19 @@ export function vitalSpiritDialog(kit) {
   }},say(language,'Replace Draw · view cards','替代摸牌 · 观看牌'));
   dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
 }
+export function downloadDialog(kit) {
+  const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number;
+  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'download-title'},
+    node('h2',{id:'download-title'},say(language,'Download · replace Draw','下载 · 替代摸牌阶段')),
+    node('p',{},say(language,'Before drawing normally, you may replace your entire ordinary Draw phase by taking one hand card from each of up to two other trainers. Other trainers’ card faces stay hidden while you choose.','正常摸牌前，可以替代整个通常摸牌阶段，获得至多两名其他训练家的各一张手牌。选择时，其他训练家的手牌保持背面。')),
+    node('p',{class:'muted'},say(language,'Confirming uses Download instead of your ordinary draws. Canceling here keeps ordinary Draw available.','确认后发动下载，替代通常摸牌。此处取消则仍可正常摸牌。')));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Keep ordinary Draw','保留通常摸牌'));
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download',disabled:kit.busy||Boolean(initial.pendingVote),onclick:()=>{
+    const current=kit.getView();dialog.close();
+    if(current.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turnNumber&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='download'&&!kit.busy&&!current.pendingVote)kit.action('useTrait');
+  }},say(language,'Replace Draw · choose trainers','替代摸牌 · 选择训练家'));
+  dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
+}
 export function attackDialog(card, kit, moveIndex=0) {
   const initial = kit.getView(), battle = initial.self.battle, choice=battle.moves?.[moveIndex], legal=choice?{move:choice,legalTargetIds:choice.legalTargetIds}:battle, turnNumber = initial.turn.number;
   const language = kit.language, selected = new Set();
@@ -444,6 +457,33 @@ function vitalSpiritControls(pending,kit) {
   const clear=node('button',{type:'button',class:'button secondary',id:'clear-vital-spirit-cards',disabled:kit.busy||Boolean(kit.getView().pendingVote),onclick:()=>{draft.order=[];update();}},say(language,'Clear selection','清空选择'));
   update();return [grid,node('p',{class:'muted'},say(language,'Click cards in the order you want to gain them. Click a selected card again to deselect it. Unselected cards return to the top of the deck.','按希望获得的顺序点击牌。再次点击已选牌可取消选择。未选的牌放回牌堆顶。')),node('div',{class:'action-row'},confirm,clear)];
 }
+function downloadControls(pending,kit) {
+  const draft=privateDecisionDraft(pending,kit,()=>({targetIds:[]})),view=kit.getView(),language=kit.language,legal=pending.legalTargetIds||[],max=pending.maxTargets??0;
+  draft.targetIds=draft.targetIds.filter(id=>legal.includes(id)).slice(0,max);
+  const grid=node('div',{class:'hand-choice-grid'}),buttons=[];
+  const summary=node('p',{class:'muted','aria-live':'polite'});
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download-targets'});
+  const update=()=>{
+    const blocked=kit.busy||Boolean(kit.getView().pendingVote);
+    for(const [id,button] of buttons) {
+      const selected=draft.targetIds.includes(id);
+      button.setAttribute('aria-pressed',String(selected));button.disabled=blocked||(!selected&&draft.targetIds.length>=max);
+    }
+    summary.textContent=say(language,`Selected trainers: ${draft.targetIds.length}/${max}. Selecting none still replaces your whole Draw phase.`,`已选择训练家：${draft.targetIds.length}/${max}。即使不选择训练家，也会替代整个摸牌阶段。`);
+    confirm.disabled=blocked;
+    confirm.textContent=draft.targetIds.length?say(language,'Confirm trainers · choose hand cards','确认训练家 · 选择手牌'):say(language,'Finish replacement without taking cards','不获得手牌并完成替代摸牌');
+  };
+  for(const id of legal) {
+    const player=view.players.find(player=>player.id===id);
+    const button=node('button',{type:'button',class:'button exile-card-choice download-target-choice',id:`download-target-${id}`,'aria-pressed':'false',onclick:()=>{
+      const index=draft.targetIds.indexOf(id);if(index>=0)draft.targetIds.splice(index,1);else if(draft.targetIds.length<max)draft.targetIds.push(id);update();
+    }},player?.nickname||'—');
+    buttons.push([id,button]);grid.append(button);
+  }
+  confirm.addEventListener('click',()=>kit.action('respondBattle',{decisionId:pending.id,choice:'targets',targetIds:[...draft.targetIds]}));
+  const clear=node('button',{type:'button',class:'button secondary',id:'clear-download-targets',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{draft.targetIds=[];update();}},say(language,'Clear selection','清空选择'));
+  update();return [grid,summary,node('div',{class:'action-row'},confirm,clear)];
+}
 export function decisionPanel(view,kit) {
   const pending=view.pendingBattle;if(!pending)return null;
   const language=kit.language,actor=view.players.find(p=>p.id===pending.actorId),target=view.players.find(p=>p.id===pending.targetId);
@@ -451,8 +491,11 @@ export function decisionPanel(view,kit) {
   Object.assign(titles,{'battle-armor':['Battle Armor · gain Defense','战斗盔甲 · 获得防御强化'],bonemerang:['Bonemerang · one more settlement','骨头回力镖 · 再次结算'],'neutralizing-gas':['Neutralizing Gas · suppress traits','化学变化气体 · 特性失效'],'cute-charm':['Cute Charm · redirect the move','迷人之躯 · 转移招式'],'arena-trap':['Arena Trap · interrupt switch','沙穴 · 响应交替'],'switch-payment':['Arena Trap · pay or cancel switch','沙穴 · 弃牌或取消交替'],'poison-point':['Poison Point · optional ability','毒刺 · 可选特性']});
   Object.assign(titles,{'u-turn':['U-turn · optional move switch','急速折返 · 招式可选交替'],forewarn:['Forewarn · optional Prep ability','预知梦 · 准备阶段可选特性'],'forewarn-order':['Forewarn · arrange top and bottom','预知梦 · 调整牌堆顶与底'],'sweet-kiss':['Sweet Kiss · discard, then draw','天使之吻 · 弃牌后摸牌']});
   Object.assign(titles,{'vital-spirit':['Vital Spirit · choose cards to gain','干劲 · 选择获得的牌'],intimidate:['Intimidate · choose a trainer','威吓 · 选择训练家'],'intimidate-hand':['Intimidate · discard a hand card','威吓 · 弃置一张手牌']});
+  Object.assign(titles,{download:['Download · choose other trainers','下载 · 选择其他训练家'],'download-hand':['Download · take a hand card','下载 · 获得一张手牌']});
   const title=pending.kind==='double-edge'?['Double-Edge · optional boost','舍身冲撞 · 可选增伤']:pending.kind==='shed-skin'?['Shed Skin · discard to reduce damage','蜕皮 · 弃牌减少伤害']:pending.kind==='damage-order'?['Choose damage modifier order','选择伤害修正顺序']:pending.kind==='pay-day'?['Pay Day · inspect and give cards','聚宝功 · 观看并分配牌']:pending.kind==='distribute'?['Distribute Pay Day cards','分配聚宝功的牌']:pending.kind==='exile'?['Disable · remove hand cards','定身法 · 移出手牌']:pending.kind==='turn-start-order'?['Choose turn-start order','选择回合开始的结算顺序']:titles[pending.kind]||titles.rescue;
-  const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand','download','download-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  if(pending.kind==='download')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Choose up to ${pending.maxTargets} other trainers to take one hand card from each. Distance does not restrict this choice. Download replaces your entire ordinary Draw phase, even if Flinch would reduce your ordinary draws. You must finish this replacement now.`,`选择至多${pending.maxTargets}名其他训练家，获得其各一张手牌。此选择不受距离限制。下载替代整个通常摸牌阶段，畏缩减少通常摸牌数也不改变此效果。发动后必须完成替代摸牌。`):say(language,'The indicated trainer is privately choosing other trainers for Download, replacing their ordinary Draw phase.','指定训练家正在通过下载私下选择其他训练家，以替代通常摸牌阶段。')));
+  if(pending.kind==='download-hand')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,'Choose one face-down hand card to take from this trainer. Its face stays hidden while choosing. Selected cards are reserved privately and gained together after every choice is complete. This choice cannot be passed.','选择并获得这位训练家的一张背面手牌。选择时牌面保持隐藏。所选牌暂时私下保留，全部选完后一起获得。此选择不可放弃。'):say(language,'The indicated trainer is privately choosing a face-down hand card for Download.','指定训练家正在通过下载私下选择一张背面手牌。')));
   if(pending.kind==='vital-spirit')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Choose exactly ${pending.requiredCards} cards to gain. This replaces your entire ordinary Draw phase. The choice is mandatory now that you have viewed the cards; only you can see their faces.`,`选择恰好${pending.requiredCards}张牌获得。此效果替代整个通常摸牌阶段。观看后必须完成选择；仅你能看到牌面。`):say(language,'The indicated trainer is privately choosing cards with Vital Spirit, replacing their ordinary Draw phase.','指定训练家正在通过干劲私下选择获得的牌，以替代通常摸牌阶段。')));
   if(pending.kind==='intimidate')panel.append(node('p',{},say(language,'Tauros entered play. Choose one living trainer with hand cards, including yourself, then choose one of that trainer’s hand cards to discard. This ability is mandatory.','肯泰罗登场。必须选择一名有手牌的存活训练家（可以是自己），然后选择其一张手牌弃置。此特性必须结算。')));
   if(pending.kind==='intimidate-hand')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,'Choose one hand card to discard. Another trainer’s card faces stay hidden; your own card faces are visible. This choice cannot be passed.','选择并弃置一张手牌。其他训练家的手牌保持背面；自己的手牌可见。此选择不可放弃。'):say(language,'The indicated trainer is choosing one hand card to discard for Intimidate. Card choices stay private.','指定训练家正在为威吓选择弃置一张手牌；选牌保持私密。')));
@@ -481,9 +524,9 @@ export function decisionPanel(view,kit) {
       panel.append(revealed,node('p',{class:'muted'},say(language,'Each sunny card adds one settlement. These are revealed cards, not judgments; they enter discard when the move finishes.','每张晴天牌增加一次结算。这是亮牌，不是判定；招式结束时置入弃牌堆。')));
     }
   }
-  if(pending.kind==='defense'&&pending.blockedDodgeWeathers?.includes('intense-sun'))panel.append(node('p',{},say(language,'Compound Eyes prevents intense-sun Dodge cards. Other Dodge weather and successful Sand Veil can still cancel this settlement.','复眼使烈日天气的快躲开！不可用。其他天气的躲闪牌及成功的沙隐仍可抵消本次结算。')));
-  if(pending.kind==='defense'&&pending.dodgeReducesDamage)panel.append(node('p',{},say(language,`Keen Eye changes your Dodge into damage −1 for this whole move. Applied reduction: ${pending.damageReduction}. You may use another Dodge or resolve damage.`,`锐利目光使你的快躲开！改为本次整个招式伤害减1。已累积减伤：${pending.damageReduction}。可以继续躲闪或结算伤害。`)));
-  if(pending.kind==='defense'&&pending.dodgesRequired===2)panel.append(node('p',{},say(language,`X-Scissor requires 2 Dodges in this same settlement. Played: ${pending.dodgesPlayed||0}/2. The first Dodge keeps this response window open; passing after only one does not cancel the move and full damage continues through its damage modifiers.`,`十字剪需要在本次同一结算中使用2张快躲开！。已使用：${pending.dodgesPlayed||0}/2。第一张躲闪后响应窗口继续；仅使用一张后放弃不会抵消招式，完整伤害仍按伤害修正规则结算。`)));
+  if(pending.kind==='defense'&&!pending.cannotDodge&&pending.blockedDodgeWeathers?.includes('intense-sun'))panel.append(node('p',{},say(language,'Compound Eyes prevents intense-sun Dodge cards. Other Dodge weather and successful Sand Veil can still cancel this settlement.','复眼使烈日天气的快躲开！不可用。其他天气的躲闪牌及成功的沙隐仍可抵消本次结算。')));
+  if(pending.kind==='defense'&&!pending.cannotDodge&&pending.dodgeReducesDamage)panel.append(node('p',{},say(language,`Keen Eye changes your Dodge into damage −1 for this whole move. Applied reduction: ${pending.damageReduction}. You may use another Dodge or resolve damage.`,`锐利目光使你的快躲开！改为本次整个招式伤害减1。已累积减伤：${pending.damageReduction}。可以继续躲闪或结算伤害。`)));
+  if(pending.kind==='defense'&&!pending.cannotDodge&&pending.dodgesRequired===2)panel.append(node('p',{},say(language,`X-Scissor requires 2 Dodges in this same settlement. Played: ${pending.dodgesPlayed||0}/2. The first Dodge keeps this response window open; passing after only one does not cancel the move and full damage continues through its damage modifiers.`,`十字剪需要在本次同一结算中使用2张快躲开！。已使用：${pending.dodgesPlayed||0}/2。第一张躲闪后响应窗口继续；仅使用一张后放弃不会抵消招式，完整伤害仍按伤害修正规则结算。`)));
   if(pending.kind==='pay-day')panel.append(node('p',{},say(language,'You may privately inspect the top two available cards, then give each to any living trainer, including yourself. After inspecting, you must assign every card.','你可以私下观看牌堆顶至多两张可用的牌，然后将每张牌交给任意存活训练家，包括自己。观看后必须完成所有牌的分配。')));
   if(pending.kind==='distribute')panel.append(node('p',{},say(language,'Only you can see these cards. Choose a recipient for each; the same trainer may receive both.','仅你能看到这些牌。请为每张牌选择接收者，同一训练家可以接收两张。')));
   if(pending.kind==='exile')panel.append(node('p',{},say(language,`Choose up to ${pending.maxCards} hand cards. They cannot be used or inspected while removed and return when this trainer’s next turn begins.`,`选择至多${pending.maxCards}张手牌。移出期间不能使用或查看，直到该训练家的下次回合开始时返回。`)));
@@ -491,7 +534,7 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='poison-touch')panel.append(node('p',{},pending.mode==='poison'?say(language,'Poison is about to deal 1 source-free damage. You may set its base damage to 2; receiving effects still apply.','中毒即将造成1点无来源伤害。你可以将基础伤害改为2点，受到伤害时的效果仍然生效。'):say(language,`Pending status: ${statusName(pending.status,language)}. You may change this status to Poison before it takes effect.`,`即将陷入${statusName(pending.status,language)}。你可以在其生效前将此状态改为中毒。`)));
   if(pending.kind==='cycle')panel.append(node('p',{},say(language,'You may discard one hand card, then draw one card. Only you can see the choices.','你可以弃置一张手牌，然后摸一张牌。仅你能看到可选手牌。')));
   if(pending.kind==='scales')panel.append(node('p',{},say(language,`Incoming damage: ${pending.damage}. You may reduce it by 1 before losing HP.`,`将受到${pending.damage}点伤害。你可以在扣减体力前令伤害值减1。`)));
-  if(pending.kind==='defense'&&pending.cannotDodge)panel.append(node('p',{},say(language,'This move ignores reinforcement markers. Dodge and Sand Veil cannot cancel it. Continue to resolve the damage.','此招式不受强化指示物影响。快躲开！与沙隐无法抵消此招式，请继续结算伤害。')));
+  if(pending.kind==='defense'&&pending.cannotDodge)panel.append(node('p',{},pending.dodgeBlockedBy==='lock-on'?say(language,'Lock-On prevents the originally targeted Pokémon from using Dodge for this global turn, including virtual Dodges. Reinforcement markers still affect this move normally. Continue the settlement.','锁定使原本被指定的宝可梦在本全局回合无法使用快躲开！，也无法使用视为快躲开！的效果。强化指示物仍正常影响此招式，请继续结算。'):say(language,'This move ignores reinforcement markers. Dodge and Sand Veil cannot cancel it. Continue to resolve the damage.','此招式不受强化指示物影响。快躲开！与沙隐无法抵消此招式，请继续结算伤害。')));
   if(pending.kind==='defiant')panel.append(node('p',{},say(language,'You may draw two cards, then have no hand limit for the current turn. Passing grants neither effect.','你可以摸两张牌，然后本回合没有手牌上限。放弃则两项效果均不结算。')));
   if(pending.kind==='judgment')panel.append(node('p',{},say(language,'Revealed judgment:','已翻开的判定牌：'),` ${kit.localized(pending.judgmentCard.name)} · ${weatherLabel(pending.judgmentCard.weather,language)}`),node('p',{},say(language,'You may replace this judgment with one sunny-weather hand card and take the displaced card.','可打出一张晴天天气手牌替换判定，并获得被替换的牌。')));
   if(pending.kind==='static')panel.append(node('p',{},say(language,'After receiving damage, you may make a judgment. A result other than intense sun paralyzes the damage source.','受到伤害后，你可以进行一次判定。结果不为烈日时，伤害来源陷入麻痹。')));
@@ -516,9 +559,12 @@ export function decisionPanel(view,kit) {
     else if(pending.kind==='forewarn-order')panel.append(...forewarnOrderControls(pending,kit));
     else if(pending.kind==='sweet-kiss')panel.append(...sweetKissControls(pending,kit));
     else if(pending.kind==='vital-spirit')panel.append(...vitalSpiritControls(pending,kit));
+    else if(pending.kind==='download')panel.append(...downloadControls(pending,kit));
     else {
-      const row=node('div',{class:['hand','intimidate-hand'].includes(pending.kind)?'hand-choice-grid':'action-row'});
-      if(pending.kind==='intimidate') {
+      const row=node('div',{class:['hand','intimidate-hand','download-hand'].includes(pending.kind)?'hand-choice-grid':'action-row'});
+      if(pending.kind==='download-hand') {
+        for(const choice of pending.choices||[])row.append(node('button',{type:'button',class:'button blind-hand-choice',id:`download-hand-${choice.index}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'card',handIndex:choice.index})},say(language,`Take face-down card ${choice.index+1}`,`获得背面手牌 ${choice.index+1}`)));
+      }else if(pending.kind==='intimidate') {
         for(const id of pending.legalTargetIds||[]) {
           const player=view.players.find(player=>player.id===id);
           row.append(node('button',{type:'button',class:'button primary',id:`intimidate-target-${id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'target',targetId:id})},`${player?.nickname||'—'}${id===view.selfId?say(language,' · you',' · 你'):''}`));
@@ -544,7 +590,7 @@ export function decisionPanel(view,kit) {
         const names={'return-cards':['Return removed cards','返回移出的牌'],status:['Resolve special status','结算特殊状态'],'neutralizing-gas':['Neutralizing Gas','化学变化气体']};
         row.append(node('button',{type:'button',class:'button primary',id:`start-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'start-effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='effects')for(const effect of pending.effects) {
-        const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'rocky-helmet':['Rocky Helmet','凸凸头盔']};
+        const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'water-absorb':['Water Absorb · mandatory judgment','储水 · 必须判定'],'rocky-helmet':['Rocky Helmet','凸凸头盔']};
         row.append(node('button',{type:'button',class:'button primary effect-choice',id:`effect-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='reinforcement')for(const kind of pending.reinforcements||[]) {
         const names={power:['Power','力量'],defense:['Defense','防御'],speed:['Speed','速度']};
@@ -561,7 +607,7 @@ export function decisionPanel(view,kit) {
       }else {
         const traitNames={'pay-day':['Inspect top cards','观看牌堆顶'],'poison-touch':pending.mode==='poison'?['Set Poison damage to 2','中毒基础伤害改为2']:['Change to Poison','改为中毒'],'marvel-scale':['Reduce damage by 1','伤害减1'],defiant:['Use Defiant','发动不服输'],static:['Use Static','发动静电'],'sand-veil':['Use Sand Veil','发动沙隐'],synchronize:['Use Synchronize','发动同步'],'future-sight':['View the top cards','查看牌堆顶']};
         Object.assign(traitNames,{'poison-point':['Use Poison Point','发动毒刺'],'arena-trap':['Require discard','要求弃牌']});
-        if(pending.canTrait)row.append(node('button',{type:'button',class:'button primary',id:'response-trait',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'trait'})},say(language,...traitNames[pending.trait])));
+        if(pending.canTrait&&!pending.cannotDodge)row.append(node('button',{type:'button',class:'button primary',id:'response-trait',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'trait'})},say(language,...traitNames[pending.trait])));
         if(pending.kind==='judgment')for(const card of pending.replacementCards||[])row.append(node('button',{type:'button',class:'button primary judgment-replacement',id:`replace-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'replace',cardId:card.id})},say(language,'Replace with','替换为'),` ${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
         if(pending.kind==='cycle')for(const card of pending.cards||[])row.append(node('button',{type:'button',class:'button primary cycle-card',id:`cycle-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'cycle',cardId:card.id})},say(language,'Discard','弃置'),` ${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
         if(pending.kind==='defense'&&!pending.cannotDodge) {
@@ -572,7 +618,7 @@ export function decisionPanel(view,kit) {
       }
       panel.append(row);
     }
-    if(pending.kind==='defense' && pending.canTrait)panel.append(node('p',{class:'muted'},say(language,'Sand Veil: with no held item, judge once for this settlement. Intense sun or clear counts as one Dodge! If it fails, you may still use a Dodge card.','沙隐：未携带持有物时，本次结算可判定一次。烈日或晴朗视为使用一张快躲开！；失败后仍可打出躲闪牌。')));
+    if(pending.kind==='defense' && pending.canTrait&&!pending.cannotDodge)panel.append(node('p',{class:'muted'},say(language,'Sand Veil: with no held item, judge once for this settlement. Intense sun or clear counts as one Dodge! If it fails, you may still use a Dodge card.','沙隐：未携带持有物时，本次结算可判定一次。烈日或晴朗视为使用一张快躲开！；失败后仍可打出躲闪牌。')));
   }else panel.append(node('p',{class:'muted'},say(language,'Waiting for the indicated trainer.','正在等待指定训练家。')));
   if(pending.kind==='rescue')panel.append(node('p',{class:'muted'},say(language,'Potion is not included in this test deck. Each trainer still receives their own pass decision.','此测试牌库尚未加入伤药，仍按顺序询问每位训练家是否放弃救援。')));
   return panel;
