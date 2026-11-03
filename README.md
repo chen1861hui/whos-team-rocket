@@ -1,4 +1,10 @@
-## Lapras and Porygon — 2026-11-03 (current)
+## Aerodactyl and Snorlax — 2026-11-04 (current)
+
+**875/875 tests pass. Combat supports 39 groups / 117 faces; all 40 groups / 120 faces have reviewed effects.** Aerodactyl has Pressure's two private discard choices, rainy Bite Flinch and optional boosted Hyper Beam. Snorlax replaces its held item's effect with Gluttony's own-turn-end healing, has rainy Bite and sunny Body Slam. Chansey alone remains reviewed reference-only pending Potion's covered rescue wording; the Pokémon source-review queue is complete.
+
+Project: C:\src\team-rocket-web, app app/. Branch codex/aerodactyl-snorlax from 1c85e0c retains prior work. Repository: https://github.com/chen1861hui/whos-team-rocket.git . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. Preserve the accepted arena, native cards, centered hover and identity-first shared unique setup. Production stays six command/six Dodge per seat, all intense sun; no invented retail quantities/items/events/Potion. No merge, hosting or repeated unavailable PR-access attempt. See gameplay-milestone-27.md and reviewed-aerodactyl-snorlax.md/json. Earlier counts below are historical.
+
+## Lapras and Porygon — 2026-11-03 (historical)
 
 **824/824 tests pass. Combat supports 37 groups / 111 faces; effects reviewed for 38 groups / 114 faces.** Lapras has mandatory Water Absorb weather judgments after receiving damage, Ice Shard/Ice Beam Speed removal and Freeze-Dry's temporary target reinforcement suppression followed by removal after damage. Porygon has private Download instead of ordinary Draw, single-judgment Tri Attack and sunny Lock-On preventing actual/virtual Dodge for the current global turn. Chansey remains reviewed reference-only pending Potion's covered rescue text.
 

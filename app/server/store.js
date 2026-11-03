@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
 
 export const IDLE_MS = 7 * 60 * 60 * 1000;
@@ -113,6 +113,7 @@ export class RoomStore {
     if (room.pendingBattle && clock) { clock.deadlineAt = null; clock.pausedReason = 'response'; }
   }
   advanceTurn(room) {
+    if(isBattle(room))endBattleTurn(room,room.players.find(player=>player.id===room.turn.playerId),this.battleContext());
     const priorIndex = room.players.findIndex(player => player.id === room.turn.playerId);
     const next = Array.from({ length: room.players.length }, (_, offset) => room.players[(priorIndex + offset + 1) % room.players.length]).find(player => !player.spectator && (!isBattle(room) || !player.eliminated));
     this.startTurn(room, next.id, room.turn.number + 1);

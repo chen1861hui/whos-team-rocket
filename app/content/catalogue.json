@@ -18,9 +18,9 @@
     "pokemonFaces": 120,
     "selectionReviewSpecification": "reviewed-selection-roster.md",
     "combatReviewSpecification": "reviewed-combat-spec.md",
-    "combatSupportedGroups": 37,
-    "effectReviewedGroups": 38,
-    "effectReviewedFaces": 114,
+    "combatSupportedGroups": 39,
+    "effectReviewedGroups": 40,
+    "effectReviewedFaces": 120,
     "reviewedHeldItems": 1
   },
   "entries": [
@@ -12389,13 +12389,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦成为【接招吧！】的目标后，你可以弃置一张手牌，然后除非使用此【接招吧！】的训练家也弃置一张手牌，否则此【接招吧！】使用的招式对此宝可梦无效。",
+            "en": "After this Pokémon becomes a target of Take this!, you may discard one hand card. Unless the trainer who used that Take this! also discards one hand card, the move used through that Take this! has no effect on this Pokémon."
+          },
           "engineEligible": false,
           "name": {
             "zh": "化石翼龙",
@@ -12421,12 +12424,70 @@
             "kind": "standalone-pokemon-art",
             "dex": 142,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "traitName": {
+            "zh": "压迫感",
+            "en": "Pressure"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "翅膀攻击",
+                "en": "Wing Attack"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": null,
+              "effectKind": "damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "no-effect-paragraph-printed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/9414297694aaf061.webp",
+            "sha256": "9414297694aaf061a645f18250adb1eede7c9403a99ca628b37806437b7dca08",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 75,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-aerodactyl-snorlax.md"
           }
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦成为【接招吧！】的目标后，你可以弃置一张手牌，然后除非使用此【接招吧！】的训练家也弃置一张手牌，否则此【接招吧！】使用的招式对此宝可梦无效。",
+            "en": "After this Pokémon becomes a target of Take this!, you may discard one hand card. Unless the trainer who used that Take this! also discards one hand card, the move used through that Take this! has no effect on this Pokémon."
+          },
           "engineEligible": false,
           "name": {
             "zh": "化石翼龙",
@@ -12452,12 +12513,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 142,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "traitName": {
+            "zh": "压迫感",
+            "en": "Pressure"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "咬住",
+                "en": "Bite"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“雨天”（[暴雨]/[雷雨]），目标宝可梦陷入“畏缩”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is rainy (heavy rain or thunderstorm), the target Pokémon becomes Flinched."
+              },
+              "effectKind": "rainy-flinch",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/00d540d573d962d2.webp",
+            "sha256": "00d540d573d962d202a50b458b15e97772180cca33b338efefe908b175a6f73e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 76,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-aerodactyl-snorlax.md"
           }
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "当此宝可梦成为【接招吧！】的目标后，你可以弃置一张手牌，然后除非使用此【接招吧！】的训练家也弃置一张手牌，否则此【接招吧！】使用的招式对此宝可梦无效。",
+            "en": "After this Pokémon becomes a target of Take this!, you may discard one hand card. Unless the trainer who used that Take this! also discards one hand card, the move used through that Take this! has no effect on this Pokémon."
+          },
           "engineEligible": false,
           "name": {
             "zh": "化石翼龙",
@@ -12483,6 +12606,65 @@
             "kind": "standalone-pokemon-art",
             "dex": 142,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "攻击型",
+            "en": "Offensive"
+          },
+          "traitName": {
+            "zh": "压迫感",
+            "en": "Pressure"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "破坏光线",
+                "en": "Hyper Beam"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 3,
+              "effectText": {
+                "zh": "声明使用此招式时，你可以弃置一张手牌，然后本次使用此招式的伤害值+1。",
+                "en": "When declaring this move, you may discard one hand card, then increase this use’s damage by 1."
+              },
+              "effectKind": "hyper-beam",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "on-declaration"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/00d540d573d962d2.webp",
+            "sha256": "00d540d573d962d202a50b458b15e97772180cca33b338efefe908b175a6f73e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 76,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-aerodactyl-snorlax.md"
           }
         }
       ],
@@ -12504,7 +12686,9 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "engineScope": "combat-preview-only",
+      "effectReviewSpecification": "reviewed-aerodactyl-snorlax.md"
     },
     {
       "id": "snorlax",
@@ -12517,13 +12701,16 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "unavailable",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "若此宝可梦已携带持有物，此持有物效果改为“在你的回合结束时，携带此持有物的宝可梦回复1点体力”",
+            "en": "If this Pokémon carries a held item, that held item’s effect becomes: “At the end of your turn, the Pokémon carrying this held item recovers 1 HP.”"
+          },
           "engineEligible": false,
           "name": {
             "zh": "卡比兽",
@@ -12549,12 +12736,70 @@
             "kind": "standalone-pokemon-art",
             "dex": 143,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "traitName": {
+            "zh": "贪吃鬼",
+            "en": "Gluttony"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "撞击",
+                "en": "Tackle"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 1,
+              "effectText": null,
+              "effectKind": "damage",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "no-effect-paragraph-printed",
+              "unresolvedSymbols": []
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/5e1440d1e2c3957a.webp",
+            "sha256": "5e1440d1e2c3957a83cfd6daf804ba009aaf9ecc5b20b3a4108d9f4f583cbe71",
+            "facePosition": "whole",
+            "observedAssetOrdinal": 77,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-aerodactyl-snorlax.md"
           }
         },
         {
           "level": 2,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "若此宝可梦已携带持有物，此持有物效果改为“在你的回合结束时，携带此持有物的宝可梦回复1点体力”",
+            "en": "If this Pokémon carries a held item, that held item’s effect becomes: “At the end of your turn, the Pokémon carrying this held item recovers 1 HP.”"
+          },
           "engineEligible": false,
           "name": {
             "zh": "卡比兽",
@@ -12580,12 +12825,74 @@
             "kind": "standalone-pokemon-art",
             "dex": 143,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "traitName": {
+            "zh": "贪吃鬼",
+            "en": "Gluttony"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "咬住",
+                "en": "Bite"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“雨天”（[暴雨]/[雷雨]），目标宝可梦陷入“畏缩”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is rainy (heavy rain or thunderstorm), the target Pokémon becomes Flinched."
+              },
+              "effectKind": "rainy-flinch",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/13d02ab71efd1e99.webp",
+            "sha256": "13d02ab71efd1e9900facbb1f2be37ff9c9546f8a72abcec210bc113891de53e",
+            "facePosition": "left",
+            "observedAssetOrdinal": 78,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-aerodactyl-snorlax.md"
           }
         },
         {
           "level": 3,
-          "effectStatus": "unavailable",
-          "abilityText": null,
+          "effectStatus": "combat-preview",
+          "abilityText": {
+            "zh": "若此宝可梦已携带持有物，此持有物效果改为“在你的回合结束时，携带此持有物的宝可梦回复1点体力”",
+            "en": "If this Pokémon carries a held item, that held item’s effect becomes: “At the end of your turn, the Pokémon carrying this held item recovers 1 HP.”"
+          },
           "engineEligible": false,
           "name": {
             "zh": "卡比兽",
@@ -12611,6 +12918,65 @@
             "kind": "standalone-pokemon-art",
             "dex": 143,
             "source": "research-assets/pokemon-form-art.json"
+          },
+          "classification": {
+            "zh": "防御型",
+            "en": "Defensive"
+          },
+          "traitName": {
+            "zh": "贪吃鬼",
+            "en": "Gluttony"
+          },
+          "moves": [
+            {
+              "name": {
+                "zh": "泰山压顶",
+                "en": "Body Slam"
+              },
+              "condition": {
+                "kind": "command",
+                "cardName": {
+                  "zh": "接招吧！",
+                  "en": "Take this!"
+                },
+                "count": 1
+              },
+              "printedValue": 2,
+              "effectText": {
+                "zh": "当此宝可梦因此招式而造成伤害后，你进行一次判定，若结果为“晴天”（[烈日]/[晴朗]），目标宝可梦陷入“麻痹”状态。",
+                "en": "After this Pokémon deals damage with this move, make a judgment. If the result is sunny (intense sun or clear), the target Pokémon becomes Paralyzed."
+              },
+              "effectKind": "sunny-paralysis",
+              "uses": {
+                "faceOverridePrinted": false,
+                "bookletDefault": "once per Pokémon/move per Play phase",
+                "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
+              },
+              "targeting": {
+                "kind": "booklet-default",
+                "max": 1,
+                "description": "Active Pokémon, including self, within this Pokémon’s distance limit."
+              },
+              "engineEligible": false,
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
+              "effectParagraphStatus": "visually-transcribed",
+              "unresolvedSymbols": [],
+              "effectTiming": "after-dealing-damage"
+            }
+          ],
+          "engineScope": "combat-preview-only",
+          "translationStatus": "working-english",
+          "effectProvenance": {
+            "sourceId": "S05",
+            "filename": "research-assets/douyin-7684572630280187855/13d02ab71efd1e99.webp",
+            "sha256": "13d02ab71efd1e9900facbb1f2be37ff9c9546f8a72abcec210bc113891de53e",
+            "facePosition": "right",
+            "observedAssetOrdinal": 78,
+            "imageIndex": null,
+            "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
+            "edition": "unidentified",
+            "specification": "reviewed-aerodactyl-snorlax.md"
           }
         }
       ],
@@ -12632,7 +12998,9 @@
         "level": 1,
         "kind": "standalone-pokemon-art",
         "source": "research-assets/pokemon-art-manifest.json"
-      }
+      },
+      "engineScope": "combat-preview-only",
+      "effectReviewSpecification": "reviewed-aerodactyl-snorlax.md"
     }
   ],
   "playCardPreviews": [

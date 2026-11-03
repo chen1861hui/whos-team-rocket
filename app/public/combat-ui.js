@@ -90,10 +90,11 @@ export function attackDialog(card, kit, moveIndex=0) {
     dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,'Choose Moonlight effect','选择月光效果')),selector));
   }
   if(legal.move.effectKind==='hyper-beam') {
+    const hasMoxie=initial.players.find(player=>player.id===initial.selfId)?.active?.catalogueId==='magikarp';
     const selector=node('select',{'aria-label':say(language,'Optional Hyper Beam discard','破坏光线可选弃牌')},node('option',{value:''},say(language,'Do not boost','不追加弃牌')));
     for(const option of initial.self.hand.filter(item=>item.id!==card.id))selector.append(node('option',{value:option.id},`${kit.localized(option.name)} · ${weatherLabel(option.weather,language)}`));
     selector.addEventListener('change',()=>{boostCardId=selector.value;});
-    dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,'Hyper Beam declaration','破坏光线声明')),selector),node('p',{class:'muted'},say(language,'Optionally discard one different hand card now for +1 damage. Moxie draws only after this choice.','现在可以额外弃置一张不同的手牌，使伤害+1；自信过度在此选择之后才摸牌。')));
+    dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,'Hyper Beam declaration','破坏光线声明')),selector),node('p',{class:'muted'},hasMoxie?say(language,'Optionally discard one different hand card now for +1 damage. Moxie draws only after this choice.','现在可以额外弃置一张不同的手牌，使伤害+1；自信过度在此选择之后才摸牌。'):say(language,'Optionally discard one different hand card now for +1 damage. Burn and other damage modifiers still apply.','现在可以额外弃置一张不同的手牌，使伤害+1。灼伤及其他伤害修正仍然生效。')));
   }
   if(legal.move.effectKind==='x-scissor') {
     const active=initial.players.find(player=>player.id===initial.selfId)?.active;
@@ -484,6 +485,18 @@ function downloadControls(pending,kit) {
   const clear=node('button',{type:'button',class:'button secondary',id:'clear-download-targets',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{draft.targetIds=[];update();}},say(language,'Clear selection','清空选择'));
   update();return [grid,summary,node('div',{class:'action-row'},confirm,clear)];
 }
+function pressureControls(pending,kit) {
+  const draft=privateDecisionDraft(pending,kit,()=>({cardId:''})),language=kit.language,view=kit.getView(),cards=pending.paymentCards||[],sourcePayment=pending.kind==='pressure-payment';
+  if(!cards.some(card=>card.id===draft.cardId))draft.cardId='';
+  const payment=node('select',{id:`${pending.kind}-card`,'aria-label':say(language,'Pressure · choose your discard','压迫感 · 选择自己的弃牌'),disabled:kit.busy||Boolean(view.pendingVote)},node('option',{value:''},say(language,'Choose one of your hand cards','选择自己的一张手牌')));
+  for(const card of cards)payment.append(node('option',{value:card.id},`${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
+  payment.value=draft.cardId;
+  const confirm=node('button',{type:'button',class:'button primary',id:`confirm-${pending.kind}`,onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'discard',cardId:draft.cardId})},sourcePayment?say(language,'Discard · keep the move effective','弃牌 · 保持招式有效'):say(language,'Discard · use Pressure','弃牌 · 发动压迫感'));
+  const update=()=>{confirm.disabled=kit.busy||Boolean(kit.getView().pendingVote)||!draft.cardId;};
+  payment.addEventListener('change',()=>{draft.cardId=payment.value;update();});
+  const pass=node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},sourcePayment?say(language,'Do not discard · move ineffective on original target','不弃牌 · 招式对原目标无效'):say(language,'Pass Pressure · keep my hand','放弃压迫感 · 保留手牌'));
+  update();return [node('div',{class:'charm-controls paid-effect-controls'},node('label',{},say(language,'Your discard','自己的弃牌'),payment)),node('div',{class:'action-row'},confirm,pass)];
+}
 export function decisionPanel(view,kit) {
   const pending=view.pendingBattle;if(!pending)return null;
   const language=kit.language,actor=view.players.find(p=>p.id===pending.actorId),target=view.players.find(p=>p.id===pending.targetId);
@@ -492,8 +505,11 @@ export function decisionPanel(view,kit) {
   Object.assign(titles,{'u-turn':['U-turn · optional move switch','急速折返 · 招式可选交替'],forewarn:['Forewarn · optional Prep ability','预知梦 · 准备阶段可选特性'],'forewarn-order':['Forewarn · arrange top and bottom','预知梦 · 调整牌堆顶与底'],'sweet-kiss':['Sweet Kiss · discard, then draw','天使之吻 · 弃牌后摸牌']});
   Object.assign(titles,{'vital-spirit':['Vital Spirit · choose cards to gain','干劲 · 选择获得的牌'],intimidate:['Intimidate · choose a trainer','威吓 · 选择训练家'],'intimidate-hand':['Intimidate · discard a hand card','威吓 · 弃置一张手牌']});
   Object.assign(titles,{download:['Download · choose other trainers','下载 · 选择其他训练家'],'download-hand':['Download · take a hand card','下载 · 获得一张手牌']});
+  Object.assign(titles,{pressure:['Pressure · optional discard','压迫感 · 可选弃牌'],'pressure-payment':['Pressure · discard or let protection apply','压迫感 · 弃牌或让保护生效']});
   const title=pending.kind==='double-edge'?['Double-Edge · optional boost','舍身冲撞 · 可选增伤']:pending.kind==='shed-skin'?['Shed Skin · discard to reduce damage','蜕皮 · 弃牌减少伤害']:pending.kind==='damage-order'?['Choose damage modifier order','选择伤害修正顺序']:pending.kind==='pay-day'?['Pay Day · inspect and give cards','聚宝功 · 观看并分配牌']:pending.kind==='distribute'?['Distribute Pay Day cards','分配聚宝功的牌']:pending.kind==='exile'?['Disable · remove hand cards','定身法 · 移出手牌']:pending.kind==='turn-start-order'?['Choose turn-start order','选择回合开始的结算顺序']:titles[pending.kind]||titles.rescue;
   const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand','download','download-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  if(pending.kind==='pressure')panel.append(node('p',{},say(language,'Your Pokémon became a Take this! target. You may discard one of your hand cards. The command’s user must then also discard one card, or that command’s whole move becomes ineffective against your originally targeted Pokémon. Other targets remain affected. Passing here gives no Pressure protection.','你的宝可梦成为接招吧！的目标。可以弃置自己的一张手牌，然后该指令的使用者也须弃置一张手牌，否则此次指令使用的整个招式对原本被指定的这只宝可梦无效。其他目标仍受影响。此处放弃则不获得压迫感的保护。')));
+  if(pending.kind==='pressure-payment')panel.append(node('p',{},say(language,'Pressure’s owner has already discarded a card. You may discard one of your own hand cards to keep the command move effective against that originally targeted Pokémon. If you do not, the whole move is ineffective only against that Pokémon; other targets are unaffected by this protection. Paid costs are not refunded.','压迫感的持有者已弃置一张手牌。你可以弃置自己的一张手牌，使指令招式对原本被指定的那只宝可梦保持有效。若不弃牌，整个招式仅对该宝可梦无效，其他目标不受此保护影响。已支付的费用不会退还。')));
   if(pending.kind==='download')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Choose up to ${pending.maxTargets} other trainers to take one hand card from each. Distance does not restrict this choice. Download replaces your entire ordinary Draw phase, even if Flinch would reduce your ordinary draws. You must finish this replacement now.`,`选择至多${pending.maxTargets}名其他训练家，获得其各一张手牌。此选择不受距离限制。下载替代整个通常摸牌阶段，畏缩减少通常摸牌数也不改变此效果。发动后必须完成替代摸牌。`):say(language,'The indicated trainer is privately choosing other trainers for Download, replacing their ordinary Draw phase.','指定训练家正在通过下载私下选择其他训练家，以替代通常摸牌阶段。')));
   if(pending.kind==='download-hand')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,'Choose one face-down hand card to take from this trainer. Its face stays hidden while choosing. Selected cards are reserved privately and gained together after every choice is complete. This choice cannot be passed.','选择并获得这位训练家的一张背面手牌。选择时牌面保持隐藏。所选牌暂时私下保留，全部选完后一起获得。此选择不可放弃。'):say(language,'The indicated trainer is privately choosing a face-down hand card for Download.','指定训练家正在通过下载私下选择一张背面手牌。')));
   if(pending.kind==='vital-spirit')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Choose exactly ${pending.requiredCards} cards to gain. This replaces your entire ordinary Draw phase. The choice is mandatory now that you have viewed the cards; only you can see their faces.`,`选择恰好${pending.requiredCards}张牌获得。此效果替代整个通常摸牌阶段。观看后必须完成选择；仅你能看到牌面。`):say(language,'The indicated trainer is privately choosing cards with Vital Spirit, replacing their ordinary Draw phase.','指定训练家正在通过干劲私下选择获得的牌，以替代通常摸牌阶段。')));
@@ -550,7 +566,8 @@ export function decisionPanel(view,kit) {
     panel.append(node('p',{class:'response-clock'},clock.pausedReason==='mandatory'?say(language,'Time expired · complete this choice to continue','时间已到 · 请完成当前选择以继续'):clock.pausedReason?say(language,'Paused · waiting for connection or vote','暂停 · 等待连接或表决'):`${seconds}s`));
   }
   if(pending.actorId===view.selfId && !view.self.spectator) {
-    if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind))panel.append(...paidEffectControls(pending,kit));
+    if(['pressure','pressure-payment'].includes(pending.kind))panel.append(...pressureControls(pending,kit));
+    else if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind))panel.append(...paidEffectControls(pending,kit));
     else if(pending.kind==='cute-charm')panel.append(...charmControls(pending,kit));
     else if(pending.kind==='shed-skin')panel.append(...shedControls(pending,kit));
     else if(pending.kind==='distribute')panel.append(...distributionControls(pending,kit));
