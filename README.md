@@ -1,4 +1,12 @@
-## Aerodactyl and Snorlax — 2026-11-04 (current)
+## Full Heal and Rare Candy — 2026-11-04 (current)
+
+**925/925 tests pass** (875 baseline +50 independent split-tool tests). Full Heal cures a legal active/reserve status; Rare Candy raises any living trainer's level1/2 active by one, preserving injuries/status/markers/held item and existing turn restrictions. Both readable tool faces have no distance restriction. They use one actual physical split card: choosing either half consumes the entire pair once. Native bilingual confirmation shows both halves, exact legal targets and unavailable-effect reasons. Accepted arena/native cards/centered hover/setup remain preserved; no CSS or asset downloads.
+
+Project C:\src\team-rocket-web, application app/. Branch codex/split-tools from cf80b68 retains prior work. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/split-tools . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. No PR/merge/hosting or repeated unavailable PR-access attempt. Combat remains39 executable Pokémon groups/117 faces; all40 groups/120 faces reviewed. Chansey alone remains reference-only pending Potion's covered rescue wording. Production remains the explicitly labeled six command/six Dodge per seat, all intense sun; the new tool effects are tested using isolated real-card fixtures, not added with invented retail quantities.
+
+See gameplay-milestone-28.md and reviewed-split-tools.md. P02/R06/R07 source hashes rechecked; mirrored catalogues unchanged and byte-identical. Source review corrected the provisional Nugget wording: it targets ONE TRAINER to draw2, with no transfer and no 'other' restriction. Nugget is now source-reviewed but unimplemented; Potion's full targeting/rescue words remain physically covered. Earlier counts below are historical.
+
+## Aerodactyl and Snorlax — 2026-11-04 (historical)
 
 **875/875 tests pass. Combat supports 39 groups / 117 faces; all 40 groups / 120 faces have reviewed effects.** Aerodactyl has Pressure's two private discard choices, rainy Bite Flinch and optional boosted Hyper Beam. Snorlax replaces its held item's effect with Gluttony's own-turn-end healing, has rainy Bite and sunny Body Slam. Chansey alone remains reviewed reference-only pending Potion's covered rescue wording; the Pokémon source-review queue is complete.
 

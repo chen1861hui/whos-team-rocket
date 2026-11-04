@@ -624,6 +624,48 @@ function reduceMoveDamage(room,targetId) {
 const hasSniper=(room,player)=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&battleTraitsEffective(room,player.active);
 export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||hasSniper(room,player);
 const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen','lock-on']);
+// One physical split card supplies two alternatives; only one executes. These
+// readable tool faces impose no distance restriction (booklet p07 is conditional).
+const splitTools=[
+  {toolType:'potion-full-heal',choices:[
+    {effect:'potion',name:{zh:'伤药',en:'Potion'},description:{zh:'普通使用可回复2点体力；完整目标及救援条文仍被遮挡。',en:'Ordinary use restores 2 HP; complete targeting and rescue text remains covered.'},unavailableReason:{zh:'完整目标及救援条文尚未核实。',en:'Complete targeting and rescue text is not yet verified.'}},
+    {effect:'full-heal',name:{zh:'万灵药',en:'Full Heal'},description:{zh:'在你的出牌阶段，对一只处于特殊状态的出战或备战宝可梦使用，恢复其特殊状态。',en:'During your Play phase, cure one active or reserve Pokémon’s special status.'}},
+  ]},
+  {toolType:'rare-candy-nugget',choices:[
+    {effect:'rare-candy',name:{zh:'神奇糖果',en:'Rare Candy'},description:{zh:'在你的出牌阶段，使一只不处于等级3的出战宝可梦提升一个等级。',en:'During your Play phase, raise one active Pokémon below level 3 by one level.'}},
+    {effect:'nugget',name:{zh:'金珠',en:'Nugget'},description:{zh:'在你的出牌阶段，对一名训练家使用，令其摸两张牌。',en:'During your Play phase, one trainer draws two cards.'},unavailableReason:{zh:'此效果尚未实现。',en:'This effect is not implemented yet.'}},
+  ]},
+];
+function toolTargets(room,player,catalogue,effect) {
+  if(!['full-heal','rare-candy'].includes(effect))return [];
+  return live(room).flatMap(owner=>['active','reserve'].flatMap(slot=>{
+    const pokemon=owner[slot];
+    // No current status source reaches an unrevealed opposing reserve. Never
+    // query its hidden state; future reserve-status effects need a reveal flow.
+    if(slot==='reserve'&&owner.id!==player.id&&!pokemon?.revealed)return [];
+    if(!pokemon||pokemon.defeated||currentHp(pokemon,catalogue)<=0)return [];
+    const legal=effect==='full-heal'?Boolean(pokemon.status):slot==='active'&&pokemon.level<3;
+    return legal?[{targetId:owner.id,slot}]:[];
+  }));
+}
+function toolActions(room,player,catalogue,own) {
+  return splitTools.filter(tool=>player.hand.some(card=>card.kind==='tool'&&card.toolType===tool.toolType)).map(tool=>({toolType:tool.toolType,choices:tool.choices.map(choice=>({...choice,targets:own?toolTargets(room,player,catalogue,choice.effect):[]}))}));
+}
+export function useBattleTool(room,player,input,ctx) {
+  const legal=previewActions(room,player,ctx.catalogue);
+  requireRule(room.turn?.playerId===player.id&&room.turn.phase==='play'&&legal&&!room.pendingBattle&&!room.pendingVote,'TOOL_UNAVAILABLE','Tools require your unblocked Play phase.');
+  const card=player.hand.find(card=>card.id===input.cardId&&card.kind==='tool');
+  const choice=legal.tools.find(tool=>tool.toolType===card?.toolType)?.choices.find(choice=>choice.effect===input.effect);
+  requireRule(card&&choice&&!choice.unavailableReason,'INVALID_CARD','Choose a reviewed effect of a physical split tool in your own hand.');
+  requireRule(choice.targets.some(target=>target.targetId===input.targetId&&target.slot===input.slot),'INVALID_TARGET','Choose a legal Pokémon for this tool.');
+  const pokemon=trainer(room,input.targetId)[input.slot];
+  player.hand.splice(player.hand.indexOf(card),1);
+  if(input.slot==='reserve')pokemon.revealed=true;
+  if(input.effect==='full-heal')pokemon.status=null;
+  else pokemon.level++;
+  room.discardPile.push(card);
+  note(room,input.effect==='full-heal'?'使用万灵药恢复目标的特殊状态；整张组合道具牌已弃置。':'使用神奇糖果使目标提升一个等级；整张组合道具牌已弃置。',input.effect==='full-heal'?'Full Heal cured the target’s special status; the entire split tool was discarded.':'Rare Candy raised the target by one level; the entire split tool was discarded.');
+}
 function battleMoves(room,pokemon,catalogue) {
   const native=face(pokemon,catalogue)?.moves||[];
   if(pokemon.catalogueId!=='scyther'||!battleTraitsEffective(room,pokemon))return native;
@@ -652,7 +694,7 @@ export function previewActions(room, player, catalogue) {
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
   const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  return { tools:toolActions(room,player,catalogue,own), canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx) {
   const legal=previewActions(room,player,ctx.catalogue),index=input.moveIndex===undefined?0:input.moveIndex;

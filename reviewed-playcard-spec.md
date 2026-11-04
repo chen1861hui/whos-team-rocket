@@ -66,7 +66,7 @@ Unobscured right half, Chinese transcription:
 
 > 在你的出牌阶段对一只处于特殊状态的出战或备战宝可梦使用。恢复目标宝可梦的特殊状态。
 
-English: During your Play phase, use on one active or reserve Pokémon that has a special status. Cure the target's special status. The printed text here does **not** say `你的` before the target Pokémon: do not add a self-only restriction. Use R07 default target/distance rules where applicable. This half is readable and implementable with status/target systems.
+English: During your Play phase, use on one active or reserve Pokémon that has a special status. Cure the target's special status. The printed text here does **not** say `你的` before the target Pokémon: do not add a self-only restriction. The 2026-11-04 independent recheck of R06 p07 confirms distance restrictions are conditional, and R07 p08 gives a default distance restriction specifically for moves. Neither this tool nor Rare Candy prints a distance restriction; both may target across all living trainers. Full Heal explicitly permits reserves, including one's own reserve. See `reviewed-split-tools.md` for hidden-reserve visibility and current implementation boundaries. This half is readable and implementable with status/target systems.
 
 ### 伤药 / Potion — partly physically covered
 
@@ -86,7 +86,11 @@ English: During your Play phase, use on one active Pokémon not at level 3; incr
 
 ### 金珠 / Nugget
 
-Readable right half says the card is given to another trainer during your Play phase and that target trainer draws **two cards**. Reading of the complete first sentence is not promoted as exact transcription in this bounded pass. Engine data may retain the definite recipient `一名其他训练家`, transfer, and draw-two fields with transcription review still pending. This is not a claim about physical card quantity.
+Independent 2026-11-04 visual recheck corrects the earlier provisional recipient/transfer interpretation. The right half is readable and says:
+
+> 在你的出牌阶段对一名训练家使用。目标训练家摸两张牌。
+
+English: During your Play phase, use on one trainer. The target trainer draws two cards. There is no `其他` restriction and no giving or transfer clause: self is not excluded, and the used physical split card is not given to the target. This paragraph is source-reviewed but not implemented in the Full Heal/Rare Candy batch. Its current gate is implementation, not unreadable text. Original P02 pixel coordinates for the in-memory reading crop: x155–620, y2830–3095; Nugget body is approximately x368–609, y2960–3040. The crop does not add source detail or change the original. No face quantity is printed.
 
 ## Other pictured play-card inventory
 

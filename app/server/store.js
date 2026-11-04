@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useBattleTool, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
 
 export const IDLE_MS = 7 * 60 * 60 * 1000;
@@ -367,6 +367,9 @@ export class RoomStore {
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'Attacks are available in the combat preview.');
         this.battleCall(() => playBattleMove(room, player, input, this.battleContext()));
         break;
+      case 'useTool':
+        check(['cardId','effect','targetId','slot']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Tools require combat preview.');
+        this.battleCall(()=>useBattleTool(room,player,input,this.battleContext()));break;
       case 'equipItem':
         check(['cardId','slot']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Held items require combat preview.');
         this.battleCall(()=>equipBattleItem(room,player,input,this.battleContext()));break;
