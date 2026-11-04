@@ -60,8 +60,8 @@ const choices = (f, toolType = 'potion-full-heal', viewer = f.leader) => f.view(
 const targets = (f, effect = 'full-heal') => choices(f, effect === 'rare-candy' ? 'rare-candy-nugget' : 'potion-full-heal').find(choice => choice.effect === effect)?.targets || [];
 const hasTarget = (f, effect, who, slot = 'active') => targets(f, effect).some(target => target.targetId === who.playerId && target.slot === slot);
 
-test('tool projection includes only held matching physical pair types and keeps gated Potion and unimplemented Nugget unavailable', t => {
-  const f = fixture(t); f.play(); assert.deepEqual(f.view(f.leader).self.battle.tools, []); tool(f); assert.equal(f.view(f.leader).self.battle.tools.length, 1); assert.deepEqual(choices(f).map(choice => choice.effect), ['potion', 'full-heal']); const potion = choices(f).find(choice => choice.effect === 'potion'); assert.deepEqual(potion.targets, []); assert.ok(potion.unavailableReason); tool(f, f.leader, 'rare-candy-nugget'); assert.equal(f.view(f.leader).self.battle.tools.length, 2); assert.deepEqual(choices(f, 'rare-candy-nugget').map(choice => choice.effect), ['rare-candy', 'nugget']); const nugget = choices(f, 'rare-candy-nugget').find(choice => choice.effect === 'nugget'); assert.deepEqual(nugget.targets, []); assert.ok(nugget.unavailableReason);
+test('tool projection includes held matching pair types, keeps Potion gated and enables trainer-targeted Nugget', t => {
+  const f = fixture(t); f.play(); assert.deepEqual(f.view(f.leader).self.battle.tools, []); tool(f); assert.equal(f.view(f.leader).self.battle.tools.length, 1); assert.deepEqual(choices(f).map(choice => choice.effect), ['potion', 'full-heal']); const potion = choices(f).find(choice => choice.effect === 'potion'); assert.deepEqual(potion.targets, []); assert.ok(potion.unavailableReason); tool(f, f.leader, 'rare-candy-nugget'); assert.equal(f.view(f.leader).self.battle.tools.length, 2); assert.deepEqual(choices(f, 'rare-candy-nugget').map(choice => choice.effect), ['rare-candy', 'nugget']); const nugget = choices(f, 'rare-candy-nugget').find(choice => choice.effect === 'nugget'); assert.equal(nugget.targeting, 'trainer'); assert.equal(nugget.unavailableReason, undefined); assert.deepEqual(new Set(nugget.targets.map(target => target.targetId)), new Set(f.seats.map(who => who.playerId))); assert.ok(nugget.targets.every(target => Object.keys(target).length === 1));
   for (const choice of [...choices(f), ...choices(f, 'rare-candy-nugget')]) { assert.ok(choice.name?.zh); assert.ok(choice.name?.en); assert.ok(choice.description?.zh); assert.ok(choice.description?.en); }
 });
 
@@ -177,7 +177,7 @@ test('Candy on a newly switched partner never unlocks a different command-using 
   const f = fixture(t); f.play(); f.attack(); f.respond(); const original = f.player(f.leader).active.instanceId; f.act(f.leader, 'switchPokemon'); const cardId = tool(f, f.leader, 'rare-candy-nugget'); use(f, cardId, 'rare-candy', f.leader); assert.equal(f.player(f.leader).active.level, 2); assert.equal(f.room().turn.commandCreatureId, original); assert.equal(f.view(f.leader).self.battle.canCommand, false);
 });
 
-test('unsupported Potion and Nugget remain impossible to execute from their real matching pairs', t => {
+test('Potion stays gated and Nugget rejects the old Pokémon-slot payload', t => {
   const f = fixture(t); f.play(); f.player(f.target).active.damage = 2; const potion = tool(f), nugget = tool(f, f.leader, 'rare-candy-nugget'); rejectsAtomically(f, () => use(f, potion, 'potion')); rejectsAtomically(f, () => use(f, nugget, 'nugget')); assert.equal(f.player(f.target).active.damage, 2); assert.equal(f.player(f.target).hand.length, 0);
 });
 

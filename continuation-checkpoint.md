@@ -1,4 +1,22 @@
-## Full Heal and Rare Candy — 2026-11-04 (current)
+## Nugget and trainer-targeted tools — 2026-11-04 (current)
+
+**965/965 tests pass** (925 baseline +40 independent Nugget cases). Nugget now lets any living trainer, including self or a distant trainer, draw2 through the shared actual-card gain/Pickup path. Both Rare Candy/Nugget alternatives are executable; choosing one consumes the entire physical split card once. Its trainer-only native selector sends no Pokémon slot and preserves bilingual cancel/reopen drafts. Accepted arena/native cards/centered hover/identity-first unique setup remain preserved; no CSS/assets/deck changes.
+
+Project C:\src\team-rocket-web, application app/. Branch codex/nugget from3ce3fad retains prior work. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/nugget . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. No PR/merge/hosting or repeated unavailable PR-access attempt. Combat remains39 supported Pokémon groups/117 faces; all40 groups/120 faces reviewed. Chansey still depends on Potion's covered rescue wording. Production remains six command/six Dodge per seat, all intense sun; tools are exercised through isolated real-card fixtures until retail quantities/weather distribution are verified.
+
+See gameplay-milestone-29.md and reviewed-split-tools.md. Nugget targets one trainer and draws cards; its physical card is discarded after resolution, not given to that trainer. Potion alone stays gated in the two reviewed physical tool pairs. Next: event-card handling, starting with the saved Mewtwo's Threat source queue; narrow transcription uncertainty stays explicit in pending-mewtwo-threat.md. Do not repeat acquisition or Pokémon discovery. Earlier counts below are historical.
+
+### Current Nugget contracts
+
+useTool {cardId,effect:'nugget',targetId} omits slot entirely. Descriptor targeting:'trainer', targets:[{targetId}] permits living trainers including self/distant and excludes spectators/eliminated seats. Any active/reserve/null slot is rejected atomically; existing Full Heal/Rare Candy Pokémon targets remain unchanged. Common Play/authority/pending vote/decision/revision/exact retry guards remain. No Pokémon identity/state/reveal, command/move allowance, Power or ordinary Draw count is changed.
+
+The actual Rare Candy/Nugget card leaves the actor's hand before the effect. It stays outside draw/discard circulation until the base two-card batch AND any immediate Pickup complete, then goes to discard once with its identity, weather and alternative metadata retained. It cannot supply its own ordinary or Pickup draw. Use shared drawBattleCards reason nugget with min(2, actual draw+discard supply): finite0/1 consumes the card and supplies0/1 without a fabricated card or refund. This shortage behavior is an explicit existing effect-draw policy, not printed extra Nugget text. Logs report actual base count.
+
+The base batch lands before normal once-per-instance/global-turn MeowthLv1/2 Pickup. Self-target during Play qualifies; reserve/Lv3/defeated/Gas/used-trigger exclusions remain. No gain0 means no trigger; an exhausted bonus spends its trigger while preserving the base gain. No immediate hand-limit discard outside the ordinary Discard phase. Generic weather payment/discard of this pair does not activate Nugget. Private drawn identities remain recipient-only.
+
+965 tests pass, including40new and50existing split-tool cases; two old expectations were updated for enabled Nugget and rejected old slot payload. No engine defects or fixture corrections were needed. Independent code audit checked actual-card conservation and0–4 supply across ordinary/self-Meowth recipients. Three browser clients checked distant2+Pickup1, self2+Pickup1, exactly2supply with no recycled tool bonus, Candy→Nugget target reset, Chinese→English cancel/reopen draft and spectator privacy; all warning/error logs empty. Evidence: nugget-choice-preview.jpg, nugget-pickup-preview.jpg, nugget-self-preview.jpg. QA data/scripts and synthetic credentials remain outside Git.
+
+## Full Heal and Rare Candy — 2026-11-04 (historical)
 
 **925/925 tests pass** (875 baseline +50 independent split-tool tests). Full Heal cures a legal active/reserve status; Rare Candy raises any living trainer's level1/2 active by one, preserving injuries/status/markers/held item and existing turn restrictions. Both readable tool faces have no distance restriction. They use one actual physical split card: choosing either half consumes the entire pair once. Native bilingual confirmation shows both halves, exact legal targets and unavailable-effect reasons. Accepted arena/native cards/centered hover/setup remain preserved; no CSS or asset downloads.
 

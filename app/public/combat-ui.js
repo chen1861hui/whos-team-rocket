@@ -43,12 +43,12 @@ export function toolDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number,code=initial.code,selfId=initial.selfId,cardId=card.id,toolType=card.toolType;
   const recognized=['potion-full-heal','rare-candy-nugget'].includes(toolType);
   const descriptor=current=>current?.self?.battle?.tools?.find(tool=>tool.toolType===toolType);
-  const enabled=choice=>['full-heal','rare-candy'].includes(choice?.effect)&&Boolean(choice.targets?.length);
+  const enabled=choice=>['full-heal','rare-candy','nugget'].includes(choice?.effect)&&Boolean(choice.targets?.length);
   const tool=descriptor(initial);
   if(card.kind!=='tool'||!recognized||!tool)return;
   const draft=privateDecisionDraft({kind:'tool',id:`${turnNumber}:${cardId}`},kit,()=>({effect:'',targetKey:''}));
   if(!tool.choices.some(choice=>choice.effect===draft.effect&&enabled(choice))){draft.effect='';draft.targetKey='';}
-  const key=target=>JSON.stringify([target.targetId,target.slot]);
+  const key=target=>JSON.stringify([target.targetId,target.slot??null]);
   const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'tool-title'},
     node('h2',{id:'tool-title'},say(language,'Choose one tool effect','选择一种道具效果')),
     node('p',{},`${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
@@ -60,8 +60,9 @@ export function toolDialog(card,kit) {
   effects.value=draft.effect;
   const targets=node('select',{id:'tool-target','aria-label':say(language,'Tool target','道具目标')});
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-tool',disabled:true},say(language,'Use effect · spend whole card','使用效果 · 消耗整张牌'));
-  const targetLabel=(target,current)=>{
+  const targetLabel=(target,current,choice)=>{
     const player=current.players.find(player=>player.id===target.targetId);
+    if(choice.targeting==='trainer')return player?.nickname||'—';
     const pokemon=target.slot==='active'?player?.active:target.targetId===current.selfId?current.self.reserve:player?.reserve;
     const slot=say(language,target.slot==='active'?'Active':'Reserve',target.slot==='active'?'出场':'备战');
     return `${player?.nickname||'—'} · ${slot} · ${pokemon?kit.partnerName(pokemon.catalogueId,pokemon.level):say(language,'Hidden Pokémon','未公开宝可梦')}`;
@@ -74,8 +75,8 @@ export function toolDialog(card,kit) {
   const populateTargets=()=>{
     const current=kit.getView(),choice=descriptor(current)?.choices.find(choice=>choice.effect===draft.effect),legal=enabled(choice)?choice.targets:[];
     if(!legal.some(target=>key(target)===draft.targetKey))draft.targetKey='';
-    targets.replaceChildren(node('option',{value:''},say(language,'Choose a Pokémon','请选择宝可梦')));
-    for(const target of legal)targets.append(node('option',{value:key(target)},targetLabel(target,current)));
+    targets.replaceChildren(node('option',{value:''},choice?.targeting==='trainer'?say(language,'Choose a trainer','请选择训练家'):say(language,'Choose a Pokémon','请选择宝可梦')));
+    for(const target of legal)targets.append(node('option',{value:key(target)},targetLabel(target,current,choice)));
     targets.value=draft.targetKey;targets.disabled=kit.busy||Boolean(current?.pendingVote)||Boolean(current?.pendingBattle)||!legal.length;update();
   };
   effects.addEventListener('change',()=>{draft.effect=effects.value;draft.targetKey='';populateTargets();});
@@ -85,7 +86,7 @@ export function toolDialog(card,kit) {
     const held=current?.self?.hand?.find(item=>item.id===cardId&&item.kind==='tool'&&item.toolType===toolType);
     dialog.close();
     if(current?.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||current.status!=='playing'||current.turn?.playerId!==current.selfId||current.turn?.phase!=='play'||current.self.spectator||current.players.find(player=>player.id===current.selfId)?.eliminated||kit.busy||current.pendingVote||current.pendingBattle||!held||!enabled(choice)||!target)return;
-    kit.action('useTool',{cardId,effect:choice.effect,targetId:target.targetId,slot:target.slot});
+    kit.action('useTool',{cardId,effect:choice.effect,targetId:target.targetId,...(choice.targeting==='trainer'?{}:{slot:target.slot})});
   });
   const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-tool',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
   dialog.append(node('label',{class:'attack-target',for:'tool-effect'},node('strong',{},say(language,'Effect','效果')),effects),

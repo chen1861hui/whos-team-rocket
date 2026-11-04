@@ -633,10 +633,11 @@ const splitTools=[
   ]},
   {toolType:'rare-candy-nugget',choices:[
     {effect:'rare-candy',name:{zh:'神奇糖果',en:'Rare Candy'},description:{zh:'在你的出牌阶段，使一只不处于等级3的出战宝可梦提升一个等级。',en:'During your Play phase, raise one active Pokémon below level 3 by one level.'}},
-    {effect:'nugget',name:{zh:'金珠',en:'Nugget'},description:{zh:'在你的出牌阶段，对一名训练家使用，令其摸两张牌。',en:'During your Play phase, one trainer draws two cards.'},unavailableReason:{zh:'此效果尚未实现。',en:'This effect is not implemented yet.'}},
+    {effect:'nugget',targeting:'trainer',name:{zh:'金珠',en:'Nugget'},description:{zh:'在你的出牌阶段，对一名训练家使用，令其摸两张牌。',en:'During your Play phase, one trainer draws two cards.'}},
   ]},
 ];
 function toolTargets(room,player,catalogue,effect) {
+  if(effect==='nugget')return live(room).map(owner=>({targetId:owner.id}));
   if(!['full-heal','rare-candy'].includes(effect))return [];
   return live(room).flatMap(owner=>['active','reserve'].flatMap(slot=>{
     const pokemon=owner[slot];
@@ -657,14 +658,24 @@ export function useBattleTool(room,player,input,ctx) {
   const card=player.hand.find(card=>card.id===input.cardId&&card.kind==='tool');
   const choice=legal.tools.find(tool=>tool.toolType===card?.toolType)?.choices.find(choice=>choice.effect===input.effect);
   requireRule(card&&choice&&!choice.unavailableReason,'INVALID_CARD','Choose a reviewed effect of a physical split tool in your own hand.');
-  requireRule(choice.targets.some(target=>target.targetId===input.targetId&&target.slot===input.slot),'INVALID_TARGET','Choose a legal Pokémon for this tool.');
-  const pokemon=trainer(room,input.targetId)[input.slot];
+  requireRule(choice.targets.some(target=>target.targetId===input.targetId&&target.slot===input.slot),'INVALID_TARGET','Choose a legal target for this tool.');
+  const owner=trainer(room,input.targetId);
   player.hand.splice(player.hand.indexOf(card),1);
-  if(input.slot==='reserve')pokemon.revealed=true;
-  if(input.effect==='full-heal')pokemon.status=null;
-  else pokemon.level++;
+  let drawn=0;
+  if(input.effect==='nugget') {
+    // The used card stays outside both piles until the effect and any Pickup
+    // finish. An exhausted finite fixture supplies only available real cards.
+    drawn=Math.min(2,room.drawPile.length+room.discardPile.length);
+    drawBattleCards(room,owner,drawn,'nugget');
+  } else {
+    const pokemon=owner[input.slot];
+    if(input.slot==='reserve')pokemon.revealed=true;
+    if(input.effect==='full-heal')pokemon.status=null;
+    else pokemon.level++;
+  }
   room.discardPile.push(card);
-  note(room,input.effect==='full-heal'?'使用万灵药恢复目标的特殊状态；整张组合道具牌已弃置。':'使用神奇糖果使目标提升一个等级；整张组合道具牌已弃置。',input.effect==='full-heal'?'Full Heal cured the target’s special status; the entire split tool was discarded.':'Rare Candy raised the target by one level; the entire split tool was discarded.');
+  if(input.effect==='nugget')note(room,`金珠令目标训练家摸了${drawn}张牌；整张组合道具牌已弃置。`,`Nugget let the target trainer draw ${drawn} card${drawn===1?'':'s'}; the entire split tool was discarded.`);
+  else note(room,input.effect==='full-heal'?'使用万灵药恢复目标的特殊状态；整张组合道具牌已弃置。':'使用神奇糖果使目标提升一个等级；整张组合道具牌已弃置。',input.effect==='full-heal'?'Full Heal cured the target’s special status; the entire split tool was discarded.':'Rare Candy raised the target by one level; the entire split tool was discarded.');
 }
 function battleMoves(room,pokemon,catalogue) {
   const native=face(pokemon,catalogue)?.moves||[];

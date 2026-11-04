@@ -1,4 +1,12 @@
-## Full Heal and Rare Candy — 2026-11-04 (current)
+## Nugget and trainer-targeted tools — 2026-11-04 (current)
+
+**965/965 tests pass** (925 baseline +40 independent Nugget cases). Nugget now lets any living trainer, including self or a distant trainer, draw2 through the shared actual-card gain/Pickup path. Both Rare Candy/Nugget alternatives are executable; choosing one consumes the entire physical split card once. Its trainer-only native selector sends no Pokémon slot and preserves bilingual cancel/reopen drafts. Accepted arena/native cards/centered hover/identity-first unique setup remain preserved; no CSS/assets/deck changes.
+
+Project C:\src\team-rocket-web, application app/. Branch codex/nugget from3ce3fad retains prior work. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/nugget . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. No PR/merge/hosting or repeated unavailable PR-access attempt. Combat remains39 supported Pokémon groups/117 faces; all40 groups/120 faces reviewed. Chansey still depends on Potion's covered rescue wording. Production remains six command/six Dodge per seat, all intense sun; tools are exercised through isolated real-card fixtures until retail quantities/weather distribution are verified.
+
+See gameplay-milestone-29.md and reviewed-split-tools.md. Nugget targets one trainer and draws cards; its physical card is discarded after resolution, not given to that trainer. Potion alone stays gated in the two reviewed physical tool pairs. Next: event-card handling, starting with the saved Mewtwo's Threat source queue; narrow transcription uncertainty stays explicit in pending-mewtwo-threat.md. Do not repeat acquisition or Pokémon discovery. Earlier counts below are historical.
+
+## Full Heal and Rare Candy — 2026-11-04 (historical)
 
 **925/925 tests pass** (875 baseline +50 independent split-tool tests). Full Heal cures a legal active/reserve status; Rare Candy raises any living trainer's level1/2 active by one, preserving injuries/status/markers/held item and existing turn restrictions. Both readable tool faces have no distance restriction. They use one actual physical split card: choosing either half consumes the entire pair once. Native bilingual confirmation shows both halves, exact legal targets and unavailable-effect reasons. Accepted arena/native cards/centered hover/setup remain preserved; no CSS or asset downloads.
 
