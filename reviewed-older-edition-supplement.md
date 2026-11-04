@@ -1,5 +1,7 @@
 # User-supplied older-edition supplement — 2026-11-04
 
+Later cross-confirmation: the user-requested Master Edition Bilibili video BV1juYi6UEkv shows Potion's ordinary2/rescue2 face around22:10, plus Mewtwo/Mew event faces around24:16/24:23. See `bilibili-BV1juYi6UEkv-source.md` for actual sampled coverage and evidence; it does not establish the complete weather/copy manifest. The older sheet is no longer the only readable source of the rescue amount.
+
 The user supplied ten images and identified them as an older version, asking whether they provide enough evidence to continue. They materially improve the available card evidence. All ten originals are preserved byte-for-byte under `research-assets/user-older-edition-2026-11-04/`; `manifest.json` records user image order, explicit supplied paths, SHA-256, byte size, decoded dimensions and actual file format. Their `.png` filenames do not establish their encoded format (O03 is WebP). Original bytes are retained. No source photographs are added to application routes or gameplay presentation.
 
 The existing photographed booklet remains the current rules basis. This supplement establishes readable OLD-PRINTING card text and can fill documented source gaps; it does not prove the two printings identical or replace already-established newer rules. No gameplay code, deck quantities or Pokémon statistics change in this source-review checkpoint. Last tested implementation remains965 passing tests on `e85890a`.

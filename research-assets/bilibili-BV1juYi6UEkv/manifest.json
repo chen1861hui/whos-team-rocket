@@ -1,0 +1,76 @@
+{
+  "reviewDate": "2026-11-04",
+  "source": "User-requested Bilibili BV1juYi6UEkv",
+  "method": "Actual in-app-browser video playback, manual timeline navigation and screenshots; sampled coverage only",
+  "sourceDescription": "Master Edition unboxing",
+  "runtimeSeconds": 1707,
+  "physicalGameCardTotalPrinted": 108,
+  "physicalPokemonCardTotalPrinted": 80,
+  "completePhysicalWeatherManifestVerified": false,
+  "gameplaySourcePhotosServed": false,
+  "entries": [
+    {
+      "file": "frame-02m05s-box-contents.jpg",
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "observedMediaSeconds": 125.265264,
+      "reviewer": "Root",
+      "description": "Printed Master Edition component totals",
+      "sha256": "ca07b2a9cbc7c3cbcae9ca0b4ef18db96abc418cf964051b4d6a9a69e252323f",
+      "bytes": 140493
+    },
+    {
+      "file": "frame-20m25s-power-speed.jpg",
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "observedMediaSeconds": 1225.214566,
+      "reviewer": "Root",
+      "description": "Heavy-rain Power/Speed physical split tool",
+      "sha256": "e209bf9dc0235a808347e9d41200d5aa9a2b902244c5b65905e92d1bf2ac6aef",
+      "bytes": 104352
+    },
+    {
+      "file": "frame-20m40s-jigglypuff.jpg",
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "observedMediaSeconds": null,
+      "reviewer": "Sol subagent; root independently viewed file",
+      "description": "Approx20:40 Jigglypuff heavy-rain event; no player clock in image",
+      "sha256": "497067b27f413b6ed1b6a2f938bdf6a79739017e15961eac2f04576a43ba12a7",
+      "bytes": 102067
+    },
+    {
+      "file": "frame-21m30s-mr-mime.jpg",
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "observedMediaSeconds": 1290.349292,
+      "reviewer": "Root",
+      "description": "Intense-sun Mr. Mime event",
+      "sha256": "b9dd43ad4bd8b2b6f55b512d03a30e37d725b92d0a47bb3073525119032561d6",
+      "bytes": 111663
+    },
+    {
+      "file": "frame-22m09s-potion.jpg",
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "observedMediaSeconds": 1329.21847,
+      "reviewer": "Root",
+      "description": "Intense-sun Potion/Full Heal, ordinary2 and rescue2 visible",
+      "sha256": "c1aaae17cfaf77b0fe467a24322921b6f3c044a9188ddf1e899bee745f69d747",
+      "bytes": 108696
+    },
+    {
+      "file": "frame-24m16s-mewtwo.jpg",
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "observedMediaSeconds": 1455.775618,
+      "reviewer": "Root",
+      "description": "Clear-weather Mewtwo event",
+      "sha256": "8589397655730f674f8205a20f4f4a3407f8a30448fd7d050e0cef149684e46a",
+      "bytes": 115408
+    },
+    {
+      "file": "frame-24m23s-mew.jpg",
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "observedMediaSeconds": 1462.998302,
+      "reviewer": "Root",
+      "description": "Clear-weather Mew event",
+      "sha256": "f558ab0516631746f209aae2ec9f7a0c5a19d41c235bc46de835c91fd4eb9479",
+      "bytes": 114155
+    }
+  ]
+}
