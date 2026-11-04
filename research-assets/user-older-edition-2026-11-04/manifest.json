@@ -1,0 +1,119 @@
+{
+  "receivedDate": "2026-11-04",
+  "source": "Ten images explicitly supplied by the user in this chat",
+  "edition": "User-described older version; exact printing and cross-version equivalence not independently established",
+  "use": "Research evidence only; no photographed cards served by the app",
+  "retailQuantitiesEstablished": false,
+  "entries": [
+    {
+      "id": "O01",
+      "userImageNumber": 1,
+      "file": "share_85ae28ce7a7bc846d6ca5cecf1a37533.png",
+      "providedPath": "C:/Users/pc/Downloads/share_85ae28ce7a7bc846d6ca5cecf1a37533.png",
+      "sha256": "4409b8fa4d8181fa507d7554a80cf95270e3c7e806456426e6b872e1e2211636",
+      "bytes": 316702,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O02",
+      "userImageNumber": 2,
+      "file": "share_692cd89463e4141a380b150d52b5f614.png",
+      "providedPath": "C:/Users/pc/Downloads/share_692cd89463e4141a380b150d52b5f614.png",
+      "sha256": "b2020b4c9aa73f3c0281e44375eb1dbcaa7da6a64adf3f25be4ea55fae0c93c9",
+      "bytes": 671288,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O03",
+      "userImageNumber": 3,
+      "file": "share_d5d99ad9094dafd0a484315a59b80816.png",
+      "providedPath": "C:/Users/pc/Downloads/share_d5d99ad9094dafd0a484315a59b80816.png",
+      "sha256": "71dc0eb1e4dee2ed352e891055b8fd13f4590162cb64d6e1bd4267fd67cdb4b2",
+      "bytes": 389120,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O04",
+      "userImageNumber": 4,
+      "file": "share_0683dd8d9e092d2e286d30d5ea251690.png",
+      "providedPath": "C:/Users/pc/Downloads/share_0683dd8d9e092d2e286d30d5ea251690.png",
+      "sha256": "ddc185bcb746d25b3603c63c42911f70d85312f4b7693f3b078a6ae15318c0fc",
+      "bytes": 273322,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O05",
+      "userImageNumber": 5,
+      "file": "share_3d6bf1a4dce41bafa82feb1c49bca952.png",
+      "providedPath": "C:/Users/pc/Downloads/share_3d6bf1a4dce41bafa82feb1c49bca952.png",
+      "sha256": "9918345fe1fd531ea07869769b9c4576735be42233305f3fc76e01c29760693a",
+      "bytes": 481812,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O06",
+      "userImageNumber": 6,
+      "file": "share_33ea1aae55bf09c2a708ecde60b1e38b.png",
+      "providedPath": "C:/Users/pc/Downloads/share_33ea1aae55bf09c2a708ecde60b1e38b.png",
+      "sha256": "38da1271a818c3dca1556f0046b9e3675ba44b0f54eac4ec6f34c0a227ebd845",
+      "bytes": 220324,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O07",
+      "userImageNumber": 7,
+      "file": "share_722069d8e6b28273425c5cac89c03fc5.png",
+      "providedPath": "C:/Users/pc/Downloads/share_722069d8e6b28273425c5cac89c03fc5.png",
+      "sha256": "655e014f355cd89674061327eea69cf9acfe4bcc83b3e357aef5bc80cf0d6d28",
+      "bytes": 458026,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O08",
+      "userImageNumber": 8,
+      "file": "share_65fa924bf8380e4defcf0d228c2be1df.png",
+      "providedPath": "C:/Users/pc/Downloads/share_65fa924bf8380e4defcf0d228c2be1df.png",
+      "sha256": "ab2e6f07e899fc54981c8c85f0708288fa8c7899792a40b14f6c310ae55070fd",
+      "bytes": 444550,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O09",
+      "userImageNumber": 9,
+      "file": "share_7ae42eb0758fb5433e5d64e6034a95a7.png",
+      "providedPath": "C:/Users/pc/Downloads/share_7ae42eb0758fb5433e5d64e6034a95a7.png",
+      "sha256": "5ba361fe4347fc6e1ea3d3be1c0fc10e57e4c2cc04fd347f2a77088bd0fde9af",
+      "bytes": 97080,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    },
+    {
+      "id": "O10",
+      "userImageNumber": 10,
+      "file": "share_171e1cfcb0c81855504d7243dd5a7794.png",
+      "providedPath": "C:/Users/pc/Downloads/share_171e1cfcb0c81855504d7243dd5a7794.png",
+      "sha256": "301ebdfac1589defba96870438ee8b4bf7f37efcf19d8f8852761c35f0d31b4b",
+      "bytes": 310908,
+      "width": 1440,
+      "height": 1920,
+      "detectedFormat": "WEBP"
+    }
+  ]
+}

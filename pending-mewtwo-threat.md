@@ -1,12 +1,14 @@
 # Pending P03 event reading — 2026-11-04
 
+Supplement received later the same day: user-supplied older image O03 has complete readable Mewtwo/Mew paragraphs, including the ordering and chooser text. See `reviewed-older-edition-supplement.md`; the older printing is explicitly tagged. Root's new focused CURRENT P03 title crop also confirms **超梦的威压**. The previous 威胁 label was our transcription error, not an established version difference. The bounded original-P03 readings below remain provenance for that particular image; the older image supplies additional text without recovering covered pixels. Neither event is implemented yet.
+
 Status: bounded source queue only, awaiting a complete exact-text reading and later implementation. Neither event is executable or engine-eligible by this record. No catalogue, engine, UI or test changes. Root and an independent Sol reader inspected only the already-saved P03 original and reading crops; no discovery or downloads. The uncertain ordering phrase is retained rather than reconstructed.
 
 Original: `research-assets/provided-previews/mmexport1793009022050.jpg.jpeg`, 790×4046, SHA-256 `b6c4ec18d05a635711f103b48b26220e13679247f8b0b88bf0e911144ee61915`. The hash was recomputed from local bytes and matches existing P03 provenance. Coordinates below refer to this original, measured from its top-left. The printing remains unidentified; English is a working translation only. An enlargement cannot recover genuinely covered text or missing pixel detail.
 
 The two event cards occupy approximately x145–625, y2700–3095. The Mewtwo body/title reading crop was x180–415, y2930–3070; root independently used x168–425, y2945–3060. The Mew body reading crop was x406–606, y2940–3067. The independent crops were generated in memory only. Root's separate QA-only crop, outside the repository, does not constitute another source.
 
-Mewtwo's Threat / 超梦的威胁 is the unobscured left card. Its upper-left weather is clear / 晴朗 (sun with cloud), and its bottom type bar reads 事件. There is no command icon, Pokémon level/HP, payment count or printed deck quantity. The printed damage2 occurs in the paragraph; it is not a move damage numeral or extra cost.
+Mewtwo's Threat / 超梦的威压 is the unobscured left card. Its upper-left weather is clear / 晴朗 (sun with cloud), and its bottom type bar reads 事件. There is no command icon, Pokémon level/HP, payment count or printed deck quantity. The printed damage2 occurs in the paragraph; it is not a move damage numeral or extra cost.
 
 Readable Chinese passages, preserving the remaining gap explicitly:
 

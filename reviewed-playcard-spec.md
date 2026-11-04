@@ -1,5 +1,7 @@
 # Reviewed supplied play-card faces and remaining statuses — 2026-10-27
 
+2026-11-04 supplement: ten newly supplied older-version images are preserved with hashes in `research-assets/user-older-edition-2026-11-04/`. O03 supplies readable Potion normal/rescue heal2 (including ordinary reserve permission), both complete Mewtwo/Mew event paragraphs and other card faces. See `reviewed-older-edition-supplement.md` for exact older-printing text and compatibility limits. P02's own covered pixels remain covered; it is no longer accurate to say no readable Potion rescue source has been supplied at all. Deck quantities/weather distribution remain unknown. Root rechecked current P03's title: **超梦的威压**, correcting the earlier 威胁 transcription.
+
 ## Independent integration review
 
 Root independently inspected original command/dodge and split-tools regions and booklet photos04/06/07/08/09. Confirmed the art-only command/dodge faces and the physically covered Potion text. Command/dodge effects and the reviewed starter traits now run in the explicit development combat preview. That preview contains no Potion; full rescue healing is not fabricated. Target-owner Dodge response is recorded as an interpretation. See `gameplay-milestone-4.md` for executable scope/tests and `combat-result-preview.jpg` for a real browser result.
@@ -98,7 +100,7 @@ Names/weather were read for inventory; this table does **not** promote every bod
 
 | Poster | Face(s) | Observed weather | Body evidence in this pass |
 |---|---|---|---|
-| P03 | 超梦的威胁 / Mewtwo's Threat | 晴朗 | Unobscured left face; body not fully transcribed here |
+| P03 | 超梦的威压 / Mewtwo's Threat | 晴朗 | Unobscured left face; body not fully transcribed here |
 | P03 | 梦幻的祝福 / Mew's Blessing | 晴朗 | Left edge of body covered |
 | P04 | 劲敌的挑战 / Rival's Challenge | 暴雨 | Unobscured left face; body not fully transcribed here |
 | P04 | 树果大丰收 / Berry Harvest | 晴朗 | Left edge of body covered |
