@@ -1,3 +1,5 @@
+> 2026-11-04 implementation update: Potion rescue and all Chansey faces are now executable in combat preview. See reviewed-potion-chansey.md. Earlier covered-text/reference-only gates below describe the original review checkpoint; Revive and retail deck quantities remain unimplemented/unverified.
+
 # Full Heal, Rare Candy and physical split tools — 2026-11-04
 
 Root and an independent Sol reader rechecked the already-saved P02 poster and booklet06/07 originals. No discovery, downloads or source-image edits. Enlarged reading crops were generated only in memory. This record distinguishes printed effects from implementation and privacy policies. The printing remains unidentified; working English is not English-printing evidence.

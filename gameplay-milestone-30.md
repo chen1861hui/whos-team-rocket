@@ -1,0 +1,11 @@
+# Milestone30 — Potion rescue and Chansey
+
+## Potion rescue and Chansey — 2026-11-04 (current)
+
+**1,010/1,010 tests pass. All 40 reviewed Pokémon groups / 120 faces now execute in combat preview.** Potion restores2 to an injured living active/reserve during Play, or to the original fainting active during rescue. Both Potion/Full Heal and Potion/Revive physical pairings are recognized; Revive itself remains unimplemented. Chansey has active Healer (including self-rescue at0HP), Charm, Life Dew and Lv3 Double-Edge. Negative HP, repeated cards by the same rescue actor, immediate recovery atHP>=1, Gas and nested Rhyhorn restrictions are covered.
+
+Project C:\src\team-rocket-web, app app/. Branch codex/potion-chansey from5309fc8 includes the older-edition and Bilibili source commits. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/potion-chansey . Main4173 restarted with current code and saved rooms retained; isolated QA4174 stopped. No PR/merge/hosting. Preserve accepted arena, native cards, centered hover and identity-first shared unique setup. No CSS, new asset downloads or production deck changes.
+
+See reviewed-potion-chansey.md and gameplay-milestone-30.md. O03 and the Master Edition video22:10 now confirm Potion rescue2; do not request those sources again. Life Dew uses an explicit conservative policy: active Pokémon only, at least one target; its printed any-number wording does not explicitly resolve reserve/zero targets. Retail engineEligible gates remain false; production stays six command/six Dodge per seat, all intense sun. Physical card/weather quantities remain unverified. Next: implement the already-preserved Mewtwo/Mew events using reviewed-older-edition-supplement.md and bilibili-BV1juYi6UEkv-source.md; replace obsolete covered-text uncertainty in pending-mewtwo-threat.md before implementation. Earlier checkpoints below are historical.
+
+Validation: npm.cmd test →1,010 pass/0 fail in28.34s. Forty-five new independent cases; obsolete baseline expectations updated without removing unsupported-effect guard coverage. Browser scenarios and exact source/engine contracts are recorded in reviewed-potion-chansey.md. No CSS, arena, production-deck changes or new downloads. Main4173 restarted, isolated4174 stopped; saved main rooms retained.

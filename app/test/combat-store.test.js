@@ -7,13 +7,13 @@ import { RoomStore, CONNECTED_MS } from '../server/store.js';
 
 const catalogue = JSON.parse(readFileSync(new URL('../content/catalogue.json', import.meta.url), 'utf8'));
 const publicShape = p => ({ catalogueId: p.catalogueId, level: p.level });
-function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
+function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content = catalogue } = {}) {
   const root = fileURLToPath(new URL('../.data/', import.meta.url)); mkdirSync(root, { recursive: true });
   const dir = mkdtempSync(join(root, 'combat-test-'));
   t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
   let time = 1_000_000, serial = 0;
   const now = () => time;
-  const store = new RoomStore({ dataDir: dir, catalogue, now });
+  const store = new RoomStore({ dataDir: dir, catalogue: content, now });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, ...Array.from({ length: count - 1 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const byId = id => seats.find(p => p.playerId === id);
@@ -264,10 +264,10 @@ test('abandoning a pending combat response clears the match without disclosing h
   assert.ok(lobby.players.every(p => p.role === undefined && p.hand === undefined && p.reserve === undefined));
 });
 
-test('unimplemented roster effects cannot attack or be silently ignored as defensive targets', t => {
-  const f = fixture(t); f.play();
-  const unsupported=catalogue.entries.find(entry=>entry.selectionEligible&&entry.levels.every(face=>face.effectStatus!=='combat-preview'));
-  assert.ok(unsupported,'The incomplete roster still has unsupported groups to validate.');
+test('synthetically unimplemented roster effects cannot attack or be silently ignored as defensive targets', t => {
+  const content = structuredClone(catalogue), unsupported = structuredClone(content.entries.find(entry => entry.id === 'squirtle'));
+  unsupported.id = 'synthetic-unimplemented'; unsupported.effectStatus = 'unavailable'; unsupported.levels.forEach(face => { face.effectStatus = 'unavailable'; }); content.entries.push(unsupported);
+  const f = fixture(t, { content }); f.play();
   const target = f.target(); f.player(target).active.catalogueId = unsupported.id;
   const cardId = f.supply(f.leader, 'command');
   const before = f.player(f.leader).hand.length;

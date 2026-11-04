@@ -66,12 +66,13 @@ test('Kangaskhan and Staryu expose reviewed HP, command values and correct targe
   }
 });
 
-test('catalogue and selection roster distinguish 31 executable groups from 32 reviewed groups', () => {
+test('catalogue and selection roster retain the Kangaskhan/Staryu baseline and agree on current coverage', () => {
   assert.ok(catalogue.metadata.combatSupportedGroups >= 31); assert.ok(catalogue.metadata.effectReviewedGroups >= 32); assert.ok(catalogue.metadata.effectReviewedFaces >= 96);
   const executable = catalogue.entries.filter(entry => entry.levels.every(face => face.effectStatus === 'combat-preview')); assert.equal(executable.length, catalogue.metadata.combatSupportedGroups); assert.equal(executable.flatMap(entry => entry.levels).length, catalogue.metadata.combatSupportedGroups*3);
   const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8')); assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, catalogue.metadata.combatSupportedGroups);
   for (const id of ['kangaskhan', 'staryu']) { const entry = roster.entries.find(entry => entry.id === id); assert.equal(entry.supportedEffects, true); assert.equal(entry.effectStatus, 'existing-reviewed-combat-preview'); }
-  assert.notEqual(catalogue.entries.find(entry => entry.id === 'chansey').levels[0].effectStatus, 'combat-preview');
+  assert.ok(catalogue.entries.find(entry => entry.id === 'chansey').levels.every(face => face.effectStatus === 'combat-preview'));
+  assert.equal(roster.entries.find(entry => entry.id === 'chansey').supportedEffects, true);
 });
 
 test('Early Bird excludes exactly the two named events on each active Kangaskhan level', t => {

@@ -64,9 +64,9 @@ test('Electabuzz and Tauros expose reviewed HP and all native two-damage command
   for (const family of ['electabuzz', 'tauros']) { const entry = catalogue.entries.find(entry => entry.id === family); assert.deepEqual(entry.levels.map(face => face.hp), [3, 4, 4]); assert.deepEqual(entry.levels.map(face => face.effectStatus), Array(3).fill('combat-preview')); for (const level of [1, 2, 3]) { const f = fixture(t); f.play(family, level); const battle = f.view(f.leader).self.battle; assert.equal(battle.canCommand, true); assert.equal(battle.canTrait, false); assert.equal(battle.moves.length, 1); assert.equal(battle.move.printedValue, 2); assert.equal(battle.move.maxTargets, level === 3 ? 2 : 1); } }
 });
 
-test('catalogue and roster support the new pair while retaining reference-only Chansey', () => {
+test('catalogue and roster support the new pair while supporting Chansey', () => {
   const executable = catalogue.entries.filter(entry => entry.levels.every(face => face.effectStatus === 'combat-preview')); assert.equal(catalogue.metadata.combatSupportedGroups, executable.length); assert.ok(executable.length >= 35); assert.equal(executable.flatMap(entry => entry.levels).length, executable.length * 3);
-  const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8')); assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, executable.length); for (const id of ['electabuzz', 'tauros']) assert.equal(roster.entries.find(entry => entry.id === id).supportedEffects, true); assert.equal(roster.entries.find(entry => entry.id === 'chansey').supportedEffects, false);
+  const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8')); assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, executable.length); for (const id of ['electabuzz', 'tauros']) assert.equal(roster.entries.find(entry => entry.id === id).supportedEffects, true); assert.equal(roster.entries.find(entry => entry.id === 'chansey').supportedEffects, true);
 });
 
 test('Vital Spirit projects only before any normal mandatory draw on each level', t => {

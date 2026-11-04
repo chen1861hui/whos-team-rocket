@@ -7,13 +7,13 @@ import { RoomStore } from '../server/store.js';
 
 
 const catalogue = JSON.parse(readFileSync(new URL('../content/catalogue.json', import.meta.url), 'utf8'));
-function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
+function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content = catalogue } = {}) {
   const root = fileURLToPath(new URL('../.data/', import.meta.url));
   mkdirSync(root, { recursive: true });
   const dir = mkdtempSync(join(root, 'clefairy-exeggcute-test-'));
   t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
   let serial = 0, time = 1_000_000;
-  const now = () => time, store = new RoomStore({ dataDir: dir, catalogue, now });
+  const now = () => time, store = new RoomStore({ dataDir: dir, catalogue: content, now });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, ...Array.from({ length: count - 1 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const room = () => store.rooms.get(owner.code), player = who => room().players.find(p => p.id === who.playerId);
@@ -135,8 +135,9 @@ test('Cute Charm uses its passive neighbor range and excludes unsupported or ina
   assert.deepEqual(f.room().pendingBattle.legalTargetIds, [neighbor]);
   const far = seats.find(player => ![f.leader.playerId, f.target.playerId, neighbor].includes(player.id));
   rejectsAtomically(f, () => redirect(f, cost, far.id)); redirect(f, cost, neighbor); f.drain();
-  const g = fixture(t); g.play('squirtle'); charm(g); const unsupported = catalogue.entries.find(entry => entry.selectionEligible && entry.levels.every(face => face.effectStatus !== 'combat-preview'));
-  assert.ok(unsupported); g.seed(g.third, unsupported.id); g.attack(); assert.notEqual(g.room().pendingBattle.kind, 'cute-charm');
+  const content = structuredClone(catalogue), unsupported = structuredClone(content.entries.find(entry => entry.id === 'squirtle'));
+  unsupported.id = 'synthetic-unimplemented'; unsupported.effectStatus = 'unavailable'; unsupported.levels.forEach(face => { face.effectStatus = 'unavailable'; }); content.entries.push(unsupported);
+  const g = fixture(t, { content }); g.play('squirtle'); charm(g); g.seed(g.third, unsupported.id); g.attack(); assert.equal(g.room().pendingBattle.kind, 'defense');
 });
 
 test('passing Cute Charm preserves payment and opens original target defense only once', t => {

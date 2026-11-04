@@ -72,28 +72,28 @@ test('Rhyhorn reviewed faces expose 3/4/5 HP and the exact one-command move prog
   }
 });
 
-test('Chansey faces retain reviewed HP and reference text while remaining unavailable in battle', t => {
+test('Chansey faces retain reviewed HP and expose supported native moves after Potion rescue verification', t => {
   const entry = catalogue.entries.find(entry => entry.id === 'chansey'); assert.deepEqual(entry.levels.map(face => face.hp), [3, 4, 5]);
   for (const level of [1, 2, 3]) {
-    const face = entry.levels.find(face => face.level === level); assert.notEqual(face.effectStatus, 'combat-preview'); assert.ok(face.abilityText?.en); assert.equal(face.traitName.en, 'Healer'); assert.ok(face.moves.length > 0);
-    const f = fixture(t); f.play('chansey', level); const battle = f.view(f.leader).self.battle; assert.equal(battle.canCommand, false); assert.equal(battle.canTrait, false);
-    const command = f.supply(f.leader); rejectsAtomically(f, () => f.attack({ cardId: command })); rejectsAtomically(f, () => reckless(f, 0));
+    const face = entry.levels.find(face => face.level === level); assert.equal(face.effectStatus, 'combat-preview'); assert.ok(face.abilityText?.en); assert.equal(face.traitName.en, 'Healer'); assert.ok(face.moves.length > 0);
+    const f = fixture(t); f.play('chansey', level); const battle = f.view(f.leader).self.battle; assert.equal(battle.canCommand, level===3); assert.equal(battle.canTrait, false);
+    rejectsAtomically(f, () => f.attack({ cardId: 'forged' })); rejectsAtomically(f, () => reckless(f, 0));
   }
 });
 
-test('catalogue counts distinguish executable Rhyhorn from reference-only Chansey', () => {
+test('catalogue counts include executable Rhyhorn and Chansey', () => {
   assert.ok(catalogue.metadata.combatSupportedGroups >= 29); assert.ok(catalogue.metadata.effectReviewedGroups >= 30); assert.ok(catalogue.metadata.effectReviewedFaces >= 90);
   const executable = catalogue.entries.filter(entry => entry.levels.every(face => face.effectStatus === 'combat-preview')); assert.equal(executable.length, catalogue.metadata.combatSupportedGroups); assert.equal(executable.flatMap(entry => entry.levels).length, catalogue.metadata.combatSupportedGroups*3);
   const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8'));
   assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, catalogue.metadata.combatSupportedGroups);
-  for (const [id, supportedEffects, effectStatus] of [['rhyhorn', true, 'existing-reviewed-combat-preview'], ['chansey', false, 'reference-only']]) {
+  for (const [id, supportedEffects, effectStatus] of [['rhyhorn', true, 'existing-reviewed-combat-preview'], ['chansey', true, 'existing-reviewed-combat-preview']]) {
     const entry = roster.entries.find(entry => entry.id === id); assert.ok(entry); assert.equal(entry.supportedEffects, supportedEffects); assert.equal(entry.effectStatus, effectStatus); assert.equal(Object.hasOwn(entry, 'combatSupported'), false);
   }
 });
 
-test('unsupported Chansey cannot be a command target and reserve Healer does not grant a trait action', t => {
-  const f = fixture(t); f.play(); f.seed(f.target, 'chansey', 3); const command = f.supply(f.leader); assert.equal(f.view(f.leader).self.battle.legalTargetIds.includes(f.target.playerId), false);
-  rejectsAtomically(f, () => f.attack({ cardId: command })); f.player(f.leader).active.catalogueId = 'squirtle'; f.player(f.leader).reserve.catalogueId = 'chansey'; assert.equal(f.view(f.leader).self.battle.canTrait, false);
+test('supported Chansey can be a command target and reserve Healer does not grant a trait action', t => {
+  const f = fixture(t); f.play(); f.seed(f.target, 'chansey', 3); const command = f.supply(f.leader); assert.equal(f.view(f.leader).self.battle.legalTargetIds.includes(f.target.playerId), true);
+  f.attack({cardId:command}); f.respond(); assert.equal(f.player(f.target).active.damage,1); f.player(f.leader).active.catalogueId = 'squirtle'; f.player(f.leader).reserve.catalogueId = 'chansey'; assert.equal(f.view(f.leader).self.battle.canTrait, false);
 });
 
 test('each Rhyhorn command spends one real Take this and deals exactly its printed damage', t => {
@@ -306,9 +306,9 @@ test('Gas suppresses Reckless while leaving Rhyhorn moves and their rescue restr
   assert.equal(f.view(f.leader).self.battle.canTrait, false); rejectsAtomically(f, () => reckless(f, 1)); f.seed(f.target, 'charmander', 1, { hpBonus: 0 }); f.attack(); f.respond(); potionPermission(f, true); f.drain();
 });
 
-test('ordinary rescues retain Potion permission for every actor despite the unsupported Potion implementation', t => {
+test('ordinary rescues retain Potion permission for every actor regardless of holdings', t => {
   const f = fixture(t); f.play('squirtle'); f.seed(f.target, 'charmander', 1, { hpBonus: 0, damage: 2 }); f.attack(); f.respond();
-  while (f.room().pendingBattle?.kind === 'rescue') { potionPermission(f, false); f.respond(); } assert.equal(f.room().scenario.potionSupported, false);
+  while (f.room().pendingBattle?.kind === 'rescue') { potionPermission(f, false); f.respond(); } assert.equal(f.room().scenario.potionSupported, true);
 });
 
 test('each Rhyhorn move restricts Potion permission to the fainting trainer across the whole rescue order', t => {
@@ -319,7 +319,7 @@ test('each Rhyhorn move restricts Potion permission to the fainting trainer acro
   }
 });
 
-test('Potion remains unsupported even for the permitted fainting owner and forged rescue fields reject atomically', t => {
+test('standalone forged Potion cards and unrelated rescue fields reject atomically', t => {
   const f = fixture(t); f.play('rhyhorn', 3); f.seed(f.target, 'charmander', 1, { hpBonus: 0 }); const potion = f.supply(f.target, 'potion'); f.attack(); f.respond(); while (f.room().pendingBattle.actorId !== f.target.playerId) f.respond();
   potionPermission(f, true); for (const payload of [{ choice: 'potion', cardId: potion }, { choice: 'pass', canUsePotion: true }, { choice: 'pass', potionRestrictedToOwner: false }, { choice: 'pass', hpLoss: 0 }, { choice: 'pass', targetId: f.leader.playerId }]) rejectsAtomically(f, () => f.respond(payload.choice, Object.fromEntries(Object.entries(payload).filter(([key]) => key !== 'choice')))); f.drain(); assert.equal(f.player(f.target).hand.some(card => card.id === potion), true);
 });
@@ -353,7 +353,7 @@ test('a completed Reckless hand gain follows ordinary excess-card Discard before
   rejectsAtomically(f, () => f.act(f.leader, 'endTurn', { levelUp: false })); while (f.room().turn.phase === 'discard') f.act(f.leader, 'discard', { cardId: f.player(f.leader).hand[0].id }); assert.equal(f.player(f.leader).hand.length, 4); assert.equal(f.room().turn.phase, 'end');
 });
 
-test('Chansey reference Healer never upgrades real command damage or exposes Potion execution', t => {
+test('reserve Healer never enables sunny-card rescue conversion or changes command damage', t => {
   const f = fixture(t); f.play('squirtle'); f.player(f.third).reserve.catalogueId = 'chansey'; f.player(f.third).reserve.revealed = true; f.seed(f.target, 'charmander', 1, { hpBonus: 0, damage: 2 }); const potion = f.supply(f.third, 'potion'); f.attack(); f.respond();
-  assert.equal(f.room().scenario.potionSupported, false); while (f.room().pendingBattle.actorId !== f.third.playerId) f.respond(); rejectsAtomically(f, () => f.respond('potion', { cardId: potion })); f.drain(); assert.equal(f.player(f.target).reserve.defeated, true);
+  assert.equal(f.room().scenario.potionSupported, true); while (f.room().pendingBattle.actorId !== f.third.playerId) f.respond(); rejectsAtomically(f, () => f.respond('healer', { cardId: potion })); f.drain(); assert.equal(f.player(f.target).reserve.defeated, true);
 });

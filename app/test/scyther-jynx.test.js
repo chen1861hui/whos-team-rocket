@@ -69,7 +69,7 @@ test('both families expose reviewed HP and native face damage values', t => {
 test('catalogue and roster retain the Scyther/Jynx baseline and agree on current coverage', () => {
   assert.ok(catalogue.metadata.combatSupportedGroups >= 33); assert.ok(catalogue.metadata.effectReviewedGroups >= 34); assert.ok(catalogue.metadata.effectReviewedFaces >= 102);
   const supported = catalogue.entries.filter(entry => entry.levels.every(face => face.effectStatus === 'combat-preview')); assert.equal(supported.length, catalogue.metadata.combatSupportedGroups); assert.equal(supported.flatMap(entry => entry.levels).length, supported.length * 3);
-  const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8')); assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, supported.length); for (const id of ['scyther', 'jynx']) assert.equal(roster.entries.find(entry => entry.id === id).supportedEffects, true); assert.notEqual(catalogue.entries.find(entry => entry.id === 'chansey').levels[0].effectStatus, 'combat-preview');
+  const roster = JSON.parse(readFileSync(new URL('../content/selection-roster.json', import.meta.url), 'utf8')); assert.equal(roster.entries.filter(entry => entry.supportedEffects).length, supported.length); for (const id of ['scyther', 'jynx', 'chansey']) assert.equal(roster.entries.find(entry => entry.id === id).supportedEffects, true); assert.ok(catalogue.entries.find(entry => entry.id === 'chansey').levels.every(face => face.effectStatus === 'combat-preview'));
 });
 
 test('Technician exposes native moves first then lower faces in ascending order', t => {

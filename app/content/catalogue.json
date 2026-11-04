@@ -18,7 +18,7 @@
     "pokemonFaces": 120,
     "selectionReviewSpecification": "reviewed-selection-roster.md",
     "combatReviewSpecification": "reviewed-combat-spec.md",
-    "combatSupportedGroups": 39,
+    "combatSupportedGroups": 40,
     "effectReviewedGroups": 40,
     "effectReviewedFaces": 120,
     "reviewedHeldItems": 1
@@ -9365,12 +9365,12 @@
           "en": "Artwork placeholder"
         }
       },
-      "effectStatus": "reference-only",
+      "effectStatus": "combat-preview",
       "engineEligible": false,
       "levels": [
         {
           "level": 1,
-          "effectStatus": "reference-only",
+          "effectStatus": "combat-preview",
           "abilityText": {
             "zh": "当一只宝可梦处于昏厥状态时，你可以在昏厥结算期间将一张天气为“晴天”（[烈日]/[晴朗]）的手牌当【伤药】使用。",
             "en": "While a Pokémon is fainting, during its fainting settlement you may use one sunny-weather hand card (intense sun or clear) as Potion."
@@ -9393,7 +9393,8 @@
             "imageIndex": null,
             "reviewStatus": "identity-and-hp-visually-reviewed",
             "edition": "unidentified",
-            "specification": "reviewed-selection-roster.md"
+            "specification": "reviewed-selection-roster.md",
+            "implementationSpecification": "reviewed-potion-chansey.md"
           },
           "portraitImage": {
             "url": "/pokemon-art/chansey.png",
@@ -9439,13 +9440,13 @@
                 "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
               },
               "engineEligible": false,
-              "effectStatus": "reference-only",
-              "engineScope": "reference-only",
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
               "effectParagraphStatus": "visually-transcribed",
               "unresolvedSymbols": []
             }
           ],
-          "engineScope": "reference-only",
+          "engineScope": "combat-preview-only",
           "translationStatus": "working-english",
           "effectProvenance": {
             "sourceId": "S05",
@@ -9457,15 +9458,11 @@
             "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
             "edition": "unidentified",
             "specification": "reviewed-rhyhorn-chansey.md"
-          },
-          "effectUnavailableReason": {
-            "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
-            "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
           }
         },
         {
           "level": 2,
-          "effectStatus": "reference-only",
+          "effectStatus": "combat-preview",
           "abilityText": {
             "zh": "当一只宝可梦处于昏厥状态时，你可以在昏厥结算期间将一张天气为“晴天”（[烈日]/[晴朗]）的手牌当【伤药】使用。",
             "en": "While a Pokémon is fainting, during its fainting settlement you may use one sunny-weather hand card (intense sun or clear) as Potion."
@@ -9488,7 +9485,8 @@
             "imageIndex": null,
             "reviewStatus": "identity-and-hp-visually-reviewed",
             "edition": "unidentified",
-            "specification": "reviewed-selection-roster.md"
+            "specification": "reviewed-selection-roster.md",
+            "implementationSpecification": "reviewed-potion-chansey.md"
           },
           "portraitImage": {
             "url": "/pokemon-art/chansey.png",
@@ -9534,8 +9532,8 @@
                 "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
               },
               "engineEligible": false,
-              "effectStatus": "reference-only",
-              "engineScope": "reference-only",
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
               "effectParagraphStatus": "visually-transcribed",
               "unresolvedSymbols": []
             },
@@ -9562,7 +9560,7 @@
                 "kind": "printed-any-pokemon",
                 "max": null,
                 "ignoresDistance": true,
-                "scopeUnresolved": "Active-only versus reserve targets not independently established."
+                "scopePolicy": "Active Pokémon only; at least one target. Conservative implementation interpretation; reserves are not explicitly named on this face."
               },
               "uses": {
                 "faceOverridePrinted": false,
@@ -9570,13 +9568,13 @@
                 "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
               },
               "engineEligible": false,
-              "effectStatus": "reference-only",
-              "engineScope": "reference-only",
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
               "effectParagraphStatus": "visually-transcribed",
               "unresolvedSymbols": []
             }
           ],
-          "engineScope": "reference-only",
+          "engineScope": "combat-preview-only",
           "translationStatus": "working-english",
           "effectProvenance": {
             "sourceId": "S05",
@@ -9588,15 +9586,11 @@
             "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
             "edition": "unidentified",
             "specification": "reviewed-rhyhorn-chansey.md"
-          },
-          "effectUnavailableReason": {
-            "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
-            "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
           }
         },
         {
           "level": 3,
-          "effectStatus": "reference-only",
+          "effectStatus": "combat-preview",
           "abilityText": {
             "zh": "当一只宝可梦处于昏厥状态时，你可以在昏厥结算期间将一张天气为“晴天”（[烈日]/[晴朗]）的手牌当【伤药】使用。",
             "en": "While a Pokémon is fainting, during its fainting settlement you may use one sunny-weather hand card (intense sun or clear) as Potion."
@@ -9619,7 +9613,8 @@
             "imageIndex": null,
             "reviewStatus": "identity-and-hp-visually-reviewed",
             "edition": "unidentified",
-            "specification": "reviewed-selection-roster.md"
+            "specification": "reviewed-selection-roster.md",
+            "implementationSpecification": "reviewed-potion-chansey.md"
           },
           "portraitImage": {
             "url": "/pokemon-art/chansey.png",
@@ -9666,8 +9661,8 @@
                 "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
               },
               "engineEligible": false,
-              "effectStatus": "reference-only",
-              "engineScope": "reference-only",
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
               "effectParagraphStatus": "visually-transcribed",
               "unresolvedSymbols": []
             },
@@ -9694,7 +9689,7 @@
                 "kind": "printed-any-pokemon",
                 "max": null,
                 "ignoresDistance": true,
-                "scopeUnresolved": "Active-only versus reserve targets not independently established."
+                "scopePolicy": "Active Pokémon only; at least one target. Conservative implementation interpretation; reserves are not explicitly named on this face."
               },
               "uses": {
                 "faceOverridePrinted": false,
@@ -9702,13 +9697,13 @@
                 "commandUserLimit": "one command-using Pokémon instance per trainer/Play phase"
               },
               "engineEligible": false,
-              "effectStatus": "reference-only",
-              "engineScope": "reference-only",
+              "effectStatus": "combat-preview",
+              "engineScope": "combat-preview-only",
               "effectParagraphStatus": "visually-transcribed",
               "unresolvedSymbols": []
             }
           ],
-          "engineScope": "reference-only",
+          "engineScope": "combat-preview-only",
           "translationStatus": "working-english",
           "effectProvenance": {
             "sourceId": "S05",
@@ -9720,10 +9715,6 @@
             "reviewStatus": "identity-hp-trait-and-move-visually-transcribed",
             "edition": "unidentified",
             "specification": "reviewed-rhyhorn-chansey.md"
-          },
-          "effectUnavailableReason": {
-            "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
-            "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
           }
         }
       ],
@@ -9747,10 +9738,8 @@
         "source": "research-assets/pokemon-art-manifest.json"
       },
       "effectReviewSpecification": "reviewed-rhyhorn-chansey.md",
-      "effectUnavailableReason": {
-        "zh": "治愈之心依赖伤药的昏厥救援效果；所提供伤药照片的该部分被遮挡，尚未核实。因此本组仅供参考。",
-        "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
-      }
+      "engineScope": "combat-preview-only",
+      "effectImplementationSpecification": "reviewed-potion-chansey.md"
     },
     {
       "id": "kangaskhan",

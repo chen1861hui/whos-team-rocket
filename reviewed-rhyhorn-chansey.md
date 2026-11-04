@@ -1,3 +1,5 @@
+> 2026-11-04 implementation update: Potion rescue and all Chansey faces are now executable in combat preview. See reviewed-potion-chansey.md. Earlier covered-text/reference-only gates below describe the original review checkpoint; Revive and retail deck quantities remain unimplemented/unverified.
+
 # Rhyhorn and Chansey source review — 2026-10-31
 
 Root and an independent non-Astra source reader viewed the four existing S05 photographs. Exact Chinese, working English, HP, classification, command/weather icons, source filenames and SHA-256 hashes for all six faces are in `reviewed-rhyhorn-chansey.json`. No asset was downloaded. The printing remains unidentified.

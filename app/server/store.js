@@ -66,6 +66,7 @@ export class RoomStore {
           }
         }
         if (room.pendingBattle?.clock) { room.pendingBattle.clock.deadlineAt = null; room.pendingBattle.clock.pausedReason = room.pendingVote ? 'vote' : 'disconnected'; }
+        if(isBattle(room)&&room.scenario)room.scenario.potionSupported=true;
         // A restart breaks transport presence; credentials and game state still recover.
         room.players.forEach(player => { player.lastSeenAt = 0; });
         this.rooms.set(room.code, room);

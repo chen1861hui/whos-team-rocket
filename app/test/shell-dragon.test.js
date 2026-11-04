@@ -6,13 +6,13 @@ import { fileURLToPath } from 'node:url';
 import { RoomStore, CONNECTED_MS } from '../server/store.js';
 
 const catalogue = JSON.parse(readFileSync(new URL('../content/catalogue.json', import.meta.url), 'utf8'));
-function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
+function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content = catalogue } = {}) {
   const root = fileURLToPath(new URL('../.data/', import.meta.url));
   mkdirSync(root, { recursive: true });
   const dir = mkdtempSync(join(root, 'shell-dragon-test-'));
   t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
   let serial = 0, time = 1_000_000;
-  const now = () => time, store = new RoomStore({ dataDir: dir, catalogue, now });
+  const now = () => time, store = new RoomStore({ dataDir: dir, catalogue: content, now });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, ...Array.from({ length: count - 1 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const room = () => store.rooms.get(owner.code), player = who => room().players.find(p => p.id === who.playerId);
@@ -194,8 +194,8 @@ test('Rocky Helmet damage uses Multiscale and a persisted nested Marvel Scale de
   }
 });
 
-test('unimplemented selectable groups retain closed command and target execution', t => {
-  const unsupported = catalogue.entries.find(entry => entry.selectionEligible && entry.levels.every(face => face.effectStatus !== 'combat-preview')); assert.ok(unsupported, 'Some reviewed roster groups remain intentionally non-executable'); const f = fixture(t); f.play(unsupported.id, 1); const cardId = f.supply(f.leader); assert.equal(f.view(f.leader).self.battle.canCommand, false); rejectsAtomically(f, () => f.attack({ cardId })); f.seed(f.leader, 'shellder', 1); f.seed(f.target, unsupported.id, 1); assert.equal(f.view(f.leader).self.battle.legalTargetIds.includes(f.target.playerId), false); rejectsAtomically(f, () => f.attack({ cardId }));
+test('synthetically unimplemented selectable groups retain closed command and target execution', t => {
+  const content = structuredClone(catalogue), unsupported = structuredClone(content.entries.find(entry => entry.id === 'squirtle'));
+  unsupported.id = 'synthetic-unimplemented'; unsupported.effectStatus = 'unavailable'; unsupported.levels.forEach(face => { face.effectStatus = 'unavailable'; }); content.entries.push(unsupported);
+  const f = fixture(t, { content }); f.play(unsupported.id, 1); const cardId = f.supply(f.leader); assert.equal(f.view(f.leader).self.battle.canCommand, false); rejectsAtomically(f, () => f.attack({ cardId })); f.seed(f.leader, 'shellder', 1); f.seed(f.target, unsupported.id, 1); assert.equal(f.view(f.leader).self.battle.legalTargetIds.includes(f.target.playerId), false); rejectsAtomically(f, () => f.attack({ cardId }));
 });
-
-

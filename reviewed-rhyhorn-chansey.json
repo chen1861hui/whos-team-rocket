@@ -499,5 +499,11 @@
         "en": "Healer depends on Potion’s rescue effect, which is covered in the supplied photo. This group remains reference-only."
       }
     }
-  ]
+  ],
+  "implementationUpdate": {
+    "date": "2026-11-04",
+    "specification": "reviewed-potion-chansey.md",
+    "status": "all-faces-combat-preview-supported",
+    "historicalSnapshot": "Face effectStatus and covered-Potion gates below are the original 2026-10-31 source-review snapshot, superseded for execution by the dated specification and current catalogue."
+  }
 }

@@ -42,7 +42,7 @@ export function setupBattle(room, catalogue) {
   room.players = [...seats.slice(leaderIndex), ...seats.slice(0, leaderIndex), ...room.players.filter(p => p.spectator)];
   delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries;
   room.gameMode = 'combat-preview'; room.result = null; room.pendingBattle = null; room.resolution = null; room.status = 'identity';
-  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, cardsPerSeat: 12, commandPerSeat: 6, dodgePerSeat: 6, potionSupported: false };
+  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, cardsPerSeat: 12, commandPerSeat: 6, dodgePerSeat: 6, potionSupported: true };
   note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
 }
 export function acknowledgeBattleIdentity(room, player, catalogue) {
@@ -443,9 +443,14 @@ export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
   if(pending.kind==='rescue') {
-    const restricted=[room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.effectKind==='fainting-owner-potion-only');
+    const restricted=rescueOwnerOnly(room);
     pending.canUsePotion=!restricted||pending.actorId===pending.targetId;
     if(restricted)pending.potionRestrictedToOwner=true;
+    if(pending.actorId===self.id) {
+      const stub=({id,name,weather,kind})=>({id,name,weather,kind});
+      pending.potionCards=pending.canUsePotion?self.hand.filter(isPotionCard).map(stub):[];
+      pending.healerCards=pending.canUsePotion&&hasHealer(room,self)?self.hand.filter(card=>['intense-sun','clear'].includes(card.weather)).map(stub):[];
+    }
   }
   if(['battle-armor','bonemerang','neutralizing-gas','pressure','pressure-payment'].includes(pending.kind)&&pending.actorId===self.id)pending.paymentCards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='cute-charm'&&pending.actorId===self.id)pending.paymentCards=self.hand.filter(card=>card.weather==='intense-sun').map(({id,name,weather,kind})=>({id,name,weather,kind}));
@@ -623,14 +628,20 @@ function reduceMoveDamage(room,targetId) {
 }
 const hasSniper=(room,player)=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&battleTraitsEffective(room,player.active);
 export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||hasSniper(room,player);
-const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen','lock-on']);
+const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen','lock-on','discard-other-hand','life-dew']);
+const isPotionCard=card=>card?.kind==='tool'&&['potion-full-heal','potion-revive'].includes(card.toolType);
+const rescueOwnerOnly=room=>[room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.effectKind==='fainting-owner-potion-only');
+// A fainting active still has its trait until formal defeat; reserves do not.
+const hasHealer=(room,owner)=>Boolean(owner&&!owner.eliminated&&owner.active?.catalogueId==='chansey'&&battleTraitsEffective(room,owner.active));
+const potionChoice={effect:'potion',name:{zh:'伤药',en:'Potion'},description:{zh:'出牌阶段令一只已受伤的出战或备战宝可梦回复2点体力；昏厥结算中可救援目标并回复2点体力。',en:'During Play, restore 2 HP to an injured active or reserve Pokémon; during fainting settlement, restore 2 HP to that target.'}};
 // One physical split card supplies two alternatives; only one executes. These
 // readable tool faces impose no distance restriction (booklet p07 is conditional).
 const splitTools=[
   {toolType:'potion-full-heal',choices:[
-    {effect:'potion',name:{zh:'伤药',en:'Potion'},description:{zh:'普通使用可回复2点体力；完整目标及救援条文仍被遮挡。',en:'Ordinary use restores 2 HP; complete targeting and rescue text remains covered.'},unavailableReason:{zh:'完整目标及救援条文尚未核实。',en:'Complete targeting and rescue text is not yet verified.'}},
+    potionChoice,
     {effect:'full-heal',name:{zh:'万灵药',en:'Full Heal'},description:{zh:'在你的出牌阶段，对一只处于特殊状态的出战或备战宝可梦使用，恢复其特殊状态。',en:'During your Play phase, cure one active or reserve Pokémon’s special status.'}},
   ]},
+  {toolType:'potion-revive',choices:[potionChoice,{effect:'revive',name:{zh:'活力碎片',en:'Revive'},description:{zh:'复活效果尚未实现。',en:'Revival is not implemented yet.'},unavailableReason:{zh:'复活效果尚未实现。',en:'Revival is not implemented yet.'}}]},
   {toolType:'rare-candy-nugget',choices:[
     {effect:'rare-candy',name:{zh:'神奇糖果',en:'Rare Candy'},description:{zh:'在你的出牌阶段，使一只不处于等级3的出战宝可梦提升一个等级。',en:'During your Play phase, raise one active Pokémon below level 3 by one level.'}},
     {effect:'nugget',targeting:'trainer',name:{zh:'金珠',en:'Nugget'},description:{zh:'在你的出牌阶段，对一名训练家使用，令其摸两张牌。',en:'During your Play phase, one trainer draws two cards.'}},
@@ -638,14 +649,14 @@ const splitTools=[
 ];
 function toolTargets(room,player,catalogue,effect) {
   if(effect==='nugget')return live(room).map(owner=>({targetId:owner.id}));
-  if(!['full-heal','rare-candy'].includes(effect))return [];
+  if(!['potion','full-heal','rare-candy'].includes(effect))return [];
   return live(room).flatMap(owner=>['active','reserve'].flatMap(slot=>{
     const pokemon=owner[slot];
     // No current status source reaches an unrevealed opposing reserve. Never
     // query its hidden state; future reserve-status effects need a reveal flow.
     if(slot==='reserve'&&owner.id!==player.id&&!pokemon?.revealed)return [];
     if(!pokemon||pokemon.defeated||currentHp(pokemon,catalogue)<=0)return [];
-    const legal=effect==='full-heal'?Boolean(pokemon.status):slot==='active'&&pokemon.level<3;
+    const legal=effect==='potion'?(pokemon.damage||0)>0:effect==='full-heal'?Boolean(pokemon.status):slot==='active'&&pokemon.level<3;
     return legal?[{targetId:owner.id,slot}]:[];
   }));
 }
@@ -670,11 +681,13 @@ export function useBattleTool(room,player,input,ctx) {
   } else {
     const pokemon=owner[input.slot];
     if(input.slot==='reserve')pokemon.revealed=true;
-    if(input.effect==='full-heal')pokemon.status=null;
+    if(input.effect==='potion')heal(pokemon,2,ctx.catalogue);
+    else if(input.effect==='full-heal')pokemon.status=null;
     else pokemon.level++;
   }
   room.discardPile.push(card);
-  if(input.effect==='nugget')note(room,`金珠令目标训练家摸了${drawn}张牌；整张组合道具牌已弃置。`,`Nugget let the target trainer draw ${drawn} card${drawn===1?'':'s'}; the entire split tool was discarded.`);
+  if(input.effect==='potion')note(room,'伤药回复目标至多2点体力；整张组合道具牌已弃置。','Potion restored up to 2 HP; the entire split tool was discarded.');
+  else if(input.effect==='nugget')note(room,`金珠令目标训练家摸了${drawn}张牌；整张组合道具牌已弃置。`,`Nugget let the target trainer draw ${drawn} card${drawn===1?'':'s'}; the entire split tool was discarded.`);
   else note(room,input.effect==='full-heal'?'使用万灵药恢复目标的特殊状态；整张组合道具牌已弃置。':'使用神奇糖果使目标提升一个等级；整张组合道具牌已弃置。',input.effect==='full-heal'?'Full Heal cured the target’s special status; the entire split tool was discarded.':'Rare Candy raised the target by one level; the entire split tool was discarded.');
 }
 function battleMoves(room,pokemon,catalogue) {
@@ -697,8 +710,10 @@ export function previewActions(room, player, catalogue) {
   const moveAvailable=Boolean(own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && !room.turn.movesBlocked && !(room.turn.blockedMoveIds||[]).includes(pokemon.instanceId));
   const moves=battleMoves(room,pokemon,catalogue).map((item,index)=>{
     const command=item.condition?.kind==='command';
+    const charm=item.effectKind==='discard-other-hand',dew=item.effectKind==='life-dew';
     const supported=command||(item.condition?.kind==='weather-card'&&weatherMoveEffects.has(item.effectKind)&&item.condition.weatherIconsInCondition?.length>0);
-    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:item.targeting?.max||1,legalTargetIds:own?(teleport||item.targeting?.kind==='self'?[player.id]:targetsFor(item.targeting?.ignoresDistance===true)):[],canUse:Boolean(moveAvailable&&supported&&(!command||(!teleportBlocked&&unlocked))&&((pokemon.catalogueId==='shellder'&&battleTraitsEffective(room,pokemon))||item.uses?.unlimited===true||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
+    const legalTargetIds=own?(teleport||item.targeting?.kind==='self'?[player.id]:targetsFor(item.targeting?.ignoresDistance===true).filter(id=>!charm||(id!==player.id&&trainer(room,id).hand.length>0))):[];
+    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,...(charm?{targeting:'trainer'}:{}),cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:dew?live(room).length:item.targeting?.max||1,legalTargetIds,canUse:Boolean(moveAvailable&&supported&&(!charm||legalTargetIds.length)&&(!command||(!teleportBlocked&&unlocked))&&((pokemon.catalogueId==='shellder'&&battleTraitsEffective(room,pokemon))||item.uses?.unlimited===true||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
   });
   const canCommand=Boolean(move?.condition?.kind==='command'&&moves[0]?.canUse);
   const giveRecipientIds = live(room).filter(p=>p.id!==player.id).map(p=>p.id);
@@ -763,12 +778,25 @@ function beginRescue(room, targetId, ctx) {
   const index=room.players.findIndex(p=>p.id===room.turn.playerId);
   room.resolution.rescueActors=[...room.players.slice(index),...room.players.slice(0,index)].filter(p=>!p.spectator&&!p.eliminated).map(p=>p.id);
   room.resolution.rescueIndex = 0;
+  room.resolution.rescueCreatureId=trainer(room,targetId).active.instanceId;
+  room.resolution.rescueActorInstances=Object.fromEntries(room.resolution.rescueActors.map(id=>[id,trainer(room,id).active?.instanceId]));
   note(room, '宝可梦昏厥；从当前回合训练家起依次结算救援。', 'A Pokémon is fainting; rescue starts with the current turn’s trainer.');
   decision(room, 'rescue', room.resolution.rescueActors[0], targetId, ctx);
 }
 function settleDamage(room, ctx) {
   const resolution = room.resolution;
   const target = creature(room, resolution.targetCreatureId), source = creature(room, resolution.sourceId);
+  if(resolution.effectKind==='life-dew') {
+    if(activeOwner(room,target?.instanceId)&&currentHp(target,ctx.catalogue)>0)heal(target,1,ctx.catalogue);
+    note(room,'生命水滴令目标回复至多1点体力。','Life Dew restored up to 1 HP to the target.');
+    return nextSettlement(room,ctx);
+  }
+  if(resolution.effectKind==='discard-other-hand') {
+    const owner=trainer(room,resolution.targetIds[resolution.index]);
+    if(!owner.hand.length)return nextSettlement(room,ctx);
+    resolution.handChoiceIds=shuffled(owner.hand.map(card=>card.id));
+    decision(room,'hand',resolution.sourcePlayerId,owner.id,ctx);room.pendingBattle.effect='discard';return;
+  }
   if(resolution.effectKind==='lock-on') {
     if(activeOwner(room,target.instanceId)) {
       room.turn.dodgeBlockedCreatureIds??=[];
@@ -1074,6 +1102,31 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(['cute-charm','neutralizing-gas','intimidate'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
   requireRule(pending.kind==='forewarn-order'||(input.topOrder===undefined&&input.bottomOrder===undefined),'INVALID_RESPONSE','Only Forewarn chooses the deck top and bottom.');
   requireRule(pending.kind==='download'||input.targetIds===undefined,'INVALID_RESPONSE','Only Download chooses multiple trainers.');
+  if(pending.kind==='rescue') {
+    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardId'].includes(key))&&['pass','potion','healer'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Use one Potion or Healer card, or pass without extra fields.');
+    const resolution=room.resolution,owner=trainer(room,pending.targetId),target=owner?.active;
+    requireRule(resolution&&resolution.rescueActors?.[resolution.rescueIndex]===player.id&&target&&!target.defeated&&target.instanceId===(resolution.rescueCreatureId??resolution.targetCreatureId)&&currentHp(target,ctx.catalogue)<=0&&(!resolution.rescueActorInstances||resolution.rescueActorInstances[player.id]===player.active?.instanceId),'STALE_DECISION','The fainting Pokémon or rescue actor changed.');
+    if(input.choice==='pass') {
+      resolution.rescueIndex++;
+      if(resolution.rescueIndex<resolution.rescueActors.length)decision(room,'rescue',resolution.rescueActors[resolution.rescueIndex],pending.targetId,ctx);
+      else {room.pendingBattle=null;defeat(room,pending.targetId,ctx);}
+      return;
+    }
+    requireRule(!rescueOwnerOnly(room)||player.id===pending.targetId,'POTION_RESTRICTED','Only the fainting Pokémon’s trainer may use Potion during this move.');
+    const index=player.hand.findIndex(card=>card.id===input.cardId),card=player.hand[index];
+    requireRule(typeof input.cardId==='string'&&index>=0&&(input.choice==='potion'?isPotionCard(card):hasHealer(room,player)&&['intense-sun','clear'].includes(card.weather)),'INVALID_CARD','Choose an actual Potion pair, or one sunny own hand card with active Healer.');
+    player.hand.splice(index,1);room.discardPile.push(card);
+    const result=heal(target,2,ctx.catalogue);
+    note(room,input.choice==='healer'?'治愈之心将一张晴天手牌当伤药，昏厥目标回复2点体力。':'伤药令昏厥目标回复2点体力；整张组合道具牌已弃置。',input.choice==='healer'?'Healer used one sunny hand card as Potion; the fainting target restored 2 HP.':'Potion restored 2 HP to the fainting target; the entire split card was discarded.');
+    if(result.hp>=1) {
+      room.pendingBattle=null;delete resolution.rescueActors;delete resolution.rescueIndex;delete resolution.rescueCreatureId;delete resolution.rescueActorInstances;
+      note(room,'救援成功；立即继续原结算。','Rescue succeeded; the original settlement resumes immediately.');
+      return afterDamage(room,ctx);
+    }
+    // Same trainer may use any number of actual cards before passing. Each use
+    // creates a fresh saved decision, so stale responses cannot heal twice.
+    decision(room,'rescue',player.id,pending.targetId,ctx);return;
+  }
   if(['pressure','pressure-payment'].includes(pending.kind)) {
     const resolution=room.resolution,target=trainer(room,resolution?.targetIds?.[resolution.pressureIndex]),source=trainer(room,resolution?.sourcePlayerId);
     requireRule(resolution?.kind==='move'&&!resolution.statusMove&&target?.active?.instanceId===resolution.pressurePokemonId&&target.active.catalogueId==='aerodactyl'&&!target.eliminated&&battleTraitsEffective(room,target.active)&&source?.active?.instanceId===resolution.sourceId&&!source.eliminated,'STALE_DECISION','The Pressure participants changed.');
@@ -1462,11 +1515,7 @@ export function respondBattle(room,player,input,ctx) {
     }else settleDamage(room,ctx);
     return;
   }
-  requireRule(pending.kind==='rescue' && input.choice==='pass','INVALID_RESPONSE','Choose a supported rescue response.');
-  // Potion is not in this development deck: its obscured rescue text is not guessed.
-  const resolution=room.resolution;resolution.rescueIndex++;
-  if(resolution.rescueIndex<resolution.rescueActors.length)decision(room,'rescue',resolution.rescueActors[resolution.rescueIndex],pending.targetId,ctx);
-  else defeat(room,pending.targetId,ctx);
+  requireRule(false,'INVALID_RESPONSE','Choose a supported response.');
 }
 export function useBattleTrait(room, player, ctx,input={}) {
   requireRule(previewActions(room, player, ctx.catalogue)?.canTrait, 'TRAIT_UNAVAILABLE', 'This optional trait is unavailable now.');
