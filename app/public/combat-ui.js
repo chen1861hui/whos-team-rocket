@@ -469,6 +469,48 @@ function shedControls(pending,kit) {
   const pass=node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(kit.getView().pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},say(language,'Keep hand · take damage','保留手牌 · 承受伤害'));
   update();return [grid,node('div',{class:'action-row'},confirm,pass)];
 }
+function blunderPolicyControls(pending,kit,view) {
+  const {language}=kit;
+  const draft=privateDecisionDraft(pending,kit,()=>({cardIds:[]}));
+  const cards=pending.paymentCards||[];
+  draft.cardIds=draft.cardIds.filter(id=>cards.some(card=>card.id===id));
+  const grid=node('div',{class:'shed-card-grid'}),buttons=[];
+  const currentDecision=()=>{
+    const current=kit.getView(),decision=current?.pendingBattle;
+    return current?.code===view.code&&current.selfId===view.selfId&&!kit.busy&&!current.pendingVote&&
+      decision?.id===pending.id&&decision.kind==='blunder-policy'&&decision.actorId===view.selfId?decision:null;
+  };
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-blunder-policy',onclick:()=>{
+    const current=currentDecision();
+    if(draft.cardIds.length===2&&draft.cardIds.every(id=>current?.paymentCards?.some(card=>card.id===id))) {
+      kit.action('respondBattle',{decisionId:pending.id,choice:'discard',cardIds:[...draft.cardIds]});
+    }
+  }});
+  const update=()=>{
+    const blocked=!currentDecision();
+    for(const [id,button] of buttons) {
+      const selected=draft.cardIds.includes(id);
+      button.setAttribute('aria-pressed',String(selected));
+      button.disabled=blocked||(!selected&&draft.cardIds.length===2);
+    }
+    confirm.disabled=blocked||draft.cardIds.length!==2;
+    confirm.textContent=say(language,`Discard and resolve (${draft.cardIds.length}/2)`,`弃置并结算（${draft.cardIds.length}/2）`);
+  };
+  for(const card of cards) {
+    const button=node('button',{type:'button',class:'button shed-card-choice',id:`blunder-card-${card.id}`,onclick:()=>{
+      if(!currentDecision())return;
+      if(draft.cardIds.includes(card.id))draft.cardIds=draft.cardIds.filter(id=>id!==card.id);
+      else if(draft.cardIds.length<2)draft.cardIds.push(card.id);
+      update();
+    }},`${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`);
+    buttons.push([card.id,button]);grid.append(button);
+  }
+  const pass=node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:!currentDecision(),onclick:()=>{
+    if(currentDecision())kit.action('respondBattle',{decisionId:pending.id,choice:'pass'});
+  }},say(language,'Accept the Dodge','接受躲闪结果'));
+  update();
+  return [grid,node('div',{class:'action-row'},confirm,pass)];
+}
 function exileControls(pending,kit) {
   if(exileDraft.id!==pending.id)exileDraft={id:pending.id,indices:[]};
   const language=kit.language,grid=node('div',{class:'hand-choice-grid'}),buttons=[];
@@ -762,6 +804,8 @@ export function decisionPanel(view,kit) {
   titles['rival-command']=['Rival’s Challenge · play a command','劲敌的挑战 · 打出接招吧！'];
   titles['berry-pick']=['Berry Harvest · choose a card','树果大丰收 · 选择一张牌'];
   titles['source-effect-order']=['Choose which attack effect resolves first','选择造成伤害后的结算顺序'];
+  titles['life-orb']=['Life Orb · optional boost','生命宝珠 · 可选增伤'];
+  titles['blunder-policy']=['Blunder Policy · discard to resolve','打空保险 · 弃牌后结算'];
   if(pending.kind==='event-hand'&&pending.eventName?.zh==='大葱鸭的恶作剧')titles['event-hand']=['Farfetch’d’s Prank · discard a hand card','大葱鸭的恶作剧 · 弃置手牌'];
   if(pending.kind==='articuno')titles.articuno=pending.mode==='cancel-event'
     ?['Articuno’s Protection · cancel event effect','急冻鸟的庇护 · 抵消事件效果']
@@ -793,6 +837,8 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='forewarn-order')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,'Only you can see these cards. Arrange every card on the top or bottom of the deck.','仅你能看到这些牌。请将每张牌放到牌堆顶或牌堆底。'):say(language,'The indicated trainer is privately arranging the viewed cards on the top and bottom of the deck.','指定训练家正在私下安排所观看的牌放回牌堆顶与底的顺序。')));
   if(pending.kind==='sweet-kiss')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Discard exactly ${pending.requiredCards} hand cards, then draw 2. With fewer than two cards, discard your entire hand. This choice is mandatory.`,`必须弃置恰好${pending.requiredCards}张手牌，然后摸2张。手牌不足两张时弃置全部手牌。此选择不可放弃。`):say(language,'The target trainer must privately choose hand cards to discard, then draw 2.','目标训练家必须私下选择手牌弃置，然后摸2张。')));
   if(pending.kind==='double-edge')panel.append(node('p',{},say(language,'Before damage modifiers, you may add 1 damage. If this settlement deals damage, its original source loses 1 HP after receiving effects finish. Burn and other damage modifiers still apply.','伤害修正前，可以令伤害+1。若本次结算造成伤害，受到伤害后的效果结算完毕后，原伤害来源失去1点体力。灼伤等伤害修正仍生效。')));
+  if(pending.kind==='life-orb')panel.append(node('p',{},say(language,`Damage before the target’s modifiers: ${pending.damage}. Boost by 1 and lose 1 HP after this settlement.`,`目标修正前的伤害值：${pending.damage}。可令伤害加1，并在本次结算后失去1点体力。`)));
+  if(pending.kind==='blunder-policy')panel.append(node('p',{},say(language,'The defender completed a Dodge. You may discard two cards from your hand to resolve this hit.','对方已完成躲闪。你可以弃置两张手牌，使本次结算生效。')));
   if(['effects','source-effect-order'].includes(pending.kind))panel.append(node('p',{},say(language,'These effects triggered together. Choose which one resolves next.','这些效果在同一时机触发，请选择下一个结算的效果。')));
   if(pending.kind==='damage-order')panel.append(node('p',{},say(language,`Current damage: ${pending.damage}. Choose which receiving-damage effect resolves next. Damage reduced to zero ends this settlement.`,`当前伤害值：${pending.damage}。请选择下一个结算的受到伤害时效果。伤害减至零时，本次伤害结算终止。`)));
   if(pending.kind==='shed-skin')panel.append(node('p',{},say(language,`Incoming damage: ${pending.damage}. You may discard any number of hand cards; each reduces this damage by 1.`,`本次伤害值：${pending.damage}。可以弃置任意数量的手牌，每张使本次伤害减1。`)));
@@ -847,6 +893,7 @@ export function decisionPanel(view,kit) {
     else if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind))panel.append(...paidEffectControls(pending,kit));
     else if(pending.kind==='cute-charm')panel.append(...charmControls(pending,kit));
     else if(pending.kind==='shed-skin')panel.append(...shedControls(pending,kit));
+    else if(pending.kind==='blunder-policy')panel.append(...blunderPolicyControls(pending,kit,view));
     else if(pending.kind==='distribute')panel.append(...distributionControls(pending,kit));
     else if(pending.kind==='exile')panel.append(...exileControls(pending,kit));
     else if(pending.kind==='reorder')panel.append(...deckOrderControls(pending,kit));
@@ -874,8 +921,8 @@ export function decisionPanel(view,kit) {
       }else if(pending.kind==='forewarn') {
         row.append(node('button',{type:'button',class:'button primary',id:'forewarn-view',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'trait'})},say(language,'View top cards privately','私下观看牌堆顶')),
           node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},say(language,'Pass Forewarn','放弃预知梦')));
-      }else if(pending.kind==='double-edge') {
-        row.append(node('button',{type:'button',class:'button primary',id:'double-edge-boost',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'boost'})},say(language,'Boost damage, then lose 1 HP','伤害+1，之后失去1点体力')),
+      }else if(['double-edge','life-orb'].includes(pending.kind)) {
+        row.append(node('button',{type:'button',class:'button primary',id:`${pending.kind}-boost`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'boost'})},say(language,'Boost damage, then lose 1 HP','伤害+1，之后失去1点体力')),
           node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},say(language,'Keep base damage','保持原伤害')));
       }else if(pending.kind==='damage-order')for(const effect of pending.effects) {
         const names={dodge:[`Dodge reduction −${pending.damageReduction}`,`躲闪减伤 −${pending.damageReduction}`],defense:['Defense · cap at 1','防御强化 · 伤害改为1'],multiscale:['Multiscale · cap at 1','多重鳞片 · 伤害改为1'],'marvel-scale':['Marvel Scale · optional reduction','神奇鳞片 · 可选减伤'],'shed-skin':['Shed Skin · discard to reduce','蜕皮 · 弃牌减伤']};

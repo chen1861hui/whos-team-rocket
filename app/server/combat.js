@@ -2,7 +2,7 @@
 // This is an explicitly labelled development scenario, not a retail deck manifest.
 import { randomUUID, randomInt } from 'node:crypto';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
-import { roleDeck, maxHp, currentHp, heal, applyDamage, beginCommand, computeDamage, reinforcementEffective, eligibleTargetIds, evaluateVictory, ordinarySwitch } from './battle-rules.js';
+import { roleDeck, maxHp, currentHp, heal, applyDamage, beginCommand, computeDamage, capReceivingDamage, reinforcementEffective, eligibleTargetIds, evaluateVictory, ordinarySwitch } from './battle-rules.js';
 
 export class BattleError extends Error {
   constructor(code, message, status = 409) { super(message); this.code = code; this.status = status; }
@@ -188,7 +188,7 @@ function continueJudgment(room,ctx,next,weather) {
     if(['intense-sun','clear'].includes(weather)) {
       if(!next.defense.dodgeReducesDamage) {
         if(next.defense.dodgesRequired===2&&++next.defense.dodgesPlayed<2)note(room,`${name.zh}视为一次躲闪；十字剪仍需要另一次才能抵消。`,`${name.en} counted as one Dodge; X-Scissor still needs another to cancel.`);
-        else {note(room,`${name.zh}视为使用一张快躲开！并抵消本次结算。`,`${name.en} counted as one Dodge! and canceled this settlement.`);return nextSettlement(room,ctx);}
+        else {note(room,`${name.zh}视为使用一张快躲开！并抵消本次结算。`,`${name.en} counted as one Dodge! and canceled this settlement.`);return cancelMoveWithDodge(room,ctx);}
       }else {
         next.defense.damageReduction=reduceMoveDamage(room,room.resolution.targetCreatureId);
         note(room,`${name.zh}视为使用一张快躲开！，锐利目光将其改为此招式伤害减1。`,`${name.en} counted as one Dodge!; Keen Eye changed it to one damage reduction for this move.`);
@@ -235,6 +235,8 @@ const heldItemDescriptions={
   'bright-powder':{zh:'需要使用快躲开！时，可以判定。晴天视为使用一张快躲开！',en:'When asked to use Dodge!, you may judge. Intense sun or clear counts as one Dodge.'},
   'kings-rock':{zh:'携带者的招式造成伤害后，令目标陷入畏缩。',en:'After the holder damages a target with a move, the target Flinches.'},
   'flame-orb':{zh:'携带者造成伤害后，进行判定。烈日或晴朗使目标陷入灼伤。',en:'After the holder deals damage, judge. Intense sun or clear Burns the target.'},
+  'life-orb':{zh:'携带者造成伤害时，可以令伤害加1。该次伤害结算结束后，携带者失去1点体力。',en:'When the holder deals damage, you may add 1 damage. After that settlement, the holder loses 1 HP.'},
+  'blunder-policy':{zh:'携带者的招式被躲闪抵消时，可以弃置两张手牌，使本次结算继续生效。',en:'When a Dodge cancels the holder’s move, you may discard two hand cards to resolve that settlement anyway.'},
 };
 const reviewedItem=card=>card?.kind==='held-item'&&Object.hasOwn(heldItemDescriptions,card.itemType);
 const equipItems=player=>[...new Set(player.hand.filter(reviewedItem).map(card=>card.itemType))]
@@ -317,8 +319,8 @@ function runReceivingEffect(room,effect,ctx) {
   if(effect==='rocky-helmet' && sourceOwner && !source.defeated && activeItemIs(room,target,'rocky-helmet') && target.item.id===resolution.helmetCardId) {
     room.resolutionStack??=[];room.resolutionStack.push(resolution);
     room.resolution={kind:'item',card:null,channelCard:target.item,sourceId:target.instanceId,sourcePlayerId:owner.id,targetCreatureId:source.instanceId,targetIds:[sourceOwner.id],index:0,damagedIds:[],defenseIds:[],actualDamage:0};
-    const amount=damageImmune(room,source)?0:computeDamage(target,source,1,ctx.catalogue,damageOptions(room,target,source,{command:false,channel:'item',receiving:!hasShedSkin(room,source)}));
-    receiveDamage(room,ctx,amount);
+    const amount=damageImmune(room,source)?0:computeDamage(target,source,1,ctx.catalogue,damageOptions(room,target,source,{command:false,channel:'item',receiving:false}));
+    settleDealtDamage(room,ctx,amount);
     return;
   }
   continueReceiving(room,ctx);
@@ -507,6 +509,7 @@ export function publicBattleDecision(room,self) {
     pending.berryCards=room.resolution.berryCards.map(({name,weather,kind},index)=>({index,name,weather,kind}));
   }
   if(pending.kind==='articuno'&&pending.actorId===self.id)pending.protectionCards=self.hand.filter(isArticunoCard).map(({id,name,kind,weather})=>({id,name,kind,weather}));
+  if(pending.kind==='blunder-policy'&&pending.actorId===self.id)pending.paymentCards=self.hand.map(({id,name,kind,weather})=>({id,name,kind,weather}));
   if(pending.kind==='rescue') {
     const restricted=rescueOwnerOnly(room);
     pending.canUsePotion=!restricted||pending.actorId===pending.targetId;
@@ -675,7 +678,7 @@ function openDefense(room, ctx) {
   if (target.eliminated || target.active.defeated) { resolution.index++; return openDefense(room, ctx); }
   resolution.targetCreatureId = target.active.instanceId;
   delete resolution.incomingDamage;delete resolution.modifierState;
-  resolution.sourceAfterDone=false; resolution.sourceItemAfterDone=false; resolution.staticDone=false; delete resolution.receivingEffects;delete resolution.helmetCardId; resolution.actualDamage=0; delete resolution.handChoiceIds;
+  resolution.sourceAfterDone=false; resolution.sourceItemAfterDone=false; resolution.staticDone=false; delete resolution.receivingEffects;delete resolution.helmetCardId; resolution.actualDamage=0; delete resolution.handChoiceIds;delete resolution.lifeOrbRecoil;
   decision(room, 'defense', target.id, target.id, ctx);
   room.pendingBattle.cannotDodge=Boolean(resolution.ignoresReinforcements);
   if(room.turn.dodgeBlockedCreatureIds?.includes(target.active.instanceId)){room.pendingBattle.cannotDodge=true;room.pendingBattle.dodgeBlockedBy='lock-on';}
@@ -692,6 +695,16 @@ function openDefense(room, ctx) {
 function reduceMoveDamage(room,targetId) {
   room.resolution.dodgeReductions??={};
   return room.resolution.dodgeReductions[targetId]=(room.resolution.dodgeReductions[targetId]||0)+1;
+}
+function cancelMoveWithDodge(room,ctx) {
+  const resolution=room.resolution;
+  const source=activeOwner(room,resolution.sourceId),target=activeOwner(room,resolution.targetCreatureId);
+  if(resolution.kind==='move'&&source?.hand.length>=2&&target&&activeItemIs(room,source.active,'blunder-policy')) {
+    resolution.blunderPolicyItemId=source.active.item.id;
+    decision(room,'blunder-policy',source.id,target.id,ctx);
+    return;
+  }
+  return nextSettlement(room,ctx);
 }
 const hasSniper=(room,player)=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&battleTraitsEffective(room,player.active);
 export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||Boolean(room.turn?.rangeCreatureId&&[player.active,player.reserve].some(pokemon=>pokemon?.instanceId===room.turn.rangeCreatureId))||hasSniper(room,player);
@@ -814,7 +827,7 @@ function openEventTarget(room,ctx) {
     if(owner&&!owner.eliminated&&target&&!target.defeated&&target.instanceId===resolution.targetInstances[owner.id]&&currentHp(target,ctx.catalogue)>0) {
       resolution.targetCreatureId=target.instanceId;
       delete resolution.incomingDamage;delete resolution.modifierState;delete resolution.receivingEffects;delete resolution.helmetCardId;
-      resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.sourceItemAfterDone=false;resolution.staticDone=false;
+      resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.sourceItemAfterDone=false;resolution.staticDone=false;delete resolution.lifeOrbRecoil;
       if(!battleEventTargetAllowed(room,target,resolution.eventName.zh)){resolution.index++;continue;}
       if(resolution.eventType==='berry-harvest'&&!resolution.berryCards.length)break;
       if(room.scenario?.articunoReactions===true&&resolution.protectionCheckedIndex!==resolution.index) {
@@ -873,8 +886,8 @@ function openEventTarget(room,ctx) {
 function settleEventDamage(room,ctx,base=2) {
   const target=creature(room,room.resolution.targetCreatureId);
   const source=creature(room,room.resolution.sourceId);
-  const amount=damageImmune(room,target)?0:computeDamage(source,target,base,ctx.catalogue,damageOptions(room,source,target,{command:false,channel:'event',receiving:!hasShedSkin(room,target)}));
-  receiveDamage(room,ctx,amount);
+  const amount=damageImmune(room,target)?0:computeDamage(source,target,base,ctx.catalogue,damageOptions(room,source,target,{command:false,channel:'event',receiving:false}));
+  settleDealtDamage(room,ctx,amount);
 }
 function respondRivalChallenge(room,player,input,ctx) {
   const resolution=room.resolution;
@@ -1124,9 +1137,28 @@ function settleDamage(room, ctx) {
     decision(room,'double-edge',resolution.sourcePlayerId,trainer(room,resolution.targetIds[resolution.index]).id,ctx);return;
   }
   const printedDamage=resolution.baseDamage+(resolution.doubleEdgeBoost?1:0)+(resolution.effectKind==='reversal'&&currentHp(target,ctx.catalogue)>currentHp(source,ctx.catalogue)?1:0)+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
+  const amount=damageImmune(room,target)?0:computeDamage(source,target,printedDamage,ctx.catalogue,damageOptions(room,source,target,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false}));
+  return settleDealtDamage(room,ctx,amount);
+}
+function settleDealtDamage(room,ctx,amount) {
+  const resolution=room.resolution;
+  const source=activeOwner(room,resolution.sourceId);
+  const target=activeOwner(room,resolution.targetCreatureId);
+  const burnBlocksBoost=resolution.kind==='move'&&source?.active.status==='burn'&&
+    !(source.active.catalogueId==='machop'&&battleTraitsEffective(room,source.active));
+  if(amount>0&&source&&target&&!burnBlocksBoost&&activeItemIs(room,source.active,'life-orb')) {
+    resolution.lifeOrbOffer={amount,itemId:source.active.item.id};
+    decision(room,'life-orb',source.id,target.id,ctx);
+    room.pendingBattle.damage=amount;
+    return;
+  }
+  return resolveDealtDamage(room,ctx,amount);
+}
+function resolveDealtDamage(room,ctx,amount) {
+  const resolution=room.resolution;
+  const target=creature(room,resolution.targetCreatureId),source=creature(room,resolution.sourceId);
   const reduction=resolution.dodgeReductions?.[target.instanceId]||0;
-  if(reduction>0||hasShedSkin(room,target)||resolution.effectKind==='fury-cutter') {
-    const amount=damageImmune(room,target)?0:computeDamage(source,target,printedDamage,ctx.catalogue,damageOptions(room,source,target,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false}));
+  if(resolution.kind==='move'&&(reduction>0||hasShedSkin(room,target)||resolution.effectKind==='fury-cutter')) {
     if(resolution.effectKind==='fury-cutter'&&amount>0&&activeOwner(room,source.instanceId)) {
       source.reinforcements=source.reinforcements.concat(Array(amount).fill('power'));
       note(room,`连斩在造成伤害时无视上限获得${amount}枚力量强化。`,`Fury Cutter gained ${amount} Power marker(s) at the dealing-damage stage, ignoring the duplicate limit.`);
@@ -1134,8 +1166,8 @@ function settleDamage(room, ctx) {
     resolution.modifierState={targetId:target.instanceId,amount,reduction,remaining:['dodge','defense','multiscale','marvel-scale','shed-skin']};
     return continueDamageModifiers(room,ctx);
   }
-  const amount = damageImmune(room,target)?0:computeDamage(source, target, printedDamage, ctx.catalogue, damageOptions(room,source,target,{ command: true, powerBoost: resolution.powerBoost, reinforcements:!resolution.ignoresReinforcements }));
-  receiveDamage(room,ctx,amount);
+  const capped=hasShedSkin(room,target)?amount:capReceivingDamage(target,amount,damageOptions(room,source,target,{reinforcements:!resolution.ignoresReinforcements}));
+  return receiveDamage(room,ctx,capped);
 }
 function continueDamageModifiers(room,ctx) {
   const resolution=room.resolution,state=resolution.modifierState,target=creature(room,state.targetId),owner=activeOwner(room,state.targetId);
@@ -1321,21 +1353,29 @@ function afterDamage(room,ctx) {
   }
   continueReceiving(room,ctx);
 }
+function applySettlementRecoil(room,ctx,owner,name) {
+  const source=owner.active;
+  room.resolutionStack??=[];
+  room.resolutionStack.push(room.resolution);
+  room.resolution={kind:'hp-loss',card:null,sourceId:null,sourcePlayerId:owner.id,targetCreatureId:source.instanceId,targetIds:[owner.id],index:0,damagedIds:[],defenseIds:[],actualDamage:0};
+  source.damage=(source.damage||0)+1;
+  note(room,`${name.zh}的伤害结算结束，原伤害来源失去1点体力；这不是伤害。`,`After ${name.en}’s damage settlement, the original damage source lost 1 HP; this is not damage.`);
+  if(currentHp(source,ctx.catalogue)<=0)return beginRescue(room,owner.id,ctx);
+  return afterDamage(room,ctx);
+}
 function nextSettlement(room, ctx) {
   room.pendingBattle = null;
-  if (['turn-start','item'].includes(room.resolution.kind)) return finishResolution(room, ctx);
   const resolution=room.resolution;
+  if(resolution.lifeOrbRecoil) {
+    delete resolution.lifeOrbRecoil;
+    const owner=activeOwner(room,resolution.sourceId);
+    if(owner&&currentHp(owner.active,ctx.catalogue)>0)return applySettlementRecoil(room,ctx,owner,{zh:'生命宝珠',en:'Life Orb'});
+  }
+  if (['turn-start','item'].includes(resolution.kind)) return finishResolution(room, ctx);
   if(resolution.effectKind==='double-edge'&&resolution.doubleEdgeBoost&&resolution.actualDamage>0&&!resolution.recoilDone) {
     resolution.recoilDone=true;
-    const owner=activeOwner(room,resolution.sourceId),source=creature(room,resolution.sourceId);
-    if(owner&&currentHp(source,ctx.catalogue)>0) {
-      room.resolutionStack??=[];room.resolutionStack.push(resolution);
-      room.resolution={kind:'hp-loss',card:null,sourceId:null,sourcePlayerId:owner.id,targetCreatureId:source.instanceId,targetIds:[owner.id],index:0,damagedIds:[],defenseIds:[],actualDamage:0};
-      source.damage=(source.damage||0)+1;
-      note(room,'舍身冲撞的伤害结算结束，原伤害来源失去1点体力；这不是伤害。','After Double-Edge’s damage settlement, the original damage source lost 1 HP; this is not damage.');
-      if(currentHp(source,ctx.catalogue)<=0)return beginRescue(room,owner.id,ctx);
-      return afterDamage(room,ctx);
-    }
+    const owner=activeOwner(room,resolution.sourceId);
+    if(owner&&currentHp(owner.active,ctx.catalogue)>0)return applySettlementRecoil(room,ctx,owner,{zh:'舍身冲撞',en:'Double-Edge'});
   }
   if(resolution.effectKind==='bonemerang'&&resolution.settlementIndex===0&&!resolution.repeatOffered) {
     resolution.repeatOffered=true;
@@ -1396,10 +1436,44 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(pending.actorId===player.id && !player.spectator && !player.eliminated,'NOT_YOUR_DECISION','This response belongs to another trainer.');
   requireRule(pending.kind==='distribute'||input.allocations===undefined,'INVALID_RESPONSE','This decision does not distribute cards.');
   requireRule(pending.kind==='exile'||input.handIndices===undefined,'INVALID_RESPONSE','This decision does not select multiple hand slots.');
-  requireRule(['shed-skin','sweet-kiss'].includes(pending.kind)||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
+  requireRule(['shed-skin','sweet-kiss','blunder-policy'].includes(pending.kind)||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
   requireRule(['cute-charm','neutralizing-gas','intimidate'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
   requireRule(pending.kind==='forewarn-order'||(input.topOrder===undefined&&input.bottomOrder===undefined),'INVALID_RESPONSE','Only Forewarn chooses the deck top and bottom.');
   requireRule(pending.kind==='download'||input.targetIds===undefined,'INVALID_RESPONSE','Only Download chooses multiple trainers.');
+  if(pending.kind==='life-orb') {
+    requireRule(['boost','pass'].includes(input.choice)&&Object.keys(input).every(key=>['id','revision','type','decisionId','choice'].includes(key)),
+      'INVALID_RESPONSE','Boost with Life Orb or pass.');
+    const resolution=room.resolution,offer=resolution?.lifeOrbOffer;
+    requireRule(offer&&player.active?.instanceId===resolution.sourceId&&player.active.item?.id===offer.itemId&&
+      activeItemIs(room,player.active,'life-orb')&&activeOwner(room,resolution.targetCreatureId)?.id===pending.targetId,
+      'STALE_DECISION','The damage source, target, or Life Orb changed.');
+    delete resolution.lifeOrbOffer;
+    room.pendingBattle=null;
+    if(input.choice==='boost') {
+      resolution.lifeOrbRecoil=true;
+      note(room,'生命宝珠令伤害值加1。','Life Orb added 1 damage.');
+    }
+    return resolveDealtDamage(room,ctx,offer.amount+(input.choice==='boost'?1:0));
+  }
+  if(pending.kind==='blunder-policy') {
+    requireRule(['discard','pass'].includes(input.choice)&&Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardIds'].includes(key))&&
+      (input.choice!=='pass'||input.cardIds===undefined),'INVALID_RESPONSE','Discard two hand cards or pass.');
+    const resolution=room.resolution;
+    requireRule(resolution?.kind==='move'&&player.active?.instanceId===resolution.sourceId&&
+      player.active.item?.id===resolution.blunderPolicyItemId&&activeItemIs(room,player.active,'blunder-policy')&&
+      activeOwner(room,resolution.targetCreatureId)?.id===pending.targetId,'STALE_DECISION','The move, target, or Blunder Policy changed.');
+    delete resolution.blunderPolicyItemId;
+    room.pendingBattle=null;
+    if(input.choice==='pass')return nextSettlement(room,ctx);
+    const ids=input.cardIds;
+    requireRule(Array.isArray(ids)&&ids.length===2&&new Set(ids).size===2&&ids.every(id=>typeof id==='string'&&player.hand.some(card=>card.id===id)),
+      'INVALID_RESPONSE','Choose two distinct cards from your hand.');
+    const selected=new Set(ids);
+    room.discardPile.push(...player.hand.filter(card=>selected.has(card.id)));
+    player.hand=player.hand.filter(card=>!selected.has(card.id));
+    note(room,'打空保险弃置两张手牌，使本次结算继续生效。','Blunder Policy discarded two cards so the settlement could resolve.');
+    return settleDamage(room,ctx);
+  }
   if(pending.kind==='articuno') {
     requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardId'].includes(key))&&['protect','pass'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Use one Articuno card, or pass without a card.');
     const window=room.protectionWindow;
@@ -1902,7 +1976,7 @@ export function respondBattle(room,player,input,ctx) {
         note(room,'锐利目光将快躲开！改为此招式对该宝可梦的伤害减1，持续到整个招式结束。','Keen Eye changed Dodge! into one damage reduction for this Pokémon until the whole move ends.');return;
       }
       if(pending.dodgesRequired===2&&++pending.dodgesPlayed<2){note(room,'十字剪已收到一次躲闪，仍需要另一次才能抵消。','X-Scissor received one Dodge; another is required to cancel this settlement.');return;}
-      note(room,'快躲开！抵消了本次结算。','Dodge! canceled this settlement.');nextSettlement(room,ctx);
+      note(room,'快躲开！抵消了本次结算。','Dodge! canceled this settlement.');return cancelMoveWithDodge(room,ctx);
     }else settleDamage(room,ctx);
     return;
   }
@@ -2025,10 +2099,10 @@ function runTurnStartEffect(room,effect,ctx) {
   if (status === 'sleep') { player.active.status = null; room.turn.blockedMoveIds.push(player.active.instanceId); room.turn.switchBlocked = true; }
   if (status === 'confusion') { player.active.status = null; room.turn.blockedMoveIds.push(player.active.instanceId); }
   if (status === 'poison' || status === 'confusion') {
-    const damage = status === 'confusion' ? computeDamage(pokemon, pokemon, 1, ctx.catalogue, damageOptions(room,pokemon,pokemon,{ command: false,receiving:!hasShedSkin(room,pokemon) })) : 1;
+    const damage = status === 'confusion' ? computeDamage(pokemon, pokemon, 1, ctx.catalogue, damageOptions(room,pokemon,pokemon,{ command: false,receiving:false })) : 1;
     room.resolution = { kind: 'turn-start', targetCreatureId: pokemon.instanceId, sourceId: status === 'confusion' ? pokemon.instanceId : null, sourcePlayerId: status === 'confusion' ? player.id : null, damagedIds: [], defenseIds: [], actualDamage: 0 };
     if(status==='poison')return startPoisonTouch(room,ctx,{kind:'poison',targetId:pokemon.instanceId,damage:1});
-    receiveDamage(room,ctx,damage);
+    settleDealtDamage(room,ctx,damage);
     return;
   }
   continueTurnStart(room,ctx);

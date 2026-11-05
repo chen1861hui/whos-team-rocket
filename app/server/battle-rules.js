@@ -91,6 +91,10 @@ export function computeDamage(source, target, base, catalogue, { command = true,
     if (guts && source.status) damage += 1;
   }
   if(!receiving)return damage;
+  return capReceivingDamage(target, damage, {reinforcements,targetReinforcements,targetTraits});
+}
+
+export function capReceivingDamage(target, damage, {reinforcements=true,targetReinforcements=true,targetTraits=true}={}) {
   // Multiscale is compulsory and uses injuries, not a record of prior hits.
   if (damage > 1 && targetTraits && target?.catalogueId === 'dratini' && target.level === 3 && injuries(target) === 0) damage = 1;
   if (damage > 1 && reinforcements && targetReinforcements && reinforcementEffective(target, 'defense')) damage = 1;

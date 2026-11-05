@@ -66,6 +66,99 @@ function holdItem(f, seat, itemType, slot = 'active') {
   return card;
 }
 
+test('Life Orb boosts before Defense and its HP cost can be rescued', t => {
+  const f = fixture(t);
+  f.play();
+  f.player(f.leader).active.damage = 2;
+  f.player(f.target).active.reinforcements = ['defense'];
+  holdItem(f, f.leader, 'life-orb');
+  const potion = { ...f.makeCard('tool'), toolType: 'potion-full-heal' };
+  f.player(f.leader).hand.push(potion);
+  f.attack();
+  f.respond();
+  assert.equal(f.room().pendingBattle.kind, 'life-orb');
+  assert.equal(f.room().pendingBattle.damage, 2);
+  f.respond('boost');
+  assert.equal(f.player(f.target).active.damage, 1);
+  assert.equal(f.room().pendingBattle.kind, 'rescue');
+  assert.equal(f.room().resolution.kind, 'hp-loss');
+  f.respond('potion', { cardId: potion.id });
+  assert.equal(f.player(f.leader).active.damage, 1);
+  assert.equal(f.room().resolution, null);
+});
+
+test('Life Orb applies its accepted cost after Shed Skin reduces damage to zero', t => {
+  const f = fixture(t);
+  f.play();
+  f.seed(f.target, 'caterpie', 2);
+  holdItem(f, f.leader, 'life-orb');
+  const cards = [f.supply(f.target), f.supply(f.target), f.supply(f.target)];
+  f.attack();
+  f.respond();
+  f.respond('boost');
+  assert.equal(f.room().pendingBattle.kind, 'shed-skin');
+  assert.equal(f.room().pendingBattle.damage, 3);
+  f.respond('shed', { cardIds: cards });
+  assert.equal(f.player(f.target).active.damage, 0);
+  assert.equal(f.player(f.leader).active.damage, 1);
+});
+
+test('Life Orb can boost real Rival damage, while a burned move cannot be boosted', t => {
+  const f = fixture(t);
+  f.play();
+  holdItem(f, f.leader, 'life-orb');
+  f.player(f.leader).active.status = 'burn';
+  f.attack();
+  f.respond();
+  assert.equal(f.room().pendingBattle, null);
+  assert.equal(f.player(f.target).active.damage, 1);
+  holdItem(f, f.target, 'life-orb');
+  const event = { ...f.makeCard('event'), eventType: 'rival-challenge' };
+  f.player(f.leader).hand.push(event);
+  const response = f.supply(f.target, 'command');
+  f.act(f.leader, 'useEvent', { cardId: event.id, targetId: f.target.playerId });
+  f.respond('command', { cardId: response });
+  f.respond();
+  assert.equal(f.room().pendingBattle.actorId, f.target.playerId);
+  f.respond('pass');
+  assert.equal(f.player(f.leader).active.damage, 2);
+  assert.equal(f.player(f.target).active.damage, 1);
+});
+
+test('Blunder Policy privately spends two distinct cards and resumes the dodged hit once', t => {
+  const f = fixture(t);
+  f.play();
+  holdItem(f, f.leader, 'blunder-policy');
+  const costs = [f.supply(f.leader, 'event'), f.supply(f.leader, 'tool')];
+  const dodge = f.supply(f.target, 'dodge');
+  const moveCard = f.attack();
+  f.respond('dodge', { cardId: dodge });
+  assert.equal(f.room().pendingBattle.kind, 'blunder-policy');
+  assert.equal(f.view(f.target).pendingBattle.paymentCards, undefined);
+  assert.ok(costs.every(id=>f.view(f.leader).pendingBattle.paymentCards.some(card=>card.id===id)));
+  rejectsAtomically(f, () => f.respond('discard', { cardIds: [costs[0], costs[0]] }), 'INVALID_RESPONSE');
+  rejectsAtomically(f, () => f.respond('discard', { cardIds: [costs[0], dodge] }), 'INVALID_RESPONSE');
+  f.respond('discard', { cardIds: costs });
+  assert.equal(f.player(f.target).active.damage, 2);
+  assert.equal(f.room().pendingBattle, null);
+  for (const id of [...costs, dodge, moveCard]) assert.equal(f.room().discardPile.filter(card=>card.id===id).length, 1);
+});
+
+test('A successful virtual Dodge can trigger Blunder Policy and passing preserves it', t => {
+  const f = fixture(t);
+  f.play();
+  holdItem(f, f.leader, 'blunder-policy');
+  holdItem(f, f.target, 'bright-powder');
+  f.room().drawPile.push(f.makeCard('dodge', 'clear'));
+  f.attack();
+  f.respond('bright-powder');
+  assert.equal(f.room().pendingBattle.kind, 'blunder-policy');
+  const hand = f.player(f.leader).hand.map(card=>card.id);
+  f.respond();
+  assert.deepEqual(f.player(f.leader).hand.map(card=>card.id), hand);
+  assert.equal(f.player(f.target).active.damage, 0);
+});
+
 test('King’s Rock flinches the damaged move target before its receiving effects', t => {
   const f = fixture(t);
   f.play();

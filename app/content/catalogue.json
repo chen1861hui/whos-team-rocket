@@ -13917,6 +13917,46 @@
       "engineEligible": false,
       "deckQuantity": null,
       "source": "reviewed-offensive-held-items.md / O06"
+    },
+    {
+      "id": "life-orb",
+      "name": {
+        "zh": "生命宝珠",
+        "en": "Life Orb"
+      },
+      "kind": "held-item",
+      "weather": "thunderstorm",
+      "observedWeather": [
+        "thunderstorm"
+      ],
+      "effectText": {
+        "zh": "携带此持有物的宝可梦造成伤害时，你可以令此伤害值+1，然后此次伤害结算结束后，伤害来源失去1点体力。",
+        "en": "When the holder deals damage, you may add 1 damage. After that settlement, the source loses 1 HP."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-life-orb-blunder-policy.md / O06"
+    },
+    {
+      "id": "blunder-policy",
+      "name": {
+        "zh": "打空保险",
+        "en": "Blunder Policy"
+      },
+      "kind": "held-item",
+      "weather": "thunderstorm",
+      "observedWeather": [
+        "thunderstorm"
+      ],
+      "effectText": {
+        "zh": "携带此持有物的宝可梦使用的招式被【快躲开！】抵消时，你可以弃置两张手牌，令此次结算依然生效。",
+        "en": "When a Dodge cancels the holder’s move, you may discard two hand cards to resolve that settlement anyway."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-life-orb-blunder-policy.md / O06"
     }
   ]
 }

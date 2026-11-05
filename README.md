@@ -1,4 +1,12 @@
-## Offensive held items — 2026-11-05 (current)
+## Life Orb and Blunder Policy — 2026-11-05 (current)
+
+Life Orb offers a damage boost before the receiver’s modifiers and charges 1 HP after the settlement. Blunder Policy offers a private two-card payment to resume a move settlement after a complete Dodge. Both use the shared equip and response flow.
+
+All 1,219 tests passed, including five new cases. See the [source and implementation notes](reviewed-life-orb-blunder-policy.md) for the printed timing and the interpretation for damage reduced to zero. The review branch is `codex/life-orb-blunder-policy`. Tests used isolated held-item fixtures. Retail quantities by card and weather remain unverified.
+
+The remaining held items are Muscle Band, Light Ball, and Quick Claw. The saved O06 sheet covers the command conversion, the discard-to-Paralyze action, and the out-of-turn command window.
+
+## Offensive held items — 2026-11-05 (historical)
 
 King’s Rock applies Flinch after its holder damages a target with a move. Flame Orb judges after its holder deals damage and applies Burn on intense sun or clear. When a move effect and an item effect both trigger, the source trainer chooses the order before the target’s receiving effects begin.
 
