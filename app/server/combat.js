@@ -39,9 +39,9 @@ export function setupBattle(room, catalogue) {
   seats.forEach((p, index) => { p.role = roles[index]; p.eliminated = false; p.candidates = []; p.candidateDeal = []; p.identityAcknowledged = false; p.setupComplete = false; p.active = null; p.reserve = null; p.hand = []; p.exiledCards=[]; });
   const leaderIndex = seats.findIndex(p => p.role === 'leader');
   room.players = [...seats.slice(leaderIndex), ...seats.slice(0, leaderIndex), ...room.players.filter(p => p.spectator)];
-  delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries;
+  delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries;
   room.gameMode = 'combat-preview'; room.result = null; room.pendingBattle = null; room.resolution = null; room.status = 'identity';
-  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, cardsPerSeat: 12, commandPerSeat: 6, dodgePerSeat: 6, potionSupported: true };
+  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, cardsPerSeat: 12, commandPerSeat: 6, dodgePerSeat: 6, potionSupported: true, articunoReactions: false };
   note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
 }
 export function acknowledgeBattleIdentity(room, player, catalogue) {
@@ -388,6 +388,44 @@ export function requestBattleSwitch(room,player,kind,ctx) {
   room.switchEvent={kind,playerId:player.id,activeId:player.active?.instanceId??null,reserveId:player.reserve?.instanceId??null,actorIds:actors.map(actor=>actor.id),actorInstances:Object.fromEntries(actors.map(actor=>[actor.id,actor.active.instanceId])),index:0};
   advanceBattleSwitch(room,ctx);
 }
+const isArticunoCard=card=>card?.kind==='event'&&card.eventType==='articuno-protection';
+// Public deck capability: offer the same windows even when every hand is empty.
+// The default command/Dodge fixture has no reaction cards.
+function startProtectionWindow(room,ctx,window) {
+  if(room.scenario?.articunoReactions!==true)return false;
+  requireRule(!room.protectionWindow,'REACTION_PENDING','Finish the current protection window first.');
+  const seats=live(room),start=Math.max(0,seats.findIndex(player=>player.id===room.turn.playerId));
+  room.protectionWindow={...window,actorIds:[...seats.slice(start),...seats.slice(0,start)].map(player=>player.id),index:0};
+  advanceProtectionWindow(room,ctx);return true;
+}
+function protectionTarget(room,ctx,window) {
+  if(!window)return null;
+  const owner=trainer(room,window.targetId),target=owner?.active;
+  if(!owner||owner.eliminated||owner.spectator||!target||target.defeated||target.instanceId!==window.targetCreatureId||currentHp(target,ctx.catalogue)<=0)return null;
+  if(window.mode==='cure-status')return target.status===window.status?target:null;
+  const resolution=room.resolution;
+  return resolution?.kind==='event'&&resolution.card?.id===window.eventCardId&&resolution.index===window.eventIndex&&resolution.targetIds[resolution.index]===owner.id&&resolution.targetInstances[owner.id]===target.instanceId?target:null;
+}
+function finishProtectionWindow(room,ctx,protectedTarget=false) {
+  const window=room.protectionWindow;
+  delete room.protectionWindow;room.pendingBattle=null;
+  if(window.mode==='cancel-event')return protectedTarget?nextSettlement(room,ctx):openEventTarget(room,ctx);
+  return resumeStatusContinuation(room,ctx,window.next);
+}
+function advanceProtectionWindow(room,ctx) {
+  const window=room.protectionWindow;
+  if(protectionTarget(room,ctx,window)) {
+    while(window.index<window.actorIds.length) {
+      const actor=trainer(room,window.actorIds[window.index]);
+      if(actor&&!actor.eliminated&&!actor.spectator) {
+        decision(room,'articuno',actor.id,window.targetId,ctx);
+        Object.assign(room.pendingBattle,{mode:window.mode,...(window.mode==='cancel-event'?{eventName:window.eventName}:{status:window.status})});return;
+      }
+      window.index++;
+    }
+  }
+  return finishProtectionWindow(room,ctx);
+}
 function resumeStatusContinuation(room,ctx,next) {
   return next==='settlement'?nextSettlement(room,ctx):afterDamage(room,ctx);
 }
@@ -435,6 +473,7 @@ function advancePoisonTouch(room,ctx) {
       owner.active.status=event.status;
       const names={burn:['灼伤','Burn'],poison:['中毒','Poison'],paralysis:['麻痹','Paralysis'],confusion:['混乱','Confusion'],sleep:['睡眠','Sleep'],flinch:['畏缩','Flinch']}[event.status];
       note(room,`宝可梦陷入${names[0]}状态。`,`The Pokémon gained ${names[1]}.`);
+      if(startProtectionWindow(room,ctx,{mode:'cure-status',targetId:owner.id,targetCreatureId:owner.active.instanceId,status:event.status,next:event.next}))return;
     }
     return resumeStatusContinuation(room,ctx,event.next);
   }
@@ -448,6 +487,7 @@ export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
   delete pending.targetCreatureId;
+  if(pending.kind==='articuno'&&pending.actorId===self.id)pending.protectionCards=self.hand.filter(isArticunoCard).map(({id,name,kind,weather})=>({id,name,kind,weather}));
   if(pending.kind==='rescue') {
     const restricted=rescueOwnerOnly(room);
     pending.canUsePotion=!restricted||pending.actorId===pending.targetId;
@@ -720,6 +760,10 @@ function openEventTarget(room,ctx) {
       delete resolution.incomingDamage;delete resolution.modifierState;delete resolution.receivingEffects;delete resolution.helmetCardId;
       resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.staticDone=false;
       if(!battleEventTargetAllowed(room,target,resolution.eventName.zh)){resolution.index++;continue;}
+      if(room.scenario?.articunoReactions===true&&resolution.protectionCheckedIndex!==resolution.index) {
+        resolution.protectionCheckedIndex=resolution.index;
+        if(startProtectionWindow(room,ctx,{mode:'cancel-event',targetId:owner.id,targetCreatureId:target.instanceId,eventName:resolution.eventName,eventCardId:resolution.card.id,eventIndex:resolution.index}))return;
+      }
       if(resolution.eventType==='zapdos-punishment')return startJudgment(room,ctx,{kind:'zapdos',targetId:target.instanceId},owner.id);
       if(resolution.eventType==='jigglypuff-performance')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'sleep',weather:'thunderstorm',comparison:'not',next:'settlement'},owner.id);
       if(resolution.eventType==='mr-mime-trick') {
@@ -1172,7 +1216,7 @@ function defeat(room, targetPlayerId, ctx) {
   }
   const result = evaluateVictory(room.players);
   if (result) {
-    for(const pending of [room.resolution,...(room.resolutionStack||[])])cleanResolution(room,pending);room.resolution=null;room.pendingBattle=null;delete room.resolutionStack;delete room.judgment;delete room.statusEvent;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; room.result = { ...result, completedAt: ctx.now(), developmentFixture: true };
+    for(const pending of [room.resolution,...(room.resolutionStack||[])])cleanResolution(room,pending);room.resolution=null;room.pendingBattle=null;delete room.resolutionStack;delete room.judgment;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; room.result = { ...result, completedAt: ctx.now(), developmentFixture: true };
     room.status = 'finished'; room.turn = null;
     note(room, '胜利条件已达成，所有身份与剩余手牌公开。', 'A victory condition was met; all identities and remaining hands are revealed.');
     return;
@@ -1190,6 +1234,21 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(['cute-charm','neutralizing-gas','intimidate'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
   requireRule(pending.kind==='forewarn-order'||(input.topOrder===undefined&&input.bottomOrder===undefined),'INVALID_RESPONSE','Only Forewarn chooses the deck top and bottom.');
   requireRule(pending.kind==='download'||input.targetIds===undefined,'INVALID_RESPONSE','Only Download chooses multiple trainers.');
+  if(pending.kind==='articuno') {
+    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardId'].includes(key))&&['protect','pass'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Use one Articuno card, or pass without a card.');
+    const window=room.protectionWindow;
+    requireRule(room.scenario?.articunoReactions===true&&window&&window.mode===pending.mode&&window.targetId===pending.targetId&&window.actorIds[window.index]===player.id,'STALE_DECISION','The protection window changed.');
+    if(input.choice==='pass'){window.index++;return advanceProtectionWindow(room,ctx);}
+    const target=protectionTarget(room,ctx,window);
+    requireRule(target,'STALE_DECISION','The protected target or effect changed.');
+    const index=player.hand.findIndex(card=>card.id===input.cardId&&isArticunoCard(card));
+    requireRule(typeof input.cardId==='string'&&index>=0,'INVALID_CARD','Choose an actual Articuno’s Protection card from your hand.');
+    const [card]=player.hand.splice(index,1);
+    if(window.mode==='cure-status')target.status=null;
+    room.discardPile.push(card);
+    note(room,window.mode==='cancel-event'?'急冻鸟的庇护抵消了事件对此目标的效果。':'急冻鸟的庇护恢复了目标刚获得的特殊状态。',window.mode==='cancel-event'?'Articuno’s Protection canceled the event for this target.':'Articuno’s Protection cured the target’s newly applied status.');
+    return finishProtectionWindow(room,ctx,true);
+  }
   if(pending.kind==='event-hand') {
     requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','handIndex'].includes(key))&&input.choice==='card'&&Number.isSafeInteger(input.handIndex),'INVALID_RESPONSE','Choose one hidden hand-card slot.');
     const resolution=room.resolution,owner=trainer(room,pending.targetId),target=owner?.active;

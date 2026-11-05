@@ -1,4 +1,4 @@
-> Implementation checkpoint — 2026-11-05: Moltres and Zapdos execute in combat preview, verified by1,141 tests. Articuno remains reference-only until shared reaction windows are implemented. See gameplay-milestone-33.md for final contracts and browser evidence.
+> Implementation checkpoint — 2026-11-05: all three legendary-bird cards execute in combat preview. Articuno is a reaction-only card; see [milestone 34](gameplay-milestone-34.md) and [its implementation specification](reviewed-articuno-protection.md). The source review below is historical.
 
 # Legendary-bird event source review — 2026-11-05
 

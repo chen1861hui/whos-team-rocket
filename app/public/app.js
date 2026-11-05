@@ -342,7 +342,7 @@ function recoveryEntry() {
 function creature(className = '') {
   return el('div', { class: `creature ${className}`, 'aria-hidden': true }, el('div', { class: 'creature-ear left' }), el('div', { class: 'creature-ear right' }), el('div', { class: 'creature-body' }, el('span', { class: 'eye left' }), el('span', { class: 'eye right' }), el('span', { class: 'creature-cheek left' }), el('span', { class: 'creature-cheek right' })), el('div', { class: 'creature-tail' }));
 }
-function combatKit() { return {getView:()=>view,language,localized,partnerName,action,busy}; }
+function combatKit() { return {getView:()=>view,language,localized,partnerName,action,get busy(){return busy;}}; }
 function renderRoom() {
   if (['identity','setup'].includes(view.status)) { renderArenaSetup(); return; }
   if (view.status === 'finished') { $('#main').append(worldPanel(seated(),view.selfId,null,view.settings.arena),resultPanel(view,combatKit())); return; }

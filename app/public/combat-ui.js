@@ -647,6 +647,31 @@ function eventResponseControls(pending,kit) {
   }
   return [row];
 }
+function articunoControls(pending,kit) {
+  const {language}=kit,{code,selfId,pendingVote}=kit.getView(),{id:decisionId,mode}=pending;
+  const row=node('div',{class:'action-row'}),blocked=kit.busy||Boolean(pendingVote);
+  const currentView=()=>{
+    const current=kit.getView(),decision=current?.pendingBattle;
+    if(current?.code!==code||current.selfId!==selfId||current.status!=='playing'||current.self.spectator||
+      current.players.find(player=>player.id===selfId)?.eliminated||current.pendingVote||kit.busy||
+      decision?.kind!=='articuno'||decision.id!==decisionId||decision.mode!==mode||decision.actorId!==selfId)return null;
+    return current;
+  };
+  for(const card of pending.protectionCards||[]){
+    const cardId=card.id;
+    row.append(node('button',{type:'button',class:'button primary',id:`articuno-${cardId}`,disabled:blocked,onclick:()=>{
+      const current=currentView();
+      if(current?.pendingBattle.protectionCards?.some(available=>available.id===cardId)&&
+        current.self.hand.some(held=>held.id===cardId&&held.kind==='event'&&held.eventType==='articuno-protection')){
+        kit.action('respondBattle',{decisionId,choice:'protect',cardId});
+      }
+    }},kit.localized(card.name),` · ${weatherLabel(card.weather,language)}`));
+  }
+  row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:blocked,onclick:()=>{
+    if(currentView())kit.action('respondBattle',{decisionId,choice:'pass'});
+  }},say(language,'Pass protection','放弃庇护')));
+  return row;
+}
 function rescueControls(pending,kit) {
   const draft=privateDecisionDraft(pending,kit,()=>({optionKey:''})),language=kit.language,view=kit.getView(),code=view.code,selfId=view.selfId,decisionId=pending.id;
   const key=option=>JSON.stringify([option.choice,option.card.id]);
@@ -698,8 +723,18 @@ export function decisionPanel(view,kit) {
   Object.assign(titles,{download:['Download · choose other trainers','下载 · 选择其他训练家'],'download-hand':['Download · take a hand card','下载 · 获得一张手牌']});
   Object.assign(titles,{pressure:['Pressure · optional discard','压迫感 · 可选弃牌'],'pressure-payment':['Pressure · discard or let protection apply','压迫感 · 弃牌或让保护生效']});
   Object.assign(titles,{'event-command':['Moltres’s Trial · play a response','火焰鸟的试炼 · 打出响应'],'event-hand':['Mr. Mime’s Trick · choose a hand card','魔墙人偶的戏法 · 选择手牌'],'event-dodge':['Mewtwo’s Threat · play a response','超梦的威压 · 打出响应'],'mew-blessing':['Mew’s Blessing · choose an effect','梦幻的祝福 · 选择效果']});
+  if(pending.kind==='articuno')titles.articuno=pending.mode==='cancel-event'
+    ?['Articuno’s Protection · cancel event effect','急冻鸟的庇护 · 抵消事件效果']
+    :['Articuno’s Protection · cure new status','急冻鸟的庇护 · 解除新状态'];
   const title=pending.kind==='double-edge'?['Double-Edge · optional boost','舍身冲撞 · 可选增伤']:pending.kind==='shed-skin'?['Shed Skin · discard to reduce damage','蜕皮 · 弃牌减少伤害']:pending.kind==='damage-order'?['Choose damage modifier order','选择伤害修正顺序']:pending.kind==='pay-day'?['Pay Day · inspect and give cards','聚宝功 · 观看并分配牌']:pending.kind==='distribute'?['Distribute Pay Day cards','分配聚宝功的牌']:pending.kind==='exile'?['Disable · remove hand cards','定身法 · 移出手牌']:pending.kind==='turn-start-order'?['Choose turn-start order','选择回合开始的结算顺序']:titles[pending.kind]||titles.rescue;
   const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand','download','download-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  if(pending.kind==='articuno'){
+    const subject=pending.mode==='cancel-event'?kit.localized(pending.eventName):statusName(pending.status,language);
+    const help=pending.mode==='cancel-event'
+      ?say(language,'Articuno can cancel this event’s effect on the indicated target only.','急冻鸟的庇护仅抵消此事件对指定目标的效果。')
+      :say(language,'Articuno can remove the status the indicated Pokémon just gained.','急冻鸟的庇护可以解除指定宝可梦刚陷入的特殊状态。');
+    panel.append(node('p',{},[subject,help].filter(Boolean).join(' · ')));
+  }
   if(pending.kind==='event-hand')panel.append(node('p',{},say(language,'Choose one face-down card to take into your hand. Its face stays private until you receive it. This required choice cannot be passed.','选择一张背面手牌加入你的手牌，获得前牌面保持隐藏。此选择必须完成，不可放弃。')));
   if(pending.kind==='event-command')panel.append(node('p',{},`${pending.eventName?`${kit.localized(pending.eventName)} · `:''}${say(language,'Damage source:','伤害来源：')} ${kit.localized(pending.source?.name)||say(language,'Moltres','火焰鸟')} · ${say(language,`Incoming damage: ${pending.damage}`,`将受到${pending.damage}点伤害`)}`),node('p',{},say(language,'Play one actual Take this! card as a response. This does not use a Pokémon move or spend Power. Paralysis weather restrictions and used move allowances do not block this response.','打出手牌中一张实际的接招吧！响应。此操作不使用宝可梦招式，也不消耗力量强化；麻痹的天气限制及已用招式次数不影响此响应。')));
   if(pending.kind==='event-dodge')panel.append(node('p',{},`${pending.eventName?`${kit.localized(pending.eventName)} · `:''}${say(language,'Damage source:','伤害来源：')} ${kit.localized(pending.source?.name)||say(language,'Mewtwo','超梦')} · ${say(language,`Incoming damage: ${pending.damage}`,`将受到${pending.damage}点伤害`)}`),node('p',{},say(language,'Respond by playing an actual Dodge! card from your hand. Sand Veil and Levitate do not provide this response; move Dodge restrictions do not stop it.','打出手牌中一张实际的快躲开！响应。沙隐与飘浮不提供本响应，招式的躲闪限制不影响此响应。')));
@@ -764,6 +799,7 @@ export function decisionPanel(view,kit) {
   }
   if(pending.actorId===view.selfId && !view.self.spectator) {
     if(['event-dodge','event-command','mew-blessing','event-hand'].includes(pending.kind))panel.append(...eventResponseControls(pending,kit));
+    else if(pending.kind==='articuno')panel.append(articunoControls(pending,kit));
     else if(pending.kind==='rescue')panel.append(...rescueControls(pending,kit));
     else if(['pressure','pressure-payment'].includes(pending.kind))panel.append(...pressureControls(pending,kit));
     else if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind))panel.append(...paidEffectControls(pending,kit));

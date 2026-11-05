@@ -13405,7 +13405,7 @@
         "zh": "你选择一项：1.当一张事件牌的效果对一个目标生效前，抵消此事件牌对该目标的效果；2.当一只宝可梦陷入特殊状态后，恢复其特殊状态。",
         "en": "Choose one: before an event card’s effect takes effect on one target, cancel that event card’s effect on that target; or after one Pokémon gains a special status, cure its special status."
       },
-      "effectStatus": "reference-only",
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13420,16 +13420,13 @@
       "observedWeather": [
         "rain"
       ],
-      "effectImplementationSpecification": "reviewed-legendary-bird-events.md",
+      "reactionOnly": true,
+      "effectImplementationSpecification": "reviewed-articuno-protection.md",
       "provenance": {
         "specification": "reviewed-legendary-bird-events.md",
         "primary": "O03",
         "corroboration": "P06-visible-fragments",
         "retailQuantityVerified": false
-      },
-      "effectUnavailableReason": {
-        "zh": "卡面文字已复核；事件目标生效前及特殊状态生效后的通用响应窗口尚未实现。",
-        "en": "Card text is reviewed; shared before-event-target and after-status reaction windows are not implemented yet."
       }
     },
     {

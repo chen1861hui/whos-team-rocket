@@ -1,4 +1,12 @@
-## Moltres and Zapdos events — 2026-11-05 (current)
+## Articuno’s Protection — 2026-11-05 (current)
+
+**1,189 tests passed** (1,141 baseline plus 48 Articuno cases). Articuno can cancel an event for one original target or cure a newly applied special status. Both modes have bilingual response controls. The active responder alone sees their eligible cards; the original effect resumes after the reaction.
+
+Project: `C:/src/team-rocket-web`, application in `app/`. Review branch: `codex/articuno-protection`, based on `3f380e4`. The accepted arena, native cards, and identity-first Pokémon setup remain intact. The default command/Dodge test deck stays unchanged; Articuno is verified with actual cards in an isolated scenario that publicly enables the reaction rules. Retail deck quantities and weather distribution are still unverified.
+
+See [milestone 34](gameplay-milestone-34.md) and the [Articuno specification](reviewed-articuno-protection.md). Next: implement the remaining source-backed events (Rival’s Challenge, Berry Harvest, and Farfetch’d’s Prank), then reinforcement tools, remaining held items, and Revive. Use the saved sources and keep earlier checkpoints as history.
+
+## Moltres and Zapdos events — 2026-11-05 (historical)
 
 **1,141/1,141 tests pass** (1,099 baseline +42 independent cases). Moltres's Trial / 火焰鸟的试炼 resolves other original actives in next-trainer-first order: play one actual command response or receive2 from external Moltres. Zapdos's Punishment / 闪电鸟的惩戒 judges all original actives from next trainer through user last; final thunderstorm deals current target-level damage from external Zapdos. Shared receiving effects/rescue/Synchronize, strict payloads and bilingual native controls remain. All40 Pokémon groups/120 faces and6 event types execute in combat preview.
 

@@ -486,7 +486,7 @@ export class RoomStore {
     const vote = room.pendingVote;
     if (!vote.requiredIds.every(id => vote.approvedIds.includes(id))) return;
     room.pendingVote = null;
-    delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
+    delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent; delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
     room.turn = null;
     room.status = vote.kind === 'endRoom' ? 'closed' : 'lobby';
     for (const player of room.players) {
