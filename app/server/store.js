@@ -171,7 +171,7 @@ export class RoomStore {
         clock.remainingMs = Math.max(0, clock.deadlineAt - until);
       }
       if (clock.remainingMs === 0 && !room.pendingVote) {
-        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','turn-start-order','distribute','damage-order','mew-blessing'].includes(pending.kind)) {
+        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','turn-start-order','distribute','damage-order','mew-blessing','event-hand'].includes(pending.kind)) {
           const reason=this.connected(actor)?'mandatory':'disconnected';
           structural ||= !clock.expired || clock.pausedReason!==reason;
           clock.expired=true;clock.deadlineAt=null;clock.pausedReason=reason;
@@ -369,7 +369,7 @@ export class RoomStore {
         this.battleCall(() => playBattleMove(room, player, input, this.battleContext()));
         break;
       case 'useEvent':
-        check(['cardId']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Events require combat preview.');
+        check(['cardId','targetId','effect']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Events require combat preview.');
         this.battleCall(()=>useBattleEvent(room,player,input,this.battleContext()));break;
       case 'useTool':
         check(['cardId','effect','targetId','slot']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Tools require combat preview.');

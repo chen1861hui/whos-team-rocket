@@ -199,7 +199,7 @@ function continueJudgment(room,ctx,next,weather) {
   if(next.kind==='trait') {
     const pokemon=creature(room,next.sourceId);
     if(pokemon && !pokemon.defeated) {
-      if(next.family==='bulbasaur' && ['intense-sun','clear'].includes(weather))room.turn.rangeCreatureId=next.sourceId;
+      if(next.family==='bulbasaur' && ['intense-sun','clear'].includes(weather)){room.turn.rangeCreatureId=next.sourceId;room.turn.cardRangePlayerId=next.ownerId;}
       if(next.family==='squirtle' && ['rain','thunderstorm'].includes(weather)){pokemon.status=null;heal(pokemon,1,ctx.catalogue);}
       if(next.family==='psyduck' && ['rain','thunderstorm'].includes(weather)) {
         room.turn.cardRangePlayerId=next.ownerId;
@@ -467,7 +467,7 @@ export function publicBattleDecision(room,self) {
   if(pending.kind==='distribute'&&pending.actorId===self.id)pending.cards=(room.resolution.distributionCards||[]).map(({name,weather,kind},index)=>({index,name,weather,kind}));
   if(pending.kind==='cycle' && pending.actorId===self.id)pending.cards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
   if(pending.kind==='judgment' && pending.actorId===self.id)pending.replacementCards=self.hand.filter(card=>['intense-sun','clear'].includes(card.weather)).map(({id,name,weather,kind})=>({id,name,weather,kind}));
-  if(['hand','exile','cursed-body'].includes(pending.kind) && pending.actorId===self.id) {
+  if(['hand','event-hand','exile','cursed-body'].includes(pending.kind) && pending.actorId===self.id) {
     const target=trainer(room,pending.targetId);
     pending.choices=(room.resolution.handChoiceIds||[]).map((id,index)=>{
       const card=target.hand.find(c=>c.id===id);
@@ -629,7 +629,7 @@ function reduceMoveDamage(room,targetId) {
   return room.resolution.dodgeReductions[targetId]=(room.resolution.dodgeReductions[targetId]||0)+1;
 }
 const hasSniper=(room,player)=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&battleTraitsEffective(room,player.active);
-export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||hasSniper(room,player);
+export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||Boolean(room.turn?.rangeCreatureId&&[player.active,player.reserve].some(pokemon=>pokemon?.instanceId===room.turn.rangeCreatureId))||hasSniper(room,player);
 const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen','lock-on','discard-other-hand','life-dew']);
 const isPotionCard=card=>card?.kind==='tool'&&['potion-full-heal','potion-revive'].includes(card.toolType);
 const rescueOwnerOnly=room=>[room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.effectKind==='fainting-owner-potion-only');
@@ -667,30 +667,40 @@ function toolActions(room,player,catalogue,own) {
 }
 // Reviewed O03 and Master Edition video event faces; retail quantities stay gated.
 const reviewedEvents={
+  'jigglypuff-performance':{targeting:'single',name:{zh:'胖丁的表演',en:"Jigglypuff’s Performance"},description:{zh:'选择一只出战宝可梦；其训练家进行判定，结果不为雷雨时，目标陷入睡眠。',en:'Choose one active Pokémon. Its trainer judges; any result other than thunderstorm puts the target to Sleep.'}},
+  'mr-mime-trick':{targeting:'single',name:{zh:'魔墙人偶的戏法',en:"Mr. Mime’s Trick"},description:{zh:'选择距离范围内的其他出战宝可梦，获得其训练家的一张手牌或其携带的持有物。',en:'Choose another active Pokémon within range and take one card from its trainer’s hand or its held item.'}},
   'mewtwo-threat':{name:{zh:'超梦的威压',en:"Mewtwo's Threat"},description:{zh:'从下一位训练家起依次结算所有其他训练家的出战宝可梦；打出一张快躲开！，否则受到超梦造成的2点伤害。',en:'Resolve every other active Pokémon, starting with the next trainer. Play one actual Dodge response or receive 2 damage from Mewtwo.'}},
   'mew-blessing':{name:{zh:'梦幻的祝福',en:"Mew’s Blessing"},description:{zh:'从你开始依次结算所有训练家的出战宝可梦；各目标的训练家选择回复2点体力或升1级（最高3级）。',en:'Resolve all active Pokémon, starting with you. Each target trainer chooses heal 2 HP or raise one level (up to level 3).'}}
 };
 function eventTargets(room,player,eventType) {
   const seats=live(room),index=seats.findIndex(seat=>seat.id===player.id);
   const ordered=[...seats.slice(index),...seats.slice(0,index)];
-  return ordered.filter(seat=>(eventType==='mew-blessing'||seat.id!==player.id)&&seat.active&&!seat.active.defeated);
+  const ranged=eventType==='mr-mime-trick';
+  const inRange=ranged?eligibleTargetIds(room.players,player.id,{ignoreDistance:cardDistanceIgnored(room,player)||battleReinforcementEffective(room,player.active,'speed')}):null;
+  return ordered.filter(seat=>(!['mewtwo-threat','mr-mime-trick'].includes(eventType)||seat.id!==player.id)&&seat.active&&!seat.active.defeated&&battleEventTargetAllowed(room,seat.active,reviewedEvents[eventType].name.zh)&&(!ranged||inRange.includes(seat.id)));
 }
 function eventActions(room,player,own) {
   return [...new Set(player.hand.filter(card=>card.kind==='event'&&Object.hasOwn(reviewedEvents,card.eventType)).map(card=>card.eventType))].map(eventType=>{
-    const targetIds=eventTargets(room,player,eventType).map(seat=>seat.id);
-    return {eventType,...reviewedEvents[eventType],targetIds,canUse:Boolean(own&&targetIds.length)};
+    const targets=eventTargets(room,player,eventType);
+    const choices=eventType==='mr-mime-trick'?[{effect:'hand',name:{zh:'获得一张手牌',en:'Take one hand card'},description:{zh:'私下选择一张背面手牌并获得。',en:'Privately choose one hidden card back and take that card.'},targetIds:targets.filter(seat=>seat.hand.length).map(seat=>seat.id)},{effect:'item',name:{zh:'获得持有物',en:'Take held item'},description:{zh:'将持有物加入你的手牌，不自动携带。',en:'Put the held item in your hand; it is not automatically equipped.'},targetIds:targets.filter(seat=>seat.active.item).map(seat=>seat.id)}]:null;
+    const targetIds=choices?[...new Set(choices.flatMap(choice=>choice.targetIds))]:targets.map(seat=>seat.id);
+    return {eventType,...reviewedEvents[eventType],...(choices?{choices}:{}),targetIds,canUse:Boolean(own&&targetIds.length)};
   });
 }
 export function useBattleEvent(room,player,input,ctx) {
-  requireRule(Object.keys(input).every(key=>['id','revision','type','cardId'].includes(key)),'INVALID_INPUT','An event chooses only one physical card.');
   const legal=previewActions(room,player,ctx.catalogue);
   requireRule(room.turn?.playerId===player.id&&room.turn.phase==='play'&&legal&&!room.pendingBattle&&!room.pendingVote,'EVENT_UNAVAILABLE','Events require your unblocked Play phase.');
   const selected=player.hand.find(card=>card.id===input.cardId&&card.kind==='event'&&Object.hasOwn(reviewedEvents,card.eventType));
   requireRule(selected&&legal.events.some(event=>event.eventType===selected.eventType&&event.canUse),'INVALID_CARD','Choose a reviewed event from your own hand.');
-  const targets=eventTargets(room,player,selected.eventType);
+  const single=reviewedEvents[selected.eventType].targeting==='single',mime=selected.eventType==='mr-mime-trick';
+  requireRule(Object.keys(input).every(key=>['id','revision','type','cardId',...(single?['targetId']:[]),...(mime?['effect']:[])].includes(key)),'INVALID_INPUT','Choose only the fields required by this event.');
+  const descriptor=legal.events.find(event=>event.eventType===selected.eventType);
+  if(single)requireRule(typeof input.targetId==='string'&&descriptor.targetIds.includes(input.targetId),'INVALID_TARGET','Choose a legal active Pokémon for this event.');
+  if(mime)requireRule(descriptor.choices.some(choice=>choice.effect===input.effect&&choice.targetIds.includes(input.targetId)),'INVALID_EVENT_CHOICE','Choose a legal hand-card or held-item gain.');
+  const targets=eventTargets(room,player,selected.eventType).filter(target=>!single||target.id===input.targetId);
   player.hand.splice(player.hand.indexOf(selected),1);
-  room.resolution={kind:'event',card:selected,eventType:selected.eventType,eventName:reviewedEvents[selected.eventType].name,sourceId:null,sourcePlayerId:null,actorPlayerId:player.id,...(selected.eventType==='mewtwo-threat'?{externalSource:{kind:'external-pokemon',name:{zh:'超梦',en:'Mewtwo'}}}:{}),targetIds:targets.map(seat=>seat.id),targetInstances:Object.fromEntries(targets.map(seat=>[seat.id,seat.active.instanceId])),index:0,damagedIds:[],defenseIds:[],actualDamage:0};
-  note(room,`使用${reviewedEvents[selected.eventType].name.zh}，按行动顺序依次结算。`,`Used ${reviewedEvents[selected.eventType].name.en}; resolve targets in action order.`);
+  room.resolution={kind:'event',card:selected,eventType:selected.eventType,eventName:reviewedEvents[selected.eventType].name,sourceId:null,sourcePlayerId:null,actorPlayerId:player.id,actorCreatureId:player.active.instanceId,...(mime?{eventEffect:input.effect}:{}),...(selected.eventType==='mewtwo-threat'?{externalSource:{kind:'external-pokemon',name:{zh:'超梦',en:'Mewtwo'}}}:{}),targetIds:targets.map(seat=>seat.id),targetInstances:Object.fromEntries(targets.map(seat=>[seat.id,seat.active.instanceId])),index:0,damagedIds:[],defenseIds:[],actualDamage:0};
+  note(room,`使用${reviewedEvents[selected.eventType].name.zh}。`,`Used ${reviewedEvents[selected.eventType].name.en}.`);
   openDefense(room,ctx);
 }
 function openEventTarget(room,ctx) {
@@ -701,6 +711,24 @@ function openEventTarget(room,ctx) {
       resolution.targetCreatureId=target.instanceId;
       delete resolution.incomingDamage;delete resolution.modifierState;delete resolution.receivingEffects;delete resolution.helmetCardId;
       resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.staticDone=false;
+      if(!battleEventTargetAllowed(room,target,resolution.eventName.zh)){resolution.index++;continue;}
+      if(resolution.eventType==='jigglypuff-performance')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'sleep',weather:'thunderstorm',comparison:'not',next:'settlement'},owner.id);
+      if(resolution.eventType==='mr-mime-trick') {
+        const actor=trainer(room,resolution.actorPlayerId);
+        if(resolution.eventEffect==='hand') {
+          if(!owner.hand.length)return nextSettlement(room,ctx);
+          resolution.handChoiceIds=shuffled(owner.hand.map(card=>card.id));
+          decision(room,'event-hand',actor.id,owner.id,ctx);room.pendingBattle.eventName=resolution.eventName;return;
+        }
+        const item=target.item;
+        if(!item)return nextSettlement(room,ctx);
+        delete target.item;gainBattleCards(room,actor,[item],{reason:'take'});
+        note(room,'魔墙人偶的戏法获得持有物并加入手牌。','Mr. Mime’s Trick took the held item into the actor’s hand.');
+        if(target.catalogueId==='mankey'&&battleTraitsEffective(room,target)) {
+          decision(room,'defiant',owner.id,owner.id,ctx);room.pendingBattle.trait='defiant';room.pendingBattle.canTrait=true;return;
+        }
+        return nextSettlement(room,ctx);
+      }
       decision(room,resolution.eventType==='mewtwo-threat'?'event-dodge':'mew-blessing',owner.id,owner.id,ctx);
       Object.assign(room.pendingBattle,{eventType:resolution.eventType,eventName:resolution.eventName,targetCreatureId:target.instanceId,...(resolution.externalSource?{damage:2,source:resolution.externalSource}:{choices:['heal',...(target.level<3?['evolve']:[])]})});
       return;
@@ -1153,6 +1181,18 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(['cute-charm','neutralizing-gas','intimidate'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
   requireRule(pending.kind==='forewarn-order'||(input.topOrder===undefined&&input.bottomOrder===undefined),'INVALID_RESPONSE','Only Forewarn chooses the deck top and bottom.');
   requireRule(pending.kind==='download'||input.targetIds===undefined,'INVALID_RESPONSE','Only Download chooses multiple trainers.');
+  if(pending.kind==='event-hand') {
+    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','handIndex'].includes(key))&&input.choice==='card'&&Number.isSafeInteger(input.handIndex),'INVALID_RESPONSE','Choose one hidden hand-card slot.');
+    const resolution=room.resolution,owner=trainer(room,pending.targetId),target=owner?.active;
+    requireRule(resolution?.kind==='event'&&resolution.eventType==='mr-mime-trick'&&resolution.eventEffect==='hand'&&resolution.actorPlayerId===player.id&&player.active?.instanceId===resolution.actorCreatureId&&owner&&!owner.eliminated&&target&&!target.defeated&&target.instanceId===resolution.targetInstances[owner.id],'STALE_DECISION','The event participants changed.');
+    const ids=resolution.handChoiceIds||[];
+    requireRule(input.handIndex>=0&&input.handIndex<ids.length,'INVALID_RESPONSE','Choose an available hidden slot.');
+    const index=owner.hand.findIndex(card=>card.id===ids[input.handIndex]);
+    requireRule(index>=0,'STALE_DECISION','The selected hand card changed.');
+    gainBattleCards(room,player,owner.hand.splice(index,1),{reason:'take'});delete resolution.handChoiceIds;
+    note(room,'魔墙人偶的戏法获得目标训练家的一张手牌。','Mr. Mime’s Trick took one card from the target trainer’s hand.');
+    return nextSettlement(room,ctx);
+  }
   if(['event-dodge','mew-blessing'].includes(pending.kind)) {
     const resolution=room.resolution,target=player.active;
     requireRule(resolution?.kind==='event'&&resolution.targetIds[resolution.index]===player.id&&target&&!target.defeated&&currentHp(target,ctx.catalogue)>0&&target.instanceId===resolution.targetInstances[player.id]&&target.instanceId===pending.targetCreatureId,'STALE_DECISION','The event target changed.');
@@ -1468,9 +1508,16 @@ export function respondBattle(room,player,input,ctx) {
     return;
   }
   if(pending.kind==='defiant') {
+    if(room.resolution?.kind==='event') {
+      const resolution=room.resolution;
+      requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice'].includes(key)),'INVALID_RESPONSE','Defiant accepts only use or pass.');
+      requireRule(resolution.eventType==='mr-mime-trick'&&resolution.eventEffect==='item'&&player.active?.instanceId===resolution.targetInstances[player.id]&&!player.active.defeated&&player.active.catalogueId==='mankey'&&(input.choice!=='trait'||battleTraitsEffective(room,player.active)),'STALE_DECISION','The item-loss recipient changed.');
+    }
     requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Use Defiant or pass.');
     if(input.choice==='trait'){drawBattleCards(room,player,2);room.turn.noHandLimitIds??=[];if(!room.turn.noHandLimitIds.includes(player.id))room.turn.noHandLimitIds.push(player.id);note(room,'不服输摸两张牌，本回合没有手牌上限。','Defiant drew two cards and removed this trainer’s hand limit for the current turn.');}
-    room.pendingBattle=null;return;
+    room.pendingBattle=null;
+    if(room.resolution?.kind==='event'&&room.resolution.eventType==='mr-mime-trick')return nextSettlement(room,ctx);
+    return;
   }
   if(pending.kind==='judgment') {
     requireRule(input.reinforcement===undefined&&input.order===undefined&&input.handIndex===undefined,'INVALID_RESPONSE','This judgment only accepts replacement or pass.');

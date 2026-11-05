@@ -1,0 +1,142 @@
+{
+  "reviewedAt": "2026-11-05",
+  "reviewStatus": "independent saved-source visual review; root signoff and implementation separate",
+  "specification": "reviewed-jigglypuff-mime.md",
+  "engineEligible": false,
+  "retailManifestVerified": false,
+  "sources": [
+    {
+      "id": "O03",
+      "file": "research-assets/user-older-edition-2026-11-04/share_d5d99ad9094dafd0a484315a59b80816.png",
+      "printing": "user-described older printing",
+      "sha256": "71dc0eb1e4dee2ed352e891055b8fd13f4590162cb64d6e1bd4267fd67cdb4b2",
+      "dimensions": [
+        1440,
+        1920
+      ],
+      "encodedFormat": "WEBP",
+      "observedMediaSeconds": null
+    },
+    {
+      "id": "BV-jiggly",
+      "file": "research-assets/bilibili-BV1juYi6UEkv/frame-20m40s-jigglypuff.jpg",
+      "printing": "Master Edition sampled video face",
+      "sha256": "497067b27f413b6ed1b6a2f938bdf6a79739017e15961eac2f04576a43ba12a7",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "encodedFormat": "JPEG",
+      "observedMediaSeconds": null
+    },
+    {
+      "id": "BV-mime",
+      "file": "research-assets/bilibili-BV1juYi6UEkv/frame-21m30s-mr-mime.jpg",
+      "printing": "Master Edition sampled video face",
+      "sha256": "b9dd43ad4bd8b2b6f55b512d03a30e37d725b92d0a47bb3073525119032561d6",
+      "dimensions": [
+        1280,
+        720
+      ],
+      "encodedFormat": "JPEG",
+      "observedMediaSeconds": 1290.349292
+    },
+    {
+      "id": "R06",
+      "file": "research-assets/xiaohongshu-rulebook/06-rescue-basics.webp",
+      "printing": "accepted booklet pp06–07",
+      "sha256": "46d2c939704f84ad87bce58f9ba19d6bb4ba3df77e94b6ae162bdb3fff38e2f1",
+      "dimensions": [
+        1440,
+        1080
+      ],
+      "encodedFormat": "WEBP",
+      "observedMediaSeconds": null
+    },
+    {
+      "id": "R07",
+      "file": "research-assets/xiaohongshu-rulebook/07-targets-cards.webp",
+      "printing": "accepted booklet pp08–09",
+      "sha256": "0c3df4526577355eeb0cf30751fa253f59cd59355bc794ba618084362ddd3847",
+      "dimensions": [
+        1440,
+        1080
+      ],
+      "encodedFormat": "WEBP",
+      "observedMediaSeconds": null
+    }
+  ],
+  "iconNotation": "[雷雨] is an editorial name for the printed black-cloud/yellow-lightning icon, not printed Chinese text.",
+  "events": [
+    {
+      "eventType": "jigglypuff-performance",
+      "name": {
+        "zh": "胖丁的表演",
+        "en": "Jigglypuff’s Performance"
+      },
+      "cardKind": "event",
+      "masterChineseWithNamedIcon": "在你的出牌阶段对一只出战宝可梦使用。目标宝可梦对应的训练家进行一次判定，若结果不为[雷雨]，目标宝可梦陷入“睡眠”状态。",
+      "olderChineseWithNamedIcon": "在你的出牌阶段对一只宝可梦使用。目标宝可梦对应的训练家进行一次判定，若结果不为[雷雨]，目标宝可梦陷入“睡眠”状态。",
+      "workingEnglish": "During your Play phase, use on one active Pokémon. Its trainer judges once. If the result is not thunderstorm, the target becomes Asleep.",
+      "observedWeather": {
+        "Master": "rain",
+        "O03": "clear"
+      },
+      "printedTarget": "one active Pokémon in Master face; older O03 omits 出战",
+      "printedDistanceClause": null,
+      "printedResponse": null,
+      "effect": {
+        "judgmentActor": "target trainer",
+        "test": "not-thunderstorm",
+        "status": "sleep"
+      },
+      "sourceScopeDifference": "Use Master active-only wording; do not silently turn older unrestricted Pokémon noun into identical text."
+    },
+    {
+      "eventType": "mr-mime-trick",
+      "name": {
+        "zh": "魔墙人偶的戏法",
+        "en": "Mr. Mime’s Trick"
+      },
+      "cardKind": "event",
+      "chinese": "在你的出牌阶段你选择一只在你的出战宝可梦的距离限制范围内的其他出战宝可梦并选择一项：1.获得其对应训练家的一张手牌；2.获得其携带的持有物。",
+      "workingEnglish": "During your Play phase, choose another active Pokémon within the distance limit of your active Pokémon, then choose: obtain one card from its trainer’s hand; or obtain its held item.",
+      "observedWeather": {
+        "Master": "intense-sun",
+        "O03": "thunderstorm"
+      },
+      "printedTarget": "one other active Pokémon within the user active’s distance limit",
+      "printedChoices": [
+        "obtain-one-corresponding-trainer-hand-card",
+        "obtain-target-held-item"
+      ],
+      "printedResponse": null,
+      "printedAdditionalWeatherTest": null
+    }
+  ],
+  "recommendedPolicies": [
+    "Do not create a normal move-defense/Dodge response for either event; neither paragraph prints one.",
+    "Jigglypuff may choose self or a distant active: no other-target or distance clause, and booklet default move range is not a universal event range.",
+    "Always conduct Jigglypuff judgment before conditional status application, even if existing status or effective Shield Dust/Vital Spirit would prevent Sleep. Empty deck supplies no judgment result and does not satisfy not-thunderstorm.",
+    "Use shared Drought judgment replacements and status pipeline: one-status rule, effective Shield Dust/Vital Spirit and Poison Touch replacement remain.",
+    "Effective active Kangaskhan Early Bird prohibits becoming the target of these two named events; Gas can suppress that protection. It is not a general event immunity.",
+    "Mr. Mime uses user active distance for another active, including legitimate range effects that apply to the event/card. Do not inherit command-only or explicitly move-only range changes without their wording.",
+    "Mr. Mime obtains one actual hidden hand card OR one actual held item; it neither reveals the whole hand nor discards/equips the selected card. Preserve ID, weather and metadata through shared gain/Pickup and held-item-loss hooks.",
+    "Offer a Mr. Mime alternative only when it has a real card to obtain; target should have hand or item. This legality policy avoids fictional cards and is not an extra printed prerequisite.",
+    "Capture original active target and consume one physical event once; strict authority/retry/reconnect/vote contracts and hidden information remain server-owned.",
+    "No per-card copy quantities or weather distribution inferred from stacked cards or observed variants."
+  ],
+  "rootSignoff": {
+    "date": "2026-11-05",
+    "sourceImagesIndependentlyViewed": true,
+    "MasterActiveOnlyJiggly": true,
+    "notThunderstormJudgmentConfirmed": true
+  },
+  "implementationCheckpoint": {
+    "date": "2026-11-05",
+    "specification": "gameplay-milestone-32.md",
+    "branch": "codex/jigglypuff-mime-events",
+    "effectStatus": "combat-preview",
+    "retailManifestVerified": false
+  }
+}

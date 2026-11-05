@@ -13390,20 +13390,23 @@
       "id": "jigglypuff-performance-preview",
       "name": {
         "zh": "胖丁的表演",
-        "en": null
+        "en": "Jigglypuff’s Performance"
       },
       "displayLabel": {
-        "zh": "胖丁的表演（预览草录）",
-        "en": "Jigglypuff performance preview"
+        "zh": "胖丁的表演",
+        "en": "Jigglypuff’s Performance"
       },
-      "sourceFilename": "mmexport1793008962926.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "sourceFilename": "frame-20m40s-jigglypuff.jpg",
+      "editionConfidence": "Master-video-primary-older-sheet-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的出牌阶段对一只出战宝可梦使用。目标宝可梦对应的训练家进行一次判定，若结果不为[雷雨]，目标宝可梦陷入“睡眠”状态。",
+        "en": "During your Play phase, use on one active Pokémon. Its trainer judges once. If the result is not thunderstorm, the target becomes Asleep."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13413,6 +13416,16 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "eventType": "jigglypuff-performance",
+      "observedWeather": [
+        "rain",
+        "clear"
+      ],
+      "effectImplementationSpecification": "reviewed-jigglypuff-mime.md",
+      "provenance": {
+        "specification": "reviewed-jigglypuff-mime.md",
+        "retailQuantityVerified": false
       }
     },
     {
@@ -13442,6 +13455,48 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      }
+    },
+    {
+      "id": "mr-mime-trick-preview",
+      "name": {
+        "zh": "魔墙人偶的戏法",
+        "en": "Mr. Mime’s Trick"
+      },
+      "displayLabel": {
+        "zh": "魔墙人偶的戏法",
+        "en": "Mr. Mime’s Trick"
+      },
+      "sourceFilename": "frame-21m30s-mr-mime.jpg",
+      "editionConfidence": "Master-video-primary-older-sheet-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
+      "splitEffect": false,
+      "effectHeadings": null,
+      "effectText": {
+        "zh": "在你的出牌阶段你选择一只在你的出战宝可梦的距离限制范围内的其他出战宝可梦并选择一项：1.获得其对应训练家的一张手牌；2.获得其携带的持有物。",
+        "en": "During your Play phase, choose another active Pokémon within the distance limit of your active Pokémon, then choose: obtain one card from its trainer’s hand; or obtain its held item."
+      },
+      "effectStatus": "combat-preview",
+      "deckQuantity": null,
+      "engineEligible": false,
+      "asset": {
+        "status": "placeholder",
+        "url": null,
+        "label": {
+          "zh": "图像占位",
+          "en": "Artwork placeholder"
+        }
+      },
+      "eventType": "mr-mime-trick",
+      "observedWeather": [
+        "intense-sun",
+        "thunderstorm"
+      ],
+      "effectImplementationSpecification": "reviewed-jigglypuff-mime.md",
+      "provenance": {
+        "specification": "reviewed-jigglypuff-mime.md",
+        "retailQuantityVerified": false
       }
     }
   ],

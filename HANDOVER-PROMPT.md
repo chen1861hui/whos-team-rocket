@@ -1,4 +1,12 @@
-## Mewtwo and Mew events — 2026-11-05 (current)
+## Jigglypuff and Mr. Mime events — 2026-11-05 (current)
+
+**1,099/1,099 tests pass** (1,055 baseline +44 independent cases). Jigglypuff's Performance targets one active, makes its trainer judge, and applies Sleep on a real result other than thunderstorm through Drought/status-immunity/Poison Touch rules. Mr. Mime's Trick targets another active within card range and obtains one hidden hand card OR its actual held item into hand, including Pickup and item-loss Defiant. Native single-target/effect dialogs retain bilingual drafts; private card selection shows only shuffled backs. All40 Pokémon groups/120 faces remain supported;4 event types now execute in combat preview.
+
+Project C:\src\team-rocket-web, app app/. Branch codex/jigglypuff-mime-events from806cc63. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/jigglypuff-mime-events . Main4173 restarted with current code/saved rooms retained; isolated QA4174 stopped. No PR/merge/hosting. Accepted arena/native cards/centered hover/setup preserved; no CSS, downloads or production deck changes.
+
+Read gameplay-milestone-32.md and reviewed-jigglypuff-mime.md/json. Master Jiggly explicitly prints active; older O03 omits 出战, a recorded wording difference. Both have no printed Dodge response; Early Bird blocks targeting unless suppressed. Chlorophyll now grants its printed trainer card-range permission as well as instance move range, including switching and legacy saved grants. Retail quantity/weather gates remain false; production still six command/six Dodge per seat, all intense sun, with cards tested in isolated real-card fixtures. Next: saved legendary-bird events, other remaining events, reinforcement tools, held items and Revive. Retail name/pairing × weather counts remain unverified. Do not repeat source discovery or request the supplied collection again. Earlier checkpoints below are historical.
+
+## Mewtwo and Mew events — 2026-11-05 (historical)
 
 **1,055/1,055 tests pass** (1,010 baseline +45 independent event cases). Mewtwo's Threat / 超梦的威压 targets every other original active in next-trainer-first order, accepts an actual Dodge response or deals2 from external Mewtwo, and preserves receiving effects/rescue/Synchronize. Mew's Blessing / 梦幻的祝福 resolves all original actives self-first; each target trainer must choose capped heal2 or +1level belowLv3. Both have native bilingual confirmation, ordered targets and response controls. All40 Pokémon groups/120 faces remain combat-preview supported.
 

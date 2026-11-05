@@ -43,7 +43,8 @@ export function eventDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,code=initial.code,selfId=initial.selfId,turnNumber=initial.turn?.number,cardId=card.id,eventType=card.eventType;
   const descriptor=current=>current?.self?.battle?.events?.find(event=>event.eventType===eventType);
   const event=descriptor(initial);
-  if(card.kind!=='event'||!['mewtwo-threat','mew-blessing'].includes(eventType)||!event)return;
+  if(card.kind!=='event'||!['mewtwo-threat','mew-blessing','jigglypuff-performance','mr-mime-trick'].includes(eventType)||!event)return;
+  if(event.targeting==='single')return targetedEventDialog(card,kit);
   const targetIds=[...(event.targetIds||[])];
   const order=node('ol',{id:'event-target-order','aria-label':say(language,'Public target order','公开目标顺序')});
   for(const id of targetIds){
@@ -62,6 +63,59 @@ export function eventDialog(card,kit) {
     kit.action('useEvent',{cardId});
   }},say(language,'Use event · spend card','使用事件 · 消耗此牌'));
   dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
+}
+function targetedEventDialog(card,kit) {
+  const initial=kit.getView(),language=kit.language,code=initial.code,selfId=initial.selfId,turnNumber=initial.turn?.number,cardId=card.id,eventType=card.eventType;
+  const descriptor=current=>current?.self?.battle?.events?.find(event=>event.eventType===eventType),event=descriptor(initial),split=eventType==='mr-mime-trick';
+  const draft=privateDecisionDraft({kind:'event',id:`${turnNumber}:${cardId}:${eventType}`},kit,()=>({effect:'',targetId:'',targetFace:null}));
+  const enabled=choice=>Boolean(choice?.targetIds?.length);
+  const legalTargets=current=>{
+    const legal=descriptor(current);
+    return split?(legal?.choices?.find(choice=>choice.effect===draft.effect)?.targetIds||[]):legal?.targetIds||[];
+  };
+  const publicFace=(current,id)=>{
+    const pokemon=current.players.find(player=>player.id===id)?.active;
+    return pokemon?JSON.stringify([pokemon.instanceId??null,pokemon.catalogueId,pokemon.level]):null;
+  };
+  if(split&&!event.choices?.some(choice=>choice.effect===draft.effect&&enabled(choice))){draft.effect='';draft.targetId='';draft.targetFace=null;}
+  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'event-title'},
+    node('h2',{id:'event-title'},kit.localized(event.name)),node('p',{},kit.localized(event.description)));
+  const effects=split?node('select',{id:'event-effect','aria-label':say(language,'Event effect','事件效果'),disabled:kit.busy||Boolean(initial.pendingVote)},node('option',{value:''},say(language,'Choose one effect','请选择一种效果'))):null;
+  if(effects){
+    for(const choice of event.choices||[])effects.append(node('option',{value:choice.effect,disabled:!enabled(choice)},`${kit.localized(choice.name)}${enabled(choice)?'':say(language,' · unavailable',' · 不可用')}`));
+    effects.value=draft.effect;
+    dialog.append(node('label',{class:'attack-target',for:'event-effect'},node('strong',{},say(language,'Effect','效果')),effects));
+  }
+  const targets=node('select',{id:'event-target','aria-label':say(language,'Event target','事件目标')});
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-event',disabled:true},say(language,'Use event · spend card','使用事件 · 消耗此牌'));
+  const update=()=>{
+    const current=kit.getView(),legal=descriptor(current);
+    confirm.disabled=kit.busy||Boolean(current?.pendingVote)||Boolean(current?.pendingBattle)||!legal?.canUse||!legalTargets(current).includes(draft.targetId)||publicFace(current,draft.targetId)!==draft.targetFace;
+  };
+  const populateTargets=()=>{
+    const current=kit.getView(),ids=legalTargets(current);
+    if(!ids.includes(draft.targetId)||publicFace(current,draft.targetId)!==draft.targetFace){draft.targetId='';draft.targetFace=null;}
+    targets.replaceChildren(node('option',{value:''},say(language,'Choose an active Pokémon','请选择出战宝可梦')));
+    for(const id of ids){
+      const player=current.players.find(player=>player.id===id),pokemon=player?.active;
+      targets.append(node('option',{value:id},`${player?.nickname||'—'} · ${pokemon?kit.partnerName(pokemon.catalogueId,pokemon.level):'—'}`));
+    }
+    targets.value=draft.targetId;targets.disabled=kit.busy||Boolean(current?.pendingVote)||Boolean(current?.pendingBattle)||!ids.length;update();
+  };
+  effects?.addEventListener('change',()=>{draft.effect=effects.value;draft.targetId='';draft.targetFace=null;populateTargets();});
+  targets.addEventListener('change',()=>{draft.targetId=targets.value;draft.targetFace=publicFace(kit.getView(),draft.targetId);update();});
+  confirm.addEventListener('click',()=>{
+    const current=kit.getView(),legal=descriptor(current),held=current?.self?.hand?.find(item=>item.id===cardId&&item.kind==='event'&&item.eventType===eventType),effect=draft.effect,targetId=draft.targetId;
+    dialog.close();
+    if(current?.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||current.status!=='playing'||current.turn?.playerId!==selfId||current.turn?.phase!=='play'||current.self.spectator||current.players.find(player=>player.id===selfId)?.eliminated||kit.busy||current.pendingVote||current.pendingBattle||!held||legal?.targeting!=='single'||!legal.canUse||!legalTargets(current).includes(targetId)||publicFace(current,targetId)!==draft.targetFace)return;
+    if(split&&!legal.choices?.some(choice=>choice.effect===effect&&enabled(choice)))return;
+    kit.action('useEvent',{cardId,targetId,...(split?{effect}:{})});
+  });
+  const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-event',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  dialog.append(node('label',{class:'attack-target',for:'event-target'},node('strong',{},say(language,'Target','目标')),targets),
+    node('p',{class:'muted'},split?say(language,'Take the selected card into your hand. A taken held item is not equipped automatically.','所获得的牌加入你的手牌，获得的持有物不会自动携带。'):say(language,'The target trainer judges. This event does not ask for a Dodge response.','目标训练家进行判定，此事件不要求躲闪响应。')),
+    node('p',{class:'muted'},say(language,'Confirming consumes this one physical event card.','确认后消耗这一张实体事件牌。')),node('div',{class:'action-row'},cancel,confirm));
+  populateTargets();dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();(effects||targets).focus();
 }
 export function toolDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number,code=initial.code,selfId=initial.selfId,cardId=card.id,toolType=card.toolType;
@@ -580,6 +634,11 @@ function eventResponseControls(pending,kit) {
       }},say(language,'Play Dodge! as response','打出快躲开！响应'),` · ${weatherLabel(card.weather,language)}`));
     }
     row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:blocked,onclick:()=>{if(currentDecision())kit.action('respondBattle',{decisionId,choice:'pass'});}},say(language,'Pass · resolve event damage','放弃响应 · 结算事件伤害')));
+  }else if(kind==='event-hand'){
+    row.className='hand-choice-grid';
+    for(const choice of pending.choices||[])row.append(node('button',{type:'button',class:'button blind-hand-choice',id:`event-hand-${choice.index}`,disabled:blocked,onclick:()=>{
+      if(currentDecision()?.choices?.some(latest=>latest.index===choice.index))kit.action('respondBattle',{decisionId,choice:'card',handIndex:choice.index});
+    }},say(language,`Take face-down card ${choice.index+1}`,`获得背面手牌 ${choice.index+1}`)));
   }else{
     for(const choice of ['heal','evolve'].filter(choice=>pending.choices?.includes(choice)))row.append(node('button',{type:'button',class:'button primary',id:`mew-blessing-${choice}`,disabled:blocked,onclick:()=>{
       if(currentDecision()?.choices?.includes(choice))kit.action('respondBattle',{decisionId,choice});
@@ -637,9 +696,10 @@ export function decisionPanel(view,kit) {
   Object.assign(titles,{'vital-spirit':['Vital Spirit · choose cards to gain','干劲 · 选择获得的牌'],intimidate:['Intimidate · choose a trainer','威吓 · 选择训练家'],'intimidate-hand':['Intimidate · discard a hand card','威吓 · 弃置一张手牌']});
   Object.assign(titles,{download:['Download · choose other trainers','下载 · 选择其他训练家'],'download-hand':['Download · take a hand card','下载 · 获得一张手牌']});
   Object.assign(titles,{pressure:['Pressure · optional discard','压迫感 · 可选弃牌'],'pressure-payment':['Pressure · discard or let protection apply','压迫感 · 弃牌或让保护生效']});
-  Object.assign(titles,{'event-dodge':['Mewtwo’s Threat · play a response','超梦的威压 · 打出响应'],'mew-blessing':['Mew’s Blessing · choose an effect','梦幻的祝福 · 选择效果']});
+  Object.assign(titles,{'event-hand':['Mr. Mime’s Trick · choose a hand card','魔墙人偶的戏法 · 选择手牌'],'event-dodge':['Mewtwo’s Threat · play a response','超梦的威压 · 打出响应'],'mew-blessing':['Mew’s Blessing · choose an effect','梦幻的祝福 · 选择效果']});
   const title=pending.kind==='double-edge'?['Double-Edge · optional boost','舍身冲撞 · 可选增伤']:pending.kind==='shed-skin'?['Shed Skin · discard to reduce damage','蜕皮 · 弃牌减少伤害']:pending.kind==='damage-order'?['Choose damage modifier order','选择伤害修正顺序']:pending.kind==='pay-day'?['Pay Day · inspect and give cards','聚宝功 · 观看并分配牌']:pending.kind==='distribute'?['Distribute Pay Day cards','分配聚宝功的牌']:pending.kind==='exile'?['Disable · remove hand cards','定身法 · 移出手牌']:pending.kind==='turn-start-order'?['Choose turn-start order','选择回合开始的结算顺序']:titles[pending.kind]||titles.rescue;
   const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand','download','download-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  if(pending.kind==='event-hand')panel.append(node('p',{},say(language,'Choose one face-down card to take into your hand. Its face stays private until you receive it. This required choice cannot be passed.','选择一张背面手牌加入你的手牌，获得前牌面保持隐藏。此选择必须完成，不可放弃。')));
   if(pending.kind==='event-dodge')panel.append(node('p',{},`${pending.eventName?`${kit.localized(pending.eventName)} · `:''}${say(language,'Damage source:','伤害来源：')} ${kit.localized(pending.source?.name)||say(language,'Mewtwo','超梦')} · ${say(language,`Incoming damage: ${pending.damage}`,`将受到${pending.damage}点伤害`)}`),node('p',{},say(language,'Respond by playing an actual Dodge! card from your hand. Sand Veil and Levitate do not provide this response; move Dodge restrictions do not stop it.','打出手牌中一张实际的快躲开！响应。沙隐与飘浮不提供本响应，招式的躲闪限制不影响此响应。')));
   if(pending.kind==='mew-blessing')panel.append(node('p',{},say(language,'Choose healing or, when offered, a level increase. Healing is capped at maximum HP and may be chosen even at full HP. This required choice cannot be passed.','选择回复体力，或在提供该选项时提升等级。回复不超过体力上限，即使体力已满也可选择回复。此选择必须完成，不可放弃。')),node('p',{class:'muted'},say(language,'Leveling up preserves injuries, status, held items and reinforcement. It does not refresh this turn’s used actions.','升级保留已有伤害、特殊状态、持有物及强化指示物，不会刷新本回合已用的操作次数。')));
   if(pending.kind==='pressure')panel.append(node('p',{},say(language,'Your Pokémon became a Take this! target. You may discard one of your hand cards. The command’s user must then also discard one card, or that command’s whole move becomes ineffective against your originally targeted Pokémon. Other targets remain affected. Passing here gives no Pressure protection.','你的宝可梦成为接招吧！的目标。可以弃置自己的一张手牌，然后该指令的使用者也须弃置一张手牌，否则此次指令使用的整个招式对原本被指定的这只宝可梦无效。其他目标仍受影响。此处放弃则不获得压迫感的保护。')));
@@ -701,7 +761,7 @@ export function decisionPanel(view,kit) {
     panel.append(node('p',{class:'response-clock'},clock.pausedReason==='mandatory'?say(language,'Time expired · complete this choice to continue','时间已到 · 请完成当前选择以继续'):clock.pausedReason?say(language,'Paused · waiting for connection or vote','暂停 · 等待连接或表决'):`${seconds}s`));
   }
   if(pending.actorId===view.selfId && !view.self.spectator) {
-    if(['event-dodge','mew-blessing'].includes(pending.kind))panel.append(...eventResponseControls(pending,kit));
+    if(['event-dodge','mew-blessing','event-hand'].includes(pending.kind))panel.append(...eventResponseControls(pending,kit));
     else if(pending.kind==='rescue')panel.append(...rescueControls(pending,kit));
     else if(['pressure','pressure-payment'].includes(pending.kind))panel.append(...pressureControls(pending,kit));
     else if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind))panel.append(...paidEffectControls(pending,kit));
