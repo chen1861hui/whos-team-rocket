@@ -233,6 +233,8 @@ const heldItemDescriptions={
   leftovers:{zh:'你的回合结束时，出场宝可梦回复1点体力。',en:'At the end of your turn, the active holder recovers 1 HP.'},
   'poison-barb':{zh:'出场宝可梦受到伤害后，令伤害来源陷入中毒。',en:'After the active holder receives damage, the Pokémon that dealt it becomes Poisoned.'},
   'bright-powder':{zh:'需要使用快躲开！时，可以判定。晴天视为使用一张快躲开！',en:'When asked to use Dodge!, you may judge. Intense sun or clear counts as one Dodge.'},
+  'kings-rock':{zh:'携带者的招式造成伤害后，令目标陷入畏缩。',en:'After the holder damages a target with a move, the target Flinches.'},
+  'flame-orb':{zh:'携带者造成伤害后，进行判定。烈日或晴朗使目标陷入灼伤。',en:'After the holder deals damage, judge. Intense sun or clear Burns the target.'},
 };
 const reviewedItem=card=>card?.kind==='held-item'&&Object.hasOwn(heldItemDescriptions,card.itemType);
 const equipItems=player=>[...new Set(player.hand.filter(reviewedItem).map(card=>card.itemType))]
@@ -673,7 +675,7 @@ function openDefense(room, ctx) {
   if (target.eliminated || target.active.defeated) { resolution.index++; return openDefense(room, ctx); }
   resolution.targetCreatureId = target.active.instanceId;
   delete resolution.incomingDamage;delete resolution.modifierState;
-  resolution.sourceAfterDone=false; resolution.staticDone=false; delete resolution.receivingEffects;delete resolution.helmetCardId; resolution.actualDamage=0; delete resolution.handChoiceIds;
+  resolution.sourceAfterDone=false; resolution.sourceItemAfterDone=false; resolution.staticDone=false; delete resolution.receivingEffects;delete resolution.helmetCardId; resolution.actualDamage=0; delete resolution.handChoiceIds;
   decision(room, 'defense', target.id, target.id, ctx);
   room.pendingBattle.cannotDodge=Boolean(resolution.ignoresReinforcements);
   if(room.turn.dodgeBlockedCreatureIds?.includes(target.active.instanceId)){room.pendingBattle.cannotDodge=true;room.pendingBattle.dodgeBlockedBy='lock-on';}
@@ -812,7 +814,7 @@ function openEventTarget(room,ctx) {
     if(owner&&!owner.eliminated&&target&&!target.defeated&&target.instanceId===resolution.targetInstances[owner.id]&&currentHp(target,ctx.catalogue)>0) {
       resolution.targetCreatureId=target.instanceId;
       delete resolution.incomingDamage;delete resolution.modifierState;delete resolution.receivingEffects;delete resolution.helmetCardId;
-      resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.staticDone=false;
+      resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.sourceItemAfterDone=false;resolution.staticDone=false;
       if(!battleEventTargetAllowed(room,target,resolution.eventName.zh)){resolution.index++;continue;}
       if(resolution.eventType==='berry-harvest'&&!resolution.berryCards.length)break;
       if(room.scenario?.articunoReactions===true&&resolution.protectionCheckedIndex!==resolution.index) {
@@ -1197,6 +1199,85 @@ function commitDamage(room,ctx,amount) {
   if (result.fainting) beginRescue(room, room.players.find(p=>p.active?.instanceId===target.instanceId).id, ctx);
   else afterDamage(room, ctx);
 }
+function moveDamageEffect(room,ctx,resolution,source,target) {
+  if(resolution.sourceAfterDone||resolution.kind!=='move'||!source||source.defeated)return null;
+  if(resolution.sourceFamily==='bulbasaur')return ()=>{
+    heal(source,1,ctx.catalogue);
+    if(resolution.sourceLevel===3)drawBattleCards(room,trainer(room,resolution.sourcePlayerId));
+    afterDamage(room,ctx);
+  };
+  if(resolution.sourceFamily==='exeggcute'&&resolution.sourceLevel===1)return ()=>{heal(source,1,ctx.catalogue);afterDamage(room,ctx);};
+  const family=resolution.sourceFamily,level=resolution.sourceLevel;
+  if(resolution.effectKind==='rainy-flinch')return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'flinch',weathers:['rain','thunderstorm'],next:'afterDamage'},resolution.sourcePlayerId);
+  if(resolution.effectKind==='sunny-paralysis')return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weathers:['intense-sun','clear'],next:'afterDamage'},resolution.sourcePlayerId);
+  if(['remove-speed-after-damage','freeze-dry'].includes(resolution.effectKind)&&activeOwner(room,target.instanceId)) {
+    if(!target.reinforcements?.some(marker=>resolution.effectKind==='freeze-dry'||marker==='speed'))return null;
+    return ()=>{
+      target.reinforcements=resolution.effectKind==='freeze-dry'?[]:target.reinforcements.filter(marker=>marker!=='speed');
+      afterDamage(room,ctx);
+    };
+  }
+  if(family==='porygon'&&resolution.effectKind==='tri-attack')return ()=>startJudgment(room,ctx,{kind:'tri-attack',targetId:target.instanceId},resolution.sourcePlayerId);
+  if(resolution.effectKind==='pay-day')return ()=>{
+    decision(room,'pay-day',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);Object.assign(room.pendingBattle,{trait:'pay-day',canTrait:true});
+  };
+  if(resolution.effectKind==='flinch-after-damage'&&resolution.sourceFamily!=='magikarp')return ()=>applyStatus(room,ctx,target,'flinch','afterDamage');
+  if(((family==='psyduck'&&level<=2)||(family==='diglett'&&level>=2)||resolution.effectKind==='reinforcement-after-damage')&&activeOwner(room,target.instanceId)) {
+    const markers=[...new Set(target.reinforcements||[])];
+    if(markers.length)return ()=>{
+      resolution.markerTargetId=target.instanceId;decision(room,'reinforcement',resolution.sourcePlayerId,activeOwner(room,target.instanceId).id,ctx);
+      Object.assign(room.pendingBattle,{reinforcements:markers,timing:'after-damage'});
+    };
+  }
+  if(family==='shellder'&&level===2&&trainer(room,resolution.sourcePlayerId).hand.length)return ()=>decision(room,'cycle',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);
+  if(family==='shellder' && level===3)return ()=>startJudgment(room,ctx,{kind:'icicle-spear',ownerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
+  if(resolution.effectKind==='paralysis-judgment'&&['electabuzz','tauros','porygon'].includes(family))return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weathers:family==='tauros'?['intense-sun','clear']:['thunderstorm'],next:'afterDamage'},resolution.sourcePlayerId);
+  const statusJudgment=(family==='charmander'||family==='vulpix'||(family==='growlithe'&&level>=2))?['burn','intense-sun']:['pikachu','magnemite'].includes(family)?['paralysis','thunderstorm']:family==='gastly'&&level===1?['paralysis','rain']:family==='abra'&&level>=2?['confusion','intense-sun']:family==='psyduck'&&level===3?['confusion','rain']:(family==='slowpoke'&&level===2)||(family==='pidgey'&&level===3)||(family==='magikarp'&&level===2)?['flinch','thunderstorm']:family==='sandshrew'&&level===1||family==='grimer'&&level>=2||family==='weedle'&&level<=2?['poison','rain']:null;
+  if(statusJudgment)return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:statusJudgment[0],weather:statusJudgment[1],...((['grimer','psyduck'].includes(family)&&level===3)||(family==='gastly'&&level===1)?{weathers:['rain','thunderstorm']}:{}),next:'afterDamage'},resolution.sourcePlayerId);
+  if(family==='gastly'&&level===2) {
+    const targetOwner=activeOwner(room,target.instanceId);
+    return ()=>startJudgment(room,ctx,{kind:'shadow-ball',targetOwnerId:targetOwner?.id,sourcePlayerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
+  }
+  if((family==='exeggcute'&&level===3)||(family==='staryu'&&level>=2))return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'confusion',weather:'intense-sun',next:'afterDamage'},resolution.sourcePlayerId);
+  if(family==='koffing'&&level>=2)return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'poison',weather:'rain',next:'afterDamage'},resolution.sourcePlayerId);
+  if(resolution.sourceFamily==='machop' && resolution.sourceLevel===3)return ()=>applyStatus(room,ctx,target,'confusion','afterDamage');
+  if(resolution.sourceFamily==='sandshrew') {
+    if(resolution.sourceLevel>=2) {
+      const targetPlayer=trainer(room,resolution.targetIds[resolution.index]);
+      if(targetPlayer.hand.length)return ()=>{
+        resolution.handChoiceIds=shuffled(targetPlayer.hand.map(card=>card.id));
+        decision(room,'hand',resolution.sourcePlayerId,targetPlayer.id,ctx);
+        Object.assign(room.pendingBattle,{effect:resolution.sourceLevel===2?'discard':'take',choiceCount:targetPlayer.hand.length});
+      };
+    }
+  }
+  return null;
+}
+
+function dealingDamageEffects(room,ctx,source,target) {
+  const resolution=room.resolution;
+  const effects=new Map();
+  const move=moveDamageEffect(room,ctx,resolution,source,target);
+  if(move)effects.set('move',()=>{
+    resolution.sourceAfterDone=true;
+    move();
+  });
+  if(resolution.sourceItemAfterDone||!activeOwner(room,source?.instanceId)||!target)return effects;
+  const item=source.item?.itemType;
+  if(!['kings-rock','flame-orb'].includes(item)||!activeItemIs(room,source,item))return effects;
+  if(item==='kings-rock'&&(resolution.kind!=='move'||!activeOwner(room,target.instanceId)||target.status))return effects;
+  effects.set(item,()=>{
+    resolution.sourceItemAfterDone=true;
+    if(item==='kings-rock') {
+      note(room,'王者之证触发畏缩效果。','King’s Rock triggered its Flinch effect.');
+      return applyStatus(room,ctx,target,'flinch','afterDamage');
+    }
+    note(room,'火焰宝珠触发判定。','Flame Orb triggered a judgment.');
+    return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'burn',weathers:['intense-sun','clear'],next:'afterDamage'},resolution.sourcePlayerId);
+  });
+  return effects;
+}
+
 function afterDamage(room,ctx) {
   const resolution=room.resolution;
   // HP loss is not damage (booklet p.10). Resume its draw only after rescue,
@@ -1212,55 +1293,16 @@ function afterDamage(room,ctx) {
   }
   if(resolution.actualDamage<=0)return nextSettlement(room,ctx);
   const source=creature(room,resolution.sourceId),target=creature(room,resolution.targetCreatureId);
-  // Booklet p.11: after-dealing effects precede after-receiving effects.
-  if(!resolution.sourceAfterDone) {
-    resolution.sourceAfterDone=true;
-    if(resolution.kind==='move' && source && !source.defeated) {
-      if(resolution.sourceFamily==='bulbasaur') {heal(source,1,ctx.catalogue);if(resolution.sourceLevel===3)drawBattleCards(room,trainer(room,resolution.sourcePlayerId));}
-      if(resolution.sourceFamily==='exeggcute'&&resolution.sourceLevel===1)heal(source,1,ctx.catalogue);
-      const family=resolution.sourceFamily,level=resolution.sourceLevel;
-      if(resolution.effectKind==='rainy-flinch')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'flinch',weathers:['rain','thunderstorm'],next:'afterDamage'},resolution.sourcePlayerId);
-      if(resolution.effectKind==='sunny-paralysis')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weathers:['intense-sun','clear'],next:'afterDamage'},resolution.sourcePlayerId);
-      if(['remove-speed-after-damage','freeze-dry'].includes(resolution.effectKind)&&activeOwner(room,target.instanceId))target.reinforcements=resolution.effectKind==='freeze-dry'?[]:target.reinforcements.filter(marker=>marker!=='speed');
-      if(family==='porygon'&&resolution.effectKind==='tri-attack')return startJudgment(room,ctx,{kind:'tri-attack',targetId:target.instanceId},resolution.sourcePlayerId);
-      if(resolution.effectKind==='pay-day') {
-        decision(room,'pay-day',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);Object.assign(room.pendingBattle,{trait:'pay-day',canTrait:true});return;
-      }
-      if(resolution.effectKind==='flinch-after-damage'&&resolution.sourceFamily!=='magikarp')return applyStatus(room,ctx,target,'flinch','afterDamage');
-      if(((family==='psyduck'&&level<=2)||(family==='diglett'&&level>=2)||resolution.effectKind==='reinforcement-after-damage')&&activeOwner(room,target.instanceId)) {
-        const markers=[...new Set(target.reinforcements||[])];
-        if(markers.length) {
-          resolution.markerTargetId=target.instanceId;decision(room,'reinforcement',resolution.sourcePlayerId,activeOwner(room,target.instanceId).id,ctx);
-          Object.assign(room.pendingBattle,{reinforcements:markers,timing:'after-damage'});return;
-        }
-      }
-      if(family==='shellder' && level===2 && trainer(room,resolution.sourcePlayerId).hand.length) {
-        decision(room,'cycle',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);return;
-      }
-      if(family==='shellder' && level===3)return startJudgment(room,ctx,{kind:'icicle-spear',ownerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
-      if(resolution.effectKind==='paralysis-judgment'&&['electabuzz','tauros','porygon'].includes(family))return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weathers:family==='tauros'?['intense-sun','clear']:['thunderstorm'],next:'afterDamage'},resolution.sourcePlayerId);
-      const statusJudgment=(family==='charmander'||family==='vulpix'||(family==='growlithe'&&level>=2))?['burn','intense-sun']:['pikachu','magnemite'].includes(family)?['paralysis','thunderstorm']:family==='gastly'&&level===1?['paralysis','rain']:family==='abra'&&level>=2?['confusion','intense-sun']:family==='psyduck'&&level===3?['confusion','rain']:(family==='slowpoke'&&level===2)||(family==='pidgey'&&level===3)||(family==='magikarp'&&level===2)?['flinch','thunderstorm']:family==='sandshrew'&&level===1||family==='grimer'&&level>=2||family==='weedle'&&level<=2?['poison','rain']:null;
-      if(statusJudgment)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:statusJudgment[0],weather:statusJudgment[1],...((['grimer','psyduck'].includes(family)&&level===3)||(family==='gastly'&&level===1)?{weathers:['rain','thunderstorm']}:{}),next:'afterDamage'},resolution.sourcePlayerId);
-      if(family==='gastly'&&level===2) {
-        const targetOwner=activeOwner(room,target.instanceId);
-        return startJudgment(room,ctx,{kind:'shadow-ball',targetOwnerId:targetOwner?.id,sourcePlayerId:resolution.sourcePlayerId},resolution.sourcePlayerId);
-      }
-      if((family==='exeggcute'&&level===3)||(family==='staryu'&&level>=2))return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'confusion',weather:'intense-sun',next:'afterDamage'},resolution.sourcePlayerId);
-      if(family==='koffing'&&level>=2)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'poison',weather:'rain',next:'afterDamage'},resolution.sourcePlayerId);
-      if(resolution.sourceFamily==='machop' && resolution.sourceLevel===3)return applyStatus(room,ctx,target,'confusion','afterDamage');
-      if(resolution.sourceFamily==='sandshrew') {
-        if(resolution.sourceLevel>=2) {
-          const targetPlayer=trainer(room,resolution.targetIds[resolution.index]);
-          if(targetPlayer.hand.length) {
-            resolution.handChoiceIds=shuffled(targetPlayer.hand.map(card=>card.id));
-            decision(room,'hand',resolution.sourcePlayerId,targetPlayer.id,ctx);
-            Object.assign(room.pendingBattle,{effect:resolution.sourceLevel===2?'discard':'take',choiceCount:targetPlayer.hand.length});
-            return;
-          }
-        }
-      }
-    }
+  // The source trainer orders simultaneous effects before the receiver's stage.
+  const dealing=dealingDamageEffects(room,ctx,source,target);
+  if(dealing.size>1) {
+    decision(room,'source-effect-order',resolution.sourcePlayerId,resolution.sourcePlayerId,ctx);
+    room.pendingBattle.effects=[...dealing.keys()];
+    return;
   }
+  if(dealing.size===1)return dealing.values().next().value();
+  resolution.sourceAfterDone=true;
+  resolution.sourceItemAfterDone=true;
   if(!resolution.staticDone) {
     resolution.staticDone=true;resolution.receivingEffects=[];
     const targetOwner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=source?activeOwner(room,source.instanceId):null;
@@ -1642,6 +1684,17 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='effects') {
     requireRule(input.choice==='effect'&&pending.effects.includes(input.effect)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Choose one pending after-damage effect.');
     const effects=room.resolution.receivingEffects,index=effects.indexOf(input.effect);requireRule(index>=0,'STALE_DECISION','The effect changed.');effects.splice(index,1);room.pendingBattle=null;runReceivingEffect(room,input.effect,ctx);return;
+  }
+  if(pending.kind==='source-effect-order') {
+    requireRule(input.choice==='effect'&&pending.effects.includes(input.effect)&&
+      Object.keys(input).every(key=>['id','revision','type','decisionId','choice','effect'].includes(key)),
+      'INVALID_RESPONSE','Choose one of the source effects.');
+    const resolution=room.resolution;
+    requireRule(resolution?.actualDamage>0&&resolution.sourcePlayerId===player.id,'STALE_DECISION','The source effects changed.');
+    const effect=dealingDamageEffects(room,ctx,creature(room,resolution.sourceId),creature(room,resolution.targetCreatureId)).get(input.effect);
+    requireRule(effect,'STALE_DECISION','The chosen source effect changed.');
+    room.pendingBattle=null;
+    return effect();
   }
   requireRule(input.effect===undefined,'INVALID_RESPONSE','This decision does not choose an effect.');
   if(pending.kind==='pay-day') {

@@ -66,6 +66,73 @@ function holdItem(f, seat, itemType, slot = 'active') {
   return card;
 }
 
+test('King’s Rock flinches the damaged move target before its receiving effects', t => {
+  const f = fixture(t);
+  f.play();
+  holdItem(f, f.leader, 'kings-rock');
+  holdItem(f, f.target, 'poison-barb');
+  f.attack();
+  f.respond();
+  assert.equal(f.player(f.target).active.status, 'flinch');
+  assert.equal(f.player(f.leader).active.status, 'poison');
+  const log = f.room().log.map(entry => entry.text.en);
+  assert.ok(log.indexOf('The Pokémon gained Flinch.') < log.indexOf('The Pokémon gained Poison.'));
+});
+
+test('The source trainer orders Flame Orb and a move judgment, and both settle once', t => {
+  for (const first of ['move', 'flame-orb']) {
+    const f = fixture(t);
+    f.play();
+    f.seed(f.leader, 'pikachu', 1);
+    holdItem(f, f.leader, 'flame-orb');
+    const sunny = f.makeCard('dodge', 'clear'), storm = f.makeCard('dodge', 'thunderstorm');
+    f.room().drawPile.push(...(first === 'move' ? [sunny, storm] : [storm, sunny]));
+    f.attack();
+    f.respond();
+    const decision = f.room().pendingBattle;
+    assert.equal(decision.kind, 'source-effect-order');
+    assert.equal(decision.actorId, f.leader.playerId);
+    assert.deepEqual(decision.effects, ['move', 'flame-orb']);
+    rejectsAtomically(f, () => f.act(f.target, 'respondBattle', { decisionId: decision.id, choice: 'effect', effect: first }), 'NOT_YOUR_DECISION');
+    rejectsAtomically(f, () => f.respond('effect', { effect: first, cardId: 'unrelated' }), 'INVALID_RESPONSE');
+    f.respond('effect', { effect: first });
+    assert.equal(f.player(f.target).active.status, first === 'move' ? 'paralysis' : 'burn');
+    assert.equal(f.room().discardPile.filter(card => card.id === sunny.id || card.id === storm.id).length, 2);
+    assert.equal(f.room().pendingBattle, null);
+  }
+});
+
+test('A fully dodged move triggers neither King’s Rock nor Flame Orb', t => {
+  for (const item of ['kings-rock', 'flame-orb']) {
+    const f = fixture(t);
+    f.play();
+    holdItem(f, f.leader, item);
+    const dodge = f.supply(f.target, 'dodge');
+    const top = f.room().drawPile.at(-1).id;
+    f.attack();
+    f.respond('dodge', { cardId: dodge });
+    assert.equal(f.room().drawPile.at(-1).id, top);
+    assert.equal(f.player(f.target).active.status, null);
+  }
+});
+
+test('Rival’s Challenge can trigger Flame Orb but cannot trigger the move-only King’s Rock', t => {
+  for (const item of ['kings-rock', 'flame-orb']) {
+    const f = fixture(t);
+    f.play();
+    holdItem(f, f.target, item);
+    const event = { ...f.makeCard('event'), eventType: 'rival-challenge' };
+    f.player(f.leader).hand.push(event);
+    const response = f.supply(f.target, 'command');
+    f.room().drawPile.push(f.makeCard('dodge', 'intense-sun'));
+    f.act(f.leader, 'useEvent', { cardId: event.id, targetId: f.target.playerId });
+    f.respond('command', { cardId: response });
+    f.respond();
+    assert.equal(f.player(f.leader).active.damage, 2);
+    assert.equal(f.player(f.leader).active.status, item === 'flame-orb' ? 'burn' : null);
+  }
+});
+
 test('Leftovers can be equipped from hand and heals the active holder at its own turn end', t => {
   const f = fixture(t);
   f.play();

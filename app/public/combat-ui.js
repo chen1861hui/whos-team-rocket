@@ -761,6 +761,7 @@ export function decisionPanel(view,kit) {
   Object.assign(titles,{'event-command':['Moltres’s Trial · play a response','火焰鸟的试炼 · 打出响应'],'event-hand':['Mr. Mime’s Trick · choose a hand card','魔墙人偶的戏法 · 选择手牌'],'event-dodge':['Mewtwo’s Threat · play a response','超梦的威压 · 打出响应'],'mew-blessing':['Mew’s Blessing · choose an effect','梦幻的祝福 · 选择效果']});
   titles['rival-command']=['Rival’s Challenge · play a command','劲敌的挑战 · 打出接招吧！'];
   titles['berry-pick']=['Berry Harvest · choose a card','树果大丰收 · 选择一张牌'];
+  titles['source-effect-order']=['Choose which attack effect resolves first','选择造成伤害后的结算顺序'];
   if(pending.kind==='event-hand'&&pending.eventName?.zh==='大葱鸭的恶作剧')titles['event-hand']=['Farfetch’d’s Prank · discard a hand card','大葱鸭的恶作剧 · 弃置手牌'];
   if(pending.kind==='articuno')titles.articuno=pending.mode==='cancel-event'
     ?['Articuno’s Protection · cancel event effect','急冻鸟的庇护 · 抵消事件效果']
@@ -792,7 +793,7 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='forewarn-order')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,'Only you can see these cards. Arrange every card on the top or bottom of the deck.','仅你能看到这些牌。请将每张牌放到牌堆顶或牌堆底。'):say(language,'The indicated trainer is privately arranging the viewed cards on the top and bottom of the deck.','指定训练家正在私下安排所观看的牌放回牌堆顶与底的顺序。')));
   if(pending.kind==='sweet-kiss')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Discard exactly ${pending.requiredCards} hand cards, then draw 2. With fewer than two cards, discard your entire hand. This choice is mandatory.`,`必须弃置恰好${pending.requiredCards}张手牌，然后摸2张。手牌不足两张时弃置全部手牌。此选择不可放弃。`):say(language,'The target trainer must privately choose hand cards to discard, then draw 2.','目标训练家必须私下选择手牌弃置，然后摸2张。')));
   if(pending.kind==='double-edge')panel.append(node('p',{},say(language,'Before damage modifiers, you may add 1 damage. If this settlement deals damage, its original source loses 1 HP after receiving effects finish. Burn and other damage modifiers still apply.','伤害修正前，可以令伤害+1。若本次结算造成伤害，受到伤害后的效果结算完毕后，原伤害来源失去1点体力。灼伤等伤害修正仍生效。')));
-  if(pending.kind==='effects')panel.append(node('p',{},say(language,'These effects triggered together. Choose which one resolves next.','这些效果在同一时机触发，请选择下一个结算的效果。')));
+  if(['effects','source-effect-order'].includes(pending.kind))panel.append(node('p',{},say(language,'These effects triggered together. Choose which one resolves next.','这些效果在同一时机触发，请选择下一个结算的效果。')));
   if(pending.kind==='damage-order')panel.append(node('p',{},say(language,`Current damage: ${pending.damage}. Choose which receiving-damage effect resolves next. Damage reduced to zero ends this settlement.`,`当前伤害值：${pending.damage}。请选择下一个结算的受到伤害时效果。伤害减至零时，本次伤害结算终止。`)));
   if(pending.kind==='shed-skin')panel.append(node('p',{},say(language,`Incoming damage: ${pending.damage}. You may discard any number of hand cards; each reduces this damage by 1.`,`本次伤害值：${pending.damage}。可以弃置任意数量的手牌，每张使本次伤害减1。`)));
   if(pending.kind==='cute-charm')panel.append(node('p',{},say(language,'Before the move continues, you may discard one intense-sun hand card to redirect this target. The command user and other already chosen targets cannot be selected.','招式继续前，你可以弃置一张烈日手牌并转移此目标。不能选择指令使用者或其他已被指定的目标。')));
@@ -882,6 +883,15 @@ export function decisionPanel(view,kit) {
       }else if(pending.kind==='turn-start-order')for(const effect of pending.effects) {
         const names={'return-cards':['Return removed cards','返回移出的牌'],status:['Resolve special status','结算特殊状态'],'neutralizing-gas':['Neutralizing Gas','化学变化气体']};
         row.append(node('button',{type:'button',class:'button primary',id:`start-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'start-effect',effect})},say(language,...names[effect])));
+      }else if(pending.kind==='source-effect-order')for(const effect of pending.effects) {
+        const names={move:['Move effect','招式效果'],'kings-rock':['King’s Rock','王者之证'],'flame-orb':['Flame Orb','火焰宝珠']};
+        row.append(node('button',{type:'button',class:'button primary effect-choice',id:`source-effect-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{
+          const current=kit.getView(),decision=current?.pendingBattle;
+          if(current?.code===view.code&&current.selfId===view.selfId&&!current.pendingVote&&!kit.busy&&
+            decision?.kind==='source-effect-order'&&decision.id===pending.id&&decision.actorId===view.selfId&&decision.effects.includes(effect)) {
+            kit.action('respondBattle',{decisionId:pending.id,choice:'effect',effect});
+          }
+        }},say(language,...names[effect])));
       }else if(pending.kind==='effects')for(const effect of pending.effects) {
         const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'water-absorb':['Water Absorb · mandatory judgment','储水 · 必须判定'],'rocky-helmet':['Rocky Helmet','凸凸头盔'],'poison-barb':['Poison Barb','毒针']};
         row.append(node('button',{type:'button',class:'button primary effect-choice',id:`effect-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'effect',effect})},say(language,...names[effect])));

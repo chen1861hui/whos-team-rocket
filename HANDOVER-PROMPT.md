@@ -1,4 +1,12 @@
-## Defensive held items — 2026-11-05 (current)
+## Offensive held items — 2026-11-05 (current)
+
+King’s Rock applies Flinch after its holder damages a target with a move. Flame Orb judges after its holder deals damage and applies Burn on intense sun or clear. When a move effect and an item effect both trigger, the source trainer chooses the order before the target’s receiving effects begin.
+
+All 1,214 tests passed, including four new cases. The [source and implementation notes](reviewed-offensive-held-items.md) record the printed distinction, judgment, and effect order. The review branch is `codex/offensive-held-items`. Tests used isolated held-item fixtures. Retail quantities by card and weather remain unverified.
+
+The remaining held items are Muscle Band, Light Ball, Life Orb, Quick Claw, and Blunder Policy. Use the saved O06 sheet and the existing response, held-item loss, and damage settlement rules.
+
+## Defensive held items — 2026-11-05 (historical)
 
 Leftovers, Poison Barb, and Bright Powder now resolve alongside Rocky Helmet. Leftovers heals the active holder at the end of its turn. Poison Barb poisons the Pokémon that dealt damage. Bright Powder uses one optional judgment per Dodge settlement, with intense sun or clear counting as one Dodge. Equip choices use the same bilingual picker for all four reviewed items.
 
