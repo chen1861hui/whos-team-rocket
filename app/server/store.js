@@ -3,6 +3,7 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlink
 import { join } from 'node:path';
 import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
+import { isDeckProfile } from './playtest-deck.js';
 
 export const IDLE_MS = 7 * 60 * 60 * 1000;
 export const CONNECTED_MS = 30_000;
@@ -307,11 +308,14 @@ export class RoomStore {
         if (typeof input.ready !== 'boolean') fail(400, 'INVALID_INPUT', 'Ready must be a boolean.');
         player.ready = input.ready;
         break;
-      case 'settings':
-        check(['arena', 'turnSeconds', 'responseSeconds']); owner(); status('lobby');
+      case 'settings': {
+        check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile']); owner(); status('lobby');
         if (!['stadium', 'gym', 'floating'].includes(input.arena) || ![input.turnSeconds, input.responseSeconds].every(value => Number.isInteger(value) && (value === 0 || (value >= 5 && value <= 600)))) fail(400, 'INVALID_SETTINGS', 'Choose a supported arena and timers of 0 or 5–600 seconds.');
-        room.settings = { arena: input.arena, turnSeconds: input.turnSeconds, responseSeconds: input.responseSeconds };
+        if (input.deckProfile !== undefined && !isDeckProfile(input.deckProfile)) fail(400, 'INVALID_SETTINGS', 'Choose a supported playtest deck.');
+        const deckProfile = input.deckProfile ?? room.settings.deckProfile;
+        room.settings = { arena: input.arena, turnSeconds: input.turnSeconds, responseSeconds: input.responseSeconds, ...(deckProfile ? { deckProfile } : {}) };
         break;
+      }
       case 'startBattlePreview':
         check([]); owner(); status('lobby');
         this.battleCall(() => setupBattle(room, this.catalogue));

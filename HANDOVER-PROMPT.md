@@ -1,4 +1,10 @@
-## Held item set complete — 2026-11-05 (current)
+## Reviewed cards playtest deck — 2026-11-05 (current)
+
+The lobby host can save the optional **Reviewed cards** deck. It adds mixed-weather commands and Dodges, all ten reviewed events, all eleven held items, and two copies of each of the five split tools. The basic command and Dodge deck is the default. The selection is public and the shuffled pile and opening hands are private.
+
+All 1,225 tests passed. See the [playtest recipe](reviewed-playtest-deck.md) for counts and weather. The review branch is `codex/reviewed-playtest-deck`. The optional recipe uses test quantities. Retail copy counts by card and weather still need verification.
+
+## Held item set complete — 2026-11-05 (historical)
 
 Muscle Band turns two hand cards into a virtual command, Light Ball discards itself to apply Paralysis, and Quick Claw removes distance limits and offers a sunny command at another trainer’s turn start. All eleven held items from the saved O06 sheet now resolve in combat preview.
 

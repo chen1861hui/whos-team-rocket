@@ -2,6 +2,7 @@
 // This is an explicitly labelled development scenario, not a retail deck manifest.
 import { randomUUID, randomInt } from 'node:crypto';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
+import { BASIC_DECK, playtestDeckPlan, makePlaytestCards } from './playtest-deck.js';
 import { roleDeck, maxHp, currentHp, heal, applyDamage, beginCommand, computeDamage, capReceivingDamage, reinforcementEffective, eligibleTargetIds, evaluateVictory, ordinarySwitch } from './battle-rules.js';
 
 export class BattleError extends Error {
@@ -28,20 +29,19 @@ function shuffled(values) {
   for (let i = copy.length - 1; i > 0; i--) { const j = randomInt(i + 1); [copy[i], copy[j]] = [copy[j], copy[i]]; }
   return copy;
 }
-function card(kind) {
-  return { id: randomUUID(), kind, weather: 'intense-sun', fixture: true, name: kind === 'command' ? { zh: '接招吧！', en: 'Take this!' } : { zh: '快躲开！', en: 'Dodge!' } };
-}
 export function setupBattle(room, catalogue) {
   const seats = room.players.filter(p => !p.spectator);
   requireRule(seats.length >= 3 && seats.length <= 6 && seats.every(p => p.ready), 'NOT_READY', 'Combat preview requires 3–6 ready players.');
   requireRule(battleSelectionIds(catalogue).length >= seats.length * 5, 'CONTENT_UNAVAILABLE', 'The shared Pokémon deck needs five unique groups per player.');
+  const deck = playtestDeckPlan(room.settings.deckProfile ?? BASIC_DECK, seats.length, catalogue);
+  requireRule(deck, 'CONTENT_UNAVAILABLE', 'The selected playtest deck requires all of its reviewed cards.');
   const roles = shuffled(roleDeck(seats.length));
   seats.forEach((p, index) => { p.role = roles[index]; p.eliminated = false; p.candidates = []; p.candidateDeal = []; p.identityAcknowledged = false; p.setupComplete = false; p.active = null; p.reserve = null; p.hand = []; p.exiledCards=[]; });
   const leaderIndex = seats.findIndex(p => p.role === 'leader');
   room.players = [...seats.slice(leaderIndex), ...seats.slice(0, leaderIndex), ...room.players.filter(p => p.spectator)];
   delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries;
   room.gameMode = 'combat-preview'; room.result = null; room.pendingBattle = null; room.resolution = null; room.status = 'identity';
-  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, cardsPerSeat: 12, commandPerSeat: 6, dodgePerSeat: 6, potionSupported: true, articunoReactions: false };
+  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, potionSupported: true, ...deck.summary };
   note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
 }
 export function acknowledgeBattleIdentity(room, player, catalogue) {
@@ -62,7 +62,9 @@ export function selectBattlePartners(room, player, activeId, reserveId, catalogu
   player.reserve = make(reserveId, 1, false); player.setupComplete = true;
   room.pokemonDeck.push(...player.candidates.filter(id => id !== activeId && id !== reserveId));
   if (!room.players.filter(p => !p.spectator).every(p => p.setupComplete)) return false;
-  room.drawPile = shuffled(Array.from({ length: count * 12 }, (_, index) => card(index % 2 ? 'command' : 'dodge')));
+  const deck = playtestDeckPlan(room.scenario?.deckProfile ?? BASIC_DECK, count, catalogue);
+  requireRule(deck, 'CONTENT_UNAVAILABLE', 'The selected playtest deck requires all of its reviewed cards.');
+  room.drawPile = shuffled(makePlaytestCards(deck));
   room.discardPile = []; room.pokemonDeck = shufflePokemon(room.pokemonDeck); room.status = 'playing';
   for (const p of room.players.filter(p => !p.spectator)) { p.candidates = []; drawBattleCards(room, p, 4,'setup'); maxHp(p.active, catalogue); }
   room.initialBattleEntries=live(room).map(player=>player.id);

@@ -7,7 +7,7 @@ import { RoomStore, CONNECTED_MS } from '../server/store.js';
 
 const catalogue = JSON.parse(readFileSync(new URL('../content/catalogue.json', import.meta.url), 'utf8'));
 const publicShape = p => ({ catalogueId: p.catalogueId, level: p.level });
-function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content = catalogue } = {}) {
+function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content = catalogue, deckProfile } = {}) {
   const root = fileURLToPath(new URL('../.data/', import.meta.url)); mkdirSync(root, { recursive: true });
   const dir = mkdtempSync(join(root, 'combat-test-'));
   t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
@@ -18,7 +18,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content =
   const seats = [owner, ...Array.from({ length: count - 1 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const byId = id => seats.find(p => p.playerId === id);
   const act = (who, type, payload = {}) => store.action(owner.code, who.token, { id: `battle-${++serial}`, revision: store.rooms.get(owner.code).revision, type, ...payload }).view;
-  act(owner, 'settings', { arena: 'stadium', turnSeconds, responseSeconds });
+  act(owner, 'settings', { arena: 'stadium', turnSeconds, responseSeconds, ...(deckProfile ? { deckProfile } : {}) });
   seats.forEach(p => act(p, 'ready', { ready: true })); act(owner, 'startBattlePreview');
   const leader = byId(store.rooms.get(owner.code).players.find(p => p.role === 'leader').id);
   for (const who of seats) act(who, 'acknowledgeIdentity');
@@ -41,6 +41,56 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content =
   return { store, dir, now, advance: ms => { time += ms; }, owner, seats, leader, byId, act, room, player, view, play, supply, target, attack, pass };
 }
 function rejects(fn, code) { assert.throws(fn, e => e.code === code); }
+
+test('the reviewed lobby deck deals physical copies of every reviewed card kind at three and six seats', t => {
+  for (const count of [3, 6]) {
+    const f = fixture(t, { count, deckProfile: 'reviewed' });
+    const observer = f.store.join(f.owner.code, { nickname: 'Observer', spectator: true }).view;
+    const room = f.room();
+    const cards = [...room.drawPile, ...room.players.flatMap(player => player.hand)];
+    assert.equal(cards.length, 14 * count + 31);
+    assert.equal(new Set(cards.map(card => card.id)).size, cards.length);
+    assert.ok(cards.every(card => card.fixture && card.name.en && card.name.zh));
+    for (const [kind, quantities] of [['command', [3, 2, 2, 1]], ['dodge', [2, 2, 1, 1]]]) {
+      const weathers = ['intense-sun', 'clear', 'rain', 'thunderstorm'];
+      assert.deepEqual(weathers.map(weather => cards.filter(card => card.kind === kind && card.weather === weather).length), quantities.map(n => n * count));
+    }
+    const tools = cards.filter(card => card.kind === 'tool');
+    assert.equal(tools.length, 10);
+    for (const pair of ['potion-full-heal', 'potion-revive', 'rare-candy-nugget', 'defense-speed', 'power-speed']) {
+      assert.equal(tools.filter(card => card.toolType === pair).length, 2);
+    }
+    assert.deepEqual(cards.filter(card => card.kind === 'held-item').map(card => card.itemType).sort(), catalogue.heldItems.map(card => card.id).sort());
+    assert.deepEqual(cards.filter(card => card.kind === 'event').map(card => card.eventType).sort(), catalogue.playCardPreviews.filter(card => card.eventType).map(card => card.eventType).sort());
+    assert.equal(observer.settings.deckProfile, 'reviewed');
+    assert.equal(observer.scenario.deckCardCount, cards.length);
+    assert.equal(observer.scenario.articunoReactions, true);
+    assert.equal(observer.drawCount, cards.length - 4 * count);
+    assert.deepEqual(observer.self.hand, []);
+    assert.ok(observer.players.every(player => player.hand === undefined));
+    assert.equal(observer.drawPile, undefined);
+  }
+});
+
+test('only the host can save a known deck and a timer-only save preserves the profile across restart', t => {
+  const root = fileURLToPath(new URL('../.data/', import.meta.url));
+  mkdirSync(root, { recursive: true });
+  const dir = mkdtempSync(join(root, 'deck-settings-test-'));
+  t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
+  const store = new RoomStore({ dataDir: dir, catalogue });
+  const owner = store.create({ nickname: 'Host' });
+  const guest = store.join(owner.code, { nickname: 'Guest' });
+  const update = (seat, id, deckProfile) => store.action(owner.code, seat.token, {
+    id, revision: store.view(owner.code, seat.token).view.revision, type: 'settings',
+    arena: 'stadium', turnSeconds: 10, responseSeconds: 0, ...(deckProfile === undefined ? {} : { deckProfile }),
+  });
+  rejects(() => update(guest, 'guest-change', 'reviewed'), 'OWNER_ONLY');
+  rejects(() => update(owner, 'invalid-deck', 'retail'), 'INVALID_SETTINGS');
+  update(owner, 'reviewed-deck', 'reviewed');
+  update(owner, 'timer-only', undefined);
+  const restored = new RoomStore({ dataDir: dir, catalogue });
+  assert.equal(restored.view(owner.code, owner.token).view.settings.deckProfile, 'reviewed');
+});
 
 test('preview uses sourced roles/leader levels and keeps opponents roles/reserve/deck private', t => {
   for (const count of [3, 4, 5, 6]) {
