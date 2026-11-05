@@ -1,4 +1,12 @@
-## Reinforcement tools and Revive — 2026-11-05 (current)
+## Defensive held items — 2026-11-05 (current)
+
+Leftovers, Poison Barb, and Bright Powder now resolve alongside Rocky Helmet. Leftovers heals the active holder at the end of its turn. Poison Barb poisons the Pokémon that dealt damage. Bright Powder uses one optional judgment per Dodge settlement, with intense sun or clear counting as one Dodge. Equip choices use the same bilingual picker for all four reviewed items.
+
+All 1,210 tests passed, including seven new cases. The [source and implementation notes](reviewed-defensive-held-items.md) cover the timing, status pipeline, and observed variants. The review branch is `codex/held-item-effects`. Tests used isolated item fixtures. Retail quantities by card and weather remain unverified.
+
+Next are the remaining held items. King’s Rock and Flame Orb share an after-dealing-damage timing problem. Use the saved O06 item sheet and the booklet timing rules. The older Rocky Helmet specification remains the source for equip, loss, and receiving effects.
+
+## Reinforcement tools and Revive — 2026-11-05 (historical)
 
 Defense Boost / Speed Boost, Power Boost / Speed Boost, and Potion / Revive now resolve through the split-tool picker. A reinforcement half adds one missing marker to a living active Pokémon. Revive restores a formally defeated Pokémon of a trainer still in battle to 2 HP in its current slot. Each use spends the whole physical pair.
 

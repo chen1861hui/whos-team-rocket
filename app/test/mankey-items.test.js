@@ -60,6 +60,121 @@ function rejectsAtomically(f, fn, code) { const before = structuredClone(f.room(
 const occurrences = (f, id) => [f.room().drawPile, f.room().discardPile, ...f.room().players.flatMap(p => [p.hand, [p.active?.item, p.reserve?.item].filter(Boolean)])].flat().filter(card => card.id === id).length;
 const finish = (f, who) => { f.act(who, 'finishPlay'); while (f.room().turn.phase === 'discard') f.act(who, 'discard', { cardId: f.player(who).hand[0].id }); f.act(who, 'endTurn', { levelUp: false }); };
 
+function holdItem(f, seat, itemType, slot = 'active') {
+  const card = { ...f.makeCard('held-item'), itemType };
+  f.player(seat)[slot].item = card;
+  return card;
+}
+
+test('Leftovers can be equipped from hand and heals the active holder at its own turn end', t => {
+  const f = fixture(t);
+  f.play();
+  const card = { ...f.makeCard('held-item'), itemType: 'leftovers' };
+  f.player(f.leader).hand.push(card);
+  f.player(f.leader).active.damage = 2;
+  f.player(f.target).active.damage = 2;
+  holdItem(f, f.target, 'leftovers');
+  f.act(f.leader, 'equipItem', { cardId: card.id, slot: 'active' });
+  assert.equal(f.player(f.leader).active.item.id, card.id);
+  finish(f, f.leader);
+  assert.equal(f.player(f.leader).active.damage, 1);
+  assert.equal(f.player(f.target).active.damage, 2);
+  assert.equal(occurrences(f, card.id), 1);
+});
+
+test('Leftovers is inactive in reserve and Gluttony replaces its effect with one heal', t => {
+  const f = fixture(t);
+  f.play();
+  f.seed(f.leader, 'snorlax', 1, { damage: 2 });
+  holdItem(f, f.leader, 'leftovers');
+  holdItem(f, f.leader, 'leftovers', 'reserve');
+  f.player(f.leader).reserve.damage = 2;
+  finish(f, f.leader);
+  assert.equal(f.player(f.leader).active.damage, 1);
+  assert.equal(f.player(f.leader).reserve.damage, 2);
+});
+
+test('Poison Barb shares the receiving effect order and Articuno can cure its applied Poison', t => {
+  const f = fixture(t);
+  f.play();
+  f.seed(f.target, 'slowpoke', 1, { hpBonus: 4 });
+  const barb = holdItem(f, f.target, 'poison-barb');
+  const protection = { ...f.makeCard('event'), eventType: 'articuno-protection' };
+  f.player(f.leader).hand.push(protection);
+  f.room().scenario.articunoReactions = true;
+  f.attack();
+  f.respond();
+  assert.deepEqual(f.room().pendingBattle.effects, ['oblivious', 'poison-barb']);
+  f.respond('effect', { effect: 'poison-barb' });
+  assert.equal(f.player(f.leader).active.status, 'poison');
+  assert.equal(f.room().pendingBattle.kind, 'articuno');
+  f.respond('protect', { cardId: protection.id });
+  assert.equal(f.player(f.leader).active.status, null);
+  assert.ok(f.room().turn.damageImmunityIds.includes(f.player(f.target).active.instanceId));
+  assert.equal(f.player(f.target).active.item.id, barb.id);
+});
+
+test('Poison Barb cannot poison the trainer who used a source-free event', t => {
+  const f = fixture(t);
+  f.play();
+  f.seed(f.target, 'squirtle', 1, { hpBonus: 3 });
+  holdItem(f, f.target, 'poison-barb');
+  const card = { ...f.makeCard('event'), eventType: 'mewtwo-threat' };
+  f.player(f.leader).hand.push(card);
+  f.act(f.leader, 'useEvent', { cardId: card.id });
+  f.drain();
+  assert.equal(f.player(f.target).active.damage, 2);
+  assert.equal(f.player(f.leader).active.status, null);
+});
+
+test('Bright Powder uses the final Drought judgment and spends no hand card or held item', t => {
+  const f = fixture(t);
+  f.play();
+  const third = f.seats.find(seat => seat !== f.leader && seat !== f.target);
+  f.seed(third, 'vulpix');
+  const replacement = f.supply(third, 'dodge', 'clear');
+  const powder = holdItem(f, f.target, 'bright-powder');
+  f.room().drawPile.push(f.makeCard('dodge', 'rain'));
+  const handBefore = f.player(f.target).hand.length;
+  f.attack();
+  assert.equal(f.room().pendingBattle.canBrightPowder, true);
+  f.respond('bright-powder');
+  assert.equal(f.room().pendingBattle.kind, 'judgment');
+  f.respond('replace', { cardId: replacement });
+  assert.equal(f.player(f.target).active.damage, 0);
+  assert.equal(f.player(f.target).hand.length, handBefore);
+  assert.equal(f.player(f.target).active.item.id, powder.id);
+  assert.equal(f.room().pendingBattle, null);
+});
+
+test('a failed Bright Powder attempt leaves the Dodge decision open without allowing a repeat', t => {
+  const f = fixture(t);
+  f.play();
+  holdItem(f, f.target, 'bright-powder');
+  const dodge = f.supply(f.target, 'dodge');
+  f.room().drawPile.push(f.makeCard('dodge', 'rain'));
+  f.attack();
+  const id = f.room().pendingBattle.id;
+  f.respond('bright-powder');
+  assert.equal(f.room().pendingBattle.id, id);
+  assert.equal(f.room().pendingBattle.canBrightPowder, false);
+  rejectsAtomically(f, () => f.respond('bright-powder'), 'ITEM_UNAVAILABLE');
+  f.respond('dodge', { cardId: dodge });
+  assert.equal(f.player(f.target).active.damage, 0);
+});
+
+test('Lock-On prevents Bright Powder from offering a virtual Dodge', t => {
+  const f = fixture(t);
+  f.play();
+  holdItem(f, f.target, 'bright-powder');
+  f.room().turn.dodgeBlockedCreatureIds = [f.player(f.target).active.instanceId];
+  f.attack();
+  assert.equal(f.room().pendingBattle.canBrightPowder, undefined);
+  rejectsAtomically(f, () => f.respond('bright-powder'), 'ITEM_UNAVAILABLE');
+  f.respond();
+  assert.equal(f.player(f.target).active.damage, 2);
+});
+
 test('production preview keeps six real commands and six Dodges per seat without invented item quantities', t => {
   const f = fixture(t, { originalDeck: true });
   const cards = [...f.room().drawPile, ...f.room().players.flatMap(p => p.hand)];

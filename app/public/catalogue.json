@@ -13501,19 +13501,25 @@
     },
     {
       "id": "powder-preview",
-      "name": null,
+      "name": {
+        "zh": "光粉",
+        "en": "Bright Powder"
+      },
       "displayLabel": {
-        "zh": "粉末插图：标题暂读为光粉，待核",
-        "en": "Powder illustration; heading provisionally read as 光粉"
+        "zh": "光粉",
+        "en": "Bright Powder"
       },
       "sourceFilename": "mmexport1793009377934.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "unresolved",
+      "editionConfidence": "supplied-older-sheet-current-photo-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "当你需要使用【快躲开！】时，你可以进行一次判定，若结果为“晴天”，你视为使用一张【快躲开！】。",
+        "en": "When asked to use Dodge!, you may judge. Intense sun or clear counts as using one Dodge."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13523,6 +13529,17 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "itemType": "bright-powder",
+      "observedWeather": [
+        "rain",
+        "thunderstorm"
+      ],
+      "effectImplementationSpecification": "reviewed-defensive-held-items.md",
+      "provenance": {
+        "primary": "O06",
+        "corroboration": "P05",
+        "retailQuantityVerified": false
       }
     },
     {
@@ -13701,20 +13718,23 @@
       "id": "leftovers-preview",
       "name": {
         "zh": "吃剩的东西",
-        "en": null
+        "en": "Leftovers"
       },
       "displayLabel": {
-        "zh": "吃剩的东西（预览草录）",
-        "en": "Leftovers preview"
+        "zh": "吃剩的东西",
+        "en": "Leftovers"
       },
       "sourceFilename": "mmexport1793008962926.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "supplied-older-sheet-current-photo-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的回合结束时，携带此持有物的宝可梦回复1点体力。",
+        "en": "At the end of your turn, the holder recovers 1 HP."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13724,6 +13744,16 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "itemType": "leftovers",
+      "observedWeather": [
+        "clear"
+      ],
+      "effectImplementationSpecification": "reviewed-defensive-held-items.md",
+      "provenance": {
+        "primary": "O06",
+        "corroboration": "P07",
+        "retailQuantityVerified": false
       }
     },
     {
@@ -13786,6 +13816,67 @@
       "engineEligible": false,
       "deckQuantity": null,
       "source": "reviewed-playcard-spec.md / P05"
+    },
+    {
+      "id": "leftovers",
+      "name": {
+        "zh": "吃剩的东西",
+        "en": "Leftovers"
+      },
+      "kind": "held-item",
+      "weather": "clear",
+      "observedWeather": [
+        "clear"
+      ],
+      "effectText": {
+        "zh": "在你的回合结束时，携带此持有物的宝可梦回复1点体力。",
+        "en": "At the end of your turn, the holder recovers 1 HP."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-defensive-held-items.md"
+    },
+    {
+      "id": "poison-barb",
+      "name": {
+        "zh": "毒针",
+        "en": "Poison Barb"
+      },
+      "kind": "held-item",
+      "weather": "thunderstorm",
+      "observedWeather": [
+        "thunderstorm"
+      ],
+      "effectText": {
+        "zh": "携带此持有物的宝可梦受到伤害后，伤害来源陷入“中毒”状态。",
+        "en": "After the holder receives damage, the Pokémon that dealt it becomes Poisoned."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-defensive-held-items.md"
+    },
+    {
+      "id": "bright-powder",
+      "name": {
+        "zh": "光粉",
+        "en": "Bright Powder"
+      },
+      "kind": "held-item",
+      "weather": "rain",
+      "observedWeather": [
+        "rain",
+        "thunderstorm"
+      ],
+      "effectText": {
+        "zh": "当你需要使用【快躲开！】时，你可以进行一次判定，若结果为“晴天”，你视为使用一张【快躲开！】。",
+        "en": "When asked to use Dodge!, you may judge. Intense sun or clear counts as using one Dodge."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-defensive-held-items.md"
     }
   ]
 }

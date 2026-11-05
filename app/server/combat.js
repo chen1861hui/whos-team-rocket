@@ -183,14 +183,15 @@ function continueJudgment(room,ctx,next,weather) {
     if(weather!=='intense-sun')return applyStatus(room,ctx,creature(room,next.sourceId),'poison','afterDamage');
     return afterDamage(room,ctx);
   }
-  if(next.kind==='sand-veil') {
+  if(next.kind==='sand-veil'||next.kind==='bright-powder') {
+    const name=next.kind==='sand-veil'?{zh:'沙隐',en:'Sand Veil'}:{zh:'光粉',en:'Bright Powder'};
     if(['intense-sun','clear'].includes(weather)) {
       if(!next.defense.dodgeReducesDamage) {
-        if(next.defense.dodgesRequired===2&&++next.defense.dodgesPlayed<2)note(room,'沙隐视为一次躲闪；十字剪仍需要另一次才能抵消。','Sand Veil counted as one Dodge; X-Scissor still needs another to cancel.');
-        else {note(room,'沙隐视为使用一张快躲开！并抵消本次结算。','Sand Veil counted as one Dodge! and canceled this settlement.');return nextSettlement(room,ctx);}
+        if(next.defense.dodgesRequired===2&&++next.defense.dodgesPlayed<2)note(room,`${name.zh}视为一次躲闪；十字剪仍需要另一次才能抵消。`,`${name.en} counted as one Dodge; X-Scissor still needs another to cancel.`);
+        else {note(room,`${name.zh}视为使用一张快躲开！并抵消本次结算。`,`${name.en} counted as one Dodge! and canceled this settlement.`);return nextSettlement(room,ctx);}
       }else {
         next.defense.damageReduction=reduceMoveDamage(room,room.resolution.targetCreatureId);
-        note(room,'沙隐视为使用一张快躲开！，锐利目光将其改为此招式伤害减1。','Sand Veil counted as one Dodge!; Keen Eye changed it to one damage reduction for this move.');
+        note(room,`${name.zh}视为使用一张快躲开！，锐利目光将其改为此招式伤害减1。`,`${name.en} counted as one Dodge!; Keen Eye changed it to one damage reduction for this move.`);
       }
     }
     room.pendingBattle=next.defense;
@@ -227,21 +228,30 @@ function decision(room, kind, actorId, targetId, ctx) {
   room.pendingBattle = { id: randomUUID(), kind, actorId, targetId, clock: seconds > 0 ? { remainingMs: seconds * 1000, deadlineAt: connected ? ctx.now() + seconds * 1000 : null, pausedReason: connected ? null : 'disconnected', expired: false } : null };
 }
 export const handLimit=(room,player)=>room.turn?.noHandLimitIds?.includes(player.id)?Infinity:4;
-const reviewedItem=card=>card?.kind==='held-item'&&card.itemType==='rocky-helmet';
+const heldItemDescriptions={
+  'rocky-helmet':{zh:'出场宝可梦受到伤害后，对伤害来源造成1点伤害。',en:'After the active holder receives damage, it deals 1 damage to the source.'},
+  leftovers:{zh:'你的回合结束时，出场宝可梦回复1点体力。',en:'At the end of your turn, the active holder recovers 1 HP.'},
+  'poison-barb':{zh:'出场宝可梦受到伤害后，令伤害来源陷入中毒。',en:'After the active holder receives damage, the Pokémon that dealt it becomes Poisoned.'},
+  'bright-powder':{zh:'需要使用快躲开！时，可以判定。晴天视为使用一张快躲开！',en:'When asked to use Dodge!, you may judge. Intense sun or clear counts as one Dodge.'},
+};
+const reviewedItem=card=>card?.kind==='held-item'&&Object.hasOwn(heldItemDescriptions,card.itemType);
+const equipItems=player=>[...new Set(player.hand.filter(reviewedItem).map(card=>card.itemType))]
+  .map(itemType=>({itemType,description:heldItemDescriptions[itemType]}));
 const publicItem=card=>card?{itemType:card.itemType,name:card.name,weather:card.weather}:null;
 function itemEffective(room,pokemon) {
   return pokemon?.item?.kind==='held-item'&&![room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.suppressedItemIds?.includes(pokemon.instanceId));
 }
 const gluttonyReplacesItem=(room,pokemon)=>Boolean(room&&pokemon?.catalogueId==='snorlax'&&activeOwner(room,pokemon.instanceId)&&battleTraitsEffective(room,pokemon)&&itemEffective(room,pokemon));
-const helmetEffective=(room,pokemon)=>reviewedItem(pokemon?.item)&&itemEffective(room,pokemon)&&!gluttonyReplacesItem(room,pokemon);
+const activeItemIs=(room,pokemon,itemType)=>pokemon?.item?.itemType===itemType&&itemEffective(room,pokemon)&&!gluttonyReplacesItem(room,pokemon);
 export function endBattleTurn(room,player,ctx) {
   if(!isBattle(room)||room.status!=='playing'||room.turn?.playerId!==player?.id||room.turn.endEffectsDone)return;
   room.turn.endEffectsDone=true;
   const pokemon=player.active;
-  if(!player.eliminated&&pokemon&&!pokemon.defeated&&currentHp(pokemon,ctx.catalogue)>0&&gluttonyReplacesItem(room,pokemon)) {
-    const result=heal(pokemon,1,ctx.catalogue);
-    if(result.healed)note(room,'贪吃鬼将持有物效果改为回合结束时回复1点体力。','Gluttony replaced the held-item effect and healed 1 HP at this trainer’s turn end.');
-  }
+  if(player.eliminated||!pokemon||pokemon.defeated||currentHp(pokemon,ctx.catalogue)<=0)return;
+  const gluttony=gluttonyReplacesItem(room,pokemon);
+  if(!(gluttony||activeItemIs(room,pokemon,'leftovers'))||!heal(pokemon,1,ctx.catalogue).healed)return;
+  if(gluttony)note(room,'贪吃鬼将持有物效果改为回合结束时回复1点体力。','Gluttony replaced the held-item effect and healed 1 HP at this trainer’s turn end.');
+  else note(room,'吃剩的东西使携带者回复1点体力。','Leftovers restored 1 HP to the holder.');
 }
 export function equipBattleItem(room,player,input,ctx) {
   requireRule(previewActions(room,player,ctx.catalogue)?.canEquip,'ITEM_UNAVAILABLE','A reviewed held item cannot be equipped now.');
@@ -273,7 +283,7 @@ function runReceivingEffect(room,effect,ctx) {
   const resolution=room.resolution,target=creature(room,resolution.targetCreatureId),source=creature(room,resolution.sourceId);
   const owner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=source?activeOwner(room,source.instanceId):null;
   if(!owner||target.defeated)return continueReceiving(room,ctx);
-  if(effect!=='rocky-helmet'&&!battleTraitsEffective(room,target))return continueReceiving(room,ctx);
+  if(!['rocky-helmet','poison-barb'].includes(effect)&&!battleTraitsEffective(room,target))return continueReceiving(room,ctx);
   if(effect==='water-absorb')return startJudgment(room,ctx,{kind:'water-absorb',pokemonId:target.instanceId},owner.id);
   if(effect==='battle-armor'&&owner.hand.length) {
     decision(room,'battle-armor',owner.id,owner.id,ctx);return;
@@ -299,7 +309,10 @@ function runReceivingEffect(room,effect,ctx) {
     room.turn.damageImmunityIds??=[];if(!room.turn.damageImmunityIds.includes(target.instanceId))room.turn.damageImmunityIds.push(target.instanceId);
     note(room,'迟钝使此宝可梦在当前训练家回合结束前不再受到伤害。','Oblivious prevents further damage to this Pokémon until the current trainer turn ends.');
   }
-  if(effect==='rocky-helmet' && sourceOwner && !source.defeated && helmetEffective(room,target) && target.item.id===resolution.helmetCardId) {
+  if(effect==='poison-barb'&&sourceOwner&&activeItemIs(room,target,'poison-barb')&&target.item.id===resolution.poisonBarbCardId) {
+    return applyStatus(room,ctx,source,'poison','afterDamage');
+  }
+  if(effect==='rocky-helmet' && sourceOwner && !source.defeated && activeItemIs(room,target,'rocky-helmet') && target.item.id===resolution.helmetCardId) {
     room.resolutionStack??=[];room.resolutionStack.push(resolution);
     room.resolution={kind:'item',card:null,channelCard:target.item,sourceId:target.instanceId,sourcePlayerId:owner.id,targetCreatureId:source.instanceId,targetIds:[sourceOwner.id],index:0,damagedIds:[],defenseIds:[],actualDamage:0};
     const amount=damageImmune(room,source)?0:computeDamage(target,source,1,ctx.catalogue,damageOptions(room,target,source,{command:false,channel:'item',receiving:!hasShedSkin(room,source)}));
@@ -666,6 +679,7 @@ function openDefense(room, ctx) {
   if(room.turn.dodgeBlockedCreatureIds?.includes(target.active.instanceId)){room.pendingBattle.cannotDodge=true;room.pendingBattle.dodgeBlockedBy='lock-on';}
   if(resolution.dodgesRequired===2){room.pendingBattle.dodgesRequired=2;room.pendingBattle.dodgesPlayed=0;}
   room.pendingBattle.canTrait=!room.pendingBattle.cannotDodge && canSandVeil(room,target) && room.drawPile.length+room.discardPile.length>0;
+  if(!room.pendingBattle.cannotDodge&&activeItemIs(room,target.active,'bright-powder')&&room.drawPile.length+room.discardPile.length>0)room.pendingBattle.canBrightPowder=true;
   if(room.pendingBattle.canTrait)room.pendingBattle.trait='sand-veil';
   if(resolution.sourceFamily==='caterpie'&&resolution.sourceLevel===3&&battleTraitsEffective(room,creature(room,resolution.sourceId))&&resolution.sourcePlayerId!==target.id)room.pendingBattle.blockedDodgeWeathers=['intense-sun'];
   if(resolution.settlementCount!==undefined)Object.assign(room.pendingBattle,{settlementNumber:resolution.settlementIndex+1,settlementCount:resolution.settlementCount});
@@ -961,7 +975,7 @@ export function previewActions(room, player, catalogue) {
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
   const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { events:eventActions(room,player,own), tools:toolActions(room,player,catalogue,own), canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  return { events:eventActions(room,player,own), tools:toolActions(room,player,catalogue,own), canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipItems:equipItems(player), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx) {
   const legal=previewActions(room,player,ctx.catalogue),index=input.moveIndex===undefined?0:input.moveIndex;
@@ -1259,7 +1273,8 @@ function afterDamage(room,ctx) {
       if(traits&&target.catalogueId==='abra'&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
       if(traits&&target.catalogueId==='slowpoke'&&room.turn.playerId!==targetOwner.id)resolution.receivingEffects.push('oblivious');
       if(traits&&target.catalogueId==='gastly'&&target.level===3&&sourceOwner?.hand.length&&sourceOwner.id!==targetOwner.id)resolution.receivingEffects.push('cursed-body');
-      if(helmetEffective(room,target)&&sourceOwner&&!source.defeated){resolution.receivingEffects.push('rocky-helmet');resolution.helmetCardId=target.item.id;}
+      if(activeItemIs(room,target,'rocky-helmet')&&sourceOwner&&!source.defeated){resolution.receivingEffects.push('rocky-helmet');resolution.helmetCardId=target.item.id;}
+      if(activeItemIs(room,target,'poison-barb')&&sourceOwner&&!source.status){resolution.receivingEffects.push('poison-barb');resolution.poisonBarbCardId=target.item.id;}
     }
   }
   continueReceiving(room,ctx);
@@ -1805,13 +1820,20 @@ export function respondBattle(room,player,input,ctx) {
     room.pendingBattle=null;afterDamage(room,ctx);return;
   }
   if(pending.kind==='defense') {
-    requireRule(['pass','dodge','trait'].includes(input.choice),'INVALID_RESPONSE','Choose a defense or pass.');
-    if(input.choice==='trait') {
-      requireRule(pending.canTrait && !pending.traitAttempted && canSandVeil(room,player),'TRAIT_UNAVAILABLE','Sand Veil is unavailable for this settlement.');
-      pending.traitAttempted=true;pending.canTrait=false;
+    requireRule(['pass','dodge','trait','bright-powder'].includes(input.choice),'INVALID_RESPONSE','Choose a defense or pass.');
+    if(input.choice==='trait'||input.choice==='bright-powder') {
+      const powder=input.choice==='bright-powder';
+      if(powder) {
+        requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice'].includes(key)),'INVALID_RESPONSE','Bright Powder needs no card or extra fields.');
+        requireRule(!pending.cannotDodge&&pending.canBrightPowder&&player.active?.instanceId===room.resolution.targetCreatureId&&activeItemIs(room,player.active,'bright-powder')&&room.drawPile.length+room.discardPile.length>0,'ITEM_UNAVAILABLE','Bright Powder is unavailable for this settlement.');
+        pending.canBrightPowder=false;
+      }else {
+        requireRule(pending.canTrait && !pending.traitAttempted && canSandVeil(room,player),'TRAIT_UNAVAILABLE','Sand Veil is unavailable for this settlement.');
+        pending.traitAttempted=true;pending.canTrait=false;
+      }
       const defense=structuredClone(pending);
       if(defense.clock){if(defense.clock.deadlineAt!==null)defense.clock.remainingMs=Math.max(0,defense.clock.deadlineAt-ctx.now());defense.clock.deadlineAt=null;}
-      startJudgment(room,ctx,{kind:'sand-veil',defense},player.id);
+      startJudgment(room,ctx,{kind:powder?'bright-powder':'sand-veil',defense},player.id);
       return;
     }
     if(input.choice==='dodge') {

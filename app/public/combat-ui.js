@@ -260,9 +260,13 @@ export function attackDialog(card, kit, moveIndex=0) {
 }
 export function equipItemDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,turn=initial.turn.number;
+  const equipment=initial.self.battle?.equipItems?.find(item=>item.itemType===card.itemType);
+  if(!equipment)return;
   const active=initial.players.find(p=>p.id===initial.selfId).active;
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog'},node('h2',{},say(language,'Equip Rocky Helmet','携带凸凸头盔')),
-    node('p',{},say(language,'After the active holder receives damage, it deals 1 damage to the damage source. Reserve items are inactive.','出场宝可梦受到伤害后，其对伤害来源造成1点伤害。备战宝可梦的持有物不生效。')));
+  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'equip-title'},
+    node('h2',{id:'equip-title'},say(language,'Equip item','携带持有物'),` · ${kit.localized(card.name)}`),
+    node('p',{},kit.localized(equipment.description)),
+    node('p',{class:'muted'},say(language,'Held items take effect while the holder is active.','持有物在携带者出战时生效。')));
   let selected=null;
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-equip',disabled:true},say(language,'Equip item','携带持有物'));
   for(const slot of initial.self.battle.equipSlots) {
@@ -273,7 +277,15 @@ export function equipItemDialog(card,kit) {
   }
   dialog.append(node('p',{class:'muted'},say(language,'Confirming moves this card from your hand to the chosen Pokémon. An existing item is discarded.','确认后将此牌从手牌移至所选宝可梦区；原有持有物将被弃置。')));
   const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
-  confirm.addEventListener('click',()=>{dialog.close();const current=kit.getView();if(current.code===initial.code&&current.turn?.number===turn&&current.self.battle?.canEquip&&current.self.hand.some(c=>c.id===card.id))kit.action('equipItem',{cardId:card.id,slot:selected});});
+  confirm.addEventListener('click',()=>{
+    dialog.close();
+    const current=kit.getView();
+    if(current?.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turn&&!kit.busy&&
+      current.self.battle?.canEquip&&current.self.battle.equipSlots.includes(selected)&&
+      current.self.hand.some(held=>held.id===card.id&&held.kind==='held-item'&&held.itemType===card.itemType)) {
+      kit.action('equipItem',{cardId:card.id,slot:selected});
+    }
+  });
   dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
 }
 export function recklessDialog(kit) {
@@ -871,7 +883,7 @@ export function decisionPanel(view,kit) {
         const names={'return-cards':['Return removed cards','返回移出的牌'],status:['Resolve special status','结算特殊状态'],'neutralizing-gas':['Neutralizing Gas','化学变化气体']};
         row.append(node('button',{type:'button',class:'button primary',id:`start-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'start-effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='effects')for(const effect of pending.effects) {
-        const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'water-absorb':['Water Absorb · mandatory judgment','储水 · 必须判定'],'rocky-helmet':['Rocky Helmet','凸凸头盔']};
+        const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'water-absorb':['Water Absorb · mandatory judgment','储水 · 必须判定'],'rocky-helmet':['Rocky Helmet','凸凸头盔'],'poison-barb':['Poison Barb','毒针']};
         row.append(node('button',{type:'button',class:'button primary effect-choice',id:`effect-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='reinforcement')for(const kind of pending.reinforcements||[]) {
         const names={power:['Power','力量'],defense:['Defense','防御'],speed:['Speed','速度']};
@@ -892,6 +904,13 @@ export function decisionPanel(view,kit) {
         if(pending.kind==='judgment')for(const card of pending.replacementCards||[])row.append(node('button',{type:'button',class:'button primary judgment-replacement',id:`replace-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'replace',cardId:card.id})},say(language,'Replace with','替换为'),` ${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
         if(pending.kind==='cycle')for(const card of pending.cards||[])row.append(node('button',{type:'button',class:'button primary cycle-card',id:`cycle-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'cycle',cardId:card.id})},say(language,'Discard','弃置'),` ${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
         if(pending.kind==='defense'&&!pending.cannotDodge) {
+          if(pending.canBrightPowder)row.append(node('button',{type:'button',class:'button primary',id:'response-bright-powder',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{
+            const current=kit.getView(),defense=current?.pendingBattle;
+            if(current?.code===view.code&&current.selfId===view.selfId&&!kit.busy&&!current.pendingVote&&
+              defense?.kind==='defense'&&defense.id===pending.id&&defense.actorId===view.selfId&&defense.canBrightPowder) {
+              kit.action('respondBattle',{decisionId:pending.id,choice:'bright-powder'});
+            }
+          }},say(language,'Use Bright Powder','发动光粉')));
           const active=view.players.find(player=>player.id===view.selfId)?.active,levitate=active?.catalogueId==='gastly'&&active.level<=2;
           for(const card of view.self.hand.filter(c=>(c.kind==='dodge'||(levitate&&['rain','thunderstorm'].includes(c.weather)))&&!pending.blockedDodgeWeathers?.includes(c.weather)))row.append(node('button',{type:'button',class:'button primary',id:`respond-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'dodge',cardId:card.id})},levitate&&card.kind!=='dodge'?say(language,'Levitate as Dodge','飘浮视为快躲开！'):say(language,'Use Dodge!','打出快躲开！'),` · ${weatherLabel(card.weather,language)}`));
         }
@@ -900,6 +919,7 @@ export function decisionPanel(view,kit) {
       panel.append(row);
     }
     if(pending.kind==='defense' && pending.canTrait&&!pending.cannotDodge)panel.append(node('p',{class:'muted'},say(language,'Sand Veil: with no held item, judge once for this settlement. Intense sun or clear counts as one Dodge! If it fails, you may still use a Dodge card.','沙隐：未携带持有物时，本次结算可判定一次。烈日或晴朗视为使用一张快躲开！；失败后仍可打出躲闪牌。')));
+    if(pending.kind==='defense'&&pending.canBrightPowder)panel.append(node('p',{class:'muted'},say(language,'Bright Powder judges once for this settlement. Intense sun or clear counts as one Dodge.','本次结算可用光粉判定一次。烈日或晴朗视为使用一张快躲开！')));
   }else if(pending.actorId!==view.selfId||view.self.spectator)panel.append(node('p',{class:'muted'},say(language,'Waiting for the indicated trainer.','正在等待指定训练家。')));
   if(pending.kind==='rescue')panel.append(node('p',{class:'muted'},say(language,'Each Potion restores 2 HP. While being asked, a trainer may use more cards if HP is still 0 or below, or pass to the next trainer. Rescue stops immediately at 1 HP or above.','每次伤药回复2点体力。被询问的训练家在体力仍为0或以下时，可以继续使用牌，或放弃并询问下一位训练家。体力达到1点或以上时立即结束救援。')));
   return panel;
