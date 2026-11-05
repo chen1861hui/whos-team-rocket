@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
 
 export const IDLE_MS = 7 * 60 * 60 * 1000;
@@ -364,7 +364,7 @@ export class RoomStore {
         log(room, isBattle(room) ? '当前玩家摸取一张牌。' : '当前玩家抽取一张测试手牌。', isBattle(room) ? 'The current player drew one card.' : 'The current player drew one fixture card.');
         break;
       case 'attack':
-        check(['cardId', 'targetIds', 'moveIndex', 'boostCardId','effectChoice']); ownTurn();
+        check(['cardId', 'cardIds', 'targetIds', 'moveIndex', 'boostCardId','effectChoice']); ownTurn();
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'Attacks are available in the combat preview.');
         this.battleCall(() => playBattleMove(room, player, input, this.battleContext()));
         break;
@@ -377,13 +377,16 @@ export class RoomStore {
       case 'equipItem':
         check(['cardId','slot']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Held items require combat preview.');
         this.battleCall(()=>equipBattleItem(room,player,input,this.battleContext()));break;
+      case 'useLightBall':
+        check(['targetId']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Held items require combat preview.');
+        this.battleCall(()=>useLightBall(room,player,input.targetId,this.battleContext()));break;
       case 'giveCards':
         check(['cardIds', 'recipientId', 'targetIds']); ownTurn();
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'Justified is available in the combat preview.');
         this.battleCall(() => giveBattleCards(room, player, input, this.battleContext()));
         break;
       case 'respondBattle':
-        check(['decisionId', 'choice', 'cardId', 'cardIds', 'handIndex', 'handIndices', 'order', 'topOrder','bottomOrder', 'reinforcement', 'effect','allocations','targetId','targetIds']); seat(); status('playing');
+        check(['decisionId', 'choice', 'cardId', 'cardIds', 'handIndex', 'handIndices', 'order', 'topOrder','bottomOrder', 'reinforcement', 'effect','allocations','targetId','targetIds','moveIndex','boostCardId','effectChoice']); seat(); status('playing');
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'There is no combat response.');
         this.battleCall(() => respondBattle(room, player, input, this.battleContext()));
         break;

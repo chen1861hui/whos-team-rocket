@@ -13957,6 +13957,67 @@
       "engineEligible": false,
       "deckQuantity": null,
       "source": "reviewed-life-orb-blunder-policy.md / O06"
+    },
+    {
+      "id": "muscle-band",
+      "name": {
+        "zh": "力量头带",
+        "en": "Muscle Band"
+      },
+      "kind": "held-item",
+      "weather": "thunderstorm",
+      "observedWeather": [
+        "thunderstorm"
+      ],
+      "effectText": {
+        "zh": "当你需要使用【接招吧！】时，你可以将两张手牌当一张【接招吧！】使用。",
+        "en": "When you need to use Take this!, you may use two hand cards as one Take this! command."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-final-held-items.md / O06"
+    },
+    {
+      "id": "light-ball",
+      "name": {
+        "zh": "电气球",
+        "en": "Light Ball"
+      },
+      "kind": "held-item",
+      "weather": "intense-sun",
+      "observedWeather": [
+        "intense-sun"
+      ],
+      "effectText": {
+        "zh": "在你的出牌阶段你可以弃置此持有物，然后令一只宝可梦陷入“麻痹”状态。",
+        "en": "During Play, you may discard this item, then Paralyze one Pokémon."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-final-held-items.md / O06"
+    },
+    {
+      "id": "quick-claw",
+      "name": {
+        "zh": "先制之爪",
+        "en": "Quick Claw"
+      },
+      "kind": "held-item",
+      "weather": "rain",
+      "observedWeather": [
+        "rain",
+        "thunderstorm"
+      ],
+      "effectText": {
+        "zh": "你使用牌不受距离限制，此宝可梦使用招式也不受距离限制。在其他训练家的回合开始时，你可以对其出战宝可梦使用一张“晴天”的【接招吧！】。",
+        "en": "Your cards and the holder’s moves ignore distance. At another trainer’s turn start, you may use a sunny command against their active Pokémon."
+      },
+      "effectStatus": "combat-preview",
+      "engineEligible": false,
+      "deckQuantity": null,
+      "source": "reviewed-final-held-items.md / O06"
     }
   ]
 }

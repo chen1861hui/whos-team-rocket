@@ -66,6 +66,85 @@ function holdItem(f, seat, itemType, slot = 'active') {
   return card;
 }
 
+test('Muscle Band converts two distinct hand cards into one move and spends its normal allowance', t => {
+  const f=fixture(t);
+  f.play();
+  holdItem(f,f.leader,'muscle-band');
+  const first=f.supply(f.leader,'dodge','rain'),second=f.supply(f.leader,'event','clear');
+  const attack=cardIds=>f.act(f.leader,'attack',{cardIds,targetIds:[f.target.playerId]});
+  rejectsAtomically(f,()=>attack([first,first]),'INVALID_CARD');
+  attack([first,second]);
+  assert.equal(f.room().resolution.card,null);
+  assert.equal(f.room().resolution.virtualCommand,true);
+  f.respond();
+  assert.equal(f.player(f.target).active.damage,2);
+  assert.ok([first,second].every(id=>f.room().discardPile.some(card=>card.id===id)));
+  rejectsAtomically(f,()=>attack([first,second]),'MOVE_UNAVAILABLE');
+});
+
+test('Light Ball discards the item, settles Defiant, and applies Paralysis through Articuno', t => {
+  const f=fixture(t);
+  f.play();
+  const ball=holdItem(f,f.leader,'light-ball');
+  const protection={...f.makeCard('event'),eventType:'articuno-protection'};
+  f.player(f.leader).hand.push(protection);
+  f.room().scenario.articunoReactions=true;
+  f.act(f.leader,'useLightBall',{targetId:f.target.playerId});
+  assert.equal(f.room().pendingBattle.kind,'defiant');
+  assert.equal(f.player(f.target).active.status,null);
+  f.respond('trait');
+  assert.equal(f.room().pendingBattle.kind,'articuno');
+  assert.equal(f.player(f.target).active.status,'paralysis');
+  f.respond('protect',{cardId:protection.id});
+  assert.equal(f.player(f.target).active.status,null);
+  assert.equal(f.player(f.leader).active.item,undefined);
+  assert.equal(occurrences(f,ball.id),1);
+});
+
+test('Quick Claw restricts the interrupt to an actual sunny command and resumes the turn owner’s draw', t => {
+  const f=fixture(t);
+  f.play();
+  holdItem(f,f.leader,'quick-claw');
+  const rainy=f.supply(f.leader,'command','rain'),sunny=f.supply(f.leader,'command','clear');
+  finish(f,f.leader);
+  assert.equal(f.room().pendingBattle.kind,'quick-claw');
+  assert.equal(f.room().pendingBattle.actorId,f.leader.playerId);
+  assert.equal(f.room().turn.playerId,f.target.playerId);
+  assert.equal(f.view(f.target).pendingBattle.commandCards,undefined);
+  assert.equal(f.view(f.target).pendingBattle.moves,undefined);
+  assert.deepEqual(f.view(f.leader).pendingBattle.commandCards.map(card=>card.id),[sunny]);
+  rejectsAtomically(f,()=>f.respond('command',{cardId:rainy}),'INVALID_CARD');
+  f.respond('command',{cardId:sunny});
+  assert.equal(f.room().pendingBattle.kind,'defense');
+  f.respond();
+  assert.equal(f.player(f.target).active.damage,2);
+  assert.equal(f.room().turn.commandCreatureId,null);
+  assert.equal(f.room().turn.drawRemaining,2);
+  assert.equal(f.room().pendingBattle,null);
+  f.play(f.target);
+  assert.ok(f.view(f.target).self.battle.canCommand);
+});
+
+test('Quick Claw grants move and card range and presents the same public window with an empty hand', t => {
+  const f=fixture(t,{count:5});
+  f.play();
+  const distant=f.room().players[2].id;
+  assert.equal(f.view(f.leader).self.battle.legalTargetIds.includes(distant),false);
+  holdItem(f,f.leader,'quick-claw');
+  const event={...f.makeCard('event'),eventType:'mr-mime-trick'};
+  f.player(f.leader).hand.push(event);
+  f.supply(f.byId(distant));
+  const battle=f.view(f.leader).self.battle;
+  assert.ok(battle.legalTargetIds.includes(distant));
+  assert.ok(battle.events.find(option=>option.eventType==='mr-mime-trick').targetIds.includes(distant));
+  f.player(f.leader).hand=[];
+  finish(f,f.leader);
+  assert.equal(f.room().pendingBattle.kind,'quick-claw');
+  assert.deepEqual(f.view(f.leader).pendingBattle.commandCards,[]);
+  f.respond();
+  assert.equal(f.room().pendingBattle,null);
+});
+
 test('Life Orb boosts before Defense and its HP cost can be rescued', t => {
   const f = fixture(t);
   f.play();

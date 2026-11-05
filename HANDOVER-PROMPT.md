@@ -1,4 +1,12 @@
-## Life Orb and Blunder Policy — 2026-11-05 (current)
+## Held item set complete — 2026-11-05 (current)
+
+Muscle Band turns two hand cards into a virtual command, Light Ball discards itself to apply Paralysis, and Quick Claw removes distance limits and offers a sunny command at another trainer’s turn start. All eleven held items from the saved O06 sheet now resolve in combat preview.
+
+All 1,223 tests passed, including four new cases. See the [source and implementation notes](reviewed-final-held-items.md) for targeting, weather, and timing decisions. The review branch is `codex/final-held-items`. The current local deck is the basic command and Dodge fixture. The reviewed effects were verified with actual cards in isolated scenarios.
+
+Next, make the reviewed cards accessible through a clearly labeled optional playtest deck. Keep its quantities separate from the retail manifest, which still needs verified copy counts by card and weather.
+
+## Life Orb and Blunder Policy — 2026-11-05 (historical)
 
 Life Orb offers a damage boost before the receiver’s modifiers and charges 1 HP after the settlement. Blunder Policy offers a private two-card payment to resume a move settlement after a complete Dodge. Both use the shared equip and response flow.
 
