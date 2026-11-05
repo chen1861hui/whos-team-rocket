@@ -13303,20 +13303,23 @@
       "id": "moltres-trial-preview",
       "name": {
         "zh": "火焰鸟的试炼",
-        "en": null
+        "en": "Moltres’s Trial"
       },
       "displayLabel": {
-        "zh": "火焰鸟的试炼（预览草录）",
-        "en": "Moltres trial preview"
+        "zh": "火焰鸟的试炼",
+        "en": "Moltres’s Trial"
       },
       "sourceFilename": "mmexport1793008928244.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "supplied-older-sheet-current-photo-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的出牌阶段对所有其他训练家的出战宝可梦使用。从你的下一位训练家开始，按行动顺序结算。除非目标宝可梦对应的训练家打出一张【接招吧！】，否则目标宝可梦受到火焰鸟造成的2点伤害。",
+        "en": "During your Play phase, use on all other trainers’ active Pokémon. Starting with the next trainer, resolve in action order. Unless the target Pokémon’s trainer plays one Take this! response, that target receives 2 damage caused by Moltres."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13326,26 +13329,40 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "eventType": "moltres-trial",
+      "observedWeather": [
+        "intense-sun"
+      ],
+      "effectImplementationSpecification": "reviewed-legendary-bird-events.md",
+      "provenance": {
+        "specification": "reviewed-legendary-bird-events.md",
+        "primary": "O03",
+        "corroboration": "P06-visible-fragments",
+        "retailQuantityVerified": false
       }
     },
     {
       "id": "zapdos-punishment-preview",
       "name": {
         "zh": "闪电鸟的惩戒",
-        "en": null
+        "en": "Zapdos’s Punishment"
       },
       "displayLabel": {
-        "zh": "闪电鸟的惩戒（预览草录）",
-        "en": "Zapdos punishment preview"
+        "zh": "闪电鸟的惩戒",
+        "en": "Zapdos’s Punishment"
       },
       "sourceFilename": "mmexport1793008928244.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "supplied-older-sheet-current-photo-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的出牌阶段对所有训练家的出战宝可梦使用。从你的下一位训练家开始，按行动顺序结算。目标宝可梦对应的训练家进行一次判定，若结果为[雷雨]，令目标宝可梦受到闪电鸟造成的伤害，伤害值等同于该宝可梦的等级。",
+        "en": "During your Play phase, use on every trainer’s active Pokémon. Starting with the next trainer, resolve in action order. Each target Pokémon’s trainer judges once. On thunderstorm, the target receives damage caused by Zapdos equal to that Pokémon’s level."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13355,26 +13372,40 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "eventType": "zapdos-punishment",
+      "observedWeather": [
+        "thunderstorm"
+      ],
+      "effectImplementationSpecification": "reviewed-legendary-bird-events.md",
+      "provenance": {
+        "specification": "reviewed-legendary-bird-events.md",
+        "primary": "O03",
+        "corroboration": "P06-visible-fragments",
+        "retailQuantityVerified": false
       }
     },
     {
       "id": "articuno-protection-preview",
       "name": {
         "zh": "急冻鸟的庇护",
-        "en": null
+        "en": "Articuno’s Protection"
       },
       "displayLabel": {
-        "zh": "急冻鸟的庇护（预览草录）",
-        "en": "Articuno protection preview"
+        "zh": "急冻鸟的庇护",
+        "en": "Articuno’s Protection"
       },
       "sourceFilename": "mmexport1793008928244.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "supplied-older-sheet-current-photo-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "你选择一项：1.当一张事件牌的效果对一个目标生效前，抵消此事件牌对该目标的效果；2.当一只宝可梦陷入特殊状态后，恢复其特殊状态。",
+        "en": "Choose one: before an event card’s effect takes effect on one target, cancel that event card’s effect on that target; or after one Pokémon gains a special status, cure its special status."
+      },
+      "effectStatus": "reference-only",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13384,6 +13415,21 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "eventType": "articuno-protection",
+      "observedWeather": [
+        "rain"
+      ],
+      "effectImplementationSpecification": "reviewed-legendary-bird-events.md",
+      "provenance": {
+        "specification": "reviewed-legendary-bird-events.md",
+        "primary": "O03",
+        "corroboration": "P06-visible-fragments",
+        "retailQuantityVerified": false
+      },
+      "effectUnavailableReason": {
+        "zh": "卡面文字已复核；事件目标生效前及特殊状态生效后的通用响应窗口尚未实现。",
+        "en": "Card text is reviewed; shared before-event-target and after-status reaction windows are not implemented yet."
       }
     },
     {

@@ -1,0 +1,156 @@
+{
+  "reviewedAt": "2026-11-05",
+  "reviewStatus": "independent saved-source visual review; root signoff and execution separate",
+  "specification": "reviewed-legendary-bird-events.md",
+  "engineEligible": false,
+  "retailManifestVerified": false,
+  "sources": [
+    {
+      "id": "O03",
+      "file": "research-assets/user-older-edition-2026-11-04/share_d5d99ad9094dafd0a484315a59b80816.png",
+      "printing": "User-described older printing, complete unobscured paragraphs",
+      "sha256": "71dc0eb1e4dee2ed352e891055b8fd13f4590162cb64d6e1bd4267fd67cdb4b2",
+      "dimensions": [
+        1440,
+        1920
+      ],
+      "encodedFormat": "WEBP"
+    },
+    {
+      "id": "P06",
+      "file": "research-assets/provided-previews/mmexport1793008928244.jpg.jpeg",
+      "printing": "Supplied Master Edition preview poster; Moltres unobscured, Zapdos/Articuno partly overlapped",
+      "sha256": "5817cb32f58f4bb42814d3f5895e48810e025a9c85eac771b940d775caa332e6",
+      "dimensions": [
+        790,
+        3669
+      ],
+      "encodedFormat": "JPEG"
+    },
+    {
+      "id": "R07",
+      "file": "research-assets/xiaohongshu-rulebook/07-targets-cards.webp",
+      "printing": "Accepted photographed booklet pp08–09",
+      "sha256": "0c3df4526577355eeb0cf30751fa253f59cd59355bc794ba618084362ddd3847",
+      "dimensions": [
+        1440,
+        1080
+      ],
+      "encodedFormat": "WEBP"
+    },
+    {
+      "id": "R08",
+      "file": "research-assets/xiaohongshu-rulebook/08-timing-damage-status.webp",
+      "printing": "Accepted photographed booklet pp10–11",
+      "sha256": "242ae7f516b5a4310445b1c4bf1b1c6b6323630ab8337a641a7e7608aa6a61f2",
+      "dimensions": [
+        1440,
+        1080
+      ],
+      "encodedFormat": "WEBP"
+    }
+  ],
+  "iconNotation": "[雷雨] is the editorial name for a printed black-cloud/yellow-lightning icon, not literal bracketed printed Chinese.",
+  "events": [
+    {
+      "eventType": "moltres-trial",
+      "name": {
+        "zh": "火焰鸟的试炼",
+        "en": "Moltres’s Trial"
+      },
+      "cardKind": "event",
+      "observedWeather": {
+        "O03": "intense-sun",
+        "P06": "intense-sun"
+      },
+      "exactChinese": "在你的出牌阶段对所有其他训练家的出战宝可梦使用。从你的下一位训练家开始，按行动顺序结算。除非目标宝可梦对应的训练家打出一张【接招吧！】，否则目标宝可梦受到火焰鸟造成的2点伤害。",
+      "workingEnglish": "During your Play phase, use on all other trainers’ active Pokémon. Starting with the next trainer, resolve in action order. Unless the target Pokémon’s trainer plays one Take this! response, that target receives 2 damage caused by Moltres.",
+      "printedScope": "all other trainers’ active Pokémon; excludes user",
+      "printedOrder": "next trainer first, then action order",
+      "printedResponse": "打出一张【接招吧！】",
+      "damage": {
+        "source": "external Moltres without trainer owner",
+        "base": 2,
+        "channel": "event"
+      },
+      "sourceNotes": "O03 supplies the complete paragraph; P06 visible unobscured Moltres paragraph is compatible."
+    },
+    {
+      "eventType": "zapdos-punishment",
+      "name": {
+        "zh": "闪电鸟的惩戒",
+        "en": "Zapdos’s Punishment"
+      },
+      "cardKind": "event",
+      "observedWeather": {
+        "O03": "thunderstorm",
+        "P06": "thunderstorm"
+      },
+      "exactChineseWithNamedIcon": "在你的出牌阶段对所有训练家的出战宝可梦使用。从你的下一位训练家开始，按行动顺序结算。目标宝可梦对应的训练家进行一次判定，若结果为[雷雨]，令目标宝可梦受到闪电鸟造成的伤害，伤害值等同于该宝可梦的等级。",
+      "workingEnglish": "During your Play phase, use on every trainer’s active Pokémon. Starting with the next trainer, resolve in action order. Each target Pokémon’s trainer judges once. On thunderstorm, the target receives damage caused by Zapdos equal to that Pokémon’s level.",
+      "printedScope": "all trainers’ active Pokémon; includes user",
+      "printedOrder": "next trainer first, user last after a complete live-seat circuit",
+      "printedResponse": null,
+      "judgment": {
+        "actor": "target trainer",
+        "conditionWeather": "thunderstorm",
+        "comparison": "equals"
+      },
+      "damage": {
+        "source": "external Zapdos without trainer owner",
+        "base": "target Pokémon’s level",
+        "channel": "event"
+      },
+      "sourceNotes": "P06 Zapdos opening left characters are overlapped; O03 supplies complete text. Printed icon is black cloud/yellow lightning, editorially named 雷雨."
+    },
+    {
+      "eventType": "articuno-protection",
+      "name": {
+        "zh": "急冻鸟的庇护",
+        "en": "Articuno’s Protection"
+      },
+      "cardKind": "event",
+      "observedWeather": {
+        "O03": "rain",
+        "P06": "rain"
+      },
+      "exactChinese": "你选择一项：1.当一张事件牌的效果对一个目标生效前，抵消此事件牌对该目标的效果；2.当一只宝可梦陷入特殊状态后，恢复其特殊状态。",
+      "workingEnglish": "Choose one: before an event card’s effect takes effect on one target, cancel that event card’s effect on that target; or after one Pokémon gains a special status, cure its special status.",
+      "printedTiming": [
+        "before one event effect takes effect on one target",
+        "after one Pokémon actually gains a special status"
+      ],
+      "printedDistanceClause": null,
+      "printedOwnerOnlyClause": null,
+      "printedWeatherCondition": null,
+      "sourceNotes": "O03 supplies both complete alternatives. P06’s left body is overlapped; visible fragments are compatible. The face does not explicitly define a counter-counter chain or how reaction windows reopen."
+    }
+  ],
+  "recommendedPolicies": [
+    "One actual own physical card; preserve its ID/weather/metadata outside draw/discard circulation until the whole event and nested effects complete, unless a legitimate Synchronize claim transfers it.",
+    "Capture ordered live target trainers and original active instances at event use; exclude spectators/eliminated seats. Moltres excludes actor; Zapdos includes actor LAST, starting with the actor’s next live trainer. Do not silently reuse Mew Blessing’s self-first order.",
+    "No printed distance clause for Moltres or Zapdos; reach all explicitly scoped actives. Do not target reserves or infer a Pokémon move/command-target window.",
+    "Conservative Moltres response policy distinguishes 打出 from 使用: use one actual own kind:command card as the Take this! response, or pass. It is not using the card to perform a Pokémon move, so no Power/Burn/Paralysis sunny-command restriction/command-user lock/move limit/Moxie/Pressure/Cute Charm is invoked. No printed virtual-command conversion for this response is established.",
+    "Moltres response prompt is public independent of holdings; show eligible actual response cards only to the current target trainer. Optional expiry can pass under existing digital timer policy.",
+    "Zapdos opens no printed Dodge/command-response window. Judge separately for each target trainer; use Drought’s final judgment. An empty supply creates no result and no damage, including no fabricated thunderstorm. The card’s own thunderstorm weather is not its judgment result.",
+    "Zapdos damage should use the still-original target’s current level at damage resolution, after its final judgment. This timing is a bounded implementation interpretation; the face says damage equals that Pokémon’s level without a separate snapshot rule.",
+    "Represent Moltres and Zapdos as external named damage sources with no player owner. Do not substitute event user’s active, source modifiers, retaliation recipient or defeat reward. Receiving immunity/Defense/Dratini/Shed Skin/Water Absorb/Battle Armor/Oblivious/Synchronize, rescue and immediate victory remain shared rules.",
+    "A target defeated/replaced during nested processing must not transfer its saved event slot to an incoming reserve. Defense cleanup belongs to whole-card end; Synchronize can claim the actual event card once while later targets continue.",
+    "Early Bird names only Jigglypuff and Mr. Mime, giving no protection from Moltres, Zapdos or Articuno. Gas affects actual Pokémon traits, not printed event effects.",
+    "Articuno is source-reviewed but not enabled by this record. Its first branch cancels only the one target’s event effect, not a whole global event; second branch follows actual status application, not ordinary Play or a prevented/failed status attempt.",
+    "A coherent Articuno implementation needs generic before-event-target and after-final-status-applied hooks across existing events/status sources, actual-card payment, privacy-safe response queues, restart/clock/vote state, and a documented counter-chain/reopen policy. Sources do not explicitly settle counter-counter behavior; implementation policy must remain distinguished from printed text.",
+    "Accepted booklet current-turn-first counterclockwise order provides a basis for ordering simultaneous trainers’ reaction opportunities, but a reaction queue and automatic pass policy are digital implementation choices.",
+    "Do not call Articuno unreadable or ask for its supplied face again; remaining work is shared response machinery and explicit bounded policy. No deck quantities or weather-copy distribution follow from these displayed samples."
+  ],
+  "implementationCheckpoint": {
+    "date": "2026-11-05",
+    "branch": "codex/legendary-bird-events",
+    "specification": "gameplay-milestone-33.md",
+    "effectStatusByEvent": {
+      "moltres-trial": "combat-preview",
+      "zapdos-punishment": "combat-preview",
+      "articuno-protection": "reference-only"
+    },
+    "retailManifestVerified": false
+  }
+}

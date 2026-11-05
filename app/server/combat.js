@@ -137,6 +137,11 @@ function advanceJudgment(room,ctx) {
   continueJudgment(room,ctx,continuation,card.weather);
 }
 function continueJudgment(room,ctx,next,weather) {
+  if(next.kind==='zapdos') {
+    const resolution=room.resolution,owner=activeOwner(room,next.targetId);
+    if(weather==='thunderstorm'&&resolution?.kind==='event'&&resolution.eventType==='zapdos-punishment'&&owner&&owner.active.instanceId===resolution.targetCreatureId&&currentHp(owner.active,ctx.catalogue)>0)return settleEventDamage(room,ctx,owner.active.level);
+    return nextSettlement(room,ctx);
+  }
   if(next.kind==='water-absorb') {
     const owner=activeOwner(room,next.pokemonId);
     if(owner&&battleTraitsEffective(room,owner.active)) {
@@ -667,6 +672,8 @@ function toolActions(room,player,catalogue,own) {
 }
 // Reviewed O03 and Master Edition video event faces; retail quantities stay gated.
 const reviewedEvents={
+  'moltres-trial':{name:{zh:'火焰鸟的试炼',en:"Moltres’s Trial"},description:{zh:'从下一位训练家起依次结算其他训练家的出战宝可梦；打出一张接招吧！，否则受到火焰鸟造成的2点伤害。',en:'Resolve other active Pokémon, starting with the next trainer. Play one actual command card response or receive 2 damage from Moltres.'}},
+  'zapdos-punishment':{name:{zh:'闪电鸟的惩戒',en:"Zapdos’s Punishment"},description:{zh:'从下一位训练家开始，依次结算所有出战宝可梦（你最后）。目标训练家判定，雷雨时受到闪电鸟造成的等同于目标等级的伤害。',en:'Starting with the next trainer and ending with you, every active Pokémon’s trainer judges. Thunderstorm causes damage from Zapdos equal to that target’s level.'}},
   'jigglypuff-performance':{targeting:'single',name:{zh:'胖丁的表演',en:"Jigglypuff’s Performance"},description:{zh:'选择一只出战宝可梦；其训练家进行判定，结果不为雷雨时，目标陷入睡眠。',en:'Choose one active Pokémon. Its trainer judges; any result other than thunderstorm puts the target to Sleep.'}},
   'mr-mime-trick':{targeting:'single',name:{zh:'魔墙人偶的戏法',en:"Mr. Mime’s Trick"},description:{zh:'选择距离范围内的其他出战宝可梦，获得其训练家的一张手牌或其携带的持有物。',en:'Choose another active Pokémon within range and take one card from its trainer’s hand or its held item.'}},
   'mewtwo-threat':{name:{zh:'超梦的威压',en:"Mewtwo's Threat"},description:{zh:'从下一位训练家起依次结算所有其他训练家的出战宝可梦；打出一张快躲开！，否则受到超梦造成的2点伤害。',en:'Resolve every other active Pokémon, starting with the next trainer. Play one actual Dodge response or receive 2 damage from Mewtwo.'}},
@@ -675,9 +682,10 @@ const reviewedEvents={
 function eventTargets(room,player,eventType) {
   const seats=live(room),index=seats.findIndex(seat=>seat.id===player.id);
   const ordered=[...seats.slice(index),...seats.slice(0,index)];
+  if(eventType==='zapdos-punishment')ordered.push(ordered.shift());
   const ranged=eventType==='mr-mime-trick';
   const inRange=ranged?eligibleTargetIds(room.players,player.id,{ignoreDistance:cardDistanceIgnored(room,player)||battleReinforcementEffective(room,player.active,'speed')}):null;
-  return ordered.filter(seat=>(!['mewtwo-threat','mr-mime-trick'].includes(eventType)||seat.id!==player.id)&&seat.active&&!seat.active.defeated&&battleEventTargetAllowed(room,seat.active,reviewedEvents[eventType].name.zh)&&(!ranged||inRange.includes(seat.id)));
+  return ordered.filter(seat=>(!['mewtwo-threat','moltres-trial','mr-mime-trick'].includes(eventType)||seat.id!==player.id)&&seat.active&&!seat.active.defeated&&battleEventTargetAllowed(room,seat.active,reviewedEvents[eventType].name.zh)&&(!ranged||inRange.includes(seat.id)));
 }
 function eventActions(room,player,own) {
   return [...new Set(player.hand.filter(card=>card.kind==='event'&&Object.hasOwn(reviewedEvents,card.eventType)).map(card=>card.eventType))].map(eventType=>{
@@ -699,7 +707,7 @@ export function useBattleEvent(room,player,input,ctx) {
   if(mime)requireRule(descriptor.choices.some(choice=>choice.effect===input.effect&&choice.targetIds.includes(input.targetId)),'INVALID_EVENT_CHOICE','Choose a legal hand-card or held-item gain.');
   const targets=eventTargets(room,player,selected.eventType).filter(target=>!single||target.id===input.targetId);
   player.hand.splice(player.hand.indexOf(selected),1);
-  room.resolution={kind:'event',card:selected,eventType:selected.eventType,eventName:reviewedEvents[selected.eventType].name,sourceId:null,sourcePlayerId:null,actorPlayerId:player.id,actorCreatureId:player.active.instanceId,...(mime?{eventEffect:input.effect}:{}),...(selected.eventType==='mewtwo-threat'?{externalSource:{kind:'external-pokemon',name:{zh:'超梦',en:'Mewtwo'}}}:{}),targetIds:targets.map(seat=>seat.id),targetInstances:Object.fromEntries(targets.map(seat=>[seat.id,seat.active.instanceId])),index:0,damagedIds:[],defenseIds:[],actualDamage:0};
+  room.resolution={kind:'event',card:selected,eventType:selected.eventType,eventName:reviewedEvents[selected.eventType].name,sourceId:null,sourcePlayerId:null,actorPlayerId:player.id,actorCreatureId:player.active.instanceId,...(mime?{eventEffect:input.effect}:{}),...(['mewtwo-threat','moltres-trial','zapdos-punishment'].includes(selected.eventType)?{externalSource:{kind:'external-pokemon',name:selected.eventType==='moltres-trial'?{zh:'火焰鸟',en:'Moltres'}:selected.eventType==='zapdos-punishment'?{zh:'闪电鸟',en:'Zapdos'}:{zh:'超梦',en:'Mewtwo'}}}:{}),targetIds:targets.map(seat=>seat.id),targetInstances:Object.fromEntries(targets.map(seat=>[seat.id,seat.active.instanceId])),index:0,damagedIds:[],defenseIds:[],actualDamage:0};
   note(room,`使用${reviewedEvents[selected.eventType].name.zh}。`,`Used ${reviewedEvents[selected.eventType].name.en}.`);
   openDefense(room,ctx);
 }
@@ -712,6 +720,7 @@ function openEventTarget(room,ctx) {
       delete resolution.incomingDamage;delete resolution.modifierState;delete resolution.receivingEffects;delete resolution.helmetCardId;
       resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.staticDone=false;
       if(!battleEventTargetAllowed(room,target,resolution.eventName.zh)){resolution.index++;continue;}
+      if(resolution.eventType==='zapdos-punishment')return startJudgment(room,ctx,{kind:'zapdos',targetId:target.instanceId},owner.id);
       if(resolution.eventType==='jigglypuff-performance')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'sleep',weather:'thunderstorm',comparison:'not',next:'settlement'},owner.id);
       if(resolution.eventType==='mr-mime-trick') {
         const actor=trainer(room,resolution.actorPlayerId);
@@ -729,7 +738,7 @@ function openEventTarget(room,ctx) {
         }
         return nextSettlement(room,ctx);
       }
-      decision(room,resolution.eventType==='mewtwo-threat'?'event-dodge':'mew-blessing',owner.id,owner.id,ctx);
+      decision(room,resolution.eventType==='moltres-trial'?'event-command':resolution.eventType==='mewtwo-threat'?'event-dodge':'mew-blessing',owner.id,owner.id,ctx);
       Object.assign(room.pendingBattle,{eventType:resolution.eventType,eventName:resolution.eventName,targetCreatureId:target.instanceId,...(resolution.externalSource?{damage:2,source:resolution.externalSource}:{choices:['heal',...(target.level<3?['evolve']:[])]})});
       return;
     }
@@ -737,9 +746,9 @@ function openEventTarget(room,ctx) {
   }
   finishResolution(room,ctx);
 }
-function settleEventDamage(room,ctx) {
+function settleEventDamage(room,ctx,base=2) {
   const target=creature(room,room.resolution.targetCreatureId);
-  const amount=damageImmune(room,target)?0:computeDamage(null,target,2,ctx.catalogue,damageOptions(room,null,target,{command:false,channel:'event',receiving:!hasShedSkin(room,target)}));
+  const amount=damageImmune(room,target)?0:computeDamage(null,target,base,ctx.catalogue,damageOptions(room,null,target,{command:false,channel:'event',receiving:!hasShedSkin(room,target)}));
   receiveDamage(room,ctx,amount);
 }
 export function useBattleTool(room,player,input,ctx) {
@@ -1016,7 +1025,7 @@ function commitDamage(room,ctx,amount) {
   resolution.actualDamage = amount;
   if (amount > 0) resolution.damagedIds.push(target.instanceId);
   if (amount > 0 && resolution.kind!=='turn-start' && battleReinforcementEffective(room,target, 'defense')) resolution.defenseIds.push(target.instanceId);
-  const labels=resolution.kind==='item'?['凸凸头盔','Rocky Helmet']:resolution.kind==='turn-start'?['特殊状态','The special status']:resolution.kind==='event'?['超梦','Mewtwo']:['招式','The move'];
+  const labels=resolution.kind==='item'?['凸凸头盔','Rocky Helmet']:resolution.kind==='turn-start'?['特殊状态','The special status']:resolution.kind==='event'?[resolution.externalSource?.name.zh||'事件',resolution.externalSource?.name.en||'The event']:['招式','The move'];
   note(room, `${labels[0]}造成${amount}点伤害。`, `${labels[1]} dealt ${amount} damage.`);
   if (result.fainting) beginRescue(room, room.players.find(p=>p.active?.instanceId===target.instanceId).id, ctx);
   else afterDamage(room, ctx);
@@ -1193,22 +1202,23 @@ export function respondBattle(room,player,input,ctx) {
     note(room,'魔墙人偶的戏法获得目标训练家的一张手牌。','Mr. Mime’s Trick took one card from the target trainer’s hand.');
     return nextSettlement(room,ctx);
   }
-  if(['event-dodge','mew-blessing'].includes(pending.kind)) {
+  if(['event-dodge','event-command','mew-blessing'].includes(pending.kind)) {
     const resolution=room.resolution,target=player.active;
     requireRule(resolution?.kind==='event'&&resolution.targetIds[resolution.index]===player.id&&target&&!target.defeated&&currentHp(target,ctx.catalogue)>0&&target.instanceId===resolution.targetInstances[player.id]&&target.instanceId===pending.targetCreatureId,'STALE_DECISION','The event target changed.');
-    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice',...(pending.kind==='event-dodge'?['cardId']:[])].includes(key)),'INVALID_RESPONSE','This event does not accept extra response fields.');
+    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice',...(['event-dodge','event-command'].includes(pending.kind)?['cardId']:[])].includes(key)),'INVALID_RESPONSE','This event does not accept extra response fields.');
     if(pending.kind==='mew-blessing') {
       requireRule(['heal','evolve'].includes(input.choice)&&(input.choice!=='evolve'||target.level<3),'INVALID_RESPONSE','Choose healing or an available level increase.');
       if(input.choice==='heal')heal(target,2,ctx.catalogue);else target.level++;
       note(room,input.choice==='heal'?'梦幻的祝福回复目标至多2点体力。':'梦幻的祝福令目标升1级。',input.choice==='heal'?"Mew’s Blessing restored up to 2 HP.":"Mew’s Blessing raised the target by one level.");
       return nextSettlement(room,ctx);
     }
-    requireRule(['pass','dodge'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Play one actual Dodge card, or pass without a card.');
-    if(input.choice==='dodge') {
-      const index=player.hand.findIndex(card=>card.id===input.cardId&&card.kind==='dodge');
-      requireRule(typeof input.cardId==='string'&&index>=0,'INVALID_CARD','This event requires an actual Dodge card response.');
+    const responseKind=pending.kind==='event-command'?'command':'dodge';
+    requireRule(['pass',responseKind].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Play the required actual card response, or pass without a card.');
+    if(input.choice===responseKind) {
+      const index=player.hand.findIndex(card=>card.id===input.cardId&&card.kind===responseKind);
+      requireRule(typeof input.cardId==='string'&&index>=0,'INVALID_CARD','Choose an actual required response card from your hand.');
       room.discardPile.push(...player.hand.splice(index,1));
-      note(room,'打出快躲开！抵消超梦对此目标的伤害。','A played Dodge response canceled Mewtwo’s damage to this target.');
+      note(room,responseKind==='command'?'打出接招吧！抵消火焰鸟对此目标的伤害。':'打出快躲开！抵消超梦对此目标的伤害。',responseKind==='command'?'A played command response canceled Moltres’s damage to this target.':'A played Dodge response canceled Mewtwo’s damage to this target.');
       return nextSettlement(room,ctx);
     }
     room.pendingBattle=null;return settleEventDamage(room,ctx);

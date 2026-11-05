@@ -1,4 +1,12 @@
-## Jigglypuff and Mr. Mime events — 2026-11-05 (current)
+## Moltres and Zapdos events — 2026-11-05 (current)
+
+**1,141/1,141 tests pass** (1,099 baseline +42 independent cases). Moltres's Trial / 火焰鸟的试炼 resolves other original actives in next-trainer-first order: play one actual command response or receive2 from external Moltres. Zapdos's Punishment / 闪电鸟的惩戒 judges all original actives from next trainer through user last; final thunderstorm deals current target-level damage from external Zapdos. Shared receiving effects/rescue/Synchronize, strict payloads and bilingual native controls remain. All40 Pokémon groups/120 faces and6 event types execute in combat preview.
+
+Project C:\src\team-rocket-web, app app/. Branch codex/legendary-bird-events fromc8b2aed. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/legendary-bird-events . Main4173 restarted with current code/saved rooms retained; isolated QA4174 stopped. No PR/merge/hosting. Accepted arena/native cards/centered hover/identity-first unique setup preserved. No CSS, asset downloads or production deck changes.
+
+Read gameplay-milestone-33.md and reviewed-legendary-bird-events.md/json. Articuno's Protection is fully source-reviewed and reference-only: implement its shared before-one-event-target cancellation and after-actual-status-gain cure windows coherently across all applicable effects. Do not request the source again, create an ordinary Play cure or infer a counter-counter rule from other games. Retail quantity/weather gates remain false; production still six command/six Dodge per seat, all intense sun. Next: Articuno reaction pipeline, then other remaining events, reinforcement tools, held items and Revive. Earlier checkpoints below are historical.
+
+## Jigglypuff and Mr. Mime events — 2026-11-05 (historical)
 
 **1,099/1,099 tests pass** (1,055 baseline +44 independent cases). Jigglypuff's Performance targets one active, makes its trainer judge, and applies Sleep on a real result other than thunderstorm through Drought/status-immunity/Poison Touch rules. Mr. Mime's Trick targets another active within card range and obtains one hidden hand card OR its actual held item into hand, including Pickup and item-loss Defiant. Native single-target/effect dialogs retain bilingual drafts; private card selection shows only shuffled backs. All40 Pokémon groups/120 faces remain supported;4 event types now execute in combat preview.
 
