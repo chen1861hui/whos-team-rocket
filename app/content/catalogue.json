@@ -13104,6 +13104,161 @@
       }
     },
     {
+      "id": "defense-speed-preview",
+      "name": {
+        "zh": "防御强化 / 速度强化",
+        "en": "Defense Boost / Speed Boost"
+      },
+      "displayLabel": {
+        "zh": "防御强化 / 速度强化",
+        "en": "Defense Boost / Speed Boost"
+      },
+      "sourceFilename": "share_d5d99ad9094dafd0a484315a59b80816.png",
+      "editionConfidence": "supplied-older-sheet",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
+      "splitEffect": true,
+      "effectHeadings": [
+        {
+          "zh": "防御强化",
+          "en": "Defense Boost"
+        },
+        {
+          "zh": "速度强化",
+          "en": "Speed Boost"
+        }
+      ],
+      "effectText": {
+        "zh": "在你的出牌阶段对一只没有“防御强化”指示物的出战宝可梦使用。目标宝可梦获得一枚“防御强化”指示物。\n在你的出牌阶段对一只没有“速度强化”指示物的出战宝可梦使用。目标宝可梦获得一枚“速度强化”指示物。",
+        "en": "During Play, give one active Pokémon a Defense Boost marker if it does not already have one.\nDuring Play, give one active Pokémon a Speed Boost marker if it does not already have one."
+      },
+      "effectStatus": "combat-preview",
+      "deckQuantity": null,
+      "engineEligible": false,
+      "asset": {
+        "status": "placeholder",
+        "url": null,
+        "label": {
+          "zh": "图像占位",
+          "en": "Artwork placeholder"
+        }
+      },
+      "toolType": "defense-speed",
+      "observedWeather": [
+        "rain"
+      ],
+      "effectImplementationSpecification": "reviewed-reinforcement-revive.md",
+      "provenance": {
+        "specification": "reviewed-reinforcement-revive.md",
+        "primary": "O03",
+        "retailQuantityVerified": false
+      }
+    },
+    {
+      "id": "power-speed-preview",
+      "name": {
+        "zh": "力量强化 / 速度强化",
+        "en": "Power Boost / Speed Boost"
+      },
+      "displayLabel": {
+        "zh": "力量强化 / 速度强化",
+        "en": "Power Boost / Speed Boost"
+      },
+      "sourceFilename": "share_d5d99ad9094dafd0a484315a59b80816.png",
+      "editionConfidence": "supplied-older-sheet-current-video-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
+      "splitEffect": true,
+      "effectHeadings": [
+        {
+          "zh": "力量强化",
+          "en": "Power Boost"
+        },
+        {
+          "zh": "速度强化",
+          "en": "Speed Boost"
+        }
+      ],
+      "effectText": {
+        "zh": "在你的出牌阶段对一只没有“力量强化”指示物的出战宝可梦使用。目标宝可梦获得一枚“力量强化”指示物。\n在你的出牌阶段对一只没有“速度强化”指示物的出战宝可梦使用。目标宝可梦获得一枚“速度强化”指示物。",
+        "en": "During Play, give one active Pokémon a Power Boost marker if it does not already have one.\nDuring Play, give one active Pokémon a Speed Boost marker if it does not already have one."
+      },
+      "effectStatus": "combat-preview",
+      "deckQuantity": null,
+      "engineEligible": false,
+      "asset": {
+        "status": "placeholder",
+        "url": null,
+        "label": {
+          "zh": "图像占位",
+          "en": "Artwork placeholder"
+        }
+      },
+      "toolType": "power-speed",
+      "observedWeather": [
+        "clear",
+        "rain"
+      ],
+      "effectImplementationSpecification": "reviewed-reinforcement-revive.md",
+      "provenance": {
+        "specification": "reviewed-reinforcement-revive.md",
+        "primary": "O03",
+        "retailQuantityVerified": false,
+        "corroboration": "frame-20m25s-power-speed.jpg"
+      }
+    },
+    {
+      "id": "potion-revive-preview",
+      "name": {
+        "zh": "伤药 / 活力碎片",
+        "en": "Potion / Revive"
+      },
+      "displayLabel": {
+        "zh": "伤药 / 活力碎片",
+        "en": "Potion / Revive"
+      },
+      "sourceFilename": "share_d5d99ad9094dafd0a484315a59b80816.png",
+      "editionConfidence": "supplied-older-sheet",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
+      "splitEffect": true,
+      "effectHeadings": [
+        {
+          "zh": "伤药",
+          "en": "Potion"
+        },
+        {
+          "zh": "活力碎片",
+          "en": "Revive"
+        }
+      ],
+      "effectText": {
+        "zh": "你选择一项：1.在你的出牌阶段对一只已受伤的出战或备战宝可梦使用，目标宝可梦回复2点体力；2.在一只宝可梦昏厥结算中对其使用，目标宝可梦回复2点体力。\n在你的出牌阶段对一名未退场的训练家的一只已失去战斗能力的宝可梦使用。目标宝可梦回复体力至2点并恢复战斗能力。",
+        "en": "During Play, heal one injured active or reserve Pokémon by 2 HP, or restore 2 HP to a Pokémon during its fainting settlement.\nDuring Play, restore a defeated Pokémon of a trainer still in the battle to fighting condition at 2 HP."
+      },
+      "effectStatus": "combat-preview",
+      "deckQuantity": null,
+      "engineEligible": false,
+      "asset": {
+        "status": "placeholder",
+        "url": null,
+        "label": {
+          "zh": "图像占位",
+          "en": "Artwork placeholder"
+        }
+      },
+      "toolType": "potion-revive",
+      "observedWeather": [
+        "clear"
+      ],
+      "effectImplementationSpecification": "reviewed-reinforcement-revive.md",
+      "provenance": {
+        "specification": "reviewed-reinforcement-revive.md",
+        "primary": "O03",
+        "retailQuantityVerified": false
+      }
+    },
+    {
       "id": "mewtwo-threat-preview",
       "name": {
         "zh": "超梦的威压",

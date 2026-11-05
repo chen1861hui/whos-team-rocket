@@ -685,6 +685,14 @@ const rescueOwnerOnly=room=>[room.resolution,...(room.resolutionStack||[])].some
 // A fainting active still has its trait until formal defeat; reserves do not.
 const hasHealer=(room,owner)=>Boolean(owner&&!owner.eliminated&&owner.active?.catalogueId==='chansey'&&battleTraitsEffective(room,owner.active));
 const potionChoice={effect:'potion',name:{zh:'伤药',en:'Potion'},description:{zh:'出牌阶段令一只已受伤的出战或备战宝可梦回复2点体力；昏厥结算中可救援目标并回复2点体力。',en:'During Play, restore 2 HP to an injured active or reserve Pokémon; during fainting settlement, restore 2 HP to that target.'}};
+const reinforcementNames={power:{zh:'力量强化',en:'Power Boost'},defense:{zh:'防御强化',en:'Defense Boost'},speed:{zh:'速度强化',en:'Speed Boost'}};
+function reinforcementChoice(effect) {
+  const name=reinforcementNames[effect];
+  return {effect,name,description:{
+    zh:`在你的出牌阶段，令一只没有${name.zh}指示物的出战宝可梦获得一枚该指示物。`,
+    en:`During Play, give one active Pokémon a ${name.en} marker if it does not already have one.`
+  }};
+}
 // One physical split card supplies two alternatives; only one executes. These
 // readable tool faces impose no distance restriction (booklet p07 is conditional).
 const splitTools=[
@@ -692,20 +700,26 @@ const splitTools=[
     potionChoice,
     {effect:'full-heal',name:{zh:'万灵药',en:'Full Heal'},description:{zh:'在你的出牌阶段，对一只处于特殊状态的出战或备战宝可梦使用，恢复其特殊状态。',en:'During your Play phase, cure one active or reserve Pokémon’s special status.'}},
   ]},
-  {toolType:'potion-revive',choices:[potionChoice,{effect:'revive',name:{zh:'活力碎片',en:'Revive'},description:{zh:'复活效果尚未实现。',en:'Revival is not implemented yet.'},unavailableReason:{zh:'复活效果尚未实现。',en:'Revival is not implemented yet.'}}]},
+  {toolType:'potion-revive',choices:[potionChoice,{effect:'revive',name:{zh:'活力碎片',en:'Revive'},description:{zh:'在你的出牌阶段，令一名未退场训练家的已失去战斗能力的宝可梦恢复战斗能力，体力回复至2点。',en:'During Play, restore a defeated Pokémon of a trainer still in the battle to fighting condition at 2 HP.'}}]},
   {toolType:'rare-candy-nugget',choices:[
     {effect:'rare-candy',name:{zh:'神奇糖果',en:'Rare Candy'},description:{zh:'在你的出牌阶段，使一只不处于等级3的出战宝可梦提升一个等级。',en:'During your Play phase, raise one active Pokémon below level 3 by one level.'}},
     {effect:'nugget',targeting:'trainer',name:{zh:'金珠',en:'Nugget'},description:{zh:'在你的出牌阶段，对一名训练家使用，令其摸两张牌。',en:'During your Play phase, one trainer draws two cards.'}},
   ]},
+  {toolType:'defense-speed',choices:['defense','speed'].map(reinforcementChoice)},
+  {toolType:'power-speed',choices:['power','speed'].map(reinforcementChoice)},
 ];
 function toolTargets(room,player,catalogue,effect) {
   if(effect==='nugget')return live(room).map(owner=>({targetId:owner.id}));
-  if(!['potion','full-heal','rare-candy'].includes(effect))return [];
+  if(Object.hasOwn(reinforcementNames,effect))return live(room)
+    .filter(({active})=>active&&!active.defeated&&currentHp(active,catalogue)>0&&!active.reinforcements?.includes(effect))
+    .map(owner=>({targetId:owner.id,slot:'active'}));
+  if(!['potion','full-heal','rare-candy','revive'].includes(effect))return [];
   return live(room).flatMap(owner=>['active','reserve'].flatMap(slot=>{
     const pokemon=owner[slot];
     // No current status source reaches an unrevealed opposing reserve. Never
     // query its hidden state; future reserve-status effects need a reveal flow.
     if(slot==='reserve'&&owner.id!==player.id&&!pokemon?.revealed)return [];
+    if(effect==='revive')return pokemon?.defeated?[{targetId:owner.id,slot}]:[];
     if(!pokemon||pokemon.defeated||currentHp(pokemon,catalogue)<=0)return [];
     const legal=effect==='potion'?(pokemon.damage||0)>0:effect==='full-heal'?Boolean(pokemon.status):slot==='active'&&pokemon.level<3;
     return legal?[{targetId:owner.id,slot}]:[];
@@ -898,11 +912,23 @@ export function useBattleTool(room,player,input,ctx) {
     if(input.slot==='reserve')pokemon.revealed=true;
     if(input.effect==='potion')heal(pokemon,2,ctx.catalogue);
     else if(input.effect==='full-heal')pokemon.status=null;
-    else pokemon.level++;
+    else if(input.effect==='rare-candy')pokemon.level++;
+    else if(input.effect==='revive') {
+      pokemon.damage=Math.max(0,maxHp(pokemon,ctx.catalogue)-2);
+      pokemon.defeated=false;
+    }else {
+      pokemon.reinforcements??=[];
+      pokemon.reinforcements.push(input.effect);
+    }
   }
   room.discardPile.push(card);
   if(input.effect==='potion')note(room,'伤药回复目标至多2点体力；整张组合道具牌已弃置。','Potion restored up to 2 HP; the entire split tool was discarded.');
   else if(input.effect==='nugget')note(room,`金珠令目标训练家摸了${drawn}张牌；整张组合道具牌已弃置。`,`Nugget let the target trainer draw ${drawn} card${drawn===1?'':'s'}; the entire split tool was discarded.`);
+  else if(input.effect==='revive')note(room,'活力碎片恢复目标的战斗能力，体力回复至2点。','Revive restored the defeated Pokémon to fighting condition at 2 HP.');
+  else if(Object.hasOwn(reinforcementNames,input.effect)) {
+    const name=reinforcementNames[input.effect];
+    note(room,`目标宝可梦获得一枚${name.zh}指示物。`,`The target Pokémon gained one ${name.en} marker.`);
+  }
   else note(room,input.effect==='full-heal'?'使用万灵药恢复目标的特殊状态；整张组合道具牌已弃置。':'使用神奇糖果使目标提升一个等级；整张组合道具牌已弃置。',input.effect==='full-heal'?'Full Heal cured the target’s special status; the entire split tool was discarded.':'Rare Candy raised the target by one level; the entire split tool was discarded.');
 }
 function battleMoves(room,pokemon,catalogue) {

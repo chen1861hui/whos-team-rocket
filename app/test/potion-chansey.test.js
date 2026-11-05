@@ -60,8 +60,41 @@ const untilActor = (f, who) => { for (let i = 0; f.room().pendingBattle?.kind ==
 const start = (f, who = f.leader) => f.store.startTurn(f.room(), who.playerId, f.room().turn.number + 1);
 const drawToPlay = f => { while (f.room().turn.drawRemaining) f.act(f.leader, 'draw'); };
 
-test('Potion descriptors enable both physical Potion pairs and keep Revive unavailable', t => {
-  const f = fixture(t); f.play(); f.player(f.target).active.damage = 1; tool(f); tool(f, f.leader, 'potion-revive'); const tools = f.view(f.leader).self.battle.tools; for (const toolType of ['potion-full-heal', 'potion-revive']) { const entry = tools.find(tool => tool.toolType === toolType); assert.ok(entry); const choice = entry.choices.find(choice => choice.effect === 'potion'); assert.equal(choice.unavailableReason, undefined); assert.ok(choice.targets.some(target => target.targetId === f.target.playerId && target.slot === 'active')); } const revive = tools.find(tool => tool.toolType === 'potion-revive').choices.find(choice => choice.effect === 'revive'); assert.ok(revive.unavailableReason); assert.deepEqual(revive.targets, []);
+test('Potion works on both pairs and Revive requires a formally defeated target', t => {
+  const f = fixture(t); f.play(); f.player(f.target).active.damage = 1; tool(f); tool(f, f.leader, 'potion-revive'); const tools = f.view(f.leader).self.battle.tools; for (const toolType of ['potion-full-heal', 'potion-revive']) { const entry = tools.find(tool => tool.toolType === toolType); assert.ok(entry); const choice = entry.choices.find(choice => choice.effect === 'potion'); assert.equal(choice.unavailableReason, undefined); assert.ok(choice.targets.some(target => target.targetId === f.target.playerId && target.slot === 'active')); } const revive = tools.find(tool => tool.toolType === 'potion-revive').choices.find(choice => choice.effect === 'revive'); assert.equal(revive.unavailableReason, undefined); assert.deepEqual(revive.targets, []);
+});
+
+test('Revive restores the formally defeated Pokémon to exactly 2 HP in its reserve slot', t => {
+  const f = fixture(t);
+  f.play();
+  const cardId = tool(f, f.leader, 'potion-revive');
+  rescue(f);
+  const defeatedId = f.player(f.target).active.instanceId;
+  rejectsAtomically(f, () => f.act(f.leader, 'useTool', { cardId, effect: 'revive', targetId: f.target.playerId, slot: 'active' }), 'RESPONSE_PENDING');
+  f.drain();
+  const deployedId = f.player(f.target).active.instanceId;
+  assert.equal(f.player(f.target).reserve.instanceId, defeatedId);
+  assert.equal(f.player(f.target).reserve.defeated, true);
+  f.act(f.leader, 'useTool', { cardId, effect: 'revive', targetId: f.target.playerId, slot: 'reserve' });
+  assert.equal(f.player(f.target).active.instanceId, deployedId);
+  assert.equal(f.player(f.target).reserve.instanceId, defeatedId);
+  const publicReserve = f.view(f.third).players.find(player => player.id === f.target.playerId).reserve;
+  assert.equal(publicReserve.hp, 2);
+  assert.equal(publicReserve.defeated, false);
+  assert.equal(f.room().discardPile.filter(card => card.id === cardId).length, 1);
+  start(f, f.target);
+  while (f.room().turn.drawRemaining) f.act(f.target, 'draw');
+  f.act(f.target, 'switchPokemon');
+  assert.equal(f.player(f.target).active.instanceId, defeatedId);
+});
+
+test('Revive cannot target a defeated Pokémon belonging to an eliminated trainer', t => {
+  const f = fixture(t);
+  f.play();
+  Object.assign(f.player(f.target).reserve, { defeated: true, revealed: true });
+  f.player(f.target).eliminated = true;
+  const cardId = tool(f, f.leader, 'potion-revive');
+  rejectsAtomically(f, () => f.act(f.leader, 'useTool', { cardId, effect: 'revive', targetId: f.target.playerId, slot: 'reserve' }), 'INVALID_TARGET');
 });
 
 test('ordinary Potion heals two capped at full HP and spends either entire physical pair exactly once', t => {

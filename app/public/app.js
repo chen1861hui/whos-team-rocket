@@ -1,5 +1,5 @@
 import {seatLayout} from './battlefield-layout.js';
-import {roleName,statusName,weatherLabel,attackDialog,moveChoiceDialog,eventDialog,toolDialog,vitalSpiritDialog,downloadDialog,giftCardsDialog,equipItemDialog,analyticDialog,recklessDialog,decisionPanel,resultPanel} from './combat-ui.js';
+import {roleName,statusName,weatherLabel,attackDialog,moveChoiceDialog,eventDialog,toolDialog,toolChoiceEnabled,vitalSpiritDialog,downloadDialog,giftCardsDialog,equipItemDialog,analyticDialog,recklessDialog,decisionPanel,resultPanel} from './combat-ui.js';
 const $ = (selector, root = document) => root.querySelector(selector);
 const root = $('#app');
 const strings = {
@@ -49,7 +49,7 @@ const strings = {
   switchConfirm: ['Attempt to switch active and reserve partners? A completed switch reveals the incoming partner and uses your one ordinary switch this play phase. Arena Trap may require a hand-card discard or cancel the switch.', '尝试交替出场与备战搭档？交替成功后，新出场搭档将公开，并用掉本出牌阶段的一次普通交替。沙穴可能要求弃置手牌，否则取消交替。'],
   switchHelp: ['Switch once this play phase, or finish playing. Card effects remain unavailable.', '本出牌阶段可交替一次，或完成出牌阶段。卡牌效果仍不可用。'],
   switchUsedHelp: ['Ordinary switching is used. Finish playing to continue.', '本阶段已进行普通交替，可完成出牌阶段继续。'],
-  publicReserve: ['Revealed reserve', '已公开备战'], switchUnavailable: ['Switching needs an active and reserve partner.', '交替需要出场与备战搭档。'],
+  publicReserve: ['Revealed reserve', '已公开备战'], defeatedPokemon: ['Defeated', '失去战斗能力'], switchUnavailable: ['Switching needs an active and reserve partner.', '交替需要出场与备战搭档。'],
   identity:['Your identity','你的身份'], identityStep:['1 · Identities','1 · 分配身份'], pokemonStep:['2 · Pokémon selection','2 · 选择宝可梦'], identityTitle:['Discover your identity','查看你的身份'], identityHelp:['Everyone views their identity before any Pokémon are drawn. Only the Gym Leader is public.','所有人查看身份后才会摸取宝可梦，仅道馆馆主身份公开。'], identitySeen:['I’ve seen my identity','我已查看身份'], identityWaiting:['Waiting for the other trainers to view their identities.','等待其他训练家查看身份。'], identityProgress:['Identities viewed','已查看身份'], drawPokemon:['Draw one Pokémon','摸取一张宝可梦'], drawPokemonFirst:['Draw all five before choosing','先摸齐五张再选择'], cardsDrawn:['Pokémon drawn','已摸取宝可梦'], unseenCandidate:['Undrawn Pokémon','未摸取宝可梦'], selectionProgress:['Partners locked','已确认搭档'], effectsPending:['Battle effects pending','战斗效果待实现'],
   hoverPokemonHint:['Hover for levels · Click for details','悬停看等级 · 点击看详情'], levelPreviewHelp:['Click a level for full details','点击等级卡查看完整详情'], inspectLevel:['View details','查看详情'],
   inspectPokemon:['Levels & abilities','等级与技能'], traitLabel:['Ability','特性'], movesLabel:['Moves','招式'], movesPending:['Move text has not been reviewed yet.','招式文本尚待复核。'], evolutionLine:['Evolution line','进化路线'], abilityHelp:['Choose a level to view its form, HP, ability and moves.','选择等级，查看形态、体力、特性与招式。'],
@@ -509,8 +509,15 @@ function renderBattlePreview() {
     el('p',{class:'preview-caption'},t('previewNotice')));
 }
 function privateReserve() {
-  const revealed = Boolean(ownPlayer()?.reserve);
-  return el('div', { class: 'reserve-box' }, el('span', { class: 'private-lock', 'aria-hidden': true }, '◇'), el('div', {}, el('small', {}, t(revealed?'publicReserve':'reserve')), view.self.reserve ? el('button',{type:'button',id:'reserve-details',class:'pokemon-name-button',title:t('inspectPokemon'),onclick:()=>openPokemonDetails(view.self.reserve.catalogueId,view.self.reserve.level,'reserve-details')},`${partnerName(view.self.reserve.catalogueId, view.self.reserve.level)} · ${view.self.reserve.level}`) : el('strong',{},'—'),view.self.reserve?.item?el('small',{},`${t('reserveItem')}: ${localized(view.self.reserve.item.name)}`):null), tag(t(revealed?'publicReserve':'privateBadge'), 'private-tag'));
+  const publicReserve=ownPlayer()?.reserve;
+  const reserve=view.self.reserve;
+  const condition=reserve?.defeated?t('defeatedPokemon'):publicReserve?`${publicReserve.hp}/${publicReserve.maxHp} ${t('hp')}`:null;
+  return el('div', { class: 'reserve-box' }, el('span', { class: 'private-lock', 'aria-hidden': true }, '◇'),
+    el('div', {}, el('small', {}, t(publicReserve?'publicReserve':'reserve')),
+      reserve?el('button',{type:'button',id:'reserve-details',class:'pokemon-name-button',title:t('inspectPokemon'),onclick:()=>openPokemonDetails(reserve.catalogueId,reserve.level,'reserve-details')},`${partnerName(reserve.catalogueId,reserve.level)} · ${reserve.level}`):el('strong',{},'—'),
+      condition?el('small',{},condition):null,
+      reserve?.item?el('small',{},`${t('reserveItem')}: ${localized(reserve.item.name)}`):null),
+    tag(t(publicReserve?'publicReserve':'privateBadge'), 'private-tag'));
 }
 function handPanel() {
   const canDiscard = myTurn() && turnPhase() === 'discard' && view.self.hand.length > ownHandLimit();
@@ -524,8 +531,8 @@ function handPanel() {
       return commandMoves.length===1?button('playMove',()=>attackDialog(card,combatKit(),move.index),'button card-play',blocked):el('button',{type:'button',class:'button card-play',disabled:busy||blocked,onclick:()=>attackDialog(card,combatKit(),move.index)},`${language==='zh'?'使用':'Use '}${localized(move.name)}`);
     }):null;
     const weatherUses=chooseMove?[]:weatherMoves.map(move=>el('button',{type:'button',class:'button card-play',disabled:busy||!move.canUse,onclick:()=>attackDialog(card,combatKit(),move.index)},`${language==='zh'?'使用':'Use '}${localized(move.name)}`));
-    const tool=card.kind==='tool'&&['potion-full-heal','potion-revive','rare-candy-nugget'].includes(card.toolType)?view.self.battle?.tools?.find(tool=>tool.toolType===card.toolType):null;
-    const toolUse=tool?el('button',{type:'button',class:'button card-play',id:`use-tool-${card.id}`,disabled:busy||!myTurn()||turnPhase()!=='play'||!tool.choices.some(choice=>['potion','full-heal','rare-candy','nugget'].includes(choice.effect)&&choice.targets?.length),onclick:()=>toolDialog(card,combatKit())},language==='zh'?'使用道具':'Use tool'):null;
+    const tool=card.kind==='tool'?view.self.battle?.tools?.find(tool=>tool.toolType===card.toolType):null;
+    const toolUse=tool?el('button',{type:'button',class:'button card-play',id:`use-tool-${card.id}`,disabled:busy||!myTurn()||turnPhase()!=='play'||!tool.choices.some(toolChoiceEnabled),onclick:()=>toolDialog(card,combatKit())},language==='zh'?'使用道具':'Use tool'):null;
     const event=card.kind==='event'?view.self.battle?.events?.find(event=>event.eventType===card.eventType):null;
     const eventUse=event?el('button',{type:'button',class:'button card-play',id:`use-event-${card.id}`,disabled:busy||!myTurn()||turnPhase()!=='play'||!event.canUse,onclick:()=>eventDialog(card,combatKit())},language==='zh'?'使用事件':'Use event'):null;
     cards.append(el('article', { class: 'hand-card' }, el('div', { class: 'hand-card-symbol', 'aria-hidden': true }, card.kind==='dodge'?'◇':'✦'), el('span', { class: 'hand-card-number' }, String(index + 1).padStart(2, '0')), el('strong', {}, localized(card.name)), card.kind==='held-item'&&card.itemType==='rocky-helmet'?button('equipItem',()=>equipItemDialog(card,combatKit()),'button card-play',!view.self.battle?.canEquip):null, card.weather?el('small',{class:'hand-card-weather'},weatherLabel(card.weather,language)):null, use, weatherUses, toolUse, eventUse, button('discard', () => action('discard', { cardId: card.id }), 'button card-discard', !canDiscard, { id: `discard-${card.id}` })));

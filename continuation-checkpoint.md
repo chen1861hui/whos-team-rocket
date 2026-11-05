@@ -1,4 +1,12 @@
-## Remaining event cards — 2026-11-05 (current)
+## Reinforcement tools and Revive — 2026-11-05 (current)
+
+Defense Boost / Speed Boost, Power Boost / Speed Boost, and Potion / Revive now resolve through the split-tool picker. A reinforcement half adds one missing marker to a living active Pokémon. Revive restores a formally defeated Pokémon of a trainer still in battle to 2 HP in its current slot. Each use spends the whole physical pair.
+
+All 1,203 tests passed, including five new cases. In browser QA, the arena displayed all three markers and the defeated reserve recovered to 2 HP. See [the source and implementation notes](reviewed-reinforcement-revive.md). The review branch is `codex/remaining-split-tools`. Tests used isolated card fixtures. Retail quantities by card and weather remain unverified.
+
+Next are the remaining held items. Use the saved card faces and build on the existing Rocky Helmet, held-item suppression, and loss rules.
+
+## Remaining event cards — 2026-11-05 (historical)
 
 All ten catalogued event cards resolve in combat preview. Rival’s Challenge alternates actual command responses, Berry Harvest offers a public draft in seat order, and Farfetch’d’s Prank discards a hidden hand card, a held item, or one reinforcement marker. Each uses the existing Articuno window. The full suite passed 1,198 tests, including nine focused cases. A browser run exercised all three cards with three trainers and a spectator.
 

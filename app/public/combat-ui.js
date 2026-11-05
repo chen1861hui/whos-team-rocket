@@ -122,13 +122,13 @@ function targetedEventDialog(card,kit) {
     node('p',{class:'muted'},say(language,'Confirming consumes this one physical event card.','确认后消耗这一张实体事件牌。')),node('div',{class:'action-row'},cancel,confirm));
   populateTargets();dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();(effects||targets).focus();
 }
+export const toolChoiceEnabled=choice=>Boolean(choice?.targets?.length&&!choice.unavailableReason);
 export function toolDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number,code=initial.code,selfId=initial.selfId,cardId=card.id,toolType=card.toolType;
-  const recognized=['potion-full-heal','potion-revive','rare-candy-nugget'].includes(toolType);
   const descriptor=current=>current?.self?.battle?.tools?.find(tool=>tool.toolType===toolType);
-  const enabled=choice=>['potion','full-heal','rare-candy','nugget'].includes(choice?.effect)&&Boolean(choice.targets?.length);
+  const enabled=toolChoiceEnabled;
   const tool=descriptor(initial);
-  if(card.kind!=='tool'||!recognized||!tool)return;
+  if(card.kind!=='tool'||!tool)return;
   const draft=privateDecisionDraft({kind:'tool',id:`${turnNumber}:${cardId}`},kit,()=>({effect:'',targetKey:''}));
   if(!tool.choices.some(choice=>choice.effect===draft.effect&&enabled(choice))){draft.effect='';draft.targetKey='';}
   const key=target=>JSON.stringify([target.targetId,target.slot??null]);

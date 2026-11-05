@@ -60,6 +60,46 @@ const choices = (f, toolType = 'potion-full-heal', viewer = f.leader) => f.view(
 const targets = (f, effect = 'full-heal') => choices(f, effect === 'rare-candy' ? 'rare-candy-nugget' : 'potion-full-heal').find(choice => choice.effect === effect)?.targets || [];
 const hasTarget = (f, effect, who, slot = 'active') => targets(f, effect).some(target => target.targetId === who.playerId && target.slot === slot);
 
+test('a reinforcement tool adds one selected marker and consumes both printed options', t => {
+  const f = fixture(t);
+  f.play();
+  const cardId = tool(f, f.leader, 'defense-speed');
+  const target = f.player(f.target).active;
+  target.reinforcements = ['speed'];
+  target.status = 'paralysis';
+  assert.equal(choices(f, 'defense-speed').find(choice => choice.effect === 'speed').targets.some(entry => entry.targetId === f.target.playerId), false);
+  rejectsAtomically(f, () => use(f, cardId, 'speed'), 'INVALID_TARGET');
+  rejectsAtomically(f, () => use(f, cardId, 'power'), 'INVALID_CARD');
+  rejectsAtomically(f, () => use(f, cardId, 'defense', f.target, 'reserve'), 'INVALID_TARGET');
+  use(f, cardId, 'defense');
+  assert.deepEqual(f.player(f.target).active.reinforcements, ['speed', 'defense']);
+  assert.equal(f.room().discardPile.filter(card => card.id === cardId).length, 1);
+  rejectsAtomically(f, () => use(f, cardId, 'speed'), 'INVALID_CARD');
+});
+
+test('Power and Defense gained from tools use the ordinary damage and consumption rules', t => {
+  const f = fixture(t);
+  f.play();
+  use(f, tool(f, f.leader, 'power-speed'), 'power', f.leader);
+  use(f, tool(f, f.leader, 'defense-speed'), 'defense');
+  f.attack();
+  assert.deepEqual(f.player(f.leader).active.reinforcements, []);
+  f.drain();
+  assert.equal(f.player(f.target).active.damage, 1);
+  assert.deepEqual(f.player(f.target).active.reinforcements, []);
+});
+
+test('Speed from either physical pairing extends the active Pokémon’s move range', t => {
+  for (const pair of ['power-speed', 'defense-speed']) {
+    const f = fixture(t, { count: 6 });
+    f.play();
+    const distant = f.room().players[3].id;
+    assert.equal(f.view(f.leader).self.battle.legalTargetIds.includes(distant), false);
+    use(f, tool(f, f.leader, pair), 'speed', f.leader);
+    assert.ok(f.view(f.leader).self.battle.legalTargetIds.includes(distant));
+  }
+});
+
 test('tool projection includes held matching pair types and enables Potion and trainer-targeted Nugget', t => {
   const f = fixture(t); f.play(); assert.deepEqual(f.view(f.leader).self.battle.tools, []); tool(f); assert.equal(f.view(f.leader).self.battle.tools.length, 1); assert.deepEqual(choices(f).map(choice => choice.effect), ['potion', 'full-heal']); const potion = choices(f).find(choice => choice.effect === 'potion'); assert.deepEqual(potion.targets, []); assert.equal(potion.unavailableReason,undefined); tool(f, f.leader, 'rare-candy-nugget'); assert.equal(f.view(f.leader).self.battle.tools.length, 2); assert.deepEqual(choices(f, 'rare-candy-nugget').map(choice => choice.effect), ['rare-candy', 'nugget']); const nugget = choices(f, 'rare-candy-nugget').find(choice => choice.effect === 'nugget'); assert.equal(nugget.targeting, 'trainer'); assert.equal(nugget.unavailableReason, undefined); assert.deepEqual(new Set(nugget.targets.map(target => target.targetId)), new Set(f.seats.map(who => who.playerId))); assert.ok(nugget.targets.every(target => Object.keys(target).length === 1));
   for (const choice of [...choices(f), ...choices(f, 'rare-candy-nugget')]) { assert.ok(choice.name?.zh); assert.ok(choice.name?.en); assert.ok(choice.description?.zh); assert.ok(choice.description?.en); }
