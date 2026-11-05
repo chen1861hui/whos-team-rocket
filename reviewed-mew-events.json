@@ -1,0 +1,224 @@
+{
+  "reviewedAt": "2026-11-04",
+  "reviewStatus": "root-prior-review-and-independent-Sol-saved-source-review",
+  "specification": "reviewed-mew-events.md",
+  "scope": "exact source text plus recommended policies; does not itself enable engine behavior",
+  "sources": [
+    {
+      "id": "O03",
+      "file": "research-assets/user-older-edition-2026-11-04/share_d5d99ad9094dafd0a484315a59b80816.png",
+      "printing": "user-described-older-printing",
+      "dimensions": [
+        1440,
+        1920
+      ],
+      "encodedFormat": "WEBP",
+      "sha256": "71dc0eb1e4dee2ed352e891055b8fd13f4590162cb64d6e1bd4267fd67cdb4b2"
+    },
+    {
+      "id": "BV1juYi6UEkv-Mewtwo",
+      "file": "research-assets/bilibili-BV1juYi6UEkv/frame-24m16s-mewtwo.jpg",
+      "printing": "Master Edition video face",
+      "observedMediaSeconds": 1455.775618,
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "sha256": "8589397655730f674f8205a20f4f4a3407f8a30448fd7d050e0cef149684e46a"
+    },
+    {
+      "id": "BV1juYi6UEkv-Mew",
+      "file": "research-assets/bilibili-BV1juYi6UEkv/frame-24m23s-mew.jpg",
+      "printing": "Master Edition video face",
+      "observedMediaSeconds": 1462.998302,
+      "sourceUrl": "https://www.bilibili.com/video/BV1juYi6UEkv/",
+      "sha256": "f558ab0516631746f209aae2ec9f7a0c5a19d41c235bc46de835c91fd4eb9479"
+    }
+  ],
+  "events": [
+    {
+      "cardType": {
+        "zh": "事件",
+        "en": "Event"
+      },
+      "observedWeather": "clear",
+      "usePhase": "own-play",
+      "engineEligible": false,
+      "effectStatus": "source-reviewed-pending-implementation",
+      "deckQuantity": null,
+      "id": "mewtwo-threat",
+      "name": {
+        "zh": "超梦的威压",
+        "en": "Mewtwo’s Threat"
+      },
+      "effectText": {
+        "zh": "在你的出牌阶段对所有其他训练家的出战宝可梦使用。从你的下一位训练家开始，按行动顺序结算。除非目标宝可梦对应的训练家打出一张【快躲开！】，否则目标宝可梦受到超梦造成的2点伤害。",
+        "en": "During your Play phase, use on all other trainers’ active Pokémon. Starting with the trainer after you, resolve in action order. Unless each target Pokémon’s trainer plays one Dodge!, that target receives 2 damage caused by Mewtwo."
+      },
+      "printed": {
+        "targetScope": "all-other-trainers-active-pokemon",
+        "selfIncluded": false,
+        "reservesIncluded": false,
+        "distanceLimitPrinted": false,
+        "order": "action-order-starting-next-trainer",
+        "response": {
+          "trainer": "target-pokemon-owner",
+          "verbZh": "打出",
+          "cardName": {
+            "zh": "快躲开！",
+            "en": "Dodge!"
+          },
+          "count": 1
+        },
+        "damage": {
+          "amount": 2,
+          "sourceName": {
+            "zh": "超梦",
+            "en": "Mewtwo"
+          }
+        }
+      },
+      "sourceIds": [
+        "O03",
+        "BV1juYi6UEkv-Mewtwo"
+      ],
+      "readingCrops": [
+        {
+          "sourceId": "O03",
+          "xyxy": [
+            1155,
+            900,
+            1405,
+            1025
+          ]
+        },
+        {
+          "sourceId": "BV1juYi6UEkv-Mewtwo",
+          "xyxy": [
+            530,
+            554,
+            767,
+            623
+          ]
+        }
+      ],
+      "recommendedPolicies": {
+        "status": "explicit-conservative-interpretations",
+        "captureOriginalActiveInstances": true,
+        "response": "actual-dodge-card-only; pass or optional expiry takes damage",
+        "useBasedDodgeConversions": false,
+        "useBasedDodgeRestrictionsNotAutomaticallyApplied": true,
+        "externalSource": {
+          "kind": "external-pokemon",
+          "trainerOwner": null,
+          "neverSubstituteEventUser": true
+        },
+        "receivingHooks": [
+          "damage-immunity",
+          "defense",
+          "multiscale",
+          "shed-skin",
+          "marvel-scale",
+          "shared-rescue-defeat-victory",
+          "battle-armor",
+          "water-absorb",
+          "synchronize",
+          "oblivious"
+        ],
+        "externalRecipientHooks": "Do not redirect Static, Poison Point, Rocky Helmet or Cursed Body to the event actor; skip unavailable external recipient/hand interactions.",
+        "cardCleanup": "one physical card after whole queue unless claimed; preserve one-claim identity"
+      }
+    },
+    {
+      "cardType": {
+        "zh": "事件",
+        "en": "Event"
+      },
+      "observedWeather": "clear",
+      "usePhase": "own-play",
+      "engineEligible": false,
+      "effectStatus": "source-reviewed-pending-implementation",
+      "deckQuantity": null,
+      "id": "mew-blessing",
+      "name": {
+        "zh": "梦幻的祝福",
+        "en": "Mew’s Blessing"
+      },
+      "effectText": {
+        "zh": "在你的出牌阶段对所有训练家的出战宝可梦使用。从你开始，按行动顺序结算。目标宝可梦对应的训练家选择一项：\n1.该宝可梦回复2点体力；\n2.该宝可梦升1级。",
+        "en": "During your Play phase, use on all trainers’ active Pokémon. Starting with you, resolve in action order. Each target Pokémon’s trainer chooses one: that Pokémon recovers 2 HP; or that Pokémon rises one level."
+      },
+      "printed": {
+        "targetScope": "all-trainers-active-pokemon",
+        "selfIncluded": true,
+        "reservesIncluded": false,
+        "distanceLimitPrinted": false,
+        "order": "action-order-starting-self",
+        "chooser": "target-pokemon-owner",
+        "choices": [
+          {
+            "kind": "heal",
+            "amount": 2
+          },
+          {
+            "kind": "level-up",
+            "amount": 1
+          }
+        ],
+        "declinePrinted": false,
+        "dodgeResponsePrinted": false,
+        "injuredConditionPrinted": false
+      },
+      "sourceIds": [
+        "O03",
+        "BV1juYi6UEkv-Mew"
+      ],
+      "readingCrops": [
+        {
+          "sourceId": "O03",
+          "xyxy": [
+            1165,
+            1260,
+            1410,
+            1405
+          ]
+        },
+        {
+          "sourceId": "BV1juYi6UEkv-Mew",
+          "xyxy": [
+            565,
+            518,
+            784,
+            613
+          ]
+        }
+      ],
+      "recommendedPolicies": {
+        "status": "explicit-conservative-interpretations",
+        "captureOriginalActiveInstances": true,
+        "healAllowedAtFullHp": true,
+        "healCap": "current maximum HP",
+        "levelUpOnlyBelow": 3,
+        "level3Resolution": "heal option only, including no-op at full HP; do not create level4",
+        "evolutionPreserves": [
+          "instance",
+          "injury-count",
+          "status",
+          "reinforcements",
+          "held-item",
+          "turn-restrictions"
+        ],
+        "entryTriggered": false,
+        "turnEndEvolutionSpent": false,
+        "normalDodgeWindow": false,
+        "cardCleanup": "one physical card after whole queue"
+      }
+    }
+  ],
+  "retailQuantitiesVerified": false,
+  "productionDeckChanged": false,
+  "implementationCheckpoint": {
+    "date": "2026-11-05",
+    "branch": "codex/mew-events",
+    "specification": "gameplay-milestone-31.md",
+    "effectStatus": "combat-preview",
+    "retailManifestVerified": false
+  }
+}

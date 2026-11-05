@@ -1,4 +1,12 @@
-## Potion rescue and Chansey — 2026-11-04 (current)
+## Mewtwo and Mew events — 2026-11-05 (current)
+
+**1,055/1,055 tests pass** (1,010 baseline +45 independent event cases). Mewtwo's Threat / 超梦的威压 targets every other original active in next-trainer-first order, accepts an actual Dodge response or deals2 from external Mewtwo, and preserves receiving effects/rescue/Synchronize. Mew's Blessing / 梦幻的祝福 resolves all original actives self-first; each target trainer must choose capped heal2 or +1level belowLv3. Both have native bilingual confirmation, ordered targets and response controls. All40 Pokémon groups/120 faces remain combat-preview supported.
+
+Project C:\src\team-rocket-web, app app/. Branch codex/mew-events from58a4050. Review: https://github.com/chen1861hui/whos-team-rocket/compare/main...codex/mew-events . Main4173 runs current code with saved rooms retained; isolated QA4174 stopped. Accepted arena/native cards/centered hover/identity-first unique setup preserved. No CSS, downloads, production deck quantities or weather distribution changes. No PR/merge/hosting or repeated unavailable PR access attempt.
+
+Read gameplay-milestone-31.md and reviewed-mew-events.md/json. O03 plus saved Master video24:16/24:23 resolve the old P03 source gap; pending-mewtwo-threat.md is historical. Actual-Dodge-only event response and original-active capture are explicit conservative policies, not additional printed clauses. Mew heal remains legal at fullHP; Lv3 gets heal only. Retail engineEligible gates remain false. Production still uses six command/six Dodge per seat, all intense sun; these events are verified using isolated real-card fixtures. Next cards: remaining saved events (including Jigglypuff/Mr. Mime and the legendary birds), reinforcement tools, remaining held items and Revive. Verify each paragraph and integrate coherent tested slices without repeating discovery. Retail name/pairing × weather copy counts remain the concrete manifest gap. Earlier checkpoints below are historical.
+
+## Potion rescue and Chansey — 2026-11-04 (historical)
 
 **1,010/1,010 tests pass. All 40 reviewed Pokémon groups / 120 faces now execute in combat preview.** Potion restores2 to an injured living active/reserve during Play, or to the original fainting active during rescue. Both Potion/Full Heal and Potion/Revive physical pairings are recognized; Revive itself remains unimplemented. Chansey has active Healer (including self-rescue at0HP), Charm, Life Dew and Lv3 Double-Edge. Negative HP, repeated cards by the same rescue actor, immediate recovery atHP>=1, Gas and nested Rhyhorn restrictions are covered.
 

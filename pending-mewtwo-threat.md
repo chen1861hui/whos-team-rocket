@@ -1,4 +1,8 @@
+> Implementation completed — 2026-11-05: Mewtwo and Mew events are executable in combat preview, verified by1,055 tests. See gameplay-milestone-31.md and reviewed-mew-events.md. The original pending source ledger below is historical.
+
 # Pending P03 event reading — 2026-11-04
+
+**Superseded source state:** the complete Mewtwo/Mew paragraphs are now independently reviewed from preserved O03 and the saved Master Edition Bilibili24:16/24:23 frames. See `reviewed-mew-events.md` and `reviewed-mew-events.json`. Source acquisition/exact-text uncertainty is no longer the implementation blocker; the original-P03-only limitations below remain historical provenance and do not imply that the new sources recover covered pixels. No engine eligibility is conferred by this historical note.
 
 Supplement received later the same day: user-supplied older image O03 has complete readable Mewtwo/Mew paragraphs, including the ordering and chooser text. See `reviewed-older-edition-supplement.md`; the older printing is explicitly tagged. Root's new focused CURRENT P03 title crop also confirms **超梦的威压**. The previous 威胁 label was our transcription error, not an established version difference. The bounded original-P03 readings below remain provenance for that particular image; the older image supplies additional text without recovering covered pixels. Neither event is implemented yet.
 

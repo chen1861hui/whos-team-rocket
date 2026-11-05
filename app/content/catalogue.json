@@ -13106,21 +13106,24 @@
     {
       "id": "mewtwo-threat-preview",
       "name": {
-        "zh": "超梦的威胁",
-        "en": null
+        "zh": "超梦的威压",
+        "en": "Mewtwo’s Threat"
       },
       "displayLabel": {
-        "zh": "超梦的威胁（预览草录）",
-        "en": "Mewtwo threat preview"
+        "zh": "超梦的威压",
+        "en": "Mewtwo’s Threat"
       },
       "sourceFilename": "mmexport1793009022050.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "older-printing-text-master-video-corroborated",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的出牌阶段对所有其他训练家的出战宝可梦使用。从你的下一位训练家开始，按行动顺序结算。除非目标宝可梦对应的训练家打出一张【快躲开！】，否则目标宝可梦受到超梦造成的2点伤害。",
+        "en": "During Play, resolve all other trainers’ active Pokémon in action order, starting with the next trainer. Each target’s trainer plays one Dodge response or the target receives 2 damage caused by Mewtwo."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13130,26 +13133,40 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "eventType": "mewtwo-threat",
+      "observedWeather": [
+        "clear"
+      ],
+      "effectImplementationSpecification": "reviewed-mew-events.md",
+      "provenance": {
+        "specification": "reviewed-mew-events.md",
+        "supplement": "reviewed-older-edition-supplement.md",
+        "video": "bilibili-BV1juYi6UEkv-source.md",
+        "retailQuantityVerified": false
       }
     },
     {
       "id": "mew-blessing-preview",
       "name": {
         "zh": "梦幻的祝福",
-        "en": null
+        "en": "Mew’s Blessing"
       },
       "displayLabel": {
-        "zh": "梦幻的祝福（预览草录）",
-        "en": "Mew blessing preview"
+        "zh": "梦幻的祝福",
+        "en": "Mew’s Blessing"
       },
       "sourceFilename": "mmexport1793009022050.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "older-printing-text-master-video-corroborated",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的出牌阶段对所有训练家的出战宝可梦使用。从你开始，按行动顺序结算。目标宝可梦对应的训练家选择一项：1.该宝可梦回复2点体力；2.该宝可梦升1级。",
+        "en": "During Play, resolve all trainers’ active Pokémon in action order, starting with you. Each target’s trainer chooses: recover 2 HP, or raise one level."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13159,6 +13176,17 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "eventType": "mew-blessing",
+      "observedWeather": [
+        "clear"
+      ],
+      "effectImplementationSpecification": "reviewed-mew-events.md",
+      "provenance": {
+        "specification": "reviewed-mew-events.md",
+        "supplement": "reviewed-older-edition-supplement.md",
+        "video": "bilibili-BV1juYi6UEkv-source.md",
+        "retailQuantityVerified": false
       }
     },
     {

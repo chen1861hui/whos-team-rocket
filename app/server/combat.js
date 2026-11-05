@@ -16,8 +16,7 @@ const face = (pokemon, catalogue) => catalogue.entries.find(p => p.id === pokemo
 const creature = (room, id) => room.players.flatMap(p => [p.active, p.reserve]).find(p => p?.instanceId === id);
 // Suppression belongs to the trainer for the entire global turn, including reserves.
 export const battleTraitsEffective=(room,pokemon)=>Boolean(pokemon&&!pokemon.defeated&&!room?.turn?.suppressedTraitPlayerIds?.some(id=>{const owner=trainer(room,id);return [owner?.active,owner?.reserve].some(partner=>partner?.instanceId===pokemon.instanceId);}));
-// Named-event permission for the future reviewed event-card pipeline. This
-// query grants no general status immunity and does not enable either event.
+// Named-event permission remains specific to the two printed Early Bird events.
 export const battleEventTargetAllowed=(room,pokemon,eventNameZh)=>!(pokemon?.catalogueId==='kangaskhan'&&activeOwner(room,pokemon.instanceId)&&battleTraitsEffective(room,pokemon)&&['胖丁的表演','魔墙人偶的戏法'].includes(eventNameZh));
 const reinforcementsSuppressed=(room,pokemon)=>Boolean(pokemon&&[room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.suppressedReinforcementIds?.includes(pokemon.instanceId)));
 export const battleReinforcementEffective=(room,pokemon,kind)=>!reinforcementsSuppressed(room,pokemon)&&reinforcementEffective(pokemon,kind);
@@ -267,7 +266,7 @@ function continueReceiving(room,ctx) {
 }
 function runReceivingEffect(room,effect,ctx) {
   const resolution=room.resolution,target=creature(room,resolution.targetCreatureId),source=creature(room,resolution.sourceId);
-  const owner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=room.players.find(p=>p.active?.instanceId===source?.instanceId&&!p.eliminated);
+  const owner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=source?activeOwner(room,source.instanceId):null;
   if(!owner||target.defeated)return continueReceiving(room,ctx);
   if(effect!=='rocky-helmet'&&!battleTraitsEffective(room,target))return continueReceiving(room,ctx);
   if(effect==='water-absorb')return startJudgment(room,ctx,{kind:'water-absorb',pokemonId:target.instanceId},owner.id);
@@ -320,6 +319,7 @@ function canSandVeil(room,player) {
 }
 const hasShedSkin=(room,pokemon)=>['caterpie','weedle'].includes(pokemon?.catalogueId)&&pokemon.level===2&&battleTraitsEffective(room,pokemon);
 function activeOwner(room,instanceId) {
+  if(!instanceId)return undefined;
   return live(room).find(player=>player.active?.instanceId===instanceId&&!player.active.defeated);
 }
 function switchStillValid(room,event,ctx) {
@@ -442,6 +442,7 @@ function advancePoisonTouch(room,ctx) {
 export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
+  delete pending.targetCreatureId;
   if(pending.kind==='rescue') {
     const restricted=rescueOwnerOnly(room);
     pending.canUsePotion=!restricted||pending.actorId===pending.targetId;
@@ -603,6 +604,7 @@ function openMoveUse(room, ctx) {
 }
 function openDefense(room, ctx) {
   const resolution = room.resolution;
+  if(resolution.kind==='event')return openEventTarget(room,ctx);
   if (resolution.index >= resolution.targetIds.length) return finishResolution(room, ctx);
   const target = trainer(room, resolution.targetIds[resolution.index]);
   if(resolution.settlementCount!==undefined&&(!activeOwner(room,resolution.sourceId)||!activeOwner(room,resolution.originalTargetId)||target.active.instanceId!==resolution.originalTargetId||currentHp(creature(room,resolution.sourceId),ctx.catalogue)<=0||currentHp(target.active,ctx.catalogue)<=0))return finishResolution(room,ctx);
@@ -663,6 +665,55 @@ function toolTargets(room,player,catalogue,effect) {
 function toolActions(room,player,catalogue,own) {
   return splitTools.filter(tool=>player.hand.some(card=>card.kind==='tool'&&card.toolType===tool.toolType)).map(tool=>({toolType:tool.toolType,choices:tool.choices.map(choice=>({...choice,targets:own?toolTargets(room,player,catalogue,choice.effect):[]}))}));
 }
+// Reviewed O03 and Master Edition video event faces; retail quantities stay gated.
+const reviewedEvents={
+  'mewtwo-threat':{name:{zh:'超梦的威压',en:"Mewtwo's Threat"},description:{zh:'从下一位训练家起依次结算所有其他训练家的出战宝可梦；打出一张快躲开！，否则受到超梦造成的2点伤害。',en:'Resolve every other active Pokémon, starting with the next trainer. Play one actual Dodge response or receive 2 damage from Mewtwo.'}},
+  'mew-blessing':{name:{zh:'梦幻的祝福',en:"Mew’s Blessing"},description:{zh:'从你开始依次结算所有训练家的出战宝可梦；各目标的训练家选择回复2点体力或升1级（最高3级）。',en:'Resolve all active Pokémon, starting with you. Each target trainer chooses heal 2 HP or raise one level (up to level 3).'}}
+};
+function eventTargets(room,player,eventType) {
+  const seats=live(room),index=seats.findIndex(seat=>seat.id===player.id);
+  const ordered=[...seats.slice(index),...seats.slice(0,index)];
+  return ordered.filter(seat=>(eventType==='mew-blessing'||seat.id!==player.id)&&seat.active&&!seat.active.defeated);
+}
+function eventActions(room,player,own) {
+  return [...new Set(player.hand.filter(card=>card.kind==='event'&&Object.hasOwn(reviewedEvents,card.eventType)).map(card=>card.eventType))].map(eventType=>{
+    const targetIds=eventTargets(room,player,eventType).map(seat=>seat.id);
+    return {eventType,...reviewedEvents[eventType],targetIds,canUse:Boolean(own&&targetIds.length)};
+  });
+}
+export function useBattleEvent(room,player,input,ctx) {
+  requireRule(Object.keys(input).every(key=>['id','revision','type','cardId'].includes(key)),'INVALID_INPUT','An event chooses only one physical card.');
+  const legal=previewActions(room,player,ctx.catalogue);
+  requireRule(room.turn?.playerId===player.id&&room.turn.phase==='play'&&legal&&!room.pendingBattle&&!room.pendingVote,'EVENT_UNAVAILABLE','Events require your unblocked Play phase.');
+  const selected=player.hand.find(card=>card.id===input.cardId&&card.kind==='event'&&Object.hasOwn(reviewedEvents,card.eventType));
+  requireRule(selected&&legal.events.some(event=>event.eventType===selected.eventType&&event.canUse),'INVALID_CARD','Choose a reviewed event from your own hand.');
+  const targets=eventTargets(room,player,selected.eventType);
+  player.hand.splice(player.hand.indexOf(selected),1);
+  room.resolution={kind:'event',card:selected,eventType:selected.eventType,eventName:reviewedEvents[selected.eventType].name,sourceId:null,sourcePlayerId:null,actorPlayerId:player.id,...(selected.eventType==='mewtwo-threat'?{externalSource:{kind:'external-pokemon',name:{zh:'超梦',en:'Mewtwo'}}}:{}),targetIds:targets.map(seat=>seat.id),targetInstances:Object.fromEntries(targets.map(seat=>[seat.id,seat.active.instanceId])),index:0,damagedIds:[],defenseIds:[],actualDamage:0};
+  note(room,`使用${reviewedEvents[selected.eventType].name.zh}，按行动顺序依次结算。`,`Used ${reviewedEvents[selected.eventType].name.en}; resolve targets in action order.`);
+  openDefense(room,ctx);
+}
+function openEventTarget(room,ctx) {
+  const resolution=room.resolution;
+  while(resolution.index<resolution.targetIds.length) {
+    const owner=trainer(room,resolution.targetIds[resolution.index]),target=owner?.active;
+    if(owner&&!owner.eliminated&&target&&!target.defeated&&target.instanceId===resolution.targetInstances[owner.id]&&currentHp(target,ctx.catalogue)>0) {
+      resolution.targetCreatureId=target.instanceId;
+      delete resolution.incomingDamage;delete resolution.modifierState;delete resolution.receivingEffects;delete resolution.helmetCardId;
+      resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.staticDone=false;
+      decision(room,resolution.eventType==='mewtwo-threat'?'event-dodge':'mew-blessing',owner.id,owner.id,ctx);
+      Object.assign(room.pendingBattle,{eventType:resolution.eventType,eventName:resolution.eventName,targetCreatureId:target.instanceId,...(resolution.externalSource?{damage:2,source:resolution.externalSource}:{choices:['heal',...(target.level<3?['evolve']:[])]})});
+      return;
+    }
+    resolution.index++;
+  }
+  finishResolution(room,ctx);
+}
+function settleEventDamage(room,ctx) {
+  const target=creature(room,room.resolution.targetCreatureId);
+  const amount=damageImmune(room,target)?0:computeDamage(null,target,2,ctx.catalogue,damageOptions(room,null,target,{command:false,channel:'event',receiving:!hasShedSkin(room,target)}));
+  receiveDamage(room,ctx,amount);
+}
 export function useBattleTool(room,player,input,ctx) {
   const legal=previewActions(room,player,ctx.catalogue);
   requireRule(room.turn?.playerId===player.id&&room.turn.phase==='play'&&legal&&!room.pendingBattle&&!room.pendingVote,'TOOL_UNAVAILABLE','Tools require your unblocked Play phase.');
@@ -720,7 +771,7 @@ export function previewActions(room, player, catalogue) {
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
   const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { tools:toolActions(room,player,catalogue,own), canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  return { events:eventActions(room,player,own), tools:toolActions(room,player,catalogue,own), canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx) {
   const legal=previewActions(room,player,ctx.catalogue),index=input.moveIndex===undefined?0:input.moveIndex;
@@ -937,7 +988,7 @@ function commitDamage(room,ctx,amount) {
   resolution.actualDamage = amount;
   if (amount > 0) resolution.damagedIds.push(target.instanceId);
   if (amount > 0 && resolution.kind!=='turn-start' && battleReinforcementEffective(room,target, 'defense')) resolution.defenseIds.push(target.instanceId);
-  const labels=resolution.kind==='item'?['凸凸头盔','Rocky Helmet']:resolution.kind==='turn-start'?['特殊状态','The special status']:['招式','The move'];
+  const labels=resolution.kind==='item'?['凸凸头盔','Rocky Helmet']:resolution.kind==='turn-start'?['特殊状态','The special status']:resolution.kind==='event'?['超梦','Mewtwo']:['招式','The move'];
   note(room, `${labels[0]}造成${amount}点伤害。`, `${labels[1]} dealt ${amount} damage.`);
   if (result.fainting) beginRescue(room, room.players.find(p=>p.active?.instanceId===target.instanceId).id, ctx);
   else afterDamage(room, ctx);
@@ -1008,7 +1059,7 @@ function afterDamage(room,ctx) {
   }
   if(!resolution.staticDone) {
     resolution.staticDone=true;resolution.receivingEffects=[];
-    const targetOwner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=room.players.find(p=>p.active?.instanceId===source?.instanceId&&!p.eliminated);
+    const targetOwner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=source?activeOwner(room,source.instanceId):null;
     if(targetOwner&&!target.defeated) {
       const traits=battleTraitsEffective(room,target);
       if(traits&&target.catalogueId==='cubone'&&targetOwner.hand.length)resolution.receivingEffects.push('battle-armor');
@@ -1102,6 +1153,26 @@ export function respondBattle(room,player,input,ctx) {
   requireRule(['cute-charm','neutralizing-gas','intimidate'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
   requireRule(pending.kind==='forewarn-order'||(input.topOrder===undefined&&input.bottomOrder===undefined),'INVALID_RESPONSE','Only Forewarn chooses the deck top and bottom.');
   requireRule(pending.kind==='download'||input.targetIds===undefined,'INVALID_RESPONSE','Only Download chooses multiple trainers.');
+  if(['event-dodge','mew-blessing'].includes(pending.kind)) {
+    const resolution=room.resolution,target=player.active;
+    requireRule(resolution?.kind==='event'&&resolution.targetIds[resolution.index]===player.id&&target&&!target.defeated&&currentHp(target,ctx.catalogue)>0&&target.instanceId===resolution.targetInstances[player.id]&&target.instanceId===pending.targetCreatureId,'STALE_DECISION','The event target changed.');
+    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice',...(pending.kind==='event-dodge'?['cardId']:[])].includes(key)),'INVALID_RESPONSE','This event does not accept extra response fields.');
+    if(pending.kind==='mew-blessing') {
+      requireRule(['heal','evolve'].includes(input.choice)&&(input.choice!=='evolve'||target.level<3),'INVALID_RESPONSE','Choose healing or an available level increase.');
+      if(input.choice==='heal')heal(target,2,ctx.catalogue);else target.level++;
+      note(room,input.choice==='heal'?'梦幻的祝福回复目标至多2点体力。':'梦幻的祝福令目标升1级。',input.choice==='heal'?"Mew’s Blessing restored up to 2 HP.":"Mew’s Blessing raised the target by one level.");
+      return nextSettlement(room,ctx);
+    }
+    requireRule(['pass','dodge'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Play one actual Dodge card, or pass without a card.');
+    if(input.choice==='dodge') {
+      const index=player.hand.findIndex(card=>card.id===input.cardId&&card.kind==='dodge');
+      requireRule(typeof input.cardId==='string'&&index>=0,'INVALID_CARD','This event requires an actual Dodge card response.');
+      room.discardPile.push(...player.hand.splice(index,1));
+      note(room,'打出快躲开！抵消超梦对此目标的伤害。','A played Dodge response canceled Mewtwo’s damage to this target.');
+      return nextSettlement(room,ctx);
+    }
+    room.pendingBattle=null;return settleEventDamage(room,ctx);
+  }
   if(pending.kind==='rescue') {
     requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardId'].includes(key))&&['pass','potion','healer'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Use one Potion or Healer card, or pass without extra fields.');
     const resolution=room.resolution,owner=trainer(room,pending.targetId),target=owner?.active;
