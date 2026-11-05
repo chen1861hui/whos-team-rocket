@@ -1,4 +1,12 @@
-## Articuno’s Protection — 2026-11-05 (current)
+## Remaining event cards — 2026-11-05 (current)
+
+All ten catalogued event cards resolve in combat preview. Rival’s Challenge alternates actual command responses, Berry Harvest offers a public draft in seat order, and Farfetch’d’s Prank discards a hidden hand card, a held item, or one reinforcement marker. Each uses the existing Articuno window. The full suite passed 1,198 tests, including nine focused cases. A browser run exercised all three cards with three trainers and a spectator.
+
+The [event specification](reviewed-remaining-events.md) records the sources, observed weather variants, and timing decisions. The review branch is `codex/remaining-event-cards`. Tests used an isolated card fixture. The retail copy and weather distribution remain unverified.
+
+Continue with the reinforcement tools, remaining held items, and Revive using the saved references.
+
+## Articuno’s Protection — 2026-11-05 (historical)
 
 **1,189 tests passed** (1,141 baseline plus 48 Articuno cases). Articuno can cancel an event for one original target or cure a newly applied special status. Both modes have bilingual response controls. The active responder alone sees their eligible cards; the original effect resumes after the reaction.
 

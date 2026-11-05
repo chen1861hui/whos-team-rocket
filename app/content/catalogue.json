@@ -13193,20 +13193,23 @@
       "id": "rival-challenge-preview",
       "name": {
         "zh": "劲敌的挑战",
-        "en": null
+        "en": "Rival’s Challenge"
       },
       "displayLabel": {
-        "zh": "劲敌的挑战（预览草录）",
-        "en": "Rival challenge preview"
+        "zh": "劲敌的挑战",
+        "en": "Rival’s Challenge"
       },
       "sourceFilename": "mmexport1793008971679.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "supplied-older-sheet-current-photo-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的出牌阶段对一名其他训练家使用。从目标训练家开始，你与其轮流打出一张【接招吧！】，直到其中一方未打出。打出最后一张【接招吧！】的训练家的出战宝可梦对另一名训练家的出战宝可梦造成2点伤害。",
+        "en": "During Play, choose another trainer. Starting with the target, alternate playing one Take this! card until one trainer stops. The active Pokémon of the last trainer to play a command deals 2 damage to the other trainer’s active Pokémon."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13216,26 +13219,41 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "effectImplementationSpecification": "reviewed-remaining-events.md",
+      "eventType": "rival-challenge",
+      "observedWeather": [
+        "rain",
+        "thunderstorm"
+      ],
+      "provenance": {
+        "specification": "reviewed-remaining-events.md",
+        "primary": "O03",
+        "corroboration": "P04",
+        "retailQuantityVerified": false
       }
     },
     {
       "id": "berry-harvest-preview",
       "name": {
         "zh": "树果大丰收",
-        "en": null
+        "en": "Berry Harvest"
       },
       "displayLabel": {
-        "zh": "树果大丰收（预览草录）",
-        "en": "Berry harvest preview"
+        "zh": "树果大丰收",
+        "en": "Berry Harvest"
       },
       "sourceFilename": "mmexport1793008971679.jpg.jpeg",
-      "editionConfidence": "preview",
-      "evidenceStatus": "preview-unverified",
-      "headingStatus": "draft-transcription",
+      "editionConfidence": "supplied-older-sheet-current-photo-compared",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
       "splitEffect": false,
       "effectHeadings": null,
-      "effectText": null,
-      "effectStatus": "unavailable",
+      "effectText": {
+        "zh": "在你的出牌阶段对所有训练家使用。你亮出牌堆顶等同于目标数的牌，从你开始，按行动顺序结算。目标训练家从这些牌中选择一张未被获得的牌并获得。",
+        "en": "During Play, use on every trainer. Reveal as many cards from the top of the deck as there are targets. Starting with you and proceeding in turn order, each trainer chooses and gains one unclaimed card."
+      },
+      "effectStatus": "combat-preview",
       "deckQuantity": null,
       "engineEligible": false,
       "asset": {
@@ -13245,6 +13263,59 @@
           "zh": "图像占位",
           "en": "Artwork placeholder"
         }
+      },
+      "effectImplementationSpecification": "reviewed-remaining-events.md",
+      "eventType": "berry-harvest",
+      "observedWeather": [
+        "clear"
+      ],
+      "provenance": {
+        "specification": "reviewed-remaining-events.md",
+        "primary": "O03",
+        "corroboration": "P04",
+        "retailQuantityVerified": false
+      }
+    },
+    {
+      "id": "farfetchd-prank-preview",
+      "sourceFilename": "share_d5d99ad9094dafd0a484315a59b80816.png",
+      "splitEffect": false,
+      "effectHeadings": null,
+      "deckQuantity": null,
+      "engineEligible": false,
+      "asset": {
+        "status": "placeholder",
+        "url": null,
+        "label": {
+          "zh": "图像占位",
+          "en": "Artwork placeholder"
+        }
+      },
+      "editionConfidence": "supplied-older-sheet",
+      "evidenceStatus": "source-backed",
+      "headingStatus": "visually-reviewed",
+      "effectStatus": "combat-preview",
+      "effectImplementationSpecification": "reviewed-remaining-events.md",
+      "name": {
+        "zh": "大葱鸭的恶作剧",
+        "en": "Farfetch’d’s Prank"
+      },
+      "displayLabel": {
+        "zh": "大葱鸭的恶作剧",
+        "en": "Farfetch’d’s Prank"
+      },
+      "effectText": {
+        "zh": "在你的出牌阶段你选择一项：1.弃置一名其他训练家的一张手牌；2.弃置一只出战宝可梦携带的持有物或其拥有的一枚强化指示物。",
+        "en": "During Play, choose one: discard one other trainer’s hand card, or discard one active Pokémon’s held item or one of its reinforcement markers."
+      },
+      "eventType": "farfetchd-prank",
+      "observedWeather": [
+        "thunderstorm"
+      ],
+      "provenance": {
+        "specification": "reviewed-remaining-events.md",
+        "primary": "O03",
+        "retailQuantityVerified": false
       }
     },
     {

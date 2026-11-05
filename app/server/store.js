@@ -171,7 +171,7 @@ export class RoomStore {
         clock.remainingMs = Math.max(0, clock.deadlineAt - until);
       }
       if (clock.remainingMs === 0 && !room.pendingVote) {
-        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','turn-start-order','distribute','damage-order','mew-blessing','event-hand'].includes(pending.kind)) {
+        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','turn-start-order','distribute','damage-order','mew-blessing','event-hand','berry-pick'].includes(pending.kind)) {
           const reason=this.connected(actor)?'mandatory':'disconnected';
           structural ||= !clock.expired || clock.pausedReason!==reason;
           clock.expired=true;clock.deadlineAt=null;clock.pausedReason=reason;

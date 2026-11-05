@@ -43,7 +43,7 @@ export function eventDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,code=initial.code,selfId=initial.selfId,turnNumber=initial.turn?.number,cardId=card.id,eventType=card.eventType;
   const descriptor=current=>current?.self?.battle?.events?.find(event=>event.eventType===eventType);
   const event=descriptor(initial);
-  if(card.kind!=='event'||!['mewtwo-threat','mew-blessing','jigglypuff-performance','mr-mime-trick','moltres-trial','zapdos-punishment'].includes(eventType)||!event)return;
+  if(card.kind!=='event'||!event)return;
   if(event.targeting==='single')return targetedEventDialog(card,kit);
   const targetIds=[...(event.targetIds||[])];
   const order=node('ol',{id:'event-target-order','aria-label':say(language,'Public target order','公开目标顺序')});
@@ -66,8 +66,9 @@ export function eventDialog(card,kit) {
 }
 function targetedEventDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,code=initial.code,selfId=initial.selfId,turnNumber=initial.turn?.number,cardId=card.id,eventType=card.eventType;
-  const descriptor=current=>current?.self?.battle?.events?.find(event=>event.eventType===eventType),event=descriptor(initial),split=eventType==='mr-mime-trick';
+  const descriptor=current=>current?.self?.battle?.events?.find(event=>event.eventType===eventType),event=descriptor(initial),split=Boolean(event.choices);
   const draft=privateDecisionDraft({kind:'event',id:`${turnNumber}:${cardId}:${eventType}`},kit,()=>({effect:'',targetId:'',targetFace:null}));
+  const targetIsTrainer=()=>eventType==='rival-challenge'||eventType==='farfetchd-prank'&&draft.effect==='hand';
   const enabled=choice=>Boolean(choice?.targetIds?.length);
   const legalTargets=current=>{
     const legal=descriptor(current);
@@ -95,7 +96,7 @@ function targetedEventDialog(card,kit) {
   const populateTargets=()=>{
     const current=kit.getView(),ids=legalTargets(current);
     if(!ids.includes(draft.targetId)||publicFace(current,draft.targetId)!==draft.targetFace){draft.targetId='';draft.targetFace=null;}
-    targets.replaceChildren(node('option',{value:''},say(language,'Choose an active Pokémon','请选择出战宝可梦')));
+    targets.replaceChildren(node('option',{value:''},targetIsTrainer()?say(language,'Choose a trainer','请选择训练家'):say(language,'Choose an active Pokémon','请选择出战宝可梦')));
     for(const id of ids){
       const player=current.players.find(player=>player.id===id),pokemon=player?.active;
       targets.append(node('option',{value:id},`${player?.nickname||'—'} · ${pokemon?kit.partnerName(pokemon.catalogueId,pokemon.level):'—'}`));
@@ -112,8 +113,12 @@ function targetedEventDialog(card,kit) {
     kit.action('useEvent',{cardId,targetId,...(split?{effect}:{})});
   });
   const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-event',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  const help={
+    'mr-mime-trick':say(language,'Take the selected card into your hand. A taken held item is not equipped automatically.','所获得的牌加入你的手牌，获得的持有物不会自动携带。'),
+    'jigglypuff-performance':say(language,'The target trainer judges. This event does not ask for a Dodge response.','目标训练家进行判定，此事件不要求躲闪响应。')
+  }[eventType];
   dialog.append(node('label',{class:'attack-target',for:'event-target'},node('strong',{},say(language,'Target','目标')),targets),
-    node('p',{class:'muted'},split?say(language,'Take the selected card into your hand. A taken held item is not equipped automatically.','所获得的牌加入你的手牌，获得的持有物不会自动携带。'):say(language,'The target trainer judges. This event does not ask for a Dodge response.','目标训练家进行判定，此事件不要求躲闪响应。')),
+    ...(help?[node('p',{class:'muted'},help)]:[]),
     node('p',{class:'muted'},say(language,'Confirming consumes this one physical event card.','确认后消耗这一张实体事件牌。')),node('div',{class:'action-row'},cancel,confirm));
   populateTargets();dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();(effects||targets).focus();
 }
@@ -626,26 +631,45 @@ function eventResponseControls(pending,kit) {
     return current?.code===code&&current.selfId===selfId&&current.status==='playing'&&!current.self.spectator&&!current.players.find(player=>player.id===selfId)?.eliminated&&!current.pendingVote&&!kit.busy&&decision?.id===decisionId&&decision.kind===kind&&decision.actorId===selfId?decision:null;
   };
   const row=node('div',{class:'action-row'}),blocked=kit.busy||Boolean(view.pendingVote);
-  if(['event-dodge','event-command'].includes(kind)){
-    const responseKind=kind==='event-command'?'command':'dodge';
+  if(['event-dodge','event-command','rival-command'].includes(kind)){
+    const responseKind=kind==='event-dodge'?'dodge':'command';
     for(const card of view.self.hand.filter(card=>card.kind===responseKind)){
       const cardId=card.id;
       row.append(node('button',{type:'button',class:'button primary',id:`${kind}-${cardId}`,disabled:blocked,onclick:()=>{
         if(currentDecision()&&kit.getView().self.hand.some(held=>held.id===cardId&&held.kind===responseKind))kit.action('respondBattle',{decisionId,choice:responseKind,cardId});
-      }},kind==='event-command'?say(language,'Play Take this! as response','打出接招吧！响应'):say(language,'Play Dodge! as response','打出快躲开！响应'),` · ${weatherLabel(card.weather,language)}`));
+      }},responseKind==='command'?say(language,'Play Take this! as response','打出接招吧！响应'):say(language,'Play Dodge! as response','打出快躲开！响应'),` · ${weatherLabel(card.weather,language)}`));
     }
-    row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:blocked,onclick:()=>{if(currentDecision())kit.action('respondBattle',{decisionId,choice:'pass'});}},say(language,'Pass · resolve event damage','放弃响应 · 结算事件伤害')));
+    row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:blocked,onclick:()=>{if(currentDecision())kit.action('respondBattle',{decisionId,choice:'pass'});}},kind==='rival-command'?say(language,'Pass · end duel','放弃响应 · 结束挑战'):say(language,'Pass · resolve event damage','放弃响应 · 结算事件伤害')));
   }else if(kind==='event-hand'){
     row.className='hand-choice-grid';
     for(const choice of pending.choices||[])row.append(node('button',{type:'button',class:'button blind-hand-choice',id:`event-hand-${choice.index}`,disabled:blocked,onclick:()=>{
       if(currentDecision()?.choices?.some(latest=>latest.index===choice.index))kit.action('respondBattle',{decisionId,choice:'card',handIndex:choice.index});
-    }},say(language,`Take face-down card ${choice.index+1}`,`获得背面手牌 ${choice.index+1}`)));
+    }},pending.eventName?.zh==='大葱鸭的恶作剧'?say(language,`Discard face-down card ${choice.index+1}`,`弃置背面手牌 ${choice.index+1}`):say(language,`Take face-down card ${choice.index+1}`,`获得背面手牌 ${choice.index+1}`)));
   }else{
     for(const choice of ['heal','evolve'].filter(choice=>pending.choices?.includes(choice)))row.append(node('button',{type:'button',class:'button primary',id:`mew-blessing-${choice}`,disabled:blocked,onclick:()=>{
       if(currentDecision()?.choices?.includes(choice))kit.action('respondBattle',{decisionId,choice});
     }},choice==='heal'?say(language,'Restore up to 2 HP','回复至多2点体力'):say(language,'Raise one level','提升一级')));
   }
   return [row];
+}
+function berryHarvestCards(pending,kit,view) {
+  const {language}=kit;
+  const canPick=pending.kind==='berry-pick'&&pending.actorId===view.selfId&&!view.self.spectator;
+  const row=node('div',{class:'fury-reveal-grid','aria-label':say(language,'Berry Harvest cards','树果大丰收亮牌')});
+  for(const card of pending.berryCards) {
+    const label=node('strong',{},kit.localized(card.name));
+    const weather=node('small',{},weatherLabel(card.weather,language));
+    if(!canPick) {
+      row.append(node('div',{class:'fury-revealed-card'},label,weather));
+      continue;
+    }
+    row.append(node('button',{type:'button',class:'button fury-revealed-card',id:`berry-pick-${card.index}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{
+      const current=kit.getView(),decision=current?.pendingBattle;
+      if(current?.code!==view.code||current.selfId!==view.selfId||current.status!=='playing'||current.pendingVote||kit.busy||decision?.kind!=='berry-pick'||decision.id!==pending.id||decision.actorId!==view.selfId||!decision.berryCards?.some(available=>available.index===card.index))return;
+      kit.action('respondBattle',{decisionId:pending.id,choice:'card',handIndex:card.index});
+    }},label,weather));
+  }
+  return row;
 }
 function articunoControls(pending,kit) {
   const {language}=kit,{code,selfId,pendingVote}=kit.getView(),{id:decisionId,mode}=pending;
@@ -723,6 +747,9 @@ export function decisionPanel(view,kit) {
   Object.assign(titles,{download:['Download · choose other trainers','下载 · 选择其他训练家'],'download-hand':['Download · take a hand card','下载 · 获得一张手牌']});
   Object.assign(titles,{pressure:['Pressure · optional discard','压迫感 · 可选弃牌'],'pressure-payment':['Pressure · discard or let protection apply','压迫感 · 弃牌或让保护生效']});
   Object.assign(titles,{'event-command':['Moltres’s Trial · play a response','火焰鸟的试炼 · 打出响应'],'event-hand':['Mr. Mime’s Trick · choose a hand card','魔墙人偶的戏法 · 选择手牌'],'event-dodge':['Mewtwo’s Threat · play a response','超梦的威压 · 打出响应'],'mew-blessing':['Mew’s Blessing · choose an effect','梦幻的祝福 · 选择效果']});
+  titles['rival-command']=['Rival’s Challenge · play a command','劲敌的挑战 · 打出接招吧！'];
+  titles['berry-pick']=['Berry Harvest · choose a card','树果大丰收 · 选择一张牌'];
+  if(pending.kind==='event-hand'&&pending.eventName?.zh==='大葱鸭的恶作剧')titles['event-hand']=['Farfetch’d’s Prank · discard a hand card','大葱鸭的恶作剧 · 弃置手牌'];
   if(pending.kind==='articuno')titles.articuno=pending.mode==='cancel-event'
     ?['Articuno’s Protection · cancel event effect','急冻鸟的庇护 · 抵消事件效果']
     :['Articuno’s Protection · cure new status','急冻鸟的庇护 · 解除新状态'];
@@ -735,7 +762,9 @@ export function decisionPanel(view,kit) {
       :say(language,'Articuno can remove the status the indicated Pokémon just gained.','急冻鸟的庇护可以解除指定宝可梦刚陷入的特殊状态。');
     panel.append(node('p',{},[subject,help].filter(Boolean).join(' · ')));
   }
-  if(pending.kind==='event-hand')panel.append(node('p',{},say(language,'Choose one face-down card to take into your hand. Its face stays private until you receive it. This required choice cannot be passed.','选择一张背面手牌加入你的手牌，获得前牌面保持隐藏。此选择必须完成，不可放弃。')));
+  if(pending.kind==='event-hand')panel.append(node('p',{},pending.eventName?.zh==='大葱鸭的恶作剧'?say(language,'Choose one face-down card to discard.','选择并弃置一张背面手牌。'):say(language,'Choose one face-down card to take into your hand. Its face stays private until you receive it. This required choice cannot be passed.','选择一张背面手牌加入你的手牌，获得前牌面保持隐藏。此选择必须完成，不可放弃。')));
+  if(pending.kind==='rival-command')panel.append(node('p',{},say(language,'Play one command from your hand or pass. If a command was played, the last player to respond deals 2 base damage with their active Pokémon.','打出一张接招吧！或放弃。若有人打出过此牌，最后打出的一方以其出战宝可梦造成2点基础伤害。')));
+  if(pending.berryCards?.length)panel.append(berryHarvestCards(pending,kit,view));
   if(pending.kind==='event-command')panel.append(node('p',{},`${pending.eventName?`${kit.localized(pending.eventName)} · `:''}${say(language,'Damage source:','伤害来源：')} ${kit.localized(pending.source?.name)||say(language,'Moltres','火焰鸟')} · ${say(language,`Incoming damage: ${pending.damage}`,`将受到${pending.damage}点伤害`)}`),node('p',{},say(language,'Play one actual Take this! card as a response. This does not use a Pokémon move or spend Power. Paralysis weather restrictions and used move allowances do not block this response.','打出手牌中一张实际的接招吧！响应。此操作不使用宝可梦招式，也不消耗力量强化；麻痹的天气限制及已用招式次数不影响此响应。')));
   if(pending.kind==='event-dodge')panel.append(node('p',{},`${pending.eventName?`${kit.localized(pending.eventName)} · `:''}${say(language,'Damage source:','伤害来源：')} ${kit.localized(pending.source?.name)||say(language,'Mewtwo','超梦')} · ${say(language,`Incoming damage: ${pending.damage}`,`将受到${pending.damage}点伤害`)}`),node('p',{},say(language,'Respond by playing an actual Dodge! card from your hand. Sand Veil and Levitate do not provide this response; move Dodge restrictions do not stop it.','打出手牌中一张实际的快躲开！响应。沙隐与飘浮不提供本响应，招式的躲闪限制不影响此响应。')));
   if(pending.kind==='mew-blessing')panel.append(node('p',{},say(language,'Choose healing or, when offered, a level increase. Healing is capped at maximum HP and may be chosen even at full HP. This required choice cannot be passed.','选择回复体力，或在提供该选项时提升等级。回复不超过体力上限，即使体力已满也可选择回复。此选择必须完成，不可放弃。')),node('p',{class:'muted'},say(language,'Leveling up preserves injuries, status, held items and reinforcement. It does not refresh this turn’s used actions.','升级保留已有伤害、特殊状态、持有物及强化指示物，不会刷新本回合已用的操作次数。')));
@@ -797,8 +826,8 @@ export function decisionPanel(view,kit) {
     const clock=pending.clock,seconds=Math.ceil((clock.deadlineAt?Math.max(0,clock.deadlineAt-view.serverNow):clock.remainingMs)/1000);
     panel.append(node('p',{class:'response-clock'},clock.pausedReason==='mandatory'?say(language,'Time expired · complete this choice to continue','时间已到 · 请完成当前选择以继续'):clock.pausedReason?say(language,'Paused · waiting for connection or vote','暂停 · 等待连接或表决'):`${seconds}s`));
   }
-  if(pending.actorId===view.selfId && !view.self.spectator) {
-    if(['event-dodge','event-command','mew-blessing','event-hand'].includes(pending.kind))panel.append(...eventResponseControls(pending,kit));
+  if(pending.actorId===view.selfId && !view.self.spectator && pending.kind!=='berry-pick') {
+    if(['event-dodge','event-command','mew-blessing','event-hand','rival-command'].includes(pending.kind))panel.append(...eventResponseControls(pending,kit));
     else if(pending.kind==='articuno')panel.append(articunoControls(pending,kit));
     else if(pending.kind==='rescue')panel.append(...rescueControls(pending,kit));
     else if(['pressure','pressure-payment'].includes(pending.kind))panel.append(...pressureControls(pending,kit));
@@ -871,7 +900,7 @@ export function decisionPanel(view,kit) {
       panel.append(row);
     }
     if(pending.kind==='defense' && pending.canTrait&&!pending.cannotDodge)panel.append(node('p',{class:'muted'},say(language,'Sand Veil: with no held item, judge once for this settlement. Intense sun or clear counts as one Dodge! If it fails, you may still use a Dodge card.','沙隐：未携带持有物时，本次结算可判定一次。烈日或晴朗视为使用一张快躲开！；失败后仍可打出躲闪牌。')));
-  }else panel.append(node('p',{class:'muted'},say(language,'Waiting for the indicated trainer.','正在等待指定训练家。')));
+  }else if(pending.actorId!==view.selfId||view.self.spectator)panel.append(node('p',{class:'muted'},say(language,'Waiting for the indicated trainer.','正在等待指定训练家。')));
   if(pending.kind==='rescue')panel.append(node('p',{class:'muted'},say(language,'Each Potion restores 2 HP. While being asked, a trainer may use more cards if HP is still 0 or below, or pass to the next trainer. Rescue stops immediately at 1 HP or above.','每次伤药回复2点体力。被询问的训练家在体力仍为0或以下时，可以继续使用牌，或放弃并询问下一位训练家。体力达到1点或以上时立即结束救援。')));
   return panel;
 }

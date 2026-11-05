@@ -1,0 +1,14 @@
+# Rival’s Challenge, Berry Harvest, and Farfetch’d’s Prank
+
+The supplied older sheet O03 shows all three complete card faces. The supplied Master Edition poster P04 shows Rival’s Challenge unobscured and part of Berry Harvest. Rival appears as heavy rain on P04 and thunderstorm on O03. Berry Harvest shows clear weather in both. Farfetch’d shows thunderstorm on O03. The weather observations establish pictured variants. The retail counts by card and weather remain unverified.
+
+- O03 `research-assets/user-older-edition-2026-11-04/share_d5d99ad9094dafd0a484315a59b80816.png` · SHA-256 `71dc0eb1e4dee2ed352e891055b8fd13f4590162cb64d6e1bd4267fd67cdb4b2`.
+- P04 `research-assets/provided-previews/mmexport1793008971679.jpg.jpeg` · SHA-256 `42182fb5b0cd8cadaeafada2bd4502f6a527b003bd6b93e139b0e687aa2d6b50`.
+
+**Rival’s Challenge** targets one other trainer. That trainer plays a command first, and the two participants alternate until either passes. The last responder’s active Pokémon deals 2 base damage to the other active. The printed verb is 打出, so the response spends an actual command card and leaves move allowances and Power alone. The damage has a Pokémon source and uses the normal event damage, rescue, and defeat rules. If the target passes on the opening response, there is no last responder and the duel ends without damage.
+
+**Berry Harvest** reveals a common pool from the deck, with one card per targeted trainer. Each trainer chooses one remaining face in seating order starting with the player who used the event. The current trainer must pick when a card is available. All viewers see the pool, and only the current trainer can pick. The engine reveals as many actual cards as it can supply. Any cards left because targets were canceled or skipped go to discard after the event. Those two cases are digital policies for situations the card face does not specify.
+
+**Farfetch’d’s Prank** lets the user discard one card from another trainer’s hand, or discard an active Pokémon’s held item or one reinforcement marker. The other-trainer restriction applies to the hand option. The active Pokémon option can include the user’s active. The hand choice uses shuffled face-down slots. Held-item loss can trigger Defiant.
+
+All three pass through the Articuno protection window before resolving their original target. For Berry Harvest the pool stays public during that window. For Rival’s Challenge the duel is the chosen trainer’s event effect, so canceling it prevents the duel. The subsequent damage to the loser belongs to that duel settlement. The card paragraphs contain no distance clause. The default deck continues to use the labeled preview fixture. Combat tests supply the actual event cards through isolated scenarios.
