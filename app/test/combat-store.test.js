@@ -72,6 +72,31 @@ test('the reviewed lobby deck deals physical copies of every reviewed card kind 
   }
 });
 
+test('Master Edition deals from one fixed deck and keeps opening hands private', t => {
+  for (const count of [3, 6]) {
+    const f = fixture(t, { count, deckProfile: 'retail' });
+    const room = f.room();
+    const observer = f.store.join(f.owner.code, { nickname: 'Observer', spectator: true }).view;
+    const cards = [...room.drawPile, ...room.players.flatMap(player => player.hand)];
+    assert.equal(cards.length, 108);
+    assert.equal(new Set(cards.map(card => card.id)).size, 108);
+    for (const weather of ['intense-sun', 'clear', 'rain', 'thunderstorm']) {
+      assert.equal(cards.filter(card => card.weather === weather).length, 27);
+    }
+    assert.equal(cards.filter(card => card.kind === 'command' && card.weather === 'rain').length, 14);
+    assert.equal(cards.filter(card => card.toolType === 'potion-full-heal').length, 8);
+    assert.equal(cards.filter(card => card.eventType === 'articuno-protection' && card.weather === 'thunderstorm').length, 1);
+    assert.equal(observer.settings.deckProfile, 'retail');
+    assert.equal(observer.scenario.deckCardCount, 108);
+    assert.equal(observer.scenario.articunoReactions, true);
+    assert.equal(observer.drawCount, 108 - count * 4);
+    for (const seat of f.seats) assert.equal(f.view(seat).self.hand.length, 4);
+    assert.deepEqual(observer.self.hand, []);
+    assert.ok(observer.players.every(player => player.hand === undefined));
+    assert.equal(observer.drawPile, undefined);
+  }
+});
+
 test('only the host can save a known deck and a timer-only save preserves the profile across restart', t => {
   const root = fileURLToPath(new URL('../.data/', import.meta.url));
   mkdirSync(root, { recursive: true });
@@ -85,11 +110,11 @@ test('only the host can save a known deck and a timer-only save preserves the pr
     arena: 'stadium', turnSeconds: 10, responseSeconds: 0, ...(deckProfile === undefined ? {} : { deckProfile }),
   });
   rejects(() => update(guest, 'guest-change', 'reviewed'), 'OWNER_ONLY');
-  rejects(() => update(owner, 'invalid-deck', 'retail'), 'INVALID_SETTINGS');
-  update(owner, 'reviewed-deck', 'reviewed');
+  rejects(() => update(owner, 'invalid-deck', 'unknown'), 'INVALID_SETTINGS');
+  update(owner, 'retail-deck', 'retail');
   update(owner, 'timer-only', undefined);
   const restored = new RoomStore({ dataDir: dir, catalogue });
-  assert.equal(restored.view(owner.code, owner.token).view.settings.deckProfile, 'reviewed');
+  assert.equal(restored.view(owner.code, owner.token).view.settings.deckProfile, 'retail');
 });
 
 test('preview uses sourced roles/leader levels and keeps opponents roles/reserve/deck private', t => {

@@ -1,8 +1,18 @@
-## Reviewed cards playtest deck — 2026-11-05 (current)
+## Counted Master Edition deck (current)
+
+In lobby settings, select **Game deck → Master Edition (108 cards)** and save. This profile uses one fixed, shuffled 108-card deck for any supported room size (3–6 trainers). The opening deal is four cards per trainer.
+
+The deck integration passed 1,226 automated tests and matched all 112 card and weather cells in the workbook. Two complete three-trainer matches on the local server reached victory in 41 and 12 turns. The next planned work is a separate UI and flow pass on this playable baseline.
+
+The updated user workbook, **Pokemon Game Card Weather Count.xlsx**, was reconciled against the 108-card total on p. 01 of the [user's printed rulebook](xiaohongshu-rulebook-source.md#cross-check-against-the-users-printed-copy--2026-11-09). The source grid is `Game card count!B12:G39` (SHA-256 `7da7af07b0091a0a48fc0e895fb51930a93b94315ff02f95949c043314a2bf8b`). The tally already accounts for 108 copies, so blank cells contribute zero in this profile. The resulting deck has 27 cards of each weather: 30 commands, 15 Dodges, 22 split tools, 28 events and 13 held items. The data is in [retail-deck-counts.js](app/server/retail-deck-counts.js).
+
+## Reviewed cards playtest deck — 2026-11-05 (historical)
 
 The lobby host can save the optional **Reviewed cards** deck. It adds mixed-weather commands and Dodges, all ten reviewed events, all eleven held items, and two copies of each of the five split tools. The basic command and Dodge deck is the default. The selection is public and the shuffled pile and opening hands are private.
 
 All 1,225 tests passed. See the [playtest recipe](reviewed-playtest-deck.md) for counts and weather. The review branch is `codex/reviewed-playtest-deck`. The optional recipe uses test quantities. Retail copy counts by card and weather still need verification.
+
+The [user's printed rulebook](xiaohongshu-rulebook-source.md#cross-check-against-the-users-printed-copy--2026-11-09) confirms the expected 108 cards and the four weather icons. The user's inventory totals 104 before photo reconciliation. Recheck the disputed physical piles before adopting retail quantities.
 
 ## Held item set complete — 2026-11-05 (historical)
 

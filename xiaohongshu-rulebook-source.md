@@ -1,5 +1,18 @@
 # Xiaohongshu rulebook source review
 
+## Cross-check against the user's printed copy — 2026-11-09
+
+The user supplied photos of pages 01–12, including the seating diagram for page 04 and two angles of page 07. The setup and weather passages checked below agree with the prior transcription.
+
+| Page | User photo | What it establishes |
+|---|---|---|
+| 01 | `IMG_20261108_134041.jpg.jpeg` | 108 game cards, separately from the 80 Pokémon cards, six identity cards and six reference cards. |
+| 02–03 | `IMG_20261108_134048.jpg.jpeg`, `IMG_20261108_134052.jpg.jpeg` | Assign identities, randomly deal five Pokémon per trainer, privately choose two, and deal four opening game cards. The Gym Leader's active Pokémon starts at Lv. 2. Both of the Gym Leader's Pokémon receive +1 maximum HP at five or six players. |
+| 09 | `IMG_20261108_134136.jpg.jpeg` | The top-left icons distinguish Thunderstorm (cloud and lightning), Heavy Rain (cloud and raindrops), Clear (sun behind a cloud) and Intense Sun (sun alone). The pictured Power Boost / Speed Boost and Articuno's Protection show Thunderstorm. A split tool is one physical card. |
+| 10 | `IMG_20261108_134142.jpg.jpeg` | The damage examples picture Clear Mewtwo's Threat, Intense Sun Moltres's Trial and Thunderstorm Zapdos's Punishment. |
+
+The booklet provides the overall deck total and pictured variants, but no copy counts by card and weather. Its illustrated cards are examples and do not add to the physical tally. The initial inventory summed to 104 before photo reconciliation. The user's [updated workbook tally](HANDOVER-PROMPT.md#counted-master-edition-deck-current) accounts for 108 physical cards and supplies the game's Master Edition deck.
+
 ## Continuation review — 2026-10-27
 
 Original images 03/05/06/07/08 were independently rechecked for the next rules slice; see `reviewed-combat-spec.md` for exact Chinese and hashes. Page 1 states 108 game cards and 80 physical Pokémon cards in 40 groups, each with one double-sided nonfinal card and one single-sided final card. This yields 120 level faces but does not give per-game-card quantities/weather. Ordinary switching (pp.5/8/11) is now implemented in the fixture game; all combat card effects remain unavailable. Exact printing uncertainty persists.

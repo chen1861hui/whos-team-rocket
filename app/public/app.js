@@ -5,9 +5,10 @@ const root = $('#app');
 const strings = {
   startBattlePreview:['Start game','开始游戏'], combatPreview:['COMBAT PREVIEW · TEST DECK','战斗预览 · 测试牌库'],
   combatFixture:['3–6 ready trainers. View your identity first, then draw five different Pokémon and choose two.','需3–6位训练家准备。先查看自己的身份，再摸取五个不同宝可梦并选择两只。'],
-  deckProfile:['Playtest deck','测试牌库'], deckBasic:['Basic commands and Dodges','基础指令与躲闪'], deckReviewed:['Reviewed cards','已复核游戏牌'],
+  deckProfile:['Game deck','游戏牌库'], deckBasic:['Basic commands and Dodges','基础指令与躲闪'], deckReviewed:['Reviewed cards','已复核游戏牌'], deckRetail:['Master Edition (108 cards)','大师版（108张）'],
   deckBasicDetail:['6 commands and 6 Dodges per trainer, all intense sun.','每位训练家对应6张接招吧！和6张快躲开！，天气均为烈日。'],
   deckReviewedDetail:['8 commands and 6 Dodges per trainer across four weathers, plus 10 split tools, 10 events, and 11 held items in the shared deck. These quantities are for playtesting.','每位训练家对应四种天气的8张接招吧！和6张快躲开！，共享牌库另含10张组合道具、10张事件和11张持有物。数量为测试配置。'],
+  deckRetailDetail:['One shared deck of 108 cards, with 27 cards of each weather.','全桌共用108张游戏牌，四种天气各27张。'],
   saveDeckFirst:['Save settings to use this deck.','请保存设置以使用此牌库。'],
   combatPick:['Draw five Pokémon, then choose your active and reserve partners. The Gym Leader starts active at Lv.2; other trainers and all reserves at Lv.1.','摸取五张宝可梦后，选择出场与备战搭档。馆主出场为2级，其他训练家及所有备战为1级。'],
   combatPickTitle:['Five Pokémon. Choose two.','五个候选，选择两只。'],
@@ -17,12 +18,12 @@ const strings = {
   playMove:['Use move','使用招式'], useTrait:['Use optional trait','发动可选特性'], responsePending:['Resolve the current response first.','请先处理当前响应。'],
   combatPlayHelp:['Use a move, activate a trait, switch, or finish playing.','可使用招式、发动特性、交替或完成出牌阶段。'],
   clockResponse:['Paused · response in progress','暂停 · 正在响应'], yourRole:['Your identity','你的身份'], eliminated:['Eliminated','已退场'],
-  previewEffects:['Effects supported in combat preview; full deck pending.','战斗预览支持此效果；完整牌库待补齐。'],
+  previewEffects:['Effects supported in combat.','战斗中支持此效果。'],
   brand: ['ROCKET TABLE', '火箭牌桌'], edition: ['MULTIPLAYER FOUNDATION', '多人游戏基础版'],
   catalogue: ['Field guide', '宝可梦图鉴'], rules: ['How this build works', '本版本说明'],
   language: ['Language', '语言'], graphics: ['Rich graphics', '丰富视觉效果'], motion: ['Reduce motion', '减少动态效果'],
   foundation: ['A real table. A foundation in progress.', '真实联机牌桌 · 规则持续完善中'],
-  foundationBody: ['Create a room for Pokémon combat, or watch as a spectator. Hosts can choose a basic deck or the reviewed cards playtest deck.', '可创建房间进行宝可梦战斗，也可作为观众观看。房主可以选择基础牌库或已复核游戏牌测试牌库。'],
+  foundationBody: ['Create a room for Pokémon combat, or watch as a spectator. Hosts can choose the 108-card Master Edition deck or a playtest deck.', '可创建房间进行宝可梦战斗，也可作为观众观看。房主可选择108张大师版牌库或测试牌库。'],
   headline: ['WHO’S TEAM ROCKET?', '谁是火箭队？'],
   intro: ['Invite your friends. Choose your partners. Take your place in the arena.', '邀请好友，选择搭档，在竞技场中就位。'],
   local: ['LOCAL MULTIPLAYER PLAYTEST', '本地多人联机测试'], nickname: ['Trainer nickname', '训练家昵称'],
@@ -89,7 +90,7 @@ const strings = {
   search: ['Search partners', '搜索搭档'], noResults: ['No matching partners.', '没有匹配的搭档。'], evidence: ['Evidence status', '证据状态'], abilityPending: ['Ability text pending verification', '技能文本待核实'],
   rulesTitle: ['A playable foundation, with clear boundaries.', '可联机体验的基础版，范围清晰。'],
   rules1: ['Live now: private rooms, host settings, readiness, private 5-to-2 selection, spectator views, drawing, hand-limit discards, turn order, unanimous end votes and recovery credentials.', '现已支持：私密房间、房主设置、准备状态、私密 5 选 2、观众视角、摸牌、手牌上限弃牌、回合顺序、全员结束投票与凭据恢复。'],
-  rules2: ['Combat preview supports 40 Pokémon groups and their reviewed abilities. Choose the Reviewed cards deck in lobby settings to include tools, events and held items.','战斗预览支持40组宝可梦及其已复核特性。可在大厅设置选择已复核游戏牌，将道具、事件和持有物加入牌库。'],
+  rules2: ['Combat supports 40 Pokémon groups. Choose Master Edition in lobby settings to use the counted 108-card deck, including tools, events and held items.','战斗支持40组宝可梦。可在大厅设置选择大师版，使用已清点的108张游戏牌，包括道具、事件和持有物。'],
   rules3: ['View identities first, then draw five different Pokémon each from one shuffled 40-group deck and choose two. No candidates repeat between trainers. The Gym Leader starts active at level 2; other active partners and all reserves start at level 1.', '先查看身份，再从同一洗匀的40组宝可梦牌库中每人摸取五个不同候选并选择两只。所有训练家之间不重复。馆主出场为2级，其他出场及所有备战为1级。'],
   rules4: ['Draw two cards, finish playing, discard down to four, then confirm turn end. You may raise the active partner one level at turn end, up to level 3. Ordinary switching is once per Play phase and reveals the incoming partner. Optional ability responses may be passed; a required hand-card choice waits for its owner even after the timer expires.', '摸两张牌、完成出牌阶段、弃至四张手牌后确认结束。回合结束时可让出场搭档升一级，最高3级。每个出牌阶段可普通交替一次，新出场搭档会公开。可选特性响应可以放弃；必须的手牌选择即使计时结束也会等待本人完成。'],
   rules5: ['Rooms expire after 7 hours without accepted actions. Polling does not extend room life. Offline turns cannot be skipped; host control transfers after the disconnect grace period.', '连续 7 小时没有有效操作，房间将过期。轮询不会延长房间寿命。离线玩家的回合无法跳过，房主离线超过宽限期后将转移房主权限。'],
@@ -134,6 +135,7 @@ let language = sessionStorage.getItem('rocket.language') === 'zh' ? 'zh' : 'en';
 let reducedMotion = sessionStorage.getItem('rocket.motion') === 'true';
 let richGraphics = sessionStorage.getItem('rocket.graphics') !== 'false';
 const t = key => strings[key]?.[language === 'zh' ? 1 : 0] ?? key;
+const deckLabels = { basic: 'deckBasic', reviewed: 'deckReviewed', retail: 'deckRetail' };
 const localized = value => typeof value === 'string' ? value : (value?.[language] || value?.en || value?.zh || '—');
 let catalogue = [];
 let session = null;
@@ -401,10 +403,10 @@ function lobbyPanel() {
     settingsDraft.deckProfile = event.target.value;
     render();
     $('#deck-profile')?.focus();
-  } }, el('option', { value: 'basic' }, t('deckBasic')), el('option', { value: 'reviewed' }, t('deckReviewed')));
+  } }, ...Object.entries(deckLabels).map(([value, label]) => el('option', { value }, t(label))));
   deckSelect.value = deck;
   panel.append(el('label', { class: 'field', for: 'deck-profile' }, el('span', {}, t('deckProfile')), deckSelect),
-    el('p', { class: 'inline-note' }, t(deck === 'reviewed' ? 'deckReviewedDetail' : 'deckBasicDetail')));
+    el('p', { class: 'inline-note' }, t(`${deckLabels[deck] ?? deckLabels.basic}Detail`)));
   if (deck !== savedDeck) panel.append(el('p', { class: 'inline-note' }, t('saveDeckFirst')));
   if (isOwner()) panel.append(button('saveSettings', saveSettings, 'button secondary'));
   const allReady = seated().length >= 2 && seated().length <= 6 && seated().every(p => p.ready);
@@ -415,7 +417,7 @@ function lobbyPanel() {
     const code = view.code;
     askConfirmation('combatFixture',()=>{
       if(view?.code===code&&view.status==='lobby'&&(view.settings.deckProfile??'basic')===savedDeck)action('startBattlePreview');
-    }, `${t('deckProfile')} · ${t(savedDeck === 'reviewed' ? 'deckReviewed' : 'deckBasic')}`);
+    }, `${t('deckProfile')} · ${t(deckLabels[savedDeck] ?? deckLabels.basic)}`);
   },'button primary',!allReady||seated().length<3||deck!==savedDeck));
   panel.append(launch, el('p', { class: 'testing-note compact' }, t('combatFixture')), el('p', { class: 'testing-note compact' }, t('testing')));
   return panel;
@@ -502,7 +504,8 @@ function renderBattleRoom() {
   const current=view.players.find(p=>p.id===view.turn?.playerId);
   const main=$('#main');
   main.append(worldPanel(seated(),view.selfId,view.turn?.playerId,view.settings.arena));
-  main.append(el('div',{class:'battle-hud'},el('div',{},el('span',{class:'hud-kicker'},`${t('room')} ${view.code} / ${t('round')} ${view.turn?.number}${view.gameMode==='combat-preview'?` · ${t('combatPreview')}`:''}`),el('h1',{},myTurn()?t('currentTurn'):`${current?.nickname||'—'} · ${t('theirTurn')}`),phaseStrip()),tag(t(connected?'connection':'reconnecting'))));
+  const combatLabel = view.scenario?.deckProfile === 'retail' ? 'deckRetail' : 'combatPreview';
+  main.append(el('div',{class:'battle-hud'},el('div',{},el('span',{class:'hud-kicker'},`${t('room')} ${view.code} / ${t('round')} ${view.turn?.number}${view.gameMode==='combat-preview'?` · ${t(combatLabel)}`:''}`),el('h1',{},myTurn()?t('currentTurn'):`${current?.nickname||'—'} · ${t('theirTurn')}`),phaseStrip()),tag(t(connected?'connection':'reconnecting'))));
   main.append(cameraControls());
   const menu=el('details',{class:'battle-menu'},el('summary',{},t('arenaMenu')),el('div',{class:'battle-menu-body'},crewPanel(),logPanel(),recoveryPanel(),isOwner()?controlPanel():null));
   main.append(menu);
@@ -560,7 +563,7 @@ function handPanel() {
     const eventUse=event?el('button',{type:'button',class:'button card-play',id:`use-event-${card.id}`,disabled:busy||!myTurn()||turnPhase()!=='play'||!event.canUse,onclick:()=>eventDialog(card,combatKit())},language==='zh'?'使用事件':'Use event'):null;
     cards.append(el('article', { class: 'hand-card' }, el('div', { class: 'hand-card-symbol', 'aria-hidden': true }, card.kind==='dodge'?'◇':'✦'), el('span', { class: 'hand-card-number' }, String(index + 1).padStart(2, '0')), el('strong', {}, localized(card.name)), card.kind==='held-item'&&view.self.battle?.equipItems?.some(item=>item.itemType===card.itemType)?button('equipItem',()=>equipItemDialog(card,combatKit()),'button card-play',!view.self.battle?.canEquip):null, card.weather?el('small',{class:'hand-card-weather'},weatherLabel(card.weather,language)):null, use, weatherUses, toolUse, eventUse, button('discard', () => action('discard', { cardId: card.id }), 'button card-discard', !canDiscard, { id: `discard-${card.id}` })));
   }
-  const deckLabel = view.scenario?.deckProfile === 'reviewed' ? 'deckReviewed' : 'deckBasic';
+  const deckLabel = deckLabels[view.scenario?.deckProfile] ?? deckLabels.basic;
   return el('section', { class: 'panel hand-panel' }, el('div', { class: 'section-heading' }, el('h2', {}, t('handTitle')), view.self.role ? el('small',{class:'own-role'},`${t('yourRole')}: ${roleName(view.self.role,language)}`) : null, tag(`${view.self.hand.length} / ${ownHandLimit()===Infinity?'∞':ownHandLimit()}`, view.self.hand.length > ownHandLimit() ? 'warning-tag' : 'private-tag'),view.self.exiledCount?el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`):null), el('p', { class: 'muted' }, view.gameMode==='combat-preview'?`${t('deckProfile')} · ${t(deckLabel)}`:t('handFixture')), cards, el('p', { class: `hand-hint ${canDiscard ? 'warning-text' : ''}` }, phaseHint()), privateReserve());
 }
 function logPanel() {

@@ -1063,7 +1063,11 @@ export function decisionPanel(view,kit) {
 export function resultPanel(view, kit) {
   const language=kit.language;
   const title = view.result?.winner==='rocket'?roleName('rocket',language):view.result?.winner==='challengers'?roleName('challenger',language):say(language,'Gym Leader and Gym Trainers','道馆馆主与道馆训练家');
-  const panel=node('section',{class:'combat-result'},node('h1',{},`${title} · ${say(language,'Victory','胜利')}`),node('p',{},say(language,'Combat preview result · test deck. All identities, hands and reserve partners are now public.','战斗预览结果 · 使用测试牌库。所有身份、手牌与备战搭档现已公开。')));
+  const deckLabel = view.scenario?.deckProfile === 'retail'
+    ? say(language, 'Master Edition (108 cards).', '大师版（108张）。')
+    : say(language, 'Playtest deck.', '测试牌库。');
+  const revealSummary = say(language, 'All identities, hands and reserve partners are now public.', '所有身份、手牌与备战搭档现已公开。');
+  const panel=node('section',{class:'combat-result'},node('h1',{},`${title} · ${say(language,'Victory','胜利')}`),node('p',{},`${deckLabel} ${revealSummary}`));
   for (const player of view.players.filter(p=>!p.spectator)) panel.append(node('article',{},
     node('h2',{},`${player.nickname} · ${roleName(player.role,language)}${view.result?.winnerIds.includes(player.id)?' ★':''}`),
     node('p',{},`${say(language,'Active','出场')}: ${kit.partnerName(player.active.catalogueId,player.active.level)} · ${say(language,'Reserve','备战')}: ${kit.partnerName(player.reserve.catalogueId,player.reserve.level)}`),

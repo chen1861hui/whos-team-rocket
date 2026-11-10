@@ -1,8 +1,10 @@
 import { randomUUID } from 'node:crypto';
+import { retailCounts, retailWeathers } from './retail-deck-counts.js';
 
 export const BASIC_DECK = 'basic';
 export const REVIEWED_DECK = 'reviewed';
-export const isDeckProfile = profile => profile === BASIC_DECK || profile === REVIEWED_DECK;
+export const RETAIL_DECK = 'retail';
+export const isDeckProfile = profile => [BASIC_DECK, REVIEWED_DECK, RETAIL_DECK].includes(profile);
 
 const basicWeather = Array(6).fill('intense-sun');
 const reviewedCommandWeather = ['intense-sun', 'intense-sun', 'intense-sun', 'clear', 'clear', 'rain', 'rain', 'thunderstorm'];
@@ -20,40 +22,50 @@ const itemTypes = ['rocky-helmet', 'leftovers', 'poison-barb', 'bright-powder', 
   'life-orb', 'blunder-policy', 'muscle-band', 'light-ball', 'quick-claw'];
 const names = { command: { zh: '接招吧！', en: 'Take this!' }, dodge: { zh: '快躲开！', en: 'Dodge!' } };
 
-// Quantities are for the optional playtest. The retail catalogue has its own gates.
+function countedWeather(key) {
+  return retailWeathers.flatMap((weather, index) => Array(retailCounts[key][index]).fill(weather));
+}
+
 export function playtestDeckPlan(profile, seats, catalogue) {
   if (!isDeckProfile(profile)) return null;
-  const reviewed = profile === REVIEWED_DECK;
-  const commands = reviewed ? reviewedCommandWeather : basicWeather;
-  const dodges = reviewed ? reviewedDodgeWeather : basicWeather;
-  const perSeat = [...commands.map(weather => ({ kind: 'command', weather, name: names.command })),
+  const retail = profile === RETAIL_DECK;
+  const reviewed = profile !== BASIC_DECK;
+  const commands = retail ? countedWeather('command') : reviewed ? reviewedCommandWeather : basicWeather;
+  const dodges = retail ? countedWeather('dodge') : reviewed ? reviewedDodgeWeather : basicWeather;
+  const commandAndDodge = [...commands.map(weather => ({ kind: 'command', weather, name: names.command })),
     ...dodges.map(weather => ({ kind: 'dodge', weather, name: names.dodge }))];
   const extras = [];
   if (reviewed) {
     for (const { toolType, name, weather } of toolPairs) {
-      for (const variant of weather) extras.push({ kind: 'tool', toolType, name, weather: variant });
+      for (const variant of retail ? countedWeather(toolType) : weather) extras.push({ kind: 'tool', toolType, name, weather: variant });
     }
     for (const eventType of eventTypes) {
       const entry = catalogue.playCardPreviews?.find(card => card.eventType === eventType && card.effectStatus === 'combat-preview');
-      if (!entry?.observedWeather?.[0] || !entry.name?.en || !entry.name?.zh) return null;
-      extras.push({ kind: 'event', eventType, name: entry.name, weather: entry.observedWeather[0] });
+      if (!entry?.name?.en || !entry.name.zh || (!retail && !entry.observedWeather?.[0])) return null;
+      for (const weather of retail ? countedWeather(eventType) : [entry.observedWeather[0]]) {
+        extras.push({ kind: 'event', eventType, name: entry.name, weather });
+      }
     }
     for (const itemType of itemTypes) {
       const entry = catalogue.heldItems?.find(card => card.id === itemType && card.effectStatus === 'combat-preview');
-      if (!entry?.weather || !entry.name?.en || !entry.name?.zh) return null;
-      extras.push({ kind: 'held-item', itemType, name: entry.name, weather: entry.weather });
+      if (!entry?.name?.en || !entry.name.zh || (!retail && !entry.weather)) return null;
+      for (const weather of retail ? countedWeather(itemType) : [entry.weather]) {
+        extras.push({ kind: 'held-item', itemType, name: entry.name, weather });
+      }
     }
   }
+  const cards = [...(retail ? commandAndDodge : Array.from({ length: seats }, () => commandAndDodge).flat()), ...extras];
   return {
-    cards: [...Array.from({ length: seats }, () => perSeat).flat(), ...extras],
+    cards,
     summary: {
-      deckProfile: profile, cardsPerSeat: perSeat.length, commandPerSeat: commands.length, dodgePerSeat: dodges.length,
-      deckCardCount: seats * perSeat.length + extras.length, extraCardCount: extras.length,
+      deckProfile: profile,
+      ...(retail ? {} : { cardsPerSeat: commandAndDodge.length, commandPerSeat: commands.length, dodgePerSeat: dodges.length }),
+      deckCardCount: cards.length, extraCardCount: extras.length,
       articunoReactions: extras.some(card => card.eventType === 'articuno-protection'),
     },
   };
 }
 
 export function makePlaytestCards(plan) {
-  return plan.cards.map(({ name, ...fields }) => ({ id: randomUUID(), ...fields, name: { ...name }, fixture: true }));
+  return plan.cards.map(({ name, ...fields }) => ({ id: randomUUID(), ...fields, name: { ...name }, fixture: plan.summary.deckProfile !== RETAIL_DECK }));
 }
