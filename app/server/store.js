@@ -345,7 +345,12 @@ export class RoomStore {
     // Other trainers' lobby actions do not invalidate this trainer's ready choice.
     const concurrentReady = input.type === 'ready' && current.status === 'lobby' &&
       input.revision < current.revision && input.revision >= (currentPlayer.readyRevision ?? 0);
-    if (current.revision !== input.revision && !lateSeatClaim && !concurrentReady) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
+    // Private setup actions can run concurrently until this player's own setup state changes.
+    const privateSetupAction = (current.status === 'identity' && input.type === 'acknowledgeIdentity') ||
+      (current.status === 'setup' && ['drawPokemon', 'selectPokemon'].includes(input.type));
+    const concurrentSetup = privateSetupAction && input.revision < current.revision &&
+      input.revision >= (currentPlayer.setupRevision ?? current.revision);
+    if (current.revision !== input.revision && !lateSeatClaim && !concurrentReady && !concurrentSetup) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
     if (Object.keys(currentPlayer.actions).length >= 20000) fail(429, 'ACTION_LIMIT', 'This credential has reached the development action limit.');
     const room = structuredClone(current);
     const player = room.players.find(entry => entry.id === currentPlayer.id);
@@ -391,15 +396,20 @@ export class RoomStore {
       case 'startBattlePreview':
         check([]); owner(); status('lobby');
         this.battleCall(() => setupBattle(room, this.catalogue));
+        for (const entry of seated) entry.setupRevision = room.revision + 1;
         break;
       case 'acknowledgeIdentity':
         check([]); seat(); status('identity');
         this.battleCall(() => acknowledgeBattleIdentity(room, player, this.catalogue));
+        if (room.status === 'setup') {
+          for (const entry of seated) entry.setupRevision = room.revision + 1;
+        } else player.setupRevision = room.revision + 1;
         break;
       case 'drawPokemon':
         check([]); seat(); status('setup');
         if (player.setupComplete || !player.candidateDeal?.length) fail(409, 'POKEMON_DRAW_EXHAUSTED', 'All five Pokémon candidates have been drawn.');
         player.candidates.push(player.candidateDeal.shift());
+        player.setupRevision = room.revision + 1;
         log(room, '一名训练家摸取了一张私密宝可梦候选。', 'A trainer drew one private Pokémon candidate.');
         break;
       case 'start':
@@ -408,12 +418,14 @@ export class RoomStore {
         if (this.catalogueIds.length < seated.length * 5) fail(503, 'CONTENT_UNAVAILABLE', 'The shared deck needs five unique Pokémon per player.');
         room.pokemonDeck = dealPokemon(seated, this.catalogueIds, { revealImmediately: true });
         room.status = 'setup';
+        for (const entry of seated) entry.setupRevision = room.revision + 1;
         log(room, '每位训练家从共享洗匀牌库获得五个不重复候选，并选两只搭档。', 'Each trainer receives five distinct candidates from one shuffled shared deck and selects two partners.');
         break;
       case 'selectPokemon':
         check(['activeId', 'reserveId']); seat(); status('setup');
         if (player.setupComplete) fail(409, 'ALREADY_SELECTED', 'Your setup selection is already locked.');
         if (input.activeId === input.reserveId || !player.candidates.includes(input.activeId) || !player.candidates.includes(input.reserveId)) fail(400, 'INVALID_SELECTION', 'Choose two distinct candidates from your private selection.');
+        player.setupRevision = room.revision + 1;
         if (isBattle(room)) {
           const complete = this.battleCall(() => selectBattlePartners(room, player, input.activeId, input.reserveId, this.catalogue));
           if (complete) this.startTurn(room, room.players.find(p => !p.spectator).id, 1);

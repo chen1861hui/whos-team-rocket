@@ -140,11 +140,25 @@ test('Berry keeps its pool through Articuno and discards the unclaimed card at t
   f.respond('protect', { cardId: art.id });
   for (const seat of [f.opponent, f.third]) {
     assert.equal(f.pending().targetId, seat.playerId);
-    for (const responder of f.seats) f.respond('pass', {}, responder);
+    assert.equal(f.pending().kind, 'berry-pick');
     f.respond('card', { handIndex: 0 });
   }
   assert.deepEqual(f.player(f.leader).hand, []);
   assert.deepEqual(f.room().discardPile, [art, event, cards[2]]);
+});
+
+test('Berry starts choosing immediately when Articuno is in the deck and nobody holds it', t => {
+  const f = fixture(t, { protection: true });
+  const art = f.card('Articuno', { kind: 'event', eventType: 'articuno-protection' });
+  f.room().drawPile = [art, ...['Third', 'Second', 'First'].map(label => f.card(label))];
+  f.use('berry-harvest');
+  for (const seat of f.seats) {
+    assert.equal(f.pending().kind, 'berry-pick');
+    assert.equal(f.pending().actorId, seat.playerId);
+    f.respond('card', { handIndex: 0 });
+  }
+  assert.equal(f.pending(), null);
+  assert.deepEqual(f.room().drawPile, [art]);
 });
 
 test('Berry with a short supply offers the real card and finishes when the pool is empty', t => {

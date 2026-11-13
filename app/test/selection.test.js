@@ -105,6 +105,42 @@ test('identities are assigned and acknowledged before any Pokémon candidate is 
   assert.equal(f.view(f.observer).self.candidateTypeHints,undefined);
 });
 
+test('different players can confirm identities and open or select partners from the same room revision', t => {
+  const f = game(t, 3);
+  const [host, guest, third] = f.seats;
+  const at = (who, revision, type, payload = {}) => f.act(who, type, { revision, ...payload });
+  const identity = f.start().revision;
+  for (const who of f.seats) at(who, identity, 'acknowledgeIdentity');
+  assert.equal(f.view(f.observer).status, 'setup');
+
+  for (let count = 0; count < 4; count++) f.act(host, 'drawPokemon');
+  const shared = f.view(host).revision;
+  at(host, shared, 'drawPokemon');
+  at(guest, shared, 'drawPokemon');
+  rejects(() => at(guest, shared, 'drawPokemon'), 'STALE_REVISION');
+  assert.equal(f.view(guest).self.candidates.length, 1);
+
+  const picks = who => {
+    const [activeId, reserveId] = f.view(who).self.candidates;
+    return { activeId, reserveId };
+  };
+  const beforeConfirm = f.view(host).revision;
+  at(host, beforeConfirm, 'selectPokemon', picks(host));
+  at(guest, beforeConfirm, 'drawPokemon');
+  assert.equal(f.view(guest).self.candidates.length, 2);
+  assert.ok(f.view(f.observer).players.every(player => !player.active && !player.reserve));
+
+  for (const [who, remaining] of [[guest, 3], [third, 5]]) {
+    for (let count = 0; count < remaining; count++) f.act(who, 'drawPokemon');
+  }
+  const confirmation = f.view(guest).revision;
+  at(guest, confirmation, 'selectPokemon', picks(guest));
+  const result = at(third, confirmation, 'selectPokemon', picks(third));
+  assert.equal(result.status, 'playing');
+  assert.ok(result.players.filter(player => !player.spectator).every(player => player.handCount === 4));
+  rejects(() => at(third, confirmation, 'drawPokemon'), 'STALE_REVISION');
+});
+
 test('six players draw 30 globally unique candidates; choose exactly two from their own five',t=>{
   const f=game(t);f.start();f.identities();const all=[];
   const hidden=f.view(f.observer);

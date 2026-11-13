@@ -526,9 +526,13 @@ const isArticunoCard=card=>card?.kind==='event'&&card.eventType==='articuno-prot
 // The default command/Dodge fixture has no reaction cards.
 function startProtectionWindow(room,ctx,window) {
   if(room.scenario?.articunoReactions!==true)return false;
+  const seats=live(room);
+  const start=Math.max(0,seats.findIndex(player=>player.id===room.turn.playerId));
+  const actorIds=[...seats.slice(start),...seats.slice(0,start)]
+    .filter(player=>player.hand.some(isArticunoCard)).map(player=>player.id);
+  if(!actorIds.length)return false;
   requireRule(!room.protectionWindow,'REACTION_PENDING','Finish the current protection window first.');
-  const seats=live(room),start=Math.max(0,seats.findIndex(player=>player.id===room.turn.playerId));
-  room.protectionWindow={...window,actorIds:[...seats.slice(start),...seats.slice(0,start)].map(player=>player.id),index:0};
+  room.protectionWindow={...window,actorIds,index:0};
   advanceProtectionWindow(room,ctx);return true;
 }
 function protectionTarget(room,ctx,window) {
@@ -550,7 +554,7 @@ function advanceProtectionWindow(room,ctx) {
   if(protectionTarget(room,ctx,window)) {
     while(window.index<window.actorIds.length) {
       const actor=trainer(room,window.actorIds[window.index]);
-      if(actor&&!actor.eliminated&&!actor.spectator) {
+      if(actor&&!actor.eliminated&&!actor.spectator&&actor.hand.some(isArticunoCard)) {
         decision(room,'articuno',actor.id,window.targetId,ctx);
         Object.assign(room.pendingBattle,{mode:window.mode,...(window.mode==='cancel-event'?{eventName:window.eventName}:{status:window.status})});return;
       }
@@ -2303,7 +2307,10 @@ export function useBattleTrait(room, player, ctx,input={}) {
     decision(room,'vital-spirit',player.id,player.id,ctx);room.pendingBattle.requiredCards=Math.min(2,ids.length);return;
   }
   if(player.active.catalogueId==='staryu') {
-    if(room.drawPile.length+room.discardPile.length)drawBattleCards(room,player,1,'illuminate');
+    if(room.drawPile.length+room.discardPile.length) {
+      drawBattleCards(room,player,1,'illuminate');
+      note(room,'发光额外摸取了1张牌。','Illuminate drew one extra card.');
+    }
     else note(room,'发光已发动，但当前没有可摸取的牌。','Illuminate was used, but no card is currently available to draw.');
     return;
   }

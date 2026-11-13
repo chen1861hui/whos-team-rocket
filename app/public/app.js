@@ -203,7 +203,6 @@ let session = null;
 try { const saved = JSON.parse(sessionStorage.getItem('rocket.session') || 'null'); if (saved?.code && saved?.token) session = saved; } catch { sessionStorage.removeItem('rocket.session'); }
 let identityFaceShown = false, revealedCandidate = null, arrivingHandCards = [], enteringArena = false, leaderPortrait = null;
 let drawCeremony = 'sealed', drawCeremonyTimer, inspectedCandidate = null, inspectedLevel = 1;
-let coastalHandExpanded = false;
 let revealVictory = false, victorySoundTimer;
 const gymThemes = ['fire', 'water', 'grass'];
 let view = null, busy = false, pollRunning = false, connected = true, errorKey = '', errorCode = '', noticeKey = '', selected = [], settingsDraft = null, signature = '', dialogKind = null, terminalReason = '';
@@ -254,6 +253,7 @@ function phaseHint() {
   if (view.pendingBattle) return t('responsePending');
   if (view.self.spectator) return t('watchCopy');
   if (!myTurn()) return t('waitTurn');
+  if (turnPhase() === 'draw' && canIlluminate()) return language==='zh'?'可发动「发光」额外摸 1 张。':'Use Illuminate to draw 1 extra card.';
   if (view.gameMode === 'combat-preview' && turnPhase() === 'play') return t('combatPlayHelp');
   return turnPhase() === 'draw' ? `${view.turn.drawRemaining} ${t('drawsLeft')}` : t({play:view.turn.switchUsed?'switchUsedHelp':'switchHelp',discard:'trim',end:'turnReady'}[turnPhase()]);
 }
@@ -1277,6 +1277,26 @@ function arenaControl(id,label,className,icon,onclick,disabled=false) {
     el('span',{class:'arena-quick-tooltip','aria-hidden':'true'},label));
 }
 const traitChoices = {download:downloadDialog,'vital-spirit':vitalSpiritDialog,reckless:recklessDialog,analytic:analyticDialog};
+function canIlluminate() {
+  return view?.self.battle?.canTrait && view.self.battle.trait?.kind==='illuminate';
+}
+function confirmLastDraw() {
+  const trainer = view.selfId;
+  const turn = view.turn.number;
+  const choose = async useTrait => {
+    if (!myTurn() || view.selfId!==trainer || view.turn.number!==turn || turnPhase()!=='draw' || view.turn.drawRemaining!==1) return;
+    closeArenaPrompt(false);
+    if (useTrait && (!canIlluminate() || !await action('useTrait'))) return;
+    if (myTurn() && view.selfId===trainer && view.turn.number===turn && turnPhase()==='draw') await action('draw');
+  };
+  const title = language==='zh'?'发动发光？':'Use Illuminate?';
+  openArenaPrompt(el('section',{class:'arena-prompt arena-trait-prompt',tabindex:-1,'aria-label':title},
+    el('h2',{},title),
+    el('p',{},language==='zh'?'发光可在结束摸牌前额外摸 1 张牌。':'Illuminate lets you draw 1 extra card before the Draw phase ends.'),
+    el('div',{class:'action-row'},
+      el('button',{type:'button',class:'button secondary',onclick:()=>choose(false)},language==='zh'?'只摸最后一张':'Draw without Illuminate'),
+      el('button',{type:'button',class:'button primary',onclick:()=>choose(true)},language==='zh'?'发动发光并摸牌':'Use Illuminate and draw'))));
+}
 function arenaTraitButton() {
   const battle = view.self.battle;
   if (!battle?.canTrait) return null;
@@ -1315,7 +1335,8 @@ function renderBattleRoom() {
     el('span',{class:'match-round'},`${t('round')} ${view.turn?.number ?? '—'}`),menu);
   const canJudge = canRespond && pending.kind==='reveal-judgment' && !view.pendingVote;
   const canDraw = myTurn() && turnPhase()==='draw' && view.turn.drawRemaining>0;
-  const deckAction = canJudge ? () => action('respondBattle',{decisionId:pending.id,choice:'reveal'}) : () => action('draw');
+  const deckAction = canJudge ? () => action('respondBattle',{decisionId:pending.id,choice:'reveal'})
+    : canIlluminate() && view.turn.drawRemaining===1 ? confirmLastDraw : () => action('draw');
   const deckLabel = canJudge ? (language==='zh'?'翻开判定':'Reveal judgment') : canDraw ? t('draw') : t('deckPile');
   const showDeck = canJudge || (!view.self.spectator && !ownPlayer()?.eliminated && view.turn?.playerId===view.selfId);
   const deck = el('div',{class:'screen-deck','data-hand-deck':''},showDeck ? el('button',{
@@ -1348,7 +1369,7 @@ function renderBattleRoom() {
   if(view.self.spectator) {
     if (!pending) rail.append(el('p',{class:'rail-waiting'},t('watchCopy')));
   } else {
-    stage.append(el('div',{class:`match-tray${theme==='water' && coastalHandExpanded?' hand-expanded':''}`},handPanel(theme==='water'),deck));
+    stage.append(el('div',{class:'match-tray'},handPanel(),deck));
     if (!pending && myTurn() && ['play','end'].includes(turnPhase())) {
       const switchLabel = t(view.turn.switchUsed?'switchUsed':'switchPokemon');
       const tier = view.self.reserve?.level ?? 1;
@@ -1409,9 +1430,9 @@ function trainerTray() {
       },'button subtle small',busy) : null),
     privateReserve());
 }
-function handPanel(coastal = false) {
+function handPanel() {
   const canDiscard = myTurn() && turnPhase() === 'discard' && view.self.hand.length > ownHandLimit();
-  const cards = el('div', { class: 'hand-cards', id:coastal?'coastal-hand-cards':null });
+  const cards = el('div', { class: 'hand-cards' });
   for (const [index, card] of view.self.hand.entries()) {
     const commandMoves=(view.self.battle?.moves||[]).filter(move=>move.condition?.kind==='command');
     const weatherMoves=(view.self.battle?.moves||[]).filter(move=>move.condition?.kind==='weather-card'&&move.condition.weatherIconsInCondition.includes(card.weather));
@@ -1445,17 +1466,9 @@ function handPanel(coastal = false) {
     handCard.style.setProperty('--hand-drop',`${Math.abs(tilt)*1.1}px`);
     cards.append(handCard);
   }
-  const toggle = coastal ? el('button',{
-    type:'button',id:'coastal-hand-toggle',class:'coastal-hand-toggle','aria-expanded':String(coastalHandExpanded),
-    'aria-controls':'coastal-hand-cards',onclick:event=>{
-      coastalHandExpanded = !coastalHandExpanded;
-      event.currentTarget.setAttribute('aria-expanded',String(coastalHandExpanded));
-      event.currentTarget.closest('.match-tray').classList.toggle('hand-expanded',coastalHandExpanded);
-    },
-  },language==='zh'?'牌面详情':'Card details') : null;
   return el('section',{class:'hand-panel','aria-label':t('handTitle')},
-    el('div',{class:'section-heading'},
-      view.self.exiledCount?el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`):null,toggle),
+    view.self.exiledCount?el('div',{class:'section-heading'},
+      el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`)):null,
     cards);
 }
 function logPanel() {

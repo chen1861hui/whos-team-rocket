@@ -2033,7 +2033,7 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
   font-size:8px; text-align:center;
 }
 
-.coastal-round,.coastal-cue,.coastal-hand-toggle { display:none; }
+.coastal-round,.coastal-cue { display:none; }
 
 :is(.match-table,.match-prep,.match-finished).theme-water {
   --coastal-ink:#102231;
@@ -2190,13 +2190,6 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
     justify-content:flex-start; gap:7px; margin:0 0 0 16px; padding:0;
     color:#fff7e5; text-shadow:0 1px 5px #071321,0 1px 3px #071321;
   }
-  .match-table.theme-water .coastal-hand-toggle {
-    display:inline-flex; align-items:center; gap:5px; min-height:23px; padding:2px 7px;
-    border:1px solid #c6ab7d; border-radius:13px; background:#152b3cf0; color:var(--coastal-paper);
-    font:inherit; font-size:10px; font-weight:700; pointer-events:auto; cursor:pointer;
-  }
-  .match-table.theme-water .coastal-hand-toggle::after { content:"⌃"; font-size:12px; }
-  .match-table.theme-water .coastal-hand-toggle[aria-expanded='true']::after { content:"⌄"; }
   .battle-view .match-table.theme-water .hand-cards { gap:4px; padding:7px 9px 9px; }
   .battle-view .match-table.theme-water .hand-card {
     flex:0 0 clamp(89px,8.1vw,122px); min-width:0; min-height:100px; padding:4px; gap:2px;
@@ -2206,19 +2199,14 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
   .battle-view .match-table.theme-water .hand-card>strong {
     min-height:0; color:#24303d; font-size:11px; line-height:1.14; padding:1px 2px;
   }
-  .match-table.theme-water .hand-card-art { height:31px; }
-  .match-table.theme-water .hand-card-art img { width:38px; height:38px; }
-  .match-table.theme-water .hand-card-brief { display:none; }
+  .match-table.theme-water .hand-card-art { height:42px; }
+  .match-table.theme-water .hand-card-art img { width:48px; height:48px; }
   .match-table.theme-water .hand-card-weather { font-size:9px; line-height:11px; margin:0; }
   .battle-view .match-table.theme-water .hand-card .button {
     margin:0; min-height:20px; font-size:9px; padding:2px 3px;
   }
-  .match-table.theme-water .hand-expanded .hand-card-brief { display:block; }
-  .match-table.theme-water .hand-expanded .hand-card-art { height:42px; }
-  .match-table.theme-water .hand-expanded .hand-card-art img { width:48px; height:48px; }
   .match-table.theme-water .coastal-field-prompt :is(.match-tray,.arena-quick-actions) { visibility:visible; opacity:.88; }
-  .match-table.theme-water .coastal-field-prompt :is(.hand-card-brief,.hand-card-actions) { display:none; }
-  .match-table.theme-water .coastal-field-prompt .coastal-hand-toggle { visibility:hidden; }
+  .match-table.theme-water .coastal-field-prompt .hand-card-actions { display:none; }
   .match-table.theme-water .coastal-field-prompt .arena-prompt {
     inset:auto 15px 85px auto; translate:none;
     width:min(306px,31vw); max-height:42dvh; border-radius:12px;
