@@ -28,10 +28,11 @@ npm.cmd start
 
 ## 证据与定位
 
+- [两段实体试玩视频交叉验证](GAMEPLAY-VIDEO-CROSSCHECK.md) 记录时间戳、与实体册的差异、五人完整随机局及三种胜负、关键卡牌和计时的浏览器复验。
 - [原版规则书来源与实物交叉核对](xiaohongshu-rulebook-source.md)、[规则书截图](research-assets/xiaohongshu-rulebook/) 和 [已审阅对战规格](reviewed-combat-spec.md) 用来判断预期。当前「游戏流程」是对局导航摘要。
 - [108 张牌库清单](app/server/retail-deck-counts.js) 是实现核对点。固定 27 张每种天气。共 30 张指挥、15 张闪避、22 张分栏道具、28 张事件、13 张持有物。历史交接里的牌库切换操作适用于早期版本。
 - `app/server/store.js` 负责席位、阶段、计时和私密视图，`combat.js` 负责响应及结算，`battle-rules.js` 负责伤害和胜负。客户端入口在 `app/public/app.js`，战斗对话框在 `combat-ui.js`。
-- 当前基线运行 `npm.cmd test -- --test-reporter=spec` 共 **1,237 项通过**。这一轮仍需用当前 UI 完整走完真实对局，并逐条对照实物规则与牌面。
+- 当前基线串行运行 `npm.cmd test -- --test-reporter=spec --test-concurrency=1` 共 **1,237 项通过**。完整随机局的战斗通过正常房间 API 推进，关键响应及终局操作另用浏览器界面复验。详细覆盖见交叉验证记录。
 - 记录每条发现时带上版本、房间人数、视角、宝可梦及等级、卡牌与天气、操作顺序、预期与实际。卡面或规则表述有歧义时附原文或已保存的截图编号。分享复现时只写房间码，恢复凭据留在对应玩家标签页。
 
 ## 实机参考

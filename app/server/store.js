@@ -342,7 +342,10 @@ export class RoomStore {
     if (current.status === 'closed') fail(410, 'ROOM_CLOSED', 'This room is closed.');
     // Seat claims are checked against current occupancy below, even if another seat just changed.
     const lateSeatClaim = input.type === 'chooseSeat' && input.revision < current.revision;
-    if (current.revision !== input.revision && !lateSeatClaim) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
+    // Other trainers' lobby actions do not invalidate this trainer's ready choice.
+    const concurrentReady = input.type === 'ready' && current.status === 'lobby' &&
+      input.revision < current.revision && input.revision >= (currentPlayer.readyRevision ?? 0);
+    if (current.revision !== input.revision && !lateSeatClaim && !concurrentReady) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
     if (Object.keys(currentPlayer.actions).length >= 20000) fail(429, 'ACTION_LIMIT', 'This credential has reached the development action limit.');
     const room = structuredClone(current);
     const player = room.players.find(entry => entry.id === currentPlayer.id);
@@ -363,12 +366,14 @@ export class RoomStore {
         if (player.seatNumber !== input.seatNumber) {
           player.seatNumber = input.seatNumber;
           player.ready = false;
+          player.readyRevision = room.revision + 1;
         }
         break;
       case 'ready':
         check(['ready']); seat(); status('lobby');
         if (typeof input.ready !== 'boolean') fail(400, 'INVALID_INPUT', 'Ready must be a boolean.');
         player.ready = input.ready;
+        player.readyRevision = room.revision + 1;
         break;
       case 'settings': {
         check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile', 'autoDraw', 'autoJudgment']); owner(); status('lobby');
@@ -514,9 +519,10 @@ export class RoomStore {
         const index = player.hand.findIndex(card => card.id === input.cardId);
         if (typeof input.cardId !== 'string' || index < 0) fail(400, 'INVALID_CARD', 'Choose a card from your own hand.');
         const discarded = player.hand.splice(index, 1)[0];
-        if (isBattle(room)) room.discardPile.push(discarded);
+        const battle = isBattle(room);
+        if (battle) room.discardPile.push(discarded);
         if (player.hand.length <= handLimit(room,player)){room.turn.phase = 'end';room.turn.discardComplete=true;}
-        log(room, '当前玩家弃置一张测试手牌。', 'The current player discarded one fixture card.');
+        log(room, battle ? '当前玩家弃置一张手牌。' : '当前玩家弃置一张测试手牌。', battle ? 'The current player discarded one card.' : 'The current player discarded one fixture card.');
         break;
       }
       case 'endTurn': {
@@ -575,6 +581,7 @@ export class RoomStore {
       delete player.role; delete player.eliminated; delete player.identityAcknowledged; delete player.identityPublic; delete player.candidateDeal;
       delete player.exiledCards;
       player.ready = false; player.hand = []; player.candidates = []; player.active = null; player.reserve = null; player.setupComplete = false;
+      player.readyRevision = room.revision + 1;
     }
     log(room, vote.kind === 'endRoom' ? '全员同意，房间已关闭。' : completedResult ? '房主已在结果后返回大厅，可准备下一局。' : '全员同意，游戏已结束并返回大厅。', vote.kind === 'endRoom' ? 'Unanimous vote closed the room.' : completedResult ? 'The host returned to the lobby after the result; ready for a rematch.' : 'Unanimous vote ended the game and returned to the lobby.');
   }

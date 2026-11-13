@@ -101,6 +101,17 @@ test('Master Edition deals from one fixed deck and keeps opening hands private',
   }
 });
 
+test('Master Edition discard adds the card to the pile and uses the match log wording', t => {
+  const f = fixture(t, { deckProfile: 'retail' });
+  const played = f.play();
+  const cardId = played.self.hand[0].id;
+  f.act(f.leader, 'finishPlay');
+  const result = f.act(f.leader, 'discard', { cardId });
+  assert.equal(result.self.hand.length, 5);
+  assert.equal(f.room().discardPile.at(-1).id, cardId);
+  assert.deepEqual(result.log.at(-1).text, { zh: '当前玩家弃置一张手牌。', en: 'The current player discarded one card.' });
+});
+
 test('only the host can save a known deck and a timer-only save preserves the profile across restart', t => {
   const root = fileURLToPath(new URL('../.data/', import.meta.url));
   mkdirSync(root, { recursive: true });
@@ -211,6 +222,8 @@ test('leader elimination triggers immediate Challenger victory and only then dis
   const lobby = f.act(f.owner, 'returnToLobby');
   assert.equal(lobby.status, 'lobby'); assert.equal(lobby.gameMode, undefined);
   assert.ok(lobby.players.every(p => p.role === undefined && p.hand === undefined && p.active === null));
+  rejects(() => f.act(f.owner, 'ready', { revision: ended.revision, ready: true }), 'STALE_REVISION');
+  assert.equal(f.view(f.owner).players.find(p => p.id === f.owner.playerId).ready, false);
 });
 
 test('multi-target Surf opens independent defense windows and one dodge leaves the other target affected', t => {

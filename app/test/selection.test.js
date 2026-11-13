@@ -51,6 +51,28 @@ test('host and guests can claim open seats, retain ownership, and start in clock
   assert.equal(f.room().scenario.deckCardCount,108);
 });
 
+test('simultaneous ready requests from different seats all apply without overwriting newer choices', t => {
+  const f = game(t, 5);
+  for (const seat of f.seats) f.act(seat, 'ready', { ready: false });
+  const revision = f.view(f.owner).revision;
+  const setReady = (seat, id, ready = true) => f.store.action(f.owner.code, seat.token, { id, revision, type: 'ready', ready });
+
+  for (const [index, seat] of f.seats.entries()) setReady(seat, `concurrent-ready-${index}`);
+  assert.ok(f.view(f.observer).players.filter(player => !player.spectator).every(player => player.ready));
+  rejects(() => setReady(f.owner, 'old-unready', false), 'STALE_REVISION');
+  rejects(() => setReady(f.observer, 'observer-ready'), 'SPECTATOR_ONLY_VIEW');
+  assert.equal(f.start().status, 'identity');
+  rejects(() => setReady(f.seats[1], 'ready-after-start'), 'STALE_REVISION');
+});
+
+test('a ready request from before a seat change cannot restore readiness', t => {
+  const f = game(t, 3);
+  const revision = f.view(f.owner).revision;
+  f.act(f.owner, 'chooseSeat', { seatNumber: 6 });
+  rejects(() => f.store.action(f.owner.code, f.owner.token, { id: 'old-seat-ready', revision, type: 'ready', ready: true }), 'STALE_REVISION');
+  assert.equal(f.view(f.owner).players.find(player => player.id === f.owner.playerId).ready, false);
+});
+
 test('identities are assigned and acknowledged before any Pokémon candidate is dealt or drawn',t=>{
   const f=game(t);const first=f.start();
   assert.equal(first.status,'identity');assert.ok(first.self.role);assert.deepEqual(first.self.candidates,[]);
