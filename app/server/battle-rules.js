@@ -77,6 +77,11 @@ export function beginCommand(source) {
   return count;
 }
 
+export function blazeBonus(source,catalogue,traitsEffective) {
+  return traitsEffective && source?.catalogueId === 'charmander' &&
+    currentHp(source,catalogue)*2 <= maxHp(source,catalogue) ? 2 : 0;
+}
+
 export function computeDamage(source, target, base, catalogue, { command = true, powerBoost = 0, channel = 'move', reinforcements = true, targetReinforcements = true, receiving = true, sourceTraits = true, targetTraits = true } = {}) {
   integer(base, 'Base damage');
   integer(powerBoost, 'Power boost');
@@ -86,7 +91,7 @@ export function computeDamage(source, target, base, catalogue, { command = true,
   if (source?.status === 'burn' && !guts && channel === 'move') {
     damage = Math.min(damage, 1);
   } else {
-    if (sourceTraits && source?.catalogueId === 'charmander' && currentHp(source, catalogue) * 2 <= maxHp(source, catalogue)) damage += 2;
+    damage += blazeBonus(source,catalogue,sourceTraits);
     if (command && reinforcements) damage += powerBoost;
     if (guts && source.status) damage += 1;
   }

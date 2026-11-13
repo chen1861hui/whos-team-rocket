@@ -1,3 +1,5 @@
+import {playCardFace} from './play-card-face.js';
+
 const words = {
   leader:['Gym Leader','道馆馆主'], gym:['Gym Trainer','道馆训练家'], challenger:['Challenger','挑战者'], rocket:['Rocket Grunt','火箭队手下'], hidden:['Hidden identity','隐藏身份'],
   burn:['Burn','灼伤'], flinch:['Flinch','畏缩'], sleep:['Sleep','睡眠'], confusion:['Confusion','混乱'], paralysis:['Paralysis','麻痹'], poison:['Poison','中毒'],
@@ -21,23 +23,31 @@ export function moveChoiceDialog(card,kit) {
   const applicable=move=>move.condition?.kind==='command'?card.kind==='command':move.condition?.kind==='weather-card'&&move.condition.weatherIconsInCondition.includes(card.weather);
   const usable=(move,current)=>move.canUse&&!(move.condition?.kind==='command'&&current.players.find(player=>player.id===current.selfId)?.active?.status==='paralysis'&&!['intense-sun','clear'].includes(card.weather));
   const moves=(initial.self.battle?.moves||[]).filter(applicable);
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'move-choice-title'},
+  const dialog=node('section',{class:'arena-prompt','aria-labelledby':'move-choice-title',tabindex:-1},
     node('h2',{id:'move-choice-title'},say(language,'Choose move','选择招式')),
     node('p',{},`${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
-  const selector=node('select',{id:'move-choice-select','aria-label':say(language,'Move to use with this card','使用此牌的招式')},node('option',{value:''},say(language,'Choose a move','请选择招式')));
-  for(const move of moves)selector.append(node('option',{value:String(move.index),disabled:!usable(move,initial)},kit.localized(move.name)));
-  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-move-choice',disabled:true},say(language,'Choose targets','选择目标'));
-  selector.addEventListener('change',()=>{confirm.disabled=selector.value===''||kit.busy||Boolean(kit.getView().pendingVote);});
-  confirm.addEventListener('click',()=>{
-    if(selector.value==='')return;
-    const moveIndex=Number(selector.value),chosen=moves.find(move=>move.index===moveIndex),current=kit.getView(),move=current.self.battle?.moves?.[moveIndex];
-    dialog.close();
-    if(current.code!==initial.code||current.selfId!==initial.selfId||current.turn?.number!==turnNumber||kit.busy||current.pendingVote||!current.self.hand.some(item=>item.id===card.id)||!chosen||!move||JSON.stringify(move.name)!==JSON.stringify(chosen.name)||!applicable(move)||!usable(move,current))return;
-    attackDialog(card,kit,moveIndex);
-  });
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
-  dialog.append(node('label',{class:'attack-target',for:'move-choice-select'},node('strong',{},say(language,'Available moves','可选招式')),selector),node('div',{class:'action-row'},cancel,confirm));
-  dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();selector.focus();
+  const options=node('div',{class:'arena-move-options'});
+  for(const chosen of moves) {
+    const cost=chosen.condition.kind==='command'
+      ? say(language,'Command','接招吧！')
+      : chosen.condition.weatherIconsInCondition.map(weather=>weatherLabel(weather,language)).join(' / ');
+    options.append(node('button',{type:'button',class:'arena-tool-choice arena-move-choice',disabled:kit.busy||!usable(chosen,initial),onclick:()=>{
+      const current=kit.getView(),move=current.self.battle?.moves?.[chosen.index];
+      if(current.code!==initial.code||current.selfId!==initial.selfId||current.turn?.number!==turnNumber||kit.busy||
+        current.pendingVote||!current.self.hand.some(item=>item.id===card.id)||!move||
+        JSON.stringify(move.name)!==JSON.stringify(chosen.name)||!applicable(move)||!usable(move,current))return;
+      attackDialog(card,kit,chosen.index);
+    }},node('strong',{},kit.localized(chosen.name)),node('small',{},cost)));
+  }
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
+  dialog.append(options,node('div',{class:'action-row'},cancel));
+  kit.openArenaPrompt(dialog);
+}
+function traitPanel(kit,title,...content) {
+  const view=kit.getView();
+  const pokemon=view.players.find(player=>player.id===view.selfId)?.active;
+  return node('section',{class:'arena-prompt arena-trait-prompt',tabindex:-1,'aria-label':title},
+    node('h2',{},kit.partnerImage(pokemon),title),...content);
 }
 export function eventDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,code=initial.code,selfId=initial.selfId,turnNumber=initial.turn?.number,cardId=card.id,eventType=card.eventType;
@@ -46,23 +56,20 @@ export function eventDialog(card,kit) {
   if(card.kind!=='event'||!event)return;
   if(event.targeting==='single')return targetedEventDialog(card,kit);
   const targetIds=[...(event.targetIds||[])];
-  const order=node('ol',{id:'event-target-order','aria-label':say(language,'Public target order','公开目标顺序')});
-  for(const id of targetIds){
-    const player=initial.players.find(player=>player.id===id),pokemon=player?.active;
-    order.append(node('li',{},`${player?.nickname||'—'}${pokemon?` · ${kit.partnerName(pokemon.catalogueId,pokemon.level)}`:''}`));
-  }
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'event-title'},
-    node('h2',{id:'event-title'},kit.localized(event.name)),node('p',{},kit.localized(event.description)),
-    node('strong',{},say(language,'Targets resolve in this order','目标按此顺序结算')),order,
-    node('p',{class:'muted'},say(language,'Confirming uses and spends this one physical event card. Each target resolves separately.','确认后使用并消耗这一张实体事件牌，各目标分别结算。')));
-  const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-event',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  const art=playCardFace(card,language).art[0];
+  const dialog=node('section',{class:'arena-prompt arena-event-prompt',tabindex:-1,'aria-labelledby':'event-title'},
+    node('h2',{id:'event-title'},art?node('img',{src:`/play-card-art/${art}`,alt:''}):null,kit.localized(event.name)),
+    node('p',{},kit.localized(event.description)),
+    node('p',{class:'arena-target-summary'},targetIds.map(id=>initial.players.find(player=>player.id===id)?.nickname).join(' → ')));
+  const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-event',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-event',disabled:kit.busy||!event.canUse||Boolean(initial.pendingVote)||Boolean(initial.pendingBattle),onclick:()=>{
     const current=kit.getView(),legal=descriptor(current),held=current?.self?.hand?.find(item=>item.id===cardId&&item.kind==='event'&&item.eventType===eventType);
-    dialog.close();
+    kit.closeArenaPrompt(false);
     if(current?.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||current.status!=='playing'||current.turn?.playerId!==selfId||current.turn?.phase!=='play'||current.self.spectator||current.players.find(player=>player.id===selfId)?.eliminated||kit.busy||current.pendingVote||current.pendingBattle||!held||!legal?.canUse||JSON.stringify(legal.targetIds||[])!==JSON.stringify(targetIds))return;
     kit.action('useEvent',{cardId});
   }},say(language,'Use event · spend card','使用事件 · 消耗此牌'));
-  dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
+  dialog.append(node('div',{class:'action-row'},cancel,confirm));
+  kit.openArenaPrompt(dialog,{targets:()=>targetIds,selected:()=>targetIds});
 }
 function targetedEventDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,code=initial.code,selfId=initial.selfId,turnNumber=initial.turn?.number,cardId=card.id,eventType=card.eventType;
@@ -79,15 +86,17 @@ function targetedEventDialog(card,kit) {
     return pokemon?JSON.stringify([pokemon.instanceId??null,pokemon.catalogueId,pokemon.level]):null;
   };
   if(split&&!event.choices?.some(choice=>choice.effect===draft.effect&&enabled(choice))){draft.effect='';draft.targetId='';draft.targetFace=null;}
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'event-title'},
-    node('h2',{id:'event-title'},kit.localized(event.name)),node('p',{},kit.localized(event.description)));
+  const art=playCardFace(card,language).art[0];
+  const dialog=node('section',{class:'arena-prompt arena-event-prompt',tabindex:-1,'aria-labelledby':'event-title'},
+    node('h2',{id:'event-title'},art?node('img',{src:`/play-card-art/${art}`,alt:''}):null,kit.localized(event.name)),
+    node('p',{},kit.localized(event.description)));
   const effects=split?node('select',{id:'event-effect','aria-label':say(language,'Event effect','事件效果'),disabled:kit.busy||Boolean(initial.pendingVote)},node('option',{value:''},say(language,'Choose one effect','请选择一种效果'))):null;
   if(effects){
     for(const choice of event.choices||[])effects.append(node('option',{value:choice.effect,disabled:!enabled(choice)},`${kit.localized(choice.name)}${enabled(choice)?'':say(language,' · unavailable',' · 不可用')}`));
     effects.value=draft.effect;
     dialog.append(node('label',{class:'attack-target',for:'event-effect'},node('strong',{},say(language,'Effect','效果')),effects));
   }
-  const targets=node('select',{id:'event-target','aria-label':say(language,'Event target','事件目标')});
+  const targetHint=node('p',{class:'arena-target-summary','aria-live':'polite'});
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-event',disabled:true},say(language,'Use event · spend card','使用事件 · 消耗此牌'));
   const update=()=>{
     const current=kit.getView(),legal=descriptor(current);
@@ -96,113 +105,118 @@ function targetedEventDialog(card,kit) {
   const populateTargets=()=>{
     const current=kit.getView(),ids=legalTargets(current);
     if(!ids.includes(draft.targetId)||publicFace(current,draft.targetId)!==draft.targetFace){draft.targetId='';draft.targetFace=null;}
-    targets.replaceChildren(node('option',{value:''},targetIsTrainer()?say(language,'Choose a trainer','请选择训练家'):say(language,'Choose an active Pokémon','请选择出战宝可梦')));
-    for(const id of ids){
-      const player=current.players.find(player=>player.id===id),pokemon=player?.active;
-      targets.append(node('option',{value:id},`${player?.nickname||'—'} · ${pokemon?kit.partnerName(pokemon.catalogueId,pokemon.level):'—'}`));
-    }
-    targets.value=draft.targetId;targets.disabled=kit.busy||Boolean(current?.pendingVote)||Boolean(current?.pendingBattle)||!ids.length;update();
+    const player=current.players.find(player=>player.id===draft.targetId);
+    targetHint.textContent=player ? player.nickname : targetIsTrainer()
+      ? say(language,'Choose a highlighted trainer.','点击战场上高亮的训练家。')
+      : say(language,'Choose a highlighted Pokémon.','点击战场上高亮的宝可梦。');
+    update();
+    kit.syncArenaPrompt();
   };
   effects?.addEventListener('change',()=>{draft.effect=effects.value;draft.targetId='';draft.targetFace=null;populateTargets();});
-  targets.addEventListener('change',()=>{draft.targetId=targets.value;draft.targetFace=publicFace(kit.getView(),draft.targetId);update();});
   confirm.addEventListener('click',()=>{
     const current=kit.getView(),legal=descriptor(current),held=current?.self?.hand?.find(item=>item.id===cardId&&item.kind==='event'&&item.eventType===eventType),effect=draft.effect,targetId=draft.targetId;
-    dialog.close();
+    kit.closeArenaPrompt(false);
     if(current?.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||current.status!=='playing'||current.turn?.playerId!==selfId||current.turn?.phase!=='play'||current.self.spectator||current.players.find(player=>player.id===selfId)?.eliminated||kit.busy||current.pendingVote||current.pendingBattle||!held||legal?.targeting!=='single'||!legal.canUse||!legalTargets(current).includes(targetId)||publicFace(current,targetId)!==draft.targetFace)return;
     if(split&&!legal.choices?.some(choice=>choice.effect===effect&&enabled(choice)))return;
     kit.action('useEvent',{cardId,targetId,...(split?{effect}:{})});
   });
-  const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-event',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-event',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
   const help={
     'mr-mime-trick':say(language,'Take the selected card into your hand. A taken held item is not equipped automatically.','所获得的牌加入你的手牌，获得的持有物不会自动携带。'),
     'jigglypuff-performance':say(language,'The target trainer judges. This event does not ask for a Dodge response.','目标训练家进行判定，此事件不要求躲闪响应。')
   }[eventType];
-  dialog.append(node('label',{class:'attack-target',for:'event-target'},node('strong',{},say(language,'Target','目标')),targets),
+  dialog.append(targetHint,
     ...(help?[node('p',{class:'muted'},help)]:[]),
     node('p',{class:'muted'},say(language,'Confirming consumes this one physical event card.','确认后消耗这一张实体事件牌。')),node('div',{class:'action-row'},cancel,confirm));
-  populateTargets();dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();(effects||targets).focus();
+  kit.openArenaPrompt(dialog,{
+    targets:()=>legalTargets(kit.getView()),selected:()=>draft.targetId?[draft.targetId]:[],
+    onTarget(id) {
+      if (kit.busy || !legalTargets(kit.getView()).includes(id)) return;
+      draft.targetId=id;
+      draft.targetFace=publicFace(kit.getView(),id);
+      populateTargets();
+    },
+  });
+  populateTargets();
 }
 export const toolChoiceEnabled=choice=>Boolean(choice?.targets?.length&&!choice.unavailableReason);
 export function toolDialog(card,kit) {
-  const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number,code=initial.code,selfId=initial.selfId,cardId=card.id,toolType=card.toolType;
-  const descriptor=current=>current?.self?.battle?.tools?.find(tool=>tool.toolType===toolType);
-  const enabled=toolChoiceEnabled;
+  const initial=kit.getView(),language=kit.language;
+  const descriptor=current=>current?.self?.battle?.tools?.find(tool=>tool.toolType===card.toolType);
   const tool=descriptor(initial);
   if(card.kind!=='tool'||!tool)return;
-  const draft=privateDecisionDraft({kind:'tool',id:`${turnNumber}:${cardId}`},kit,()=>({effect:'',targetKey:''}));
-  if(!tool.choices.some(choice=>choice.effect===draft.effect&&enabled(choice))){draft.effect='';draft.targetKey='';}
-  const key=target=>JSON.stringify([target.targetId,target.slot??null]);
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'tool-title'},
-    node('h2',{id:'tool-title'},say(language,'Choose one tool effect','选择一种道具效果')),
-    node('p',{},`${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
-  for(const choice of tool.choices)dialog.append(node('article',{},node('strong',{},kit.localized(choice.name)),
-    choice.description?node('p',{},kit.localized(choice.description)):null,
-    choice.unavailableReason?node('p',{class:'muted'},`${say(language,'Unavailable:','不可用：')} ${kit.localized(choice.unavailableReason)}`):null));
-  const effects=node('select',{id:'tool-effect','aria-label':say(language,'Tool effect','道具效果'),disabled:kit.busy||Boolean(initial.pendingVote)},node('option',{value:''},say(language,'Choose one effect','请选择一种效果')));
-  for(const choice of tool.choices)effects.append(node('option',{value:choice.effect,disabled:!enabled(choice)},`${kit.localized(choice.name)}${enabled(choice)?'':say(language,' · unavailable',' · 不可用')}`));
-  effects.value=draft.effect;
-  const targets=node('select',{id:'tool-target','aria-label':say(language,'Tool target','道具目标')});
-  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-tool',disabled:true},say(language,'Use effect · spend whole card','使用效果 · 消耗整张牌'));
-  const targetLabel=(target,current,choice)=>{
-    const player=current.players.find(player=>player.id===target.targetId);
-    if(choice.targeting==='trainer')return player?.nickname||'—';
-    const pokemon=target.slot==='active'?player?.active:target.targetId===current.selfId?current.self.reserve:player?.reserve;
-    const slot=say(language,target.slot==='active'?'Active':'Reserve',target.slot==='active'?'出场':'备战');
-    return `${player?.nickname||'—'} · ${slot} · ${pokemon?kit.partnerName(pokemon.catalogueId,pokemon.level):say(language,'Hidden Pokémon','未公开宝可梦')}`;
-  };
+  const art=playCardFace(card,language).art;
+  const title=say(language,'Choose a tool','选择道具');
+  const hint=node('p',{'aria-live':'polite'});
+  const choices=node('div',{class:'arena-tool-choices'});
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-tool',disabled:true},say(language,'Use tool','使用道具'));
+  const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-tool',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
+  const panel=node('section',{class:'arena-prompt arena-tool-prompt',tabindex:-1,'aria-label':title},
+    node('h2',{},title),choices,hint,node('div',{class:'action-row'},cancel,confirm));
+  let choice=null, target=null;
   const update=()=>{
-    const current=kit.getView(),choice=descriptor(current)?.choices.find(choice=>choice.effect===draft.effect);
-    const blocked=kit.busy||Boolean(current?.pendingVote)||Boolean(current?.pendingBattle);
-    confirm.disabled=blocked||!enabled(choice)||!choice.targets.some(target=>key(target)===draft.targetKey);
+    confirm.disabled=!target||kit.busy;
+    const seatId=target?.targetId;
+    const seat=initial.players.find(player=>player.id===seatId);
+    const pokemon=target?.slot==='active'?seat?.active:target?.slot==='reserve'?(seatId===initial.selfId?initial.self.reserve:seat?.reserve):null;
+    const label=pokemon?`${seat.nickname} · ${kit.partnerName(pokemon.catalogueId,pokemon.level)}`:seat?.nickname;
+    hint.textContent=target?label:choice?say(language,'Choose a highlighted target.','点击战场上高亮的目标。')
+      :say(language,'Choose one item. It spends the whole card.','选择一种道具，使用时消耗整张牌。');
+    [...choices.children].forEach((button,index)=>button.setAttribute('aria-pressed',String(tool.choices[index]===choice)));
+    kit.syncArenaPrompt();
   };
-  const populateTargets=()=>{
-    const current=kit.getView(),choice=descriptor(current)?.choices.find(choice=>choice.effect===draft.effect),legal=enabled(choice)?choice.targets:[];
-    if(!legal.some(target=>key(target)===draft.targetKey))draft.targetKey='';
-    targets.replaceChildren(node('option',{value:''},choice?.targeting==='trainer'?say(language,'Choose a trainer','请选择训练家'):say(language,'Choose a Pokémon','请选择宝可梦')));
-    for(const target of legal)targets.append(node('option',{value:key(target)},targetLabel(target,current,choice)));
-    targets.value=draft.targetKey;targets.disabled=kit.busy||Boolean(current?.pendingVote)||Boolean(current?.pendingBattle)||!legal.length;update();
-  };
-  effects.addEventListener('change',()=>{draft.effect=effects.value;draft.targetKey='';populateTargets();});
-  targets.addEventListener('change',()=>{draft.targetKey=targets.value;update();});
-  confirm.addEventListener('click',()=>{
-    const current=kit.getView(),choice=descriptor(current)?.choices.find(choice=>choice.effect===draft.effect),target=choice?.targets.find(target=>key(target)===draft.targetKey);
-    const held=current?.self?.hand?.find(item=>item.id===cardId&&item.kind==='tool'&&item.toolType===toolType);
-    dialog.close();
-    if(current?.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||current.status!=='playing'||current.turn?.playerId!==current.selfId||current.turn?.phase!=='play'||current.self.spectator||current.players.find(player=>player.id===current.selfId)?.eliminated||kit.busy||current.pendingVote||current.pendingBattle||!held||!enabled(choice)||!target)return;
-    kit.action('useTool',{cardId,effect:choice.effect,targetId:target.targetId,...(choice.targeting==='trainer'?{}:{slot:target.slot})});
+  tool.choices.forEach((option,index)=>{
+    const label=kit.localized(option.name);
+    choices.append(node('button',{type:'button',class:'arena-tool-choice','aria-label':label,'aria-pressed':'false',
+      title:kit.localized(option.unavailableReason || option.description || option.name),disabled:!toolChoiceEnabled(option),onclick:()=>{
+        choice=option; target=null; update();
+      }},art[index]?node('img',{src:`/play-card-art/${art[index]}`,alt:''}):null,node('span',{},label)));
   });
-  const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-tool',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
-  dialog.append(node('label',{class:'attack-target',for:'tool-effect'},node('strong',{},say(language,'Effect','效果')),effects),
-    node('label',{class:'attack-target',for:'tool-target'},node('strong',{},say(language,'Target','目标')),targets),
-    node('p',{class:'muted'},say(language,'Choose only one half. Confirming consumes this entire physical card, including its other half.','只能选择其中一种道具。确认后消耗整张实体牌，另一半也会一同离开你的手牌。')),
-    node('div',{class:'action-row'},cancel,confirm));
-  populateTargets();dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();effects.focus();
+  confirm.addEventListener('click',()=>{
+    const current=kit.getView(),legal=descriptor(current)?.choices.find(option=>option.effect===choice?.effect);
+    if(current.code!==initial.code||current.selfId!==initial.selfId||current.revision!==initial.revision||kit.busy||
+      !target||!toolChoiceEnabled(legal)||!current.self.hand.some(item=>item.id===card.id)||
+      !legal.targets.some(item=>item.targetId===target.targetId&&item.slot===target.slot))return;
+    kit.closeArenaPrompt(false);
+    kit.action('useTool',{cardId:card.id,effect:choice.effect,targetId:target.targetId,...(target.slot?{slot:target.slot}:{})});
+  });
+  kit.openArenaPrompt(panel,{
+    targets:()=>[...new Set(choice?.targets.map(item=>item.targetId) || [])],
+    targetSlots:()=>choice?.targets || [],
+    selected:()=>target?[target.targetId]:[],
+    selectedSlot:()=>target?.slot,
+    onTarget(id,slot) {
+      if(kit.busy)return;
+      const option=choice?.targets.find(item=>item.targetId===id && (item.slot==='reserve')===Boolean(slot));
+      if(option) { target=option; update(); }
+    },
+  });
+  update();
 }
+
 export function vitalSpiritDialog(kit) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number;
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'vital-spirit-title'},
-    node('h2',{id:'vital-spirit-title'},say(language,'Vital Spirit · replace Draw','干劲 · 替代摸牌阶段')),
+  const dialog=traitPanel(kit,say(language,'Vital Spirit · replace Draw','干劲 · 替代摸牌阶段'),
     node('p',{},say(language,'Before drawing normally, you may replace your entire ordinary Draw phase: privately view up to 3 top cards, take 2, and return the rest to the top. If fewer than 2 cards are available, take all available cards.','正常摸牌前，可以替代整个通常摸牌阶段：私下观看牌堆顶至多3张牌，获得其中2张，其余放回牌堆顶。可用牌不足2张时，获得全部可用牌。')),
     node('p',{class:'muted'},say(language,'Vital Spirit still takes 2 cards when Flinch reduces your ordinary draw. After viewing, you must complete the card choice. Canceling here leaves ordinary Draw available.','即使畏缩令通常摸牌数减少，干劲仍选择2张牌。观看后必须完成选牌。此处取消则仍可正常摸牌。')));
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Keep ordinary Draw','保留通常摸牌'));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Keep ordinary Draw','保留通常摸牌'));
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-vital-spirit',disabled:kit.busy||Boolean(initial.pendingVote),onclick:()=>{
-    const current=kit.getView();dialog.close();
+    const current=kit.getView();kit.closeArenaPrompt(false);
     if(current.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turnNumber&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='vital-spirit'&&!kit.busy&&!current.pendingVote)kit.action('useTrait');
   }},say(language,'Replace Draw · view cards','替代摸牌 · 观看牌'));
-  dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
+  dialog.append(node('div',{class:'action-row'},cancel,confirm));kit.openArenaPrompt(dialog);
 }
 export function downloadDialog(kit) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number;
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'download-title'},
-    node('h2',{id:'download-title'},say(language,'Download · replace Draw','下载 · 替代摸牌阶段')),
+  const dialog=traitPanel(kit,say(language,'Download · replace Draw','下载 · 替代摸牌阶段'),
     node('p',{},say(language,'Before drawing normally, you may replace your entire ordinary Draw phase by taking one hand card from each of up to two other trainers. Other trainers’ card faces stay hidden while you choose.','正常摸牌前，可以替代整个通常摸牌阶段，获得至多两名其他训练家的各一张手牌。选择时，其他训练家的手牌保持背面。')),
     node('p',{class:'muted'},say(language,'Confirming uses Download instead of your ordinary draws. Canceling here keeps ordinary Draw available.','确认后发动下载，替代通常摸牌。此处取消则仍可正常摸牌。')));
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Keep ordinary Draw','保留通常摸牌'));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Keep ordinary Draw','保留通常摸牌'));
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download',disabled:kit.busy||Boolean(initial.pendingVote),onclick:()=>{
-    const current=kit.getView();dialog.close();
+    const current=kit.getView();kit.closeArenaPrompt(false);
     if(current.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turnNumber&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='download'&&!kit.busy&&!current.pendingVote)kit.action('useTrait');
   }},say(language,'Replace Draw · choose trainers','替代摸牌 · 选择训练家'));
-  dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
+  dialog.append(node('div',{class:'action-row'},cancel,confirm));kit.openArenaPrompt(dialog);
 }
 export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   const initial=kit.getView(),battle=initial.self.battle,quick=quickDecisionId?initial.pendingBattle:null;
@@ -211,15 +225,26 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   const legal=choice?{move:choice,legalTargetIds:choice.legalTargetIds}:battle;
   const turnNumber=initial.turn.number,code=initial.code,selfId=initial.selfId,muscle=card===null;
   const language=kit.language,selected=new Set(quick?[quick.targetId]:[]);
-  const dialog = node('dialog', {class:'info-dialog confirmation-dialog'},
-    node('h2', {}, quick?say(language,'Quick Claw · confirm move','先制之爪 · 确认招式'):say(language,'Choose move targets','选择招式目标')),
-    node('p', {}, quick?`${kit.localized(legal.move.name)} · ${initial.players.find(player=>player.id===quick.targetId)?.nickname}`:`${kit.localized(legal.move.name)} · ${say(language,'Choose up to','最多选择')} ${legal.move.maxTargets}`));
-  const confirm = node('button', {type:'button',class:'button primary',disabled:true},say(language,'Commit move','确认招式'));
+  if (!legal?.move) return;
+  const dialog = node('section', {class:'arena-prompt arena-attack-prompt',tabindex:-1,'aria-labelledby':'arena-attack-title'},
+    node('h2', {id:'arena-attack-title'}, kit.localized(legal.move.name)),
+    node('p', {}, quick?`${say(language,'Quick Claw','先制之爪')} · ${initial.players.find(player=>player.id===quick.targetId)?.nickname}`
+      : legal.move.maxTargets===1?say(language,'Choose a highlighted target on the field.','点击战场上高亮的目标。')
+      : say(language,`Choose up to ${legal.move.maxTargets} highlighted targets.`,`点击战场上高亮的目标，最多选择 ${legal.move.maxTargets} 个。`)));
+  const confirm = node('button', {type:'button',id:'confirm-arena-attack',class:'button primary',disabled:true},say(language,'Commit move','确认招式'));
+  const targetSummary = node('span',{class:'arena-target-summary','aria-live':'polite'});
   let boostCardId='',effectChoice=legal.move.effectKind==='moonlight'?'heal':undefined;
   const payments=[];
   const paymentIds=()=>payments.map(select=>select.value);
   const validPayment=()=>!muscle||(paymentIds().every(Boolean)&&new Set(paymentIds()).size===2&&!paymentIds().includes(boostCardId));
-  const update=()=>{confirm.disabled=kit.busy||Boolean(kit.getView().pendingVote)||selected.size<1||selected.size>legal.move.maxTargets||!validPayment();};
+  const update=()=>{
+    confirm.disabled=kit.busy||Boolean(kit.getView().pendingVote)||selected.size<1||selected.size>legal.move.maxTargets||!validPayment();
+    targetSummary.textContent = [...selected].map(id=>{
+      const target = initial.players.find(player=>player.id===id);
+      return target?.active ? kit.partnerName(target.active.catalogueId,target.active.level) : target?.nickname;
+    }).join(' · ');
+    kit.syncArenaPrompt();
+  };
   if(muscle)for(let index=0;index<2;index++) {
     const select=node('select',{id:`muscle-payment-${index}`,'aria-label':say(language,`Muscle Band card ${index+1}`,`力量头带手牌${index+1}`)},node('option',{value:''},say(language,'Choose a hand card','选择一张手牌')));
     for(const held of initial.self.hand)select.append(node('option',{value:held.id},`${kit.localized(held.name)} · ${weatherLabel(held.weather,language)}`));
@@ -227,17 +252,6 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
     payments.push(select);
     dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,`Payment card ${index+1}`,`支付手牌${index+1}`)),select));
   }
-  for (const id of quick?[]:legal.legalTargetIds) {
-    const player = initial.players.find(p => p.id === id);
-    const input = node('input',{type:legal.move.maxTargets === 1?'radio':'checkbox',name:'attack-target',value:id});
-    input.addEventListener('change', () => {
-      if (legal.move.maxTargets === 1) selected.clear();
-      if (input.checked) selected.add(id); else selected.delete(id);
-      update();
-    });
-    dialog.append(node('label',{class:'attack-target check-label'},input,legal.move.targeting==='trainer'?player.nickname:`${player.nickname} · ${kit.partnerName(player.active.catalogueId,player.active.level)} · ${player.active.hp}/${player.active.maxHp} HP`));
-  }
-  dialog.append(node('p',{class:'muted'},muscle?say(language,'Spend two hand cards as one command.','将两张手牌当一张接招吧！使用。'):legal.move.condition?.kind==='weather-card'?say(language,'Committing discards this hand card to meet the move’s weather requirement. The selected trainer gets a response window.','确认后弃置这张手牌以满足招式的天气要求，所选目标的训练家将获得响应机会。'):say(language,'Committing spends this command card. The selected trainer gets a response window.','确认后消耗这张指令牌，所选目标的训练家将获得响应机会。')));
   if(legal.move.effectKind==='moonlight') {
     const selector=node('select',{'aria-label':say(language,'Moonlight effect','月光效果')},node('option',{value:'heal'},say(language,'Restore 2 HP','回复2点体力')),node('option',{value:'cure'},say(language,'Clear special status','恢复特殊状态')));
     selector.addEventListener('change',()=>{effectChoice=selector.value;});
@@ -262,13 +276,13 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
     dialog.append(node('p',{class:'muted'},say(language,'Remaining effective Power markers increase this move’s damage. You may discard one physical Power marker on declaration to require two Dodges in this settlement. Under Paralysis, markers give no damage bonus but can still pay this cost.','其余生效的力量强化增加此招式伤害。声明时可弃置一枚实际持有的力量强化，使本次结算需要两张快躲开！。麻痹时强化不提供伤害加成，但仍可支付此费用。')));
   }
   if(legal.move.cannotDodge)dialog.append(node('p',{class:'muted'},say(language,'Reinforcement markers do not affect this move. Dodge cannot cancel it.','此招式不受强化指示物影响，且不可被快躲开！抵消。')));
-  const cancel = node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  const cancel = node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
   confirm.addEventListener('click', () => {
     const current=kit.getView(),pending=current.pendingBattle;
     const currentChoice=quick?pending?.moves?.find(move=>move.index===moveIndex):current.self.battle?.moves?.[moveIndex];
     const currentMove=currentChoice||current.self.battle?.move,currentTargets=currentChoice?.legalTargetIds||current.self.battle?.legalTargetIds||[];
     const held=id=>current.self.hand.some(item=>item.id===id);
-    dialog.close();
+    kit.closeArenaPrompt(false);
     if(current.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||kit.busy||current.pendingVote||
       !(currentChoice?.canUse??current.self.battle?.canCommand)||!currentMove||selected.size<1||selected.size>currentMove.maxTargets||
       [...selected].some(id=>!currentTargets.includes(id))||(boostCardId&&!held(boostCardId)))return;
@@ -281,65 +295,83 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
       kit.action('attack',{...(muscle?{cardIds:paymentIds()}:{cardId:card.id}),targetIds:[...selected],...declaration});
     }
   });
-  dialog.append(node('div',{class:'action-row'},cancel,confirm));
-  dialog.addEventListener('close',()=>dialog.remove(),{once:true});
-  document.body.append(dialog); dialog.showModal();update();cancel.focus();
+  dialog.append(node('div',{class:'action-row'},targetSummary,cancel,confirm));
+  kit.openArenaPrompt(dialog,quick?{}:{
+    targets:()=>legal.legalTargetIds,
+    selected:()=>[...selected],
+    onTarget(id) {
+      if (kit.busy || !legal.legalTargetIds.includes(id)) return;
+      if (selected.delete(id)) { update(); return; }
+      if (legal.move.maxTargets===1) selected.clear();
+      if (selected.size<legal.move.maxTargets) selected.add(id);
+      update();
+    },
+  });
+  update();
 }
 export function equipItemDialog(card,kit) {
-  const initial=kit.getView(),language=kit.language,turn=initial.turn.number;
-  const equipment=initial.self.battle?.equipItems?.find(item=>item.itemType===card.itemType);
+  const initial=kit.getView(),{language}=kit;
+  const battle=initial.self.battle, equipment=battle?.equipItems?.find(item=>item.itemType===card.itemType);
   if(!equipment)return;
-  const active=initial.players.find(p=>p.id===initial.selfId).active;
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'equip-title'},
-    node('h2',{id:'equip-title'},say(language,'Equip item','携带持有物'),` · ${kit.localized(card.name)}`),
-    node('p',{},kit.localized(equipment.description)),
-    node('p',{class:'muted'},say(language,'Held items take effect while the holder is active.','持有物在携带者出战时生效。')));
-  let selected=null;
-  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-equip',disabled:true},say(language,'Equip item','携带持有物'));
-  for(const slot of initial.self.battle.equipSlots) {
-    const pokemon=slot==='active'?active:initial.self.reserve;
-    const input=node('input',{type:'radio',name:'equip-slot',value:slot});
-    input.addEventListener('change',()=>{selected=slot;confirm.disabled=false;});
-    dialog.append(node('label',{class:'check-label attack-target'},input,`${say(language,slot==='active'?'Active':'Reserve',slot==='active'?'出场':'备战')} · ${kit.partnerName(pokemon.catalogueId,pokemon.level)}${pokemon.item?` · ${say(language,'replaces current item','替换现有持有物')}`:''}`));
-  }
-  dialog.append(node('p',{class:'muted'},say(language,'Confirming moves this card from your hand to the chosen Pokémon. An existing item is discarded.','确认后将此牌从手牌移至所选宝可梦区；原有持有物将被弃置。')));
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
-  confirm.addEventListener('click',()=>{
-    dialog.close();
+  const active=initial.players.find(player=>player.id===initial.selfId)?.active;
+  const art=playCardFace(card,language).art[0];
+  const title=say(language,'Equip item','携带持有物');
+  const choices=node('div',{class:'arena-tool-slots'});
+  const hint=node('p',{'aria-live':'polite'});
+  let slot=null;
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-equip',disabled:true,onclick:()=>{
     const current=kit.getView();
-    if(current?.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turn&&!kit.busy&&
-      current.self.battle?.canEquip&&current.self.battle.equipSlots.includes(selected)&&
-      current.self.hand.some(held=>held.id===card.id&&held.kind==='held-item'&&held.itemType===card.itemType)) {
-      kit.action('equipItem',{cardId:card.id,slot:selected});
-    }
-  });
-  dialog.append(node('div',{class:'action-row'},cancel,confirm));dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();cancel.focus();
+    if(current.revision!==initial.revision||kit.busy||!current.self.battle?.canEquip||
+      !current.self.battle.equipSlots.includes(slot)||!current.self.hand.some(held=>held.id===card.id))return;
+    kit.closeArenaPrompt(false);
+    kit.action('equipItem',{cardId:card.id,slot});
+  }},title);
+  for(const option of battle.equipSlots) {
+    const pokemon=option==='active'?active:initial.self.reserve;
+    const label=say(language,option==='active'?'Active':'Reserve',option==='active'?'出战':'备战');
+    const button=node('button',{type:'button',class:'arena-slot-choice','aria-pressed':'false',onclick:()=>{
+      slot=option;
+      for(const item of choices.children)item.setAttribute('aria-pressed',String(item===button));
+      hint.textContent=pokemon.item?say(language,'The existing item will be discarded.','原有持有物将被弃置。'):'';
+      confirm.disabled=false;
+    }},kit.partnerImage(pokemon),node('span',{},label));
+    choices.append(button);
+  }
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
+  kit.openArenaPrompt(node('section',{class:'arena-prompt arena-event-prompt',tabindex:-1,'aria-label':title},
+    node('h2',{},art?node('img',{src:`/play-card-art/${art}`,alt:''}):null,kit.localized(card.name)),
+    choices,hint,node('div',{class:'action-row'},cancel,confirm)));
 }
 export function lightBallDialog(kit) {
   const initial=kit.getView(),{language}=kit;
-  const title=say(language,'Light Ball · choose a target','电气球 · 选择目标');
-  const target=node('select',{'aria-label':say(language,'Light Ball target','电气球目标')},node('option',{value:''},say(language,'Choose a Pokémon','选择宝可梦')));
-  for(const player of initial.players.filter(seat=>initial.self.battle.lightBallTargets.includes(seat.id))) {
-    target.append(node('option',{value:player.id},`${player.nickname} · ${kit.partnerName(player.active.catalogueId,player.active.level)}`));
-  }
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-label':title},node('h2',{},title),target);
+  const title=say(language,'Light Ball','电气球'), legal=initial.self.battle.lightBallTargets;
+  const targetLabel=node('p',{'aria-live':'polite'},say(language,'Choose a highlighted Pokémon.','点击战场上高亮的宝可梦。'));
+  let targetId=null;
   const confirm=node('button',{type:'button',class:'button primary',disabled:true,onclick:()=>{
-    const current=kit.getView(),targetId=target.value;
-    dialog.close();
-    if(current?.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===initial.turn.number&&
-      !kit.busy&&!current.pendingVote&&!current.pendingBattle&&current.self.battle?.lightBallTargets.includes(targetId)) {
-      kit.action('useLightBall',{targetId});
-    }
-  }},say(language,'Discard Light Ball and apply Paralysis','弃置电气球并施加麻痹'));
-  target.addEventListener('change',()=>{confirm.disabled=!target.value;});
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
-  dialog.append(node('div',{class:'action-row'},cancel,confirm));
-  dialog.addEventListener('close',()=>dialog.remove(),{once:true});
-  document.body.append(dialog);dialog.showModal();target.focus();
+    const current=kit.getView();
+    if(current.revision!==initial.revision||kit.busy||!current.self.battle?.lightBallTargets.includes(targetId))return;
+    kit.closeArenaPrompt(false);
+    kit.action('useLightBall',{targetId});
+  }},say(language,'Discard and paralyze','弃置并施加麻痹'));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
+  const panel=node('section',{class:'arena-prompt arena-event-prompt',tabindex:-1,'aria-label':title},
+    node('h2',{},node('img',{src:'/play-card-art/light-ball.png',alt:''}),title),
+    targetLabel,node('div',{class:'action-row'},cancel,confirm));
+  kit.openArenaPrompt(panel,{
+    targets:()=>legal,selected:()=>targetId?[targetId]:[],
+    onTarget(id) {
+      if(kit.busy||!legal.includes(id))return;
+      targetId=id;
+      targetLabel.textContent=initial.players.find(player=>player.id===id)?.nickname;
+      confirm.disabled=false;
+      kit.syncArenaPrompt();
+    },
+  });
 }
+
 export function recklessDialog(kit) {
   const initial=kit.getView(),language=kit.language,turn=initial.turn.number,pokemon=initial.players.find(player=>player.id===initial.selfId).active;
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog','aria-labelledby':'reckless-title'},node('h2',{id:'reckless-title'},say(language,'Reckless · trade HP for cards','舍身 · 失去体力并摸牌')),
+  const dialog=traitPanel(kit,say(language,'Reckless · trade HP for cards','舍身 · 失去体力并摸牌'),
     node('p',{},say(language,`Current HP: ${pokemon.hp}/${pokemon.maxHp}. Choose HP to lose, then draw that many cards. This uses Reckless once this Play phase.`,`当前体力：${pokemon.hp}/${pokemon.maxHp}。选择失去的体力，然后摸取等量的牌。本出牌阶段此宝可梦的舍身限一次。`)));
   const input=node('input',{type:'number',id:'reckless-hp-loss',min:'0',max:String(initial.self.battle.trait.maxHpLoss),step:'1',value:'1','aria-label':say(language,'HP to lose','失去体力点数')});
   const consequence=node('p',{class:'muted','aria-live':'polite'}),confirm=node('button',{type:'button',class:'button primary',id:'confirm-reckless'},say(language,'Lose HP and draw','失去体力并摸牌'));
@@ -349,19 +381,19 @@ export function recklessDialog(kit) {
     consequence.textContent=!valid?say(language,'Enter a nonnegative whole number.','请输入非负整数。'):loss>=pokemon.hp?say(language,'This will cause fainting and rescue before drawing. With no rescue, your reserve must deploy; if you leave the game, you draw no cards.','这将先进入昏厥救援。未获救时备战宝可梦登场；若你退场，则不再摸牌。'):say(language,`After this choice: ${pokemon.hp-loss} HP. Only available real cards can be drawn. Choosing zero still uses this ability.`,`选择后剩余体力：${pokemon.hp-loss}。仅摸取实际可用的牌。选择零点仍消耗本次特性。`);
   };
   input.addEventListener('input',update);
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
   confirm.addEventListener('click',()=>{
     const loss=input.valueAsNumber,current=kit.getView();
     if(!Number.isSafeInteger(loss)||loss<0||loss>initial.self.battle.trait.maxHpLoss)return;
-    dialog.close();
+    kit.closeArenaPrompt(false);
     if(current.code===initial.code&&current.turn?.number===turn&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='reckless'&&current.players.find(player=>player.id===current.selfId)?.active.catalogueId===pokemon.catalogueId)kit.action('useTrait',{hpLoss:loss});
   });
   dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,'HP to lose','失去体力点数')),input),consequence,node('div',{class:'action-row'},cancel,confirm));
-  dialog.addEventListener('close',()=>dialog.remove(),{once:true});update();document.body.append(dialog);dialog.showModal();input.focus();
+  update();kit.openArenaPrompt(dialog);
 }
 export function analyticDialog(kit) {
   const initial=kit.getView(),language=kit.language,turn=initial.turn.number,max=initial.self.battle.trait.maxCards,selected=new Set();
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog analytic-dialog','aria-labelledby':'analytic-title'},node('h2',{id:'analytic-title'},say(language,'Analytic · exchange hand cards','分析 · 更换手牌')),
+  const dialog=traitPanel(kit,say(language,'Analytic · exchange hand cards','分析 · 更换手牌'),
     node('p',{},say(language,`Choose up to ${max} hand cards, limited by your Pokémon’s current HP. Discard them, then draw the same number.`,`选择至多${max}张手牌，上限按宝可梦当前体力计算。先弃置，再摸取等量的牌。`)));
   const cards=node('fieldset',{class:'gift-card-list'},node('legend',{},say(language,'Choose your cards','选择你的手牌')));
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-analytic'},say(language,'Confirm exchange','确认更换'));
@@ -371,58 +403,70 @@ export function analyticDialog(kit) {
     input.addEventListener('change',()=>{if(input.checked)selected.add(card.id);else selected.delete(card.id);update();});
     cards.append(node('label',{class:'check-label gift-card-option'},input,node('span',{},node('strong',{},kit.localized(card.name)),node('small',{},weatherLabel(card.weather,language)))));
   }
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
   confirm.addEventListener('click',()=>{
-    dialog.close();const current=kit.getView();
+    kit.closeArenaPrompt(false);const current=kit.getView();
     if(current.code===initial.code&&current.turn?.number===turn&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='analytic'&&[...selected].every(id=>current.self.hand.some(card=>card.id===id)))kit.action('useTrait',{cardIds:[...selected]});
   });
   dialog.append(cards,node('p',{class:'muted'},say(language,'Confirming uses Analytic for this Pokémon this play phase, even if you choose zero cards.','确认会消耗此宝可梦本出牌阶段的分析次数，即使选择零张牌。')),node('div',{class:'action-row'},cancel,confirm));
-  dialog.addEventListener('close',()=>dialog.remove(),{once:true});update();document.body.append(dialog);dialog.showModal();cancel.focus();
+  update();kit.openArenaPrompt(dialog);
 }
 
 export function giftCardsDialog(kit) {
-  const initial=kit.getView(),legal=initial.self.battle,turnNumber=initial.turn.number,language=kit.language;
-  const selected=new Set(),targets=new Set(),targetInputs=[];
-  const dialog=node('dialog',{class:'info-dialog confirmation-dialog gift-dialog','aria-labelledby':'gift-title'},
-    node('h2',{id:'gift-title'},say(language,'Justified · give cards','正义之心 · 交给手牌')),
-    node('p',{},say(language,'Once during your play phase, give one or more hand cards to one other trainer.','你的出牌阶段限一次，将一张或多张手牌交给另一名训练家。')));
+  const initial=kit.getView(),legal=initial.self.battle,language=kit.language;
+  const selected=new Set(),targets=new Set();
+  let recipientId=null, choosingAttack=false;
+  const all=()=>selected.size===initial.self.hand.length;
+  const title=say(language,'Justified · give cards','正义之心 · 交给手牌');
+  const panel=node('section',{class:'arena-prompt gift-dialog',tabindex:-1,'aria-label':title},node('h2',{},title));
   const cards=node('fieldset',{class:'gift-card-list'},node('legend',{},say(language,'Choose your cards','选择你的手牌')));
-  const recipient=node('select',{id:'gift-recipient'},node('option',{value:''},say(language,'Choose a trainer','选择训练家')));
-  for(const id of legal.giveRecipientIds)recipient.append(node('option',{value:id},initial.players.find(p=>p.id===id).nickname));
-  const targetSection=node('fieldset',{class:'gift-targets'},node('legend',{},say(language,'Your all-hand gift uses a move','交出全部手牌后使用招式')),
-    node('p',{},`${kit.localized(legal.move.name)} · ${say(language,'Choose up to','最多选择')} ${legal.move.maxTargets}`));
-  for(const id of legal.legalTargetIds) {
-    const p=initial.players.find(p=>p.id===id),input=node('input',{type:legal.move.maxTargets===1?'radio':'checkbox',name:'gift-target',value:id});
-    input.addEventListener('change',()=>{if(legal.move.maxTargets===1)targets.clear();if(input.checked)targets.add(id);else targets.delete(id);update();});
-    targetInputs.push(input);targetSection.append(node('label',{class:'check-label'},input,`${p.nickname} · ${kit.partnerName(p.active.catalogueId,p.active.level)} · ${p.active.hp}/${p.active.maxHp} HP`));
-  }
-  const hint=node('p',{class:'gift-hint','aria-live':'polite'});
-  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-gift',disabled:true},say(language,'Confirm gift','确认交给'));
+  const hint=node('p',{class:'arena-target-summary','aria-live':'polite'});
+  const label=id=>initial.players.find(player=>player.id===id)?.nickname;
+  const recipientButton=node('button',{type:'button',class:'button secondary',onclick:()=>{choosingAttack=false;update();}},say(language,'Choose recipient','选择接收者'));
+  const attackButton=node('button',{type:'button',class:'button secondary',onclick:()=>{choosingAttack=true;update();}},say(language,'Choose move targets','选择招式目标'));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
+  const confirm=node('button',{type:'button',class:'button primary',id:'confirm-gift',onclick:()=>{
+    const current=kit.getView();
+    if(kit.busy||current.revision!==initial.revision||!current.self.battle?.canGive||!recipientId||!selected.size)return;
+    kit.closeArenaPrompt(false);
+    kit.action('giveCards',{cardIds:[...selected],recipientId,...(all()?{targetIds:[...targets]}:{})});
+  }},say(language,'Confirm gift','确认交给'));
   function update() {
-    const all=selected.size===initial.self.hand.length;
-    targetSection.hidden=!all||!legal.giveCommandAvailable;
-    if(!all){targets.clear();targetInputs.forEach(input=>input.checked=false);}
-    hint.textContent=all?(legal.giveCommandAvailable?say(language,'Giving your entire hand also commits this command move. Choose its targets before confirming.','交出全部手牌同时确认使用此指令招式，请先选择目标。'):say(language,'The command move is unavailable. Keep at least one card to make a partial gift.','当前无法使用指令招式，请保留至少一张手牌以交给部分手牌。')):say(language,'A partial gift does not use a move. The selected cards become the recipient’s private hand.','交给部分手牌不会使用招式，所选牌将进入接收者的私密手牌。');
-    confirm.disabled=kit.busy||Boolean(initial.pendingVote)||selected.size===0||!recipient.value||(all&&(!legal.giveCommandAvailable||targets.size<1||targets.size>legal.move.maxTargets));
+    if(!all()) { targets.clear(); choosingAttack=false; }
+    attackButton.hidden=!all()||!legal.giveCommandAvailable;
+    attackButton.disabled=!recipientId;
+    recipientButton.hidden=!choosingAttack;
+    hint.textContent=all()&&!legal.giveCommandAvailable
+      ? say(language,'This move is unavailable. Keep at least one card.','当前无法使用招式，请保留至少一张手牌。')
+      : choosingAttack
+        ? `${kit.localized(legal.move.name)} · ${[...targets].map(label).join(' · ') || say(language,'Choose highlighted move targets.','点击高亮的招式目标。')}`
+        : recipientId ? `${say(language,'Give to','交给')} ${label(recipientId)}` : say(language,'Choose a highlighted recipient.','点击高亮的接收者。');
+    confirm.disabled=kit.busy||!selected.size||!recipientId||(all()&&(!legal.giveCommandAvailable||!targets.size));
+    kit.syncArenaPrompt();
   }
   for(const card of initial.self.hand) {
     const input=node('input',{type:'checkbox',name:'gift-card',value:card.id});
     input.addEventListener('change',()=>{if(input.checked)selected.add(card.id);else selected.delete(card.id);update();});
     cards.append(node('label',{class:'check-label gift-card-option'},input,node('span',{},node('strong',{},kit.localized(card.name)),node('small',{},weatherLabel(card.weather,language)))));
   }
-  recipient.addEventListener('change',update);
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>dialog.close()},say(language,'Cancel','取消'));
-  confirm.addEventListener('click',()=>{
-    const current=kit.getView(),all=selected.size===initial.self.hand.length;
-    dialog.close();
-    if(current.code!==initial.code||current.turn?.number!==turnNumber||!current.self.battle?.canGive||!current.self.hand.every(card=>initial.self.hand.some(old=>old.id===card.id))||current.self.hand.length!==initial.self.hand.length)return;
-    kit.action('giveCards',{cardIds:[...selected],recipientId:recipient.value,...(all?{targetIds:[...targets]}:{})});
+  panel.append(cards,hint,node('div',{class:'action-row'},recipientButton,attackButton,cancel,confirm));
+  kit.openArenaPrompt(panel,{
+    targets:()=>choosingAttack?legal.legalTargetIds:legal.giveRecipientIds,
+    selected:()=>choosingAttack?[...targets]:recipientId?[recipientId]:[],
+    onTarget(id) {
+      if(kit.busy)return;
+      if(choosingAttack && legal.legalTargetIds.includes(id)) {
+        if(!targets.delete(id)) {
+          if(legal.move.maxTargets===1)targets.clear();
+          if(targets.size<legal.move.maxTargets)targets.add(id);
+        }
+      } else if(!choosingAttack && legal.giveRecipientIds.includes(id)) {
+        recipientId=id;
+      }
+      update();
+    },
   });
-  dialog.append(cards,node('label',{class:'field',for:'gift-recipient'},say(language,'Give to','交给'),recipient),hint,targetSection,
-    node('p',{class:'muted'},say(language,'Confirming transfers the cards and uses Justified for this play phase.','确认后交给所选手牌，并消耗本出牌阶段的正义之心次数。')),
-    node('div',{class:'action-row'},cancel,confirm));
-  dialog.addEventListener('close',()=>dialog.remove(),{once:true});update();
-  document.body.append(dialog);dialog.showModal();cancel.focus();
+  update();
 }
 
 export const weatherLabel=(value,language)=>({'intense-sun':say(language,'Intense sun','烈日'),clear:say(language,'Clear','晴朗'),rain:say(language,'Heavy rain','暴雨'),thunderstorm:say(language,'Thunderstorm','雷雨')}[value]||'');
@@ -730,7 +774,7 @@ function vitalSpiritControls(pending,kit) {
 function downloadControls(pending,kit) {
   const draft=privateDecisionDraft(pending,kit,()=>({targetIds:[]})),view=kit.getView(),language=kit.language,legal=pending.legalTargetIds||[],max=pending.maxTargets??0;
   draft.targetIds=draft.targetIds.filter(id=>legal.includes(id)).slice(0,max);
-  const grid=node('div',{class:'hand-choice-grid'}),buttons=[];
+  const grid=node('div',{class:'hand-choice-grid arena-response-target-list'}),buttons=[];
   const summary=node('p',{class:'muted','aria-live':'polite'});
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download-targets'});
   const update=()=>{
@@ -745,13 +789,13 @@ function downloadControls(pending,kit) {
   };
   for(const id of legal) {
     const player=view.players.find(player=>player.id===id);
-    const button=node('button',{type:'button',class:'button exile-card-choice download-target-choice',id:`download-target-${id}`,'aria-pressed':'false',onclick:()=>{
+    const button=node('button',{type:'button',class:'button exile-card-choice download-target-choice',id:`download-target-${id}`,'data-arena-seat':id,'aria-pressed':'false',onclick:()=>{
       const index=draft.targetIds.indexOf(id);if(index>=0)draft.targetIds.splice(index,1);else if(draft.targetIds.length<max)draft.targetIds.push(id);update();
     }},player?.nickname||'—');
     buttons.push([id,button]);grid.append(button);
   }
   confirm.addEventListener('click',()=>kit.action('respondBattle',{decisionId:pending.id,choice:'targets',targetIds:[...draft.targetIds]}));
-  const clear=node('button',{type:'button',class:'button secondary',id:'clear-download-targets',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{draft.targetIds=[];update();}},say(language,'Clear selection','清空选择'));
+  const clear=node('button',{type:'button',class:'button secondary',id:'clear-download-targets',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{draft.targetIds=[];update();kit.syncArenaPrompt();}},say(language,'Clear selection','清空选择'));
   update();return [grid,summary,node('div',{class:'action-row'},confirm,clear)];
 }
 function eventResponseControls(pending,kit) {
@@ -887,8 +931,14 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='articuno')titles.articuno=pending.mode==='cancel-event'
     ?['Articuno’s Protection · cancel event effect','急冻鸟的庇护 · 抵消事件效果']
     :['Articuno’s Protection · cure new status','急冻鸟的庇护 · 解除新状态'];
+  titles['reveal-judgment']=['Judgment','判定'];
   const title=pending.kind==='double-edge'?['Double-Edge · optional boost','舍身冲撞 · 可选增伤']:pending.kind==='shed-skin'?['Shed Skin · discard to reduce damage','蜕皮 · 弃牌减少伤害']:pending.kind==='damage-order'?['Choose damage modifier order','选择伤害修正顺序']:pending.kind==='pay-day'?['Pay Day · inspect and give cards','聚宝功 · 观看并分配牌']:pending.kind==='distribute'?['Distribute Pay Day cards','分配聚宝功的牌']:pending.kind==='exile'?['Disable · remove hand cards','定身法 · 移出手牌']:pending.kind==='turn-start-order'?['Choose turn-start order','选择回合开始的结算顺序']:titles[pending.kind]||titles.rescue;
-  const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand','download','download-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},node('h2',{},say(language,...title)),node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
+  const headingArt=pending.kind==='reveal-judgment'
+    ? node('span',{class:'arena-judgment-symbol','aria-hidden':'true'},'◉')
+    : kit.partnerImage(actor?.active);
+  const panel=node('section',{class:`combat-decision ${['hand','intimidate-hand','download','download-hand'].includes(pending.kind)?'hand-choice-decision':['reorder','forewarn-order','sweet-kiss','vital-spirit'].includes(pending.kind)?'deck-reorder-decision':pending.kind==='judgment'?'judgment-decision':''}`,'aria-label':say(language,'Pending response','等待响应')},
+    node('h2',{},headingArt,say(language,...title)),
+    actor?.id===target?.id?node('p',{},actor?.nickname):node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
   if(pending.kind==='articuno'){
     const subject=pending.mode==='cancel-event'?kit.localized(pending.eventName):statusName(pending.status,language);
     const help=pending.mode==='cancel-event'
@@ -950,7 +1000,7 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='scales')panel.append(node('p',{},say(language,`Incoming damage: ${pending.damage}. You may reduce it by 1 before losing HP.`,`将受到${pending.damage}点伤害。你可以在扣减体力前令伤害值减1。`)));
   if(pending.kind==='defense'&&pending.cannotDodge)panel.append(node('p',{},pending.dodgeBlockedBy==='lock-on'?say(language,'Lock-On prevents the originally targeted Pokémon from using Dodge for this global turn, including virtual Dodges. Reinforcement markers still affect this move normally. Continue the settlement.','锁定使原本被指定的宝可梦在本全局回合无法使用快躲开！，也无法使用视为快躲开！的效果。强化指示物仍正常影响此招式，请继续结算。'):say(language,'This move ignores reinforcement markers. Dodge and Sand Veil cannot cancel it. Continue to resolve the damage.','此招式不受强化指示物影响。快躲开！与沙隐无法抵消此招式，请继续结算伤害。')));
   if(pending.kind==='defiant')panel.append(node('p',{},say(language,'You may draw two cards, then have no hand limit for the current turn. Passing grants neither effect.','你可以摸两张牌，然后本回合没有手牌上限。放弃则两项效果均不结算。')));
-  if(pending.kind==='judgment')panel.append(node('p',{},say(language,'Revealed judgment:','已翻开的判定牌：'),` ${kit.localized(pending.judgmentCard.name)} · ${weatherLabel(pending.judgmentCard.weather,language)}`),node('p',{},say(language,'You may replace this judgment with one sunny-weather hand card and take the displaced card.','可打出一张晴天天气手牌替换判定，并获得被替换的牌。')));
+  if(pending.kind==='judgment')panel.append(node('p',{},say(language,'You may replace this judgment with one sunny-weather hand card and take the displaced card.','可打出一张晴天天气手牌替换判定，并获得被替换的牌。')));
   if(pending.kind==='static')panel.append(node('p',{},say(language,'After receiving damage, you may make a judgment. A result other than intense sun paralyzes the damage source.','受到伤害后，你可以进行一次判定。结果不为烈日时，伤害来源陷入麻痹。')));
   if(pending.kind==='synchronize')panel.append(node('p',{},say(language,'You may obtain the card that caused this damage.','你可以获得造成此次伤害的牌。'),pending.card?` ${kit.localized(pending.card.name)}`:''));
   if(pending.kind==='cursed-body')panel.append(node('p',{},say(language,"After receiving damage, you may take one random-position card from the source trainer's hand. Card faces remain private.",'受到伤害后，你可以获得伤害来源训练家的一张随机位置手牌；牌面保持隐藏。')));
@@ -964,7 +1014,12 @@ export function decisionPanel(view,kit) {
     panel.append(node('p',{class:'response-clock'},clock.pausedReason==='mandatory'?say(language,'Time expired · complete this choice to continue','时间已到 · 请完成当前选择以继续'):clock.pausedReason?say(language,'Paused · waiting for connection or vote','暂停 · 等待连接或表决'):`${seconds}s`));
   }
   if(pending.actorId===view.selfId && !view.self.spectator && pending.kind!=='berry-pick') {
-    if(['event-dodge','event-command','mew-blessing','event-hand','rival-command'].includes(pending.kind))panel.append(...eventResponseControls(pending,kit));
+    if(pending.kind==='reveal-judgment')panel.append(node('button',{
+      type:'button',class:'button primary',id:'reveal-judgment',
+      disabled:kit.busy||Boolean(view.pendingVote),
+      onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'reveal'}),
+    },say(language,'Reveal judgment card','翻开判定牌')));
+    else if(['event-dodge','event-command','mew-blessing','event-hand','rival-command'].includes(pending.kind))panel.append(...eventResponseControls(pending,kit));
     else if(pending.kind==='articuno')panel.append(articunoControls(pending,kit));
     else if(pending.kind==='rescue')panel.append(...rescueControls(pending,kit));
     else if(['pressure','pressure-payment'].includes(pending.kind))panel.append(...pressureControls(pending,kit));
@@ -987,7 +1042,7 @@ export function decisionPanel(view,kit) {
       }else if(pending.kind==='intimidate') {
         for(const id of pending.legalTargetIds||[]) {
           const player=view.players.find(player=>player.id===id);
-          row.append(node('button',{type:'button',class:'button primary',id:`intimidate-target-${id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'target',targetId:id})},`${player?.nickname||'—'}${id===view.selfId?say(language,' · you',' · 你'):''}`));
+          row.append(node('button',{type:'button',class:'button primary',id:`intimidate-target-${id}`,'data-arena-seat':id,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'target',targetId:id})},`${player?.nickname||'—'}${id===view.selfId?say(language,' · you',' · 你'):''}`));
         }
       }else if(pending.kind==='intimidate-hand') {
         for(const choice of pending.choices||[]) {

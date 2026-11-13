@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48">
+  <defs>
+    <linearGradient id="enamel" x2=".3" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#ff7868"/>
+      <stop offset=".46" stop-color="#e44949"/>
+      <stop offset="1" stop-color="#9e2437"/>
+    </linearGradient>
+    <linearGradient id="edge" x2="0" y2="1" gradientUnits="objectBoundingBox">
+      <stop stop-color="#ffce9d"/>
+      <stop offset=".53" stop-color="#d47958"/>
+      <stop offset="1" stop-color="#6b302d"/>
+    </linearGradient>
+    <path id="letter" d="M11 6h19c9 0 14 4 12 11-1 6-5 10-10 12l8 12H27l-7-12h-3l-2 12H4l7-35zm8 9-1 7h7c4 0 6-2 6-4 1-2-1-3-4-3h-8z" fill-rule="evenodd"/>
+  </defs>
+  <use href="#letter" transform="translate(1 3)" fill="#421a24" stroke="#0a101a" stroke-width="2" stroke-linejoin="round"/>
+  <use href="#letter" fill="url(#enamel)" stroke="url(#edge)" stroke-width="1.1" stroke-linejoin="round"/>
+  <path d="M12.5 8h17.2c4.5 0 7.4 1 9 3" fill="none" stroke="#ffd7b4" stroke-opacity=".54" stroke-linecap="round"/>
+</svg>

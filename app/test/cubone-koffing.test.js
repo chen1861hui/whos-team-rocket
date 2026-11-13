@@ -13,7 +13,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
   const dir = mkdtempSync(join(root, 'cubone-koffing-test-'));
   t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
   let serial = 0, time = 1_000_000;
-  const now = () => time, store = new RoomStore({ dataDir: dir, catalogue, now });
+  const now = () => time, store = new RoomStore({ allowTestDecks: true, dataDir: dir, catalogue, now });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, ...Array.from({ length: count - 1 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const room = () => store.rooms.get(owner.code), player = who => room().players.find(p => p.id === who.playerId);

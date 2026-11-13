@@ -3,6 +3,10 @@ import { readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { ApiError, RoomStore } from './store.js';
+import { playCardArtFiles } from '../public/play-card-face.js';
+import { pokemonTypeIconPaths } from '../public/pokemon-types.js';
+import { musicTracks, recordedMoves } from '../public/game-audio.js';
+import { civilianProfiles, gymLeaderProfiles, partnerProfiles, roleProfiles } from '../public/trainer-profiles.js';
 
 const appDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const staticFiles = new Map([
@@ -12,15 +16,69 @@ const staticFiles = new Map([
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/catalogue.json', ['catalogue.json', 'application/json; charset=utf-8']],
   ['/combat-ui.js', ['combat-ui.js', 'text/javascript; charset=utf-8']],
+  ['/play-card-face.js', ['play-card-face.js', 'text/javascript; charset=utf-8']],
+  ['/pokemon-types.js', ['pokemon-types.js', 'text/javascript; charset=utf-8']],
   ['/battlefield.js', ['battlefield.js', 'text/javascript; charset=utf-8']],
+  ['/trainer-profiles.js', ['trainer-profiles.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-effects.js', ['battlefield-effects.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-event-effects.js', ['battlefield-event-effects.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-move-effects.js', ['battlefield-move-effects.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-effect-recipes.js', ['battlefield-effect-recipes.js', 'text/javascript; charset=utf-8']],
+  ['/game-audio.js', ['game-audio.js', 'text/javascript; charset=utf-8']],
+  ['/pokemon-battle-motion.js', ['pokemon-battle-motion.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-terrain.js', ['battlefield-terrain.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-coast.js', ['battlefield-coast.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-arcade.js', ['battlefield-arcade.js', 'text/javascript; charset=utf-8']],
+  ['/coastal-panorama.webp', ['coastal-panorama.webp', 'image/webp']],
+  ['/coastal-horizon.webp', ['coastal-horizon.webp', 'image/webp']],
+  ['/coastal-limestone.webp', ['coastal-limestone.webp', 'image/webp']],
+  ['/coastal-masonry.webp', ['coastal-masonry.webp', 'image/webp']],
+  ['/coastal-cliff.webp', ['coastal-cliff.webp', 'image/webp']],
+  ['/coastal-ivy.webp', ['coastal-ivy.webp', 'image/webp']],
+  ['/coastal-waterfall.webp', ['coastal-waterfall.webp', 'image/webp']],
+  ['/coastal-stone.webp', ['coastal-stone.webp', 'image/webp']],
+  ['/battlefield-draft.js', ['battlefield-draft.js', 'text/javascript; charset=utf-8']],
   ['/battlefield-layout.js', ['battlefield-layout.js', 'text/javascript; charset=utf-8']],
+  ['/pokemon-models/forms.json', ['pokemon-models/forms.json', 'application/json; charset=utf-8']],
   ['/battlefield.css', ['battlefield.css', 'text/css; charset=utf-8']],
 ]);
+for (const filename of playCardArtFiles) {
+  const path = `play-card-art/${filename}`;
+  staticFiles.set(`/${path}`, [path, filename.endsWith('.svg') ? 'image/svg+xml' : 'image/png']);
+}
+for (const status of ['burn','confusion','flinch','paralysis','poison','sleep']) {
+  const path = `battle-token-art/${status}.png`;
+  staticFiles.set(`/${path}`, [path, 'image/png']);
+}
+for (const name of ['ice','flow','ring','leaf','laser','shock']) {
+  const path = `battle-move-art/${name}.png`;
+  staticFiles.set(`/${path}`, [path, 'image/png']);
+}
 for (const id of ["charmander", "bulbasaur", "squirtle", "grimer", "shellder", "gastly", "caterpie", "weedle", "pidgey", "sandshrew", "pikachu", "abra", "psyduck", "meowth", "machop", "slowpoke", "magikarp", "dratini", "mankey", "clefairy", "vulpix", "nidoran-m", "diglett", "growlithe", "magnemite", "exeggcute", "cubone", "koffing", "rhyhorn", "chansey", "kangaskhan", "staryu", "scyther", "jynx", "electabuzz", "tauros", "lapras", "porygon", "aerodactyl", "snorlax"]) staticFiles.set(`/pokemon-art/${id}.png`, [`pokemon-art/${id}.png`, 'image/png']);
 for (const dex of [2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18, 26, 28, 33, 34, 36, 38, 51, 53, 55, 57, 59, 64, 65, 67, 68, 80, 82, 89, 91, 93, 94, 103, 105, 110, 112, 121, 130, 148, 149]) staticFiles.set(`/pokemon-art/forms/${dex}.png`, [`pokemon-art/forms/${dex}.png`, 'image/png']);
+for (const trainer of [...civilianProfiles, ...Object.values(gymLeaderProfiles), ...Object.values(roleProfiles).flat(), ...Object.values(partnerProfiles), 'blue', 'mina', 'trace']) {
+  const path = `trainer-models/${trainer}.glb`;
+  staticFiles.set(`/${path}`, [path, 'model/gltf-binary']);
+}
+for (const name of ['felt', 'tabletop', ...civilianProfiles]) {
+  const path = `system-art/${name}.webp`;
+  staticFiles.set(`/${path}`, [path, 'image/webp']);
+}
+staticFiles.set('/system-art/rocket-mark.svg', ['system-art/rocket-mark.svg', 'image/svg+xml']);
+staticFiles.set('/system-art/settings.svg', ['system-art/settings.svg', 'image/svg+xml']);
+for (const track of [...Object.values(musicTracks), ...recordedMoves.map(move=>`moves/${move}`)]) {
+  const path = `audio/${track}.mp3`;
+  staticFiles.set(`/${path}`, [path, 'audio/mpeg']);
+}
+for (const path of pokemonTypeIconPaths) {
+  staticFiles.set(path, [path.slice(1), 'image/png']);
+}
+const modelFiles = /^\/pokemon-models\/([1-9]\d{0,2})\.glb$/;
 const vendorFiles = new Map([
   ['/vendor/three.module.js', join(appDir, 'node_modules/three/build/three.module.js')],
   ['/vendor/three.core.js', join(appDir, 'node_modules/three/build/three.core.js')],
+  ...['loaders/GLTFLoader.js','utils/BufferGeometryUtils.js','utils/SkeletonUtils.js','objects/Reflector.js'].map(file=>
+    [`/vendor/addons/${file}`,join(appDir,'node_modules/three/examples/jsm',file)]),
 ]);
 function send(res, status, value) {
   res.writeHead(status, { 'Content-Type': 'application/json; charset=utf-8' });
@@ -51,7 +109,7 @@ export function createApplication({ store, dataDir = join(appDir, '.data'), publ
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data: blob:; connect-src 'self' blob:; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
     try {
       // The fixed public allowlist is deliberate: private files are never URL-resolved.
       const path = req.url.split('?')[0];
@@ -69,16 +127,36 @@ export function createApplication({ store, dataDir = join(appDir, '.data'), publ
       const viewMatch = /^\/api\/rooms\/([A-Za-z2-9]{6})$/.exec(path);
       if (req.method === 'GET' && viewMatch) return send(res, 200, rooms.view(viewMatch[1], credential(req)));
       if (req.method === 'GET' && vendorFiles.has(path)) {
-        const data = readFileSync(vendorFiles.get(path));
+        const source = readFileSync(vendorFiles.get(path),'utf8');
+        const data = path.startsWith('/vendor/addons/')
+          ? source.replaceAll("from 'three'", "from '/vendor/three.module.js'")
+          : source;
         res.writeHead(200, {'Content-Type':'text/javascript; charset=utf-8'});
         return res.end(data);
       }
-      const asset = staticFiles.get(path);
+      const model = modelFiles.exec(path);
+      const asset = model ? [`pokemon-models/${model[1]}.glb`, 'model/gltf-binary'] : staticFiles.get(path);
       if (req.method === 'GET' && asset) {
         let data;
         try { data = readFileSync(join(publicDir, asset[0])); }
         catch (error) { if (error.code === 'ENOENT') throw new ApiError(404, 'NOT_FOUND', 'File not found.'); throw error; }
-        res.writeHead(200, { 'Content-Type': asset[1] });
+        const cacheable = asset[1] === 'model/gltf-binary' || asset[1] === 'audio/mpeg';
+        const headers = { 'Content-Type': asset[1], 'Content-Length': data.length, ...(cacheable ? {'Cache-Control':'public, max-age=86400'} : {}) };
+        if (asset[1] === 'audio/mpeg') {
+          headers['Accept-Ranges'] = 'bytes';
+          const range = /^bytes=(\d*)-(\d*)$/.exec(req.headers.range || '');
+          if (range && (range[1] || range[2])) {
+            const start = range[1] ? Number(range[1]) : Math.max(0,data.length-Number(range[2]));
+            const end = range[1] && range[2] ? Math.min(data.length-1,Number(range[2])) : data.length-1;
+            if (start > end) {
+              res.writeHead(416,{'Content-Range':`bytes */${data.length}`});
+              return res.end();
+            }
+            res.writeHead(206,{...headers,'Content-Length':end-start+1,'Content-Range':`bytes ${start}-${end}/${data.length}`});
+            return res.end(data.subarray(start,end+1));
+          }
+        }
+        res.writeHead(200, headers);
         return res.end(data);
       }
       throw new ApiError(404, 'NOT_FOUND', 'Route not found.');

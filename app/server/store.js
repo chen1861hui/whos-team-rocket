@@ -1,13 +1,17 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, requestBattleSwitch, battleTraitsEffective } from './combat.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective } from './combat.js';
+import { civilianProfiles, gymLeaderProfiles, roleProfiles } from '../public/trainer-profiles.js';
+import { pokemonTypes } from '../public/pokemon-types.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
-import { isDeckProfile } from './playtest-deck.js';
+import { BASIC_DECK, isDeckProfile, RETAIL_DECK } from './playtest-deck.js';
 
 export const IDLE_MS = 7 * 60 * 60 * 1000;
 export const CONNECTED_MS = 30_000;
 export const OWNER_GRACE_MS = 60_000;
+const seatNumbers = [1, 2, 3, 4, 5, 6];
+const openSeatNumber = players => seatNumbers.find(number => !players.some(player => player.seatNumber === number));
 const hash = token => createHash('sha256').update(token).digest('hex');
 const fail = (status, code, message) => { throw new ApiError(status, code, message); };
 export class ApiError extends Error {
@@ -40,12 +44,13 @@ function replaceSavedRoom(source, destination) {
 }
 
 export class RoomStore {
-  constructor({ dataDir, catalogue, now = Date.now } = {}) {
+  constructor({ dataDir, catalogue, now = Date.now, allowTestDecks = false } = {}) {
     if (!dataDir || !Array.isArray(catalogue?.entries)) throw new Error('RoomStore requires private dataDir and catalogue entries.');
     this.dataDir = dataDir;
     this.catalogueIds = [...new Set(catalogue.entries.map(entry => entry.id).filter(id => typeof id === 'string'))];
     this.now = now;
     this.catalogue = catalogue;
+    this.allowTestDecks = allowTestDecks;
     // Loaded owners get a full recovery window even though saved transport presence is cleared.
     this.restartGraceUntil = this.now() + OWNER_GRACE_MS;
     this.rooms = new Map();
@@ -55,6 +60,10 @@ export class RoomStore {
       try {
         const room = JSON.parse(readFileSync(join(dataDir, file), 'utf8'));
         if (room.schemaVersion !== 1 || `${room.code}.json` !== file || !Array.isArray(room.players)) throw new Error('Invalid persisted room');
+        for (const player of room.players.filter(player => !player.spectator && player.seatNumber === undefined)) {
+          player.seatNumber = openSeatNumber(room.players);
+        }
+        if (room.status === 'lobby' && !this.allowTestDecks) room.settings.deckProfile = RETAIL_DECK;
         if (room.turn) {
           room.turn.switchUsed ??= false;
           room.turn.phase ??= room.turn.drawRemaining > 0 ? 'draw' : 'play';
@@ -100,6 +109,20 @@ export class RoomStore {
     try { return callback(); }
     catch (error) { if (error instanceof BattleError) fail(error.status, error.code, error.message); throw error; }
   }
+  resolveAutomaticDraw(room) {
+    const turn = room.turn;
+    if (room.settings.autoDraw !== true || !isBattle(room) || room.status !== 'playing' ||
+        turn?.phase !== 'draw' || room.pendingBattle || room.pendingVote || room.turnStart) return false;
+    const player = room.players.find(entry => entry.id === turn.playerId);
+    if (!player || player.eliminated || previewActions(room, player, this.catalogue)?.canTrait) return false;
+    const count = Math.min(turn.drawRemaining, room.drawPile.length + room.discardPile.length);
+    if (count > 0) drawBattleCards(room, player, count, 'draw-phase');
+    turn.drawStarted = true;
+    turn.drawRemaining = 0;
+    turn.phase = 'play';
+    log(room, `本回合自动摸取${count}张牌。`, `The current trainer automatically drew ${count} card(s).`);
+    return true;
+  }
   startTurn(room, playerId, number) {
     room.turn = {
       playerId, number, drawRemaining: 2, phase: 'draw', switchUsed: false, discardComplete:false,
@@ -112,6 +135,7 @@ export class RoomStore {
       clock.pausedReason = connected ? null : 'disconnected';
     }
     if (isBattle(room)) beginBattleTurn(room, room.players.find(p => p.id === playerId), this.battleContext());
+    this.resolveAutomaticDraw(room);
     if (room.pendingBattle && clock) { clock.deadlineAt = null; clock.pausedReason = 'response'; }
   }
   advanceTurn(room) {
@@ -125,6 +149,10 @@ export class RoomStore {
     if (isBattle(room) && room.status === 'playing' && room.pendingBattle) return this.synchronizeBattleDecision(room, { commit });
     if (isBattle(room) && room.status === 'playing' && room.turn && room.players.find(p => p.id === room.turn.playerId)?.eliminated) this.advanceTurn(room);
     if (isBattle(room) && room.status === 'playing' && room.pendingBattle) return this.synchronizeBattleDecision(room, { commit });
+    if (this.resolveAutomaticDraw(room) && commit) {
+      room.revision++;
+      this.persist(room);
+    }
     if (room.status !== 'playing' || !room.turn?.clock) return;
     const before = JSON.stringify(room.turn);
     const stateBefore = JSON.stringify({ ...room.turn, clock: { ...room.turn.clock, remainingMs: 0, deadlineAt: null } });
@@ -172,7 +200,7 @@ export class RoomStore {
         clock.remainingMs = Math.max(0, clock.deadlineAt - until);
       }
       if (clock.remainingMs === 0 && !room.pendingVote) {
-        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','source-effect-order','turn-start-order','distribute','damage-order','mew-blessing','event-hand','berry-pick'].includes(pending.kind)) {
+        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','source-effect-order','turn-start-order','distribute','damage-order','mew-blessing','event-hand','berry-pick','reveal-judgment'].includes(pending.kind)) {
           const reason=this.connected(actor)?'mandatory':'disconnected';
           structural ||= !clock.expired || clock.pausedReason!==reason;
           clock.expired=true;clock.deadlineAt=null;clock.pausedReason=reason;
@@ -216,6 +244,7 @@ export class RoomStore {
   addPlayer(room, name, spectator) {
     const token = randomBytes(32).toString('base64url');
     const player = { id: randomUUID(), nickname: name, spectator, tokenHash: hash(token), ready: false, lastSeenAt: this.now(), hand: [], candidates: [], active: null, reserve: null, setupComplete: false, actions: {} };
+    if (!spectator) player.seatNumber = openSeatNumber(room.players);
     room.players.push(player);
     return { token, player };
   }
@@ -225,7 +254,8 @@ export class RoomStore {
     this.cleanup();
     let code;
     do { code = Array.from(randomBytes(6), byte => 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'[byte % 32]).join(''); } while (this.rooms.has(code));
-    const room = { schemaVersion: 1, code, revision: 0, status: 'lobby', ownerId: null, settings: { arena: 'stadium', turnSeconds: 0, responseSeconds: 0 }, players: [], turn: null, pendingVote: null, log: [], lastActionAt: this.now() };
+    const deckProfile = this.allowTestDecks ? BASIC_DECK : RETAIL_DECK;
+    const room = { schemaVersion: 1, code, revision: 0, status: 'lobby', ownerId: null, settings: { arena: 'fire', turnSeconds: 0, responseSeconds: 0, deckProfile }, players: [], turn: null, pendingVote: null, log: [], lastActionAt: this.now() };
     const { token, player } = this.addPlayer(room, name, false);
     room.ownerId = player.id;
     log(room, '测试房间已建立。', 'Foundation room created.');
@@ -259,21 +289,42 @@ export class RoomStore {
   }
   project(room, self) {
     const battle = isBattle(room), disclosed = battle && room.status === 'finished';
+    const leaderConcealed = room.status==='identity' && !room.players.some(player=>player.role==='leader' && player.identityAcknowledged);
+    // Match order starts at the leader, so withhold that ordering until the public flip.
+    const players = leaderConcealed ? room.players.toSorted((a,b)=>Number(a.spectator)-Number(b.spectator) || a.id.localeCompare(b.id)) : room.players;
     const visiblePokemon = pokemon => battle ? publicBattlePokemon(pokemon, this.catalogue, room) : publicPokemon(pokemon);
+    const hasTrainerAvatars = battle || room.status === 'lobby';
+    const cosmeticSeats = hasTrainerAvatars ? room.players.filter(player=>!player.spectator).toSorted((a,b)=>a.id.localeCompare(b.id)) : [];
+    const seed = room.trainerPoolSeed ?? Number.parseInt(hash(room.code).slice(0,8),16);
+    const publicIdentity = player => (player.role==='leader' && !leaderConcealed) || player.identityPublic || player.eliminated || disclosed ? player.role ?? null : null;
+    const avatar = (player, role) => {
+      if (role==='leader') return gymLeaderProfiles[room.settings.arena] ?? gymLeaderProfiles.fire;
+      const pool = roleProfiles[role];
+      if (pool) {
+        const index = cosmeticSeats.filter(seat=>seat.role===role).indexOf(player);
+        return pool[(seed+index)%pool.length];
+      }
+      const special = room.status==='playing' && publicPartnerTrainerAvatar(player);
+      return special || civilianProfiles[(seed+cosmeticSeats.indexOf(player))%civilianProfiles.length];
+    };
     return {
       code: room.code, revision: room.revision, status: room.status, ownerId: room.ownerId, selfId: self.id,
       settings: { ...room.settings },
-      players: room.players.map(player => ({ id: player.id, nickname: player.nickname, ready: player.ready, connected: this.connected(player), spectator: player.spectator, handCount: player.hand.length,...(battle?{exiledCount:player.exiledCards?.length||0}:{}),
+      players: players.map(player => ({ id: player.id, nickname: player.nickname, ready: player.ready, connected: this.connected(player), spectator: player.spectator, handCount: player.hand.length,...(battle?{exiledCount:player.exiledCards?.length||0}:{}),
+        ...(!player.spectator ? {seatNumber: player.seatNumber} : {}),
         active: player.active && (room.status !== 'setup' || player.id === self.id) ? visiblePokemon(player.active) : null,
         ...((room.status === 'playing' && player.reserve?.revealed === true) || (disclosed && player.reserve) ? { reserve: visiblePokemon(player.reserve) } : {}),
         reserveCount: player.reserve ? 1 : 0, setupComplete: player.setupComplete,
-        ...(battle ? { role: player.role === 'leader' || player.eliminated || disclosed ? player.role ?? null : null, eliminated: Boolean(player.eliminated), identityAcknowledged: Boolean(player.identityAcknowledged), candidateDrawCount: player.candidates.length } : {}),
+        ...(battle ? { role:publicIdentity(player), eliminated:Boolean(player.eliminated), identityAcknowledged:Boolean(player.identityAcknowledged), candidateDrawCount:player.candidates.length } : {}),
+        ...(hasTrainerAvatars && !player.spectator ? {trainerAvatar:avatar(player,battle ? publicIdentity(player) : null)} : {}),
         ...(disclosed ? { hand: structuredClone(player.hand) } : {}),
       })),
       self: { spectator: self.spectator, hand: structuredClone(self.hand), ...(battle?{exiledCount:self.exiledCards?.length||0}:{}), candidates: [...self.candidates], reserve: self.reserve ? { ...self.reserve } : null,
+        ...(battle && room.status==='setup' && !self.spectator && !self.setupComplete
+          ? {candidateTypeHints:(self.candidateDeal || []).map(id => pokemonTypes(id)[0] ?? null)} : {}),
         ...(battle ? { role: self.role ?? null, identityAcknowledged: Boolean(self.identityAcknowledged), pokemonDrawRemaining: self.candidateDeal?.length ?? 0, handLimit:Number.isFinite(handLimit(room,self))?handLimit(room,self):null, battle: previewActions(room, self, this.catalogue) } : {}) },
       turn: room.turn ? structuredClone(room.turn) : null, log: structuredClone(room.log), pendingVote: room.pendingVote ? structuredClone(room.pendingVote) : null,
-      ...(battle ? { gameMode: 'combat-preview', scenario: { ...room.scenario }, pendingBattle: publicBattleDecision(room,self), result: room.result ? structuredClone(room.result) : null, drawCount: room.drawPile?.length ?? 0, discardCount: room.discardPile?.length ?? 0 } : {}),
+      ...(battle ? { gameMode: 'combat-preview', scenario: { ...room.scenario }, visualEvents:structuredClone(room.visualEvents || []), activeCardEvent:publicActiveCardEvent(room), pendingBattle: publicBattleDecision(room,self), result: room.result ? structuredClone(room.result) : null, drawCount: room.drawPile?.length ?? 0, discardCount: room.discardPile?.length ?? 0 } : {}),
       lastActionAt: room.lastActionAt, expiresAt: room.lastActionAt + IDLE_MS, serverNow: this.now(), foundation: true,
     };
   }
@@ -289,7 +340,9 @@ export class RoomStore {
       return { view: this.project(current, currentPlayer) };
     }
     if (current.status === 'closed') fail(410, 'ROOM_CLOSED', 'This room is closed.');
-    if (current.revision !== input.revision) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
+    // Seat claims are checked against current occupancy below, even if another seat just changed.
+    const lateSeatClaim = input.type === 'chooseSeat' && input.revision < current.revision;
+    if (current.revision !== input.revision && !lateSeatClaim) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
     if (Object.keys(currentPlayer.actions).length >= 20000) fail(429, 'ACTION_LIMIT', 'This credential has reached the development action limit.');
     const room = structuredClone(current);
     const player = room.players.find(entry => entry.id === currentPlayer.id);
@@ -303,17 +356,31 @@ export class RoomStore {
     if (room.pendingVote && !['approveEnd', 'rejectEnd'].includes(input.type)) fail(409, 'VOTE_PENDING', 'Resolve the closing vote first.');
     if (room.pendingBattle && !['respondBattle', 'requestEndGame', 'requestEndRoom', 'approveEnd', 'rejectEnd'].includes(input.type)) fail(409, 'RESPONSE_PENDING', 'Resolve the pending response first.');
     switch (input.type) {
+      case 'chooseSeat':
+        check(['seatNumber']); seat(); status('lobby');
+        if (!seatNumbers.includes(input.seatNumber)) fail(400, 'INVALID_SEAT', 'Choose a seat from 1 through 6.');
+        if (seated.some(entry => entry.id !== player.id && entry.seatNumber === input.seatNumber)) fail(409, 'SEAT_TAKEN', 'That seat is occupied.');
+        if (player.seatNumber !== input.seatNumber) {
+          player.seatNumber = input.seatNumber;
+          player.ready = false;
+        }
+        break;
       case 'ready':
         check(['ready']); seat(); status('lobby');
         if (typeof input.ready !== 'boolean') fail(400, 'INVALID_INPUT', 'Ready must be a boolean.');
         player.ready = input.ready;
         break;
       case 'settings': {
-        check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile']); owner(); status('lobby');
-        if (!['stadium', 'gym', 'floating'].includes(input.arena) || ![input.turnSeconds, input.responseSeconds].every(value => Number.isInteger(value) && (value === 0 || (value >= 5 && value <= 600)))) fail(400, 'INVALID_SETTINGS', 'Choose a supported arena and timers of 0 or 5–600 seconds.');
-        if (input.deckProfile !== undefined && !isDeckProfile(input.deckProfile)) fail(400, 'INVALID_SETTINGS', 'Choose a supported playtest deck.');
+        check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile', 'autoDraw', 'autoJudgment']); owner(); status('lobby');
+        if (!['fire', 'water', 'grass', 'stadium', 'gym', 'floating'].includes(input.arena) || ![input.turnSeconds, input.responseSeconds].every(value => Number.isInteger(value) && (value === 0 || (value >= 5 && value <= 600)))) fail(400, 'INVALID_SETTINGS', 'Choose a supported arena and timers of 0 or 5–600 seconds.');
+        if (input.deckProfile !== undefined && !(this.allowTestDecks ? isDeckProfile(input.deckProfile) : input.deckProfile === RETAIL_DECK)) fail(400, 'INVALID_SETTINGS', 'Choose a supported deck.');
         const deckProfile = input.deckProfile ?? room.settings.deckProfile;
         room.settings = { arena: input.arena, turnSeconds: input.turnSeconds, responseSeconds: input.responseSeconds, ...(deckProfile ? { deckProfile } : {}) };
+        for (const key of ['autoDraw', 'autoJudgment']) {
+          if (input[key] !== undefined && typeof input[key] !== 'boolean') fail(400, 'INVALID_SETTINGS', 'Automation settings must be on or off.');
+          const value = input[key] ?? current.settings[key];
+          if (value !== undefined) room.settings[key] = value;
+        }
         break;
       }
       case 'startBattlePreview':
@@ -393,6 +460,13 @@ export class RoomStore {
         check(['decisionId', 'choice', 'cardId', 'cardIds', 'handIndex', 'handIndices', 'order', 'topOrder','bottomOrder', 'reinforcement', 'effect','allocations','targetId','targetIds','moveIndex','boostCardId','effectChoice']); seat(); status('playing');
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'There is no combat response.');
         this.battleCall(() => respondBattle(room, player, input, this.battleContext()));
+        break;
+      case 'revealRole':
+        check([]); ownTurn();
+        if (!isBattle(room) || room.turn.phase!=='play' || player.eliminated) fail(409, 'WRONG_PHASE', 'Reveal your identity during your play phase.');
+        if (!player.role || player.role==='leader' || player.identityPublic) fail(409, 'IDENTITY_ALREADY_PUBLIC', 'Your identity is already public.');
+        player.identityPublic = true;
+        log(room, `${player.nickname}主动公开了身份。`, `${player.nickname} revealed their identity.`);
         break;
       case 'useTrait':
         check(['cardIds','hpLoss']); ownTurn();
@@ -493,11 +567,12 @@ export class RoomStore {
     const vote = room.pendingVote;
     if (!vote.requiredIds.every(id => vote.approvedIds.includes(id))) return;
     room.pendingVote = null;
-    delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent; delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
+    delete room.visualEvents; delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent; delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
     room.turn = null;
     room.status = vote.kind === 'endRoom' ? 'closed' : 'lobby';
+    if (room.status === 'lobby' && !this.allowTestDecks) room.settings.deckProfile = RETAIL_DECK;
     for (const player of room.players) {
-      delete player.role; delete player.eliminated; delete player.identityAcknowledged; delete player.candidateDeal;
+      delete player.role; delete player.eliminated; delete player.identityAcknowledged; delete player.identityPublic; delete player.candidateDeal;
       delete player.exiledCards;
       player.ready = false; player.hand = []; player.candidates = []; player.active = null; player.reserve = null; player.setupComplete = false;
     }

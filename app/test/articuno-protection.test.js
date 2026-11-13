@@ -15,7 +15,7 @@ function fixture(t, { count = 3, responseSeconds = 0 } = {}) {
   t.after(() => rmSync(dataDir, { recursive: true, force: true }));
   let serial = 0;
   let time = 1_000_000;
-  const options = { dataDir, catalogue, now: () => time };
+  const options = { dataDir, allowTestDecks: true, catalogue, now: () => time };
   const store = new RoomStore(options);
   const owner = store.create({ nickname: 'Trainer 0' });
   const joined = [owner, ...Array.from({ length: count - 1 }, (_, index) =>
@@ -383,6 +383,8 @@ for (const effect of ['hand', 'item']) {
     assert.equal(Object.hasOwn(f.view(f.leader).pendingBattle, 'choices'), false);
     f.protect(reply);
     assertDone(f);
+    const cues = f.view(f.third).visualEvents.filter(cue=>cue.kind==='event-action');
+    assert.deepEqual(cues.map(cue=>[cue.action,cue.targetIds]), [['shield',[f.target.playerId]]]);
     assert.deepEqual(effect === 'hand' ? f.player(f.target).hand[0] : f.player(f.target).active.item, possession);
     assert.deepEqual(f.player(f.leader).hand, []);
     assertOne(f.room(), original);
@@ -403,6 +405,8 @@ test('passing Mr. Mime hand protection restores the original private choice and 
   assertDone(f);
   assert.deepEqual(f.player(f.leader).hand, [taken]);
   assert.deepEqual(f.player(f.target).hand, []);
+  const cue = f.view(f.third).visualEvents.at(-1);
+  assert.deepEqual([cue.kind,cue.action,cue.object], ['event-action','take','card']);
 });
 
 test('a passed first target can still claim the resolving event via Synchronize before later protection', t => {

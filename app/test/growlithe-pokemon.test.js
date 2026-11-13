@@ -16,7 +16,7 @@ function fixture(t, { count = 3 } = {}) {
   });
   let serial = 0;
   const now = () => 1_000_000;
-  const store = new RoomStore({ dataDir: dir, catalogue, now });
+  const store = new RoomStore({ allowTestDecks: true, dataDir: dir, catalogue, now });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, ...Array.from({ length: count - 1 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const room = () => store.rooms.get(owner.code);

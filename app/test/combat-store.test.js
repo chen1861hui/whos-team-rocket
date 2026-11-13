@@ -4,27 +4,31 @@ import { mkdirSync, mkdtempSync, rmSync, readFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { RoomStore, CONNECTED_MS } from '../server/store.js';
+import { civilianProfiles, roleProfiles } from '../public/trainer-profiles.js';
 
 const catalogue = JSON.parse(readFileSync(new URL('../content/catalogue.json', import.meta.url), 'utf8'));
 const publicShape = p => ({ catalogueId: p.catalogueId, level: p.level });
-function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content = catalogue, deckProfile } = {}) {
+function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0, content = catalogue, deckProfile = 'basic', autoDraw, autoJudgment } = {}) {
   const root = fileURLToPath(new URL('../.data/', import.meta.url)); mkdirSync(root, { recursive: true });
   const dir = mkdtempSync(join(root, 'combat-test-'));
   t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
   let time = 1_000_000, serial = 0;
   const now = () => time;
-  const store = new RoomStore({ dataDir: dir, catalogue: content, now });
+  const store = new RoomStore({ dataDir: dir, catalogue: content, now, allowTestDecks: deckProfile !== 'retail' });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, ...Array.from({ length: count - 1 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const byId = id => seats.find(p => p.playerId === id);
   const act = (who, type, payload = {}) => store.action(owner.code, who.token, { id: `battle-${++serial}`, revision: store.rooms.get(owner.code).revision, type, ...payload }).view;
-  act(owner, 'settings', { arena: 'stadium', turnSeconds, responseSeconds, ...(deckProfile ? { deckProfile } : {}) });
+  act(owner, 'settings', { arena: 'stadium', turnSeconds, responseSeconds, deckProfile, autoDraw, autoJudgment });
   seats.forEach(p => act(p, 'ready', { ready: true })); act(owner, 'startBattlePreview');
   const leader = byId(store.rooms.get(owner.code).players.find(p => p.role === 'leader').id);
+  const seededSetupExclusions = ['koffing', 'jynx', 'tauros'];
+  if (autoDraw) seededSetupExclusions.push('staryu', 'electabuzz', 'porygon');
   for (const who of seats) act(who, 'acknowledgeIdentity');
   for (const who of seats) {
     for (let draw = 0; draw < 5; draw++) act(who, 'drawPokemon');
-    const picks = store.view(owner.code, who.token).view.self.candidates.filter(id => !['koffing','jynx','tauros'].includes(id));
+    const candidates = store.view(owner.code, who.token).view.self.candidates;
+    const picks = [...candidates].sort((a, b) => Number(seededSetupExclusions.includes(a)) - Number(seededSetupExclusions.includes(b)));
     act(who, 'selectPokemon', { activeId: picks[0], reserveId: picks[1] });
   }
   // These pre-existing combat scenarios intentionally seed starter creatures after
@@ -111,6 +115,8 @@ test('only the host can save a known deck and a timer-only save preserves the pr
   });
   rejects(() => update(guest, 'guest-change', 'reviewed'), 'OWNER_ONLY');
   rejects(() => update(owner, 'invalid-deck', 'unknown'), 'INVALID_SETTINGS');
+  rejects(() => update(owner, 'test-deck', 'reviewed'), 'INVALID_SETTINGS');
+  assert.equal(owner.view.settings.deckProfile, 'retail');
   update(owner, 'retail-deck', 'retail');
   update(owner, 'timer-only', undefined);
   const restored = new RoomStore({ dataDir: dir, catalogue });
@@ -226,6 +232,128 @@ test('Fire judgment applies burn after damage and burn caps subsequent move dama
   assert.equal(f.player(victim).active.status, 'burn');
   assert.equal(f.player(victim).active.damage, 1);
   assert.ok(f.room().log.some(entry => entry.text.en.includes('judgment revealed intense sun')));
+});
+
+test('auto draw deals ordinary draws once and applies Flinch before the next draw', t => {
+  const f = fixture(t, { autoDraw: true });
+  const opened = f.view(f.leader);
+  assert.equal(opened.turn.phase, 'play');
+  assert.equal(opened.self.hand.length, 6);
+  assert.equal(f.view(f.leader).drawCount, opened.drawCount);
+  const next = f.byId(f.room().players[1].id);
+  f.player(next).active.status = 'flinch';
+  f.act(f.leader, 'finishPlay');
+  while (f.player(f.leader).hand.length > 4) f.act(f.leader, 'discard', { cardId: f.player(f.leader).hand[0].id });
+  f.act(f.leader, 'endTurn');
+  const following = f.view(next);
+  assert.equal(following.turn.phase, 'play');
+  assert.equal(following.self.hand.length, 5);
+  assert.equal(following.drawCount, opened.drawCount - 1);
+});
+
+test('auto draw waits for Illuminate, then takes the two ordinary draws', t => {
+  const f = fixture(t, { autoDraw: true });
+  const next = f.byId(f.room().players[1].id);
+  f.player(next).active.catalogueId = 'staryu';
+  f.act(f.leader, 'finishPlay');
+  while (f.player(f.leader).hand.length > 4) f.act(f.leader, 'discard', { cardId: f.player(f.leader).hand[0].id });
+  f.act(f.leader, 'endTurn');
+  const waiting = f.view(next);
+  assert.equal(waiting.turn.phase, 'draw');
+  assert.equal(waiting.self.battle.trait.kind, 'illuminate');
+  assert.equal(waiting.self.hand.length, 4);
+  const after = f.act(next, 'useTrait');
+  assert.equal(after.self.hand.length, 7);
+  assert.equal(after.turn.phase, 'play');
+});
+
+test('manual judgment keeps the deck hidden until reveal and still offers Drought', t => {
+  const f = fixture(t, { autoJudgment: false, responseSeconds: 5 });
+  f.play();
+  const source = f.player(f.leader).active;
+  source.catalogueId = 'charmander'; source.level = 1;
+  const victim = f.target();
+  f.player(victim).active.catalogueId = 'vulpix';
+  const attack = f.attack(victim);
+  assert.deepEqual(attack.pendingBattle.camera,{sourceId:f.leader.playerId,targetIds:[victim.playerId],wide:false});
+  const cue = f.view(victim).visualEvents.at(-1);
+  assert.equal(cue.telegraph,true);
+  assert.deepEqual(
+    {kind:cue.kind,sourceId:cue.sourceId,targetIds:cue.targetIds,name:cue.name.en},
+    {kind:'attack',sourceId:f.leader.playerId,targetIds:[victim.playerId],name:'Ember'},
+  );
+  const before = f.view(f.leader).drawCount;
+  f.pass();
+  const pending = f.view(f.leader).pendingBattle;
+  const [release,hit] = f.view(victim).visualEvents.slice(-2);
+  assert.equal(release.release,true);
+  assert.equal(release.name.en,'Ember');
+  assert.deepEqual(release.targetIds,[victim.playerId]);
+  assert.equal(hit.kind,'hit');
+  assert.deepEqual(hit.targetIds,[victim.playerId]);
+  assert.ok(hit.amount>0);
+  assert.equal(pending.kind, 'reveal-judgment');
+  assert.equal(pending.judgmentCard, undefined);
+  assert.equal(f.view(f.leader).log.some(entry=>entry.judgment),false);
+  assert.equal(f.view(f.leader).drawCount, before);
+  rejects(() => f.act(victim, 'respondBattle', { decisionId: pending.id, choice: 'reveal' }), 'NOT_YOUR_DECISION');
+  f.advance(5_000);
+  assert.equal(f.view(f.leader).pendingBattle.id, pending.id);
+  const revealed = f.act(f.leader, 'respondBattle', { decisionId: pending.id, choice: 'reveal' });
+  assert.equal(revealed.drawCount, before - 1);
+  assert.equal(revealed.pendingBattle.kind, 'judgment');
+  assert.equal(revealed.pendingBattle.actorId, victim.playerId);
+  assert.equal(revealed.pendingBattle.judgmentCard.weather, 'intense-sun');
+  const publicCard = f.view(victim).log.findLast(entry=>entry.judgment).judgment;
+  assert.deepEqual(publicCard,revealed.pendingBattle.judgmentCard);
+  assert.ok(publicCard.kind);
+  assert.equal(publicCard.id,undefined);
+  f.pass();
+  assert.equal(f.player(victim).active.status, 'burn');
+});
+
+test('trainer appearance follows a public partner and keeps an unrevealed reserve private', t => {
+  const f = fixture(t);
+  const subject = f.target();
+  const player = f.player(subject);
+  delete player.trainerAvatar;
+  player.reserve.catalogueId = 'growlithe';
+  const publicSeat = () => f.view(f.leader).players.find(seat => seat.id === subject.playerId);
+  assert.equal(publicSeat().reserve, undefined);
+  assert.ok(civilianProfiles.includes(publicSeat().trainerAvatar));
+  f.play();
+  f.room().turn.playerId = subject.playerId;
+  f.act(subject, 'switchPokemon');
+  assert.equal(publicSeat().active.catalogueId, 'growlithe');
+  assert.equal(publicSeat().role, null);
+  assert.equal(publicSeat().trainerAvatar, 'jenny');
+  assert.equal(f.player(subject).trainerAvatar, 'jenny');
+  f.act(subject, 'revealRole');
+  assert.ok(roleProfiles[player.role].includes(publicSeat().trainerAvatar));
+});
+
+test('active identity reveal publishes only the acting trainer’s identity and model', t => {
+  const f = fixture(t, {count:6});
+  for (const seat of f.seats) delete f.player(seat).trainerAvatar;
+  const observer = f.store.join(f.owner.code,{nickname:'Observer',spectator:true});
+  const roster = () => f.view(observer).players.filter(seat=>!seat.spectator);
+  const hidden = roster().filter(seat=>!seat.role);
+  assert.equal(hidden.length,5);
+  assert.equal(new Set(hidden.map(seat=>seat.trainerAvatar)).size,5);
+  assert.ok(hidden.every(seat=>civilianProfiles.includes(seat.trainerAvatar)));
+  const rocket = f.seats.find(seat=>f.player(seat).role==='rocket');
+  rejects(()=>f.act(rocket,'revealRole'),'NOT_YOUR_TURN');
+  f.room().turn.playerId = rocket.playerId;
+  rejects(()=>f.act(rocket,'revealRole'),'WRONG_PHASE');
+  f.room().turn.phase = 'play';
+  const turn = structuredClone(f.room().turn);
+  f.act(rocket,'revealRole');
+  const revealed = roster().find(seat=>seat.id===rocket.playerId);
+  assert.equal(revealed.role,'rocket');
+  assert.ok(roleProfiles.rocket.includes(revealed.trainerAvatar));
+  assert.deepEqual(roster().filter(seat=>!seat.role),hidden.filter(seat=>seat.id!==rocket.playerId));
+  assert.deepEqual(f.room().turn,turn);
+  rejects(()=>f.act(rocket,'revealRole'),'IDENTITY_ALREADY_PUBLIC');
 });
 
 test('response clock pauses turn clock and deadline passes without extending inactivity lifetime', t => {

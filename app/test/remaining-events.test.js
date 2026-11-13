@@ -13,7 +13,7 @@ function fixture(t, { protection = false } = {}) {
     assert.equal(resolve(dirname(dataDir)), resolve(tmpdir()));
     rmSync(dataDir, { recursive: true, force: true });
   });
-  const store = new RoomStore({ dataDir, catalogue });
+  const store = new RoomStore({ allowTestDecks: true, dataDir, catalogue });
   const owner = store.create({ nickname: 'Trainer 1' });
   const joined = [owner, ...[2, 3].map(number => store.join(owner.code, { nickname: `Trainer ${number}` }))];
   const room = () => store.rooms.get(owner.code);
@@ -109,16 +109,22 @@ test('Berry reveals one face per trainer without physical IDs and offers the rem
   const cards = ['First', 'Second', 'Third'].map(label => f.card(label));
   f.room().drawPile = [...cards].reverse();
   const event = f.use('berry-harvest');
-  const observed = f.view(f.spectator).pendingBattle.berryCards;
+  const firstView = f.view(f.spectator);
+  const activeEvent = firstView.activeCardEvent;
+  assert.equal(activeEvent.effect, 'berry-harvest');
+  assert.equal(activeEvent.eventId, firstView.visualEvents.findLast(cue=>cue.kind==='event').eventId);
+  const observed = firstView.pendingBattle.berryCards;
   assert.deepEqual(observed.map(card => card.name.en), ['First', 'Second', 'Third']);
   assert.ok(observed.every(card => card.id === undefined));
   assert.throws(() => f.respond('card', { handIndex: 0 }, f.opponent), { code: 'NOT_YOUR_DECISION' });
   assert.throws(() => f.respond('pass'), { code: 'INVALID_RESPONSE' });
   f.respond('card', { handIndex: 2 });
   assert.equal(f.pending().actorId, f.opponent.playerId);
+  assert.deepEqual(f.view(f.spectator).activeCardEvent, activeEvent);
   assert.deepEqual(f.view(f.spectator).pendingBattle.berryCards.map(card => card.name.en), ['First', 'Second']);
   f.respond('card', { handIndex: 0 });
   f.respond('card', { handIndex: 0 });
+  assert.equal(f.view(f.spectator).activeCardEvent, null);
   assert.deepEqual(f.seats.map(seat => f.player(seat).hand[0]), [cards[2], cards[0], cards[1]]);
   assert.deepEqual(f.room().discardPile, [event]);
 });
@@ -159,7 +165,15 @@ test('Farfetch’d discards an opponent hand card from a private blind choice', 
   const event = f.use('farfetchd-prank', { targetId: f.opponent.playerId, effect: 'hand' });
   assert.deepEqual(f.view(f.leader).pendingBattle.choices, [{ index: 0 }]);
   assert.equal(f.view(f.spectator).pendingBattle.choices, undefined);
+  assert.equal(f.view(f.spectator).visualEvents.some(cue=>cue.kind==='event-action'), false);
+  const eventId = f.view(f.spectator).activeCardEvent.eventId;
   f.respond('card', { handIndex: 0 });
+  const {id, ...animation} = f.view(f.spectator).visualEvents.at(-1);
+  assert.deepEqual(animation, {
+    kind:'event-action', eventId, effect:'farfetchd-prank', action:'discard', object:'card',
+    sourceId:f.leader.playerId, targetIds:[f.opponent.playerId],
+    name:{en:'Farfetch’d’s Prank',zh:'大葱鸭的恶作剧'},
+  });
   assert.deepEqual(f.room().discardPile, [hidden, event]);
   assert.deepEqual(f.player(f.leader).hand, []);
   assert.deepEqual(f.player(f.opponent).hand, []);
@@ -179,6 +193,9 @@ test('Farfetch’d discards the actual held item and resumes after Defiant', t =
   const event = f.use('farfetchd-prank', { targetId: f.opponent.playerId, effect: 'item' });
   assert.equal(f.player(f.opponent).active.item, undefined);
   assert.equal(f.pending().kind, 'defiant');
+  const animation = f.view(f.spectator).visualEvents.at(-1);
+  assert.equal(animation.action, 'discard');
+  assert.equal(animation.itemType, 'rocky-helmet');
   f.respond('pass');
   assert.deepEqual(f.room().discardPile, [item, event]);
   assert.equal(f.pending(), null);

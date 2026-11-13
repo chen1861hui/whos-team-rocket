@@ -15,7 +15,7 @@ function fixture(t, { turnSeconds = 0, responseSeconds = 0 } = {}) {
     rmSync(dir, { recursive: true, force: true });
   });
   let time = 1_000_000, serial = 0;
-  const now = () => time, store = new RoomStore({ dataDir: dir, catalogue, now });
+  const now = () => time, store = new RoomStore({ allowTestDecks: true, dataDir: dir, catalogue, now });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, ...Array.from({ length: 2 }, (_, i) => store.join(owner.code, { nickname: `Trainer ${i + 1}` }))];
   const room = () => store.rooms.get(owner.code);

@@ -13,7 +13,7 @@ function fixture(t) {
   const dir = mkdtempSync(join(root, 'magikarp-test-'));
   t.after(() => { if (resolve(dirname(dir)) !== resolve(root)) throw new Error('Unexpected test path'); rmSync(dir, { recursive: true, force: true }); });
   let serial = 0;
-  const store = new RoomStore({ dataDir: dir, catalogue, now: () => 1_000_000 });
+  const store = new RoomStore({ allowTestDecks: true, dataDir: dir, catalogue, now: () => 1_000_000 });
   const owner = store.create({ nickname: 'Trainer 0' });
   const seats = [owner, store.join(owner.code, { nickname: 'Trainer 1' }), store.join(owner.code, { nickname: 'Trainer 2' })];
   const room = () => store.rooms.get(owner.code);

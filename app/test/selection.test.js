@@ -4,6 +4,7 @@ import {readFileSync,mkdirSync,mkdtempSync,rmSync} from 'node:fs';
 import {dirname,join,resolve} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {RoomStore} from '../server/store.js';
+import {civilianProfiles,gymLeaderProfiles} from '../public/trainer-profiles.js';
 
 const catalogue=JSON.parse(readFileSync(new URL('../content/catalogue.json',import.meta.url),'utf8'));
 function game(t,count=6,content=catalogue,mode='startBattlePreview') {
@@ -23,21 +24,63 @@ function game(t,count=6,content=catalogue,mode='startBattlePreview') {
 }
 function rejects(fn,code){assert.throws(fn,e=>e.code===code);}
 
+test('host and guests can claim open seats, retain ownership, and start in clockwise seat order',t=>{
+  const f=game(t,3);
+  const [,guest,third]=f.seats;
+  assert.deepEqual(f.seats.map(seat=>seat.view.players.find(player=>player.id===seat.playerId).seatNumber),[1,2,3]);
+  rejects(()=>f.act(f.observer,'chooseSeat',{seatNumber:6}),'SPECTATOR_ONLY_VIEW');
+  rejects(()=>f.act(guest,'chooseSeat',{seatNumber:1}),'SEAT_TAKEN');
+  rejects(()=>f.act(guest,'chooseSeat',{seatNumber:'6'}),'INVALID_SEAT');
+  const revision=f.room().revision;
+  f.act(f.owner,'chooseSeat',{seatNumber:6});
+  rejects(()=>f.store.action(f.owner.code,guest.token,{id:'racing-seat',revision,type:'chooseSeat',seatNumber:6}),'SEAT_TAKEN');
+  f.store.action(f.owner.code,guest.token,{id:'freed-seat',revision,type:'chooseSeat',seatNumber:1});
+  const view=f.view(f.observer);
+  assert.equal(view.ownerId,f.owner.playerId);
+  assert.deepEqual(view.players.filter(p=>!p.spectator).map(p=>[p.seatNumber,p.ready]),[[6,false],[1,false],[3,true]]);
+  const restored=new RoomStore({dataDir:f.dir,catalogue,now:f.now});
+  assert.deepEqual(restored.view(f.owner.code,f.owner.token).view.players.filter(p=>!p.spectator).map(p=>p.seatNumber),[6,1,3]);
+  rejects(()=>f.start(),'NOT_READY');
+  f.act(f.owner,'ready',{ready:true});
+  f.act(guest,'ready',{ready:true});
+  f.start();
+  rejects(()=>f.act(third,'chooseSeat',{seatNumber:4}),'WRONG_PHASE');
+  const order=f.room().players.filter(p=>!p.spectator).map(p=>p.seatNumber);
+  assert.deepEqual([...order,...order].slice(order.indexOf(1),order.indexOf(1)+3),[1,3,6]);
+  assert.equal(f.room().players[0].role,'leader');
+  assert.equal(f.room().scenario.deckCardCount,108);
+});
+
 test('identities are assigned and acknowledged before any Pokémon candidate is dealt or drawn',t=>{
   const f=game(t);const first=f.start();
   assert.equal(first.status,'identity');assert.ok(first.self.role);assert.deepEqual(first.self.candidates,[]);
   assert.equal(f.room().pokemonDeck,undefined);
   const roles=new Map(f.room().players.filter(p=>!p.spectator).map(p=>[p.id,p.role]));
-  for(const seat of f.seats){const view=f.view(seat);assert.deepEqual(view.self.candidates,[]);assert.equal(view.self.pokemonDrawRemaining,0);assert.equal(view.players.filter(p=>p.role).length,1);assert.equal(view.players.find(p=>p.role).role,'leader');}
+  const disguises = f.view(f.observer).players.filter(p=>!p.spectator).map(p=>p.trainerAvatar);
+  assert.equal(new Set(disguises).size,6);
+  assert.ok(disguises.every(profile=>civilianProfiles.includes(profile)));
+  for(const seat of [...f.seats,f.observer]){
+    const view=f.view(seat);assert.deepEqual(view.self.candidates,[]);assert.equal(view.self.pokemonDrawRemaining,0);
+    assert.ok(view.players.every(p=>!p.role));
+    assert.deepEqual(view.players.filter(p=>!p.spectator).map(p=>p.id),[...roles.keys()].sort());
+    assert.deepEqual(view.players.filter(p=>!p.spectator).map(p=>p.trainerAvatar),disguises);
+  }
   rejects(()=>f.act(f.owner,'drawPokemon'),'WRONG_PHASE');
   rejects(()=>f.act(f.owner,'selectPokemon',{activeId:'bulbasaur',reserveId:'squirtle'}),'WRONG_PHASE');
   rejects(()=>f.act(f.observer,'acknowledgeIdentity'),'SPECTATOR_ONLY_VIEW');
-  for(const seat of f.seats.slice(0,-1)){f.act(seat,'acknowledgeIdentity');assert.equal(f.room().status,'identity');}
+  const leader=f.seats.find(seat=>f.view(seat).self.role==='leader');
+  f.act(leader,'acknowledgeIdentity');
+  assert.deepEqual(f.view(f.observer).players.filter(p=>p.role).map(p=>p.role),['leader']);
+  const leaderModel = gymLeaderProfiles[f.room().settings.arena] ?? gymLeaderProfiles.fire;
+  assert.equal(f.view(f.observer).players.find(p=>p.id===leader.playerId).trainerAvatar,leaderModel);
+  const others=f.seats.filter(seat=>seat!==leader);
+  for(const seat of others.slice(0,-1)){f.act(seat,'acknowledgeIdentity');assert.equal(f.room().status,'identity');}
   assert.ok(f.room().players.every(p=>!p.candidateDeal?.length));
-  f.act(f.seats.at(-1),'acknowledgeIdentity');
+  f.act(others.at(-1),'acknowledgeIdentity');
   assert.equal(f.room().status,'setup');
   assert.deepEqual(new Map(f.room().players.filter(p=>!p.spectator).map(p=>[p.id,p.role])),roles);
   assert.ok(f.seats.every(s=>f.view(s).self.pokemonDrawRemaining===5));
+  assert.equal(f.view(f.observer).self.candidateTypeHints,undefined);
 });
 
 test('six players draw 30 globally unique candidates; choose exactly two from their own five',t=>{
@@ -46,7 +89,16 @@ test('six players draw 30 globally unique candidates; choose exactly two from th
   assert.deepEqual(hidden.self.candidates,[]);assert.equal(hidden.pokemonDeck,undefined);
   assert.ok(hidden.players.every(p=>p.candidateDeal===undefined&&p.candidates===undefined));
   for(const seat of f.seats){
-    for(let n=0;n<5;n++){const v=f.act(seat,'drawPokemon');assert.equal(v.self.candidates.length,n+1);assert.equal(v.self.pokemonDrawRemaining,4-n);}
+    const hints=f.view(seat).self.candidateTypeHints;
+    assert.equal(hints.length,5);
+    assert.ok(hints.every(type=>typeof type==='string'));
+    assert.ok(f.view(seat).players.every(player=>player.candidateTypeHints===undefined));
+    for(let n=0;n<5;n++){
+      const v=f.act(seat,'drawPokemon');
+      assert.equal(v.self.candidates.length,n+1);
+      assert.equal(v.self.pokemonDrawRemaining,4-n);
+      assert.deepEqual(v.self.candidateTypeHints,hints.slice(n+1));
+    }
     const picks=f.view(seat).self.candidates;all.push(...picks);assert.equal(new Set(picks).size,5);
     rejects(()=>f.act(seat,'drawPokemon'),'POKEMON_DRAW_EXHAUSTED');
     rejects(()=>f.act(seat,'selectPokemon',{activeId:picks[0],reserveId:picks[0]}),'INVALID_SELECTION');
