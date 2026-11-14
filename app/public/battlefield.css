@@ -2377,7 +2377,11 @@ body:has(> .landing-page), body.lobby-view {
 .checkin-seat::after { content:""; position:absolute; inset:4px; z-index:2; pointer-events:none; border:1px solid #caa86d73; border-radius:7px; }
 .checkin-seat.checkin-self { border-color:#b57a30; box-shadow:0 0 0 2px #d6a75e,0 5px 10px #442c1744; }
 .checkin-seat.openSeat { background:radial-gradient(ellipse at 50% 31%,#f7edda,#e9d9be); border-color:#b9a382; color:#63523f; box-shadow:inset 0 2px 5px #8269432b; }
-.checkin-open-slot { display:grid; min-width:0; }
+.checkin-open-slot { display:flex; flex-direction:column; gap:6px; min-width:0; }
+.checkin-open-slot > .checkin-seat { flex:1; }
+.checkin-open-slot > .button { width:100%; min-height:32px; }
+.checkin-ai-difficulty { display:grid; gap:3px; color:#625341; font-size:11px; }
+.checkin-ai-difficulty select { width:100%; min-height:30px; }
 button.checkin-seat { width:100%; padding:0; font:inherit; }
 button.checkin-seat:not(:disabled):hover { background:radial-gradient(ellipse at 50% 31%,#fff6dc,#e7ce9e); border-color:#9c713d; box-shadow:0 3px 9px #442c1738; }
 button.checkin-seat .checkin-seat-copy { color:#5d3918; }

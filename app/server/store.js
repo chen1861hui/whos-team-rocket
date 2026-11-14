@@ -5,11 +5,21 @@ import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBa
 import { civilianProfiles, gymLeaderProfiles, roleProfiles } from '../public/trainer-profiles.js';
 import { pokemonTypes } from '../public/pokemon-types.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
+import { aiActor, aiActions, aiDifficulty, aiDifficulties, needsAiStrategy, publicAiTable } from './ai-players.js';
 import { BASIC_DECK, isDeckProfile, RETAIL_DECK } from './playtest-deck.js';
 
 export const IDLE_MS = 7 * 60 * 60 * 1000;
 export const CONNECTED_MS = 30_000;
 export const OWNER_GRACE_MS = 60_000;
+const aiNames = ['小岚', '赤羽', '蓝铃', '青藤', '岩星', '月白', '霜叶', '小遥'];
+function availableAiName(players) {
+  const occupied = new Set(players.map(player => player.nickname));
+  const available = aiNames.find(name => !occupied.has(`${name} · AI`));
+  if (available) return `${available} · AI`;
+  let number = 2;
+  while (occupied.has(`小岚 ${number} · AI`)) number++;
+  return `小岚 ${number} · AI`;
+}
 const seatNumbers = [1, 2, 3, 4, 5, 6];
 const openSeatNumber = players => seatNumbers.find(number => !players.some(player => player.seatNumber === number));
 const hash = token => createHash('sha256').update(token).digest('hex');
@@ -44,7 +54,15 @@ function replaceSavedRoom(source, destination) {
 }
 
 export class RoomStore {
-  constructor({ dataDir, catalogue, now = Date.now, allowTestDecks = false } = {}) {
+  #aiTasks = new Map();
+  #aiStopped = false;
+
+  constructor({ dataDir, catalogue, now = Date.now, allowTestDecks = false,
+    aiPaceMs = 650, aiTimeoutMs = 2400, scheduleAi = setTimeout, cancelAi = clearTimeout } = {}) {
+    this.aiPaceMs = aiPaceMs;
+    this.aiTimeoutMs = aiTimeoutMs;
+    this.scheduleAi = scheduleAi;
+    this.cancelAi = cancelAi;
     if (!dataDir || !Array.isArray(catalogue?.entries)) throw new Error('RoomStore requires private dataDir and catalogue entries.');
     this.dataDir = dataDir;
     this.catalogueIds = [...new Set(catalogue.entries.map(entry => entry.id).filter(id => typeof id === 'string'))];
@@ -78,7 +96,10 @@ export class RoomStore {
         if (room.pendingBattle?.clock) { room.pendingBattle.clock.deadlineAt = null; room.pendingBattle.clock.pausedReason = room.pendingVote ? 'vote' : 'disconnected'; }
         if(isBattle(room)&&room.scenario)room.scenario.potionSupported=true;
         // A restart breaks transport presence; credentials and game state still recover.
-        room.players.forEach(player => { player.lastSeenAt = 0; });
+        for (const player of room.players) {
+          player.lastSeenAt = 0;
+          if (player.ai && /^AI \d+$/.test(player.nickname)) player.nickname = availableAiName(room.players);
+        }
         this.rooms.set(room.code, room);
         this.persist(room);
       } catch { throw new Error('A saved room is unreadable. Preserve the private data directory and repair it before starting.'); }
@@ -97,13 +118,15 @@ export class RoomStore {
       if (this.now() - room.lastActionAt >= IDLE_MS) {
         unlinkSync(join(this.dataDir, `${code}.json`));
         this.rooms.delete(code);
+        this.#clearAiTask(code);
       } else if (room.status !== 'closed') {
         this.synchronizeTurn(room);
         this.transferOwner(room);
+        this.#updateAiTask(room);
       }
     }
   }
-  connected(player) { return player.lastSeenAt > 0 && this.now() - player.lastSeenAt <= CONNECTED_MS; }
+  connected(player) { return Boolean(player?.ai || (player?.lastSeenAt > 0 && this.now() - player.lastSeenAt <= CONNECTED_MS)); }
   battleContext() { return { catalogue: this.catalogue, now: this.now, connected: player => this.connected(player) }; }
   battleCall(callback) {
     try { return callback(); }
@@ -200,7 +223,7 @@ export class RoomStore {
         clock.remainingMs = Math.max(0, clock.deadlineAt - until);
       }
       if (clock.remainingMs === 0 && !room.pendingVote) {
-        if(['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','source-effect-order','turn-start-order','distribute','damage-order','mew-blessing','event-hand','berry-pick','reveal-judgment'].includes(pending.kind)) {
+        if(actor?.ai || ['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','source-effect-order','turn-start-order','distribute','damage-order','mew-blessing','event-hand','berry-pick','reveal-judgment'].includes(pending.kind)) {
           const reason=this.connected(actor)?'mandatory':'disconnected';
           structural ||= !clock.expired || clock.pausedReason!==reason;
           clock.expired=true;clock.deadlineAt=null;clock.pausedReason=reason;
@@ -221,7 +244,7 @@ export class RoomStore {
     const owner = room.players.find(player => player.id === room.ownerId);
     if (owner?.lastSeenAt === 0 && this.now() < this.restartGraceUntil) return;
     if (owner && this.now() - owner.lastSeenAt <= OWNER_GRACE_MS) return;
-    const next = room.players.find(player => !player.spectator && player.id !== room.ownerId && this.connected(player));
+    const next = room.players.find(player => !player.spectator && !player.ai && player.id !== room.ownerId && this.connected(player));
     if (!next) return;
     room.ownerId = next.id;
     room.revision++;
@@ -237,7 +260,8 @@ export class RoomStore {
   }
   authenticate(room, token) {
     if (typeof token !== 'string' || token.length > 200) fail(401, 'UNAUTHORIZED', 'A valid room credential is required.');
-    const player = room.players.find(entry => entry.tokenHash === hash(token));
+    const tokenHash = hash(token);
+    const player = room.players.find(entry => !entry.ai && entry.tokenHash === tokenHash);
     if (!player) fail(401, 'UNAUTHORIZED', 'A valid room credential is required.');
     return player;
   }
@@ -277,6 +301,7 @@ export class RoomStore {
     log(room, spectator ? '观战者已加入。' : '玩家已加入。', spectator ? 'A spectator joined.' : 'A player joined.');
     this.persist(room);
     this.rooms.set(room.code, room);
+    this.#updateAiTask(room);
     return { code: room.code, token, playerId: player.id, view: this.project(room, player) };
   }
   view(code, token) {
@@ -285,6 +310,7 @@ export class RoomStore {
     player.lastSeenAt = this.now();
     this.synchronizeTurn(room);
     this.transferOwner(room);
+    this.#updateAiTask(room);
     return { view: this.project(room, player) };
   }
   project(room, self) {
@@ -307,10 +333,19 @@ export class RoomStore {
       const special = room.status==='playing' && publicPartnerTrainerAvatar(player);
       return special || civilianProfiles[(seed+cosmeticSeats.indexOf(player))%civilianProfiles.length];
     };
+    const task = this.#aiTasks.get(room.code);
+    const canSuggest = task?.needsStrategy && self.id === room.ownerId && task.revision === room.revision;
     return {
+      ...(canSuggest && !task.failed ? { aiTask: {
+        id: task.id, revision: task.revision, actorId: task.actorId, turnNumber: task.turnNumber,
+        decisionId: task.decisionId, difficulty: task.difficulty, players: task.players,
+      } } : {}),
+      ...(task?.failed && task.revision === room.revision ? { aiError: {
+        code: 'AI_ACTION_UNAVAILABLE', kind: task.decisionKind,
+      } } : {}),
       code: room.code, revision: room.revision, status: room.status, ownerId: room.ownerId, selfId: self.id,
       settings: { ...room.settings },
-      players: players.map(player => ({ id: player.id, nickname: player.nickname, ready: player.ready, connected: this.connected(player), spectator: player.spectator, handCount: player.hand.length,...(battle?{exiledCount:player.exiledCards?.length||0}:{}),
+      players: players.map(player => ({ id: player.id, nickname: player.nickname, ready: player.ready, connected: this.connected(player), spectator: player.spectator, ai: Boolean(player.ai), ...(player.ai ? { aiDifficulty: aiDifficulty(player) } : {}), handCount: player.hand.length,...(battle?{exiledCount:player.exiledCards?.length||0}:{}),
         ...(!player.spectator ? {seatNumber: player.seatNumber} : {}),
         active: player.active && (room.status !== 'setup' || player.id === self.id) ? visiblePokemon(player.active) : null,
         ...((room.status === 'playing' && player.reserve?.revealed === true) || (disclosed && player.reserve) ? { reserve: visiblePokemon(player.reserve) } : {}),
@@ -329,15 +364,21 @@ export class RoomStore {
     };
   }
   action(code, token, input) {
-    if (!object(input) || typeof input.id !== 'string' || !/^[a-zA-Z0-9_-]{1,80}$/.test(input.id) || !Number.isSafeInteger(input.revision) || input.revision < 0 || typeof input.type !== 'string') fail(400, 'INVALID_INPUT', 'Action needs an id, revision, and type.');
     const current = this.get(code, true);
     const currentPlayer = this.authenticate(current, token);
+    const room = this.#applyAction(current, currentPlayer, input);
+    return { view: this.project(room, room.players.find(player => player.id === currentPlayer.id)) };
+  }
+
+  #applyAction(current, currentPlayer, input) {
+    if (!object(input) || typeof input.id !== 'string' || !/^[a-zA-Z0-9_-]{1,80}$/.test(input.id) || !Number.isSafeInteger(input.revision) || input.revision < 0 || typeof input.type !== 'string') fail(400, 'INVALID_INPUT', 'Action needs an id, revision, and type.');
     const signature = JSON.stringify(Object.fromEntries(Object.entries(input).sort(([a], [b]) => a.localeCompare(b))));
     if (Object.hasOwn(currentPlayer.actions, input.id)) {
       if (currentPlayer.actions[input.id] !== signature) fail(409, 'ACTION_ID_REUSED', 'This action id was already used with different input.');
       currentPlayer.lastSeenAt = this.now();
       this.synchronizeTurn(current);
-      return { view: this.project(current, currentPlayer) };
+      this.#updateAiTask(current);
+      return current;
     }
     if (current.status === 'closed') fail(410, 'ROOM_CLOSED', 'This room is closed.');
     // Seat claims are checked against current occupancy below, even if another seat just changed.
@@ -364,6 +405,34 @@ export class RoomStore {
     if (room.pendingVote && !['approveEnd', 'rejectEnd'].includes(input.type)) fail(409, 'VOTE_PENDING', 'Resolve the closing vote first.');
     if (room.pendingBattle && !['respondBattle', 'requestEndGame', 'requestEndRoom', 'approveEnd', 'rejectEnd'].includes(input.type)) fail(409, 'RESPONSE_PENDING', 'Resolve the pending response first.');
     switch (input.type) {
+      case 'addAi': {
+        check(['seatNumber']); owner(); status('lobby');
+        const { seatNumber } = input;
+        if (!seatNumbers.includes(seatNumber)) fail(400, 'INVALID_SEAT', 'Choose a seat from 1 through 6.');
+        if (seated.some(entry => entry.seatNumber === seatNumber)) fail(409, 'SEAT_TAKEN', 'That seat is occupied.');
+        if (room.players.length >= 30) fail(409, 'ROOM_FULL', 'This development room is full.');
+        const nickname = availableAiName(room.players);
+        room.players.push({ id: randomUUID(), nickname, seatNumber, ai: true, aiDifficulty: 'normal', spectator: false,
+          ready: true, lastSeenAt: 0, hand: [], candidates: [], active: null, reserve: null, setupComplete: false, actions: {} });
+        log(room, `${nickname} 加入了牌桌。`, `${nickname} joined the table.`);
+        break;
+      }
+      case 'setAiDifficulty': {
+        check(['playerId', 'difficulty']); owner(); status('lobby');
+        const ai = seated.find(entry => entry.id === input.playerId && entry.ai);
+        if (!ai) fail(400, 'INVALID_SEAT', 'Choose an AI seat.');
+        if (!aiDifficulties.includes(input.difficulty)) fail(400, 'INVALID_AI_DIFFICULTY', 'Choose Easy, Normal or Hard.');
+        ai.aiDifficulty = input.difficulty;
+        break;
+      }
+      case 'removeAi': {
+        check(['playerId']); owner(); status('lobby');
+        const ai = seated.find(entry => entry.id === input.playerId && entry.ai);
+        if (!ai) fail(400, 'INVALID_SEAT', 'Choose an AI seat.');
+        room.players = room.players.filter(entry => entry.id !== ai.id);
+        log(room, `${ai.nickname} 离开了牌桌。`, `${ai.nickname} left the table.`);
+        break;
+      }
       case 'chooseSeat':
         check(['seatNumber']); seat(); status('lobby');
         if (!seatNumbers.includes(input.seatNumber)) fail(400, 'INVALID_SEAT', 'Choose a seat from 1 through 6.');
@@ -414,6 +483,7 @@ export class RoomStore {
         break;
       case 'start':
         check([]); owner(); status('lobby');
+        if (seated.some(entry => entry.ai)) fail(409, 'WRONG_MODE', 'AI players require the battle game.');
         if (seated.length < 2 || seated.length > 6 || seated.some(entry => !entry.ready)) fail(409, 'NOT_READY', 'Development setup requires 2–6 ready players.');
         if (this.catalogueIds.length < seated.length * 5) fail(503, 'CONTENT_UNAVAILABLE', 'The shared deck needs five unique Pokémon per player.');
         room.pokemonDeck = dealPokemon(seated, this.catalogueIds, { revealImmediately: true });
@@ -445,7 +515,16 @@ export class RoomStore {
       case 'draw':
         check([]); ownTurn();
         if (room.turn.drawRemaining <= 0 || room.turn.phase !== 'draw') fail(409, 'DRAW_EXHAUSTED', 'Both mandatory draws are already complete.');
-        if (isBattle(room)) this.battleCall(() => drawBattleCards(room, player,1,'draw-phase')); else player.hand.push(placeholder());
+        if (isBattle(room)) {
+          if (room.drawPile.length + room.discardPile.length || !player.ai) this.battleCall(() => drawBattleCards(room, player,1,'draw-phase'));
+          else {
+            room.turn.drawStarted = true;
+            room.turn.drawRemaining = 0;
+            room.turn.phase = 'play';
+            log(room, '牌库已空，进入出牌阶段。', 'The deck is empty. Play phase begins.');
+            break;
+          }
+        } else player.hand.push(placeholder());
         room.turn.drawStarted=true;
         room.turn.drawRemaining--;
         if (room.turn.drawRemaining === 0) room.turn.phase = 'play';
@@ -558,7 +637,7 @@ export class RoomStore {
           if (kind === 'endGame') fail(409, 'WRONG_PHASE', 'No game is in progress.');
           room.status = 'closed';
         } else {
-          room.pendingVote = { kind, requestedBy: player.id, approvedIds: [player.id], requiredIds: seated.filter(entry => this.connected(entry)).map(entry => entry.id) };
+          room.pendingVote = { kind, requestedBy: player.id, approvedIds: [player.id], requiredIds: seated.filter(entry => !entry.ai && this.connected(entry)).map(entry => entry.id) };
           log(room, '房主提出结束表决；需当前在线的在座玩家一致同意。', 'Owner requested closure; all currently connected seated players must agree.');
           this.resolveVote(room);
         }
@@ -574,13 +653,110 @@ export class RoomStore {
       default: fail(400, 'UNKNOWN_ACTION', 'This action is not implemented in the foundation.');
     }
     Object.defineProperty(player.actions, input.id, { value: signature, enumerable: true, configurable: true, writable: true });
+    if (player.ai) {
+      // Each AI task consumes one revision; old suggestions cannot replay it.
+      player.actions = {};
+      if (room.status === 'playing') log(room, `${player.nickname} 已行动。`, `${player.nickname} acted.`);
+    }
     this.synchronizeTurn(room, { commit: false });
     room.revision++;
     room.lastActionAt = this.now();
     this.persist(room);
     this.rooms.set(room.code, room);
-    return { view: this.project(room, player) };
+    this.#updateAiTask(room);
+    return room;
   }
+
+  #clearAiTask(code) {
+    const task = this.#aiTasks.get(code);
+    if (task?.timer != null) this.cancelAi(task.timer);
+    this.#aiTasks.delete(code);
+  }
+
+  stopAi() {
+    this.#aiStopped = true;
+    for (const code of this.#aiTasks.keys()) this.#clearAiTask(code);
+  }
+
+  #updateAiTask(room) {
+    if (this.#aiStopped) return;
+    if (!room.players.some(player => player.ai)) {
+      this.#clearAiTask(room.code);
+      return;
+    }
+    const actor = aiActor(room);
+    const existing = this.#aiTasks.get(room.code);
+    if (actor && existing?.revision === room.revision && existing.actorId === actor.id &&
+        existing.ownerId === room.ownerId && existing.decisionId === (room.pendingBattle?.id ?? null) &&
+        existing.turnNumber === (room.turn?.number ?? null)) return;
+    this.#clearAiTask(room.code);
+    if (!actor) return;
+    const startedAt = this.now();
+    const needsStrategy = needsAiStrategy(room);
+    const task = {
+      id: randomUUID(), ownerId: room.ownerId, actorId: actor.id, revision: room.revision,
+      turnNumber: room.turn?.number ?? null, decisionId: room.pendingBattle?.id ?? null,
+      decisionKind: room.pendingBattle?.kind ?? room.turn?.phase ?? room.status,
+      readyAt: startedAt + this.aiPaceMs, preferences: null, needsStrategy,
+      ...(needsStrategy ? { difficulty: aiDifficulty(actor), players: publicAiTable(room, this.catalogue) } : {}),
+    };
+    this.#aiTasks.set(room.code, task);
+    const owner = room.players.find(player => player.id === room.ownerId);
+    const delay = needsStrategy && this.connected(owner) ? this.aiTimeoutMs : this.aiPaceMs;
+    this.#scheduleAiTask(room.code, task, delay);
+  }
+
+  #scheduleAiTask(code, task, delay) {
+    if (task.timer != null) this.cancelAi(task.timer);
+    task.timer = this.scheduleAi(() => {
+      if (this.#aiTasks.get(code) !== task) return;
+      task.timer = null;
+      try {
+        const room = this.rooms.get(code);
+        this.#updateAiTask(room);
+        if (this.#aiTasks.get(code) !== task) return;
+        const actor = aiActor(room);
+        const choices = aiActions(room, actor, this.catalogue, task.preferences);
+        for (const action of choices) {
+          try {
+            this.#applyAction(room, actor, { id: task.id, revision: task.revision, ...action });
+            return;
+          } catch (error) {
+            if (!(error instanceof ApiError) || ![400, 409].includes(error.status)) throw error;
+          }
+        }
+        task.failed = true;
+        console.error('AI action unavailable:', task.decisionKind);
+      } catch {
+        task.failed = true;
+        console.error('AI action could not be saved or completed:', task.decisionKind);
+      }
+    }, Math.max(0, delay));
+    task.timer?.unref?.();
+  }
+
+  suggestAi(code, token, input) {
+    fields(input, ['id', 'revision', 'turnNumber', 'decisionId', 'targetIds', 'focus']);
+    const room = this.get(code);
+    const owner = this.authenticate(room, token);
+    if (owner.id !== room.ownerId || owner.ai || owner.spectator) fail(403, 'OWNER_ONLY', 'Only the room owner can suggest AI strategy.');
+    const task = this.#aiTasks.get(room.code);
+    if (!task?.needsStrategy || task.failed || room.status !== 'playing' || task.id !== input.id ||
+        task.revision !== input.revision || task.turnNumber !== input.turnNumber || task.decisionId !== input.decisionId)
+      fail(409, 'STALE_AI_TASK', 'The AI task changed.');
+    const actor = aiActor(room);
+    if (actor?.id !== task.actorId || task.ownerId !== owner.id || task.revision !== room.revision)
+      fail(409, 'STALE_AI_TASK', 'The AI task changed.');
+    const { targetIds, focus } = input;
+    if (!Array.isArray(targetIds) || targetIds.length > 5 || new Set(targetIds).size !== targetIds.length ||
+        targetIds.some(id => id === actor.id || !room.players.some(player => player.id === id && !player.spectator && !player.eliminated)) ||
+        !['attack', 'recover'].includes(focus)) fail(400, 'INVALID_AI_STRATEGY', 'Submit public target preferences only.');
+    if (task.preferences) return { accepted: true };
+    task.preferences = { targetIds, focus };
+    this.#scheduleAiTask(room.code, task, task.readyAt - this.now());
+    return { accepted: true };
+  }
+
   resolveVote(room, completedResult = false) {
     const vote = room.pendingVote;
     if (!vote.requiredIds.every(id => vote.approvedIds.includes(id))) return;
@@ -592,7 +768,7 @@ export class RoomStore {
     for (const player of room.players) {
       delete player.role; delete player.eliminated; delete player.identityAcknowledged; delete player.identityPublic; delete player.candidateDeal;
       delete player.exiledCards;
-      player.ready = false; player.hand = []; player.candidates = []; player.active = null; player.reserve = null; player.setupComplete = false;
+      player.ready = Boolean(player.ai); player.hand = []; player.candidates = []; player.active = null; player.reserve = null; player.setupComplete = false;
       player.readyRevision = room.revision + 1;
     }
     log(room, vote.kind === 'endRoom' ? '全员同意，房间已关闭。' : completedResult ? '房主已在结果后返回大厅，可准备下一局。' : '全员同意，游戏已结束并返回大厅。', vote.kind === 'endRoom' ? 'Unanimous vote closed the room.' : completedResult ? 'The host returned to the lobby after the result; ready for a rematch.' : 'Unanimous vote ended the game and returned to the lobby.');

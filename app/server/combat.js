@@ -75,11 +75,13 @@ function shuffled(values) {
 }
 export function setupBattle(room, catalogue) {
   const seats = room.players.filter(p => !p.spectator).toSorted((a,b)=>(a.seatNumber ?? 0)-(b.seatNumber ?? 0));
-  requireRule(seats.length >= 3 && seats.length <= 6 && seats.every(p => p.ready), 'NOT_READY', 'Combat preview requires 3–6 ready players.');
+  const practiceDuel = seats.length === 2 && seats.filter(player => player.ai).length === 1;
+  requireRule((practiceDuel || (seats.length >= 3 && seats.length <= 6)) && seats.every(p => p.ready),
+    'NOT_READY', 'Start with 3–6 ready trainers, or one human and one AI for a practice duel.');
   requireRule(battleSelectionIds(catalogue).length >= seats.length * 5, 'CONTENT_UNAVAILABLE', 'The shared Pokémon deck needs five unique groups per player.');
   const deck = playtestDeckPlan(room.settings.deckProfile ?? BASIC_DECK, seats.length, catalogue);
   requireRule(deck, 'CONTENT_UNAVAILABLE', 'The selected playtest deck requires all of its reviewed cards.');
-  const roles = shuffled(roleDeck(seats.length));
+  const roles = shuffled(practiceDuel ? ['leader', 'rocket'] : roleDeck(seats.length));
   seats.forEach((p, index) => { p.role = roles[index]; p.eliminated = false; p.candidates = []; p.candidateDeal = []; p.identityAcknowledged = false; p.setupComplete = false; p.active = null; p.reserve = null; p.hand = []; p.exiledCards=[]; delete p.trainerAvatar; });
   for (const player of seats) delete player.identityPublic;
   room.trainerPoolSeed = randomInt(0x100000000);
@@ -88,7 +90,7 @@ export function setupBattle(room, catalogue) {
   delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries;
   delete room.visualEvents;
   room.gameMode = 'combat-preview'; room.result = null; room.pendingBattle = null; room.resolution = null; room.status = 'identity';
-  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, potionSupported: true, ...deck.summary };
+  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, potionSupported: true, ...(practiceDuel ? { practiceDuel } : {}), ...deck.summary };
   note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
 }
 export function acknowledgeBattleIdentity(room, player, catalogue) {
@@ -1372,8 +1374,7 @@ function settleDamage(room, ctx) {
   if(resolution.effectKind==='double-edge'&&!resolution.doubleEdgeDecided&&!damageImmune(room,target)&&activeOwner(room,source?.instanceId)) {
     decision(room,'double-edge',resolution.sourcePlayerId,trainer(room,resolution.targetIds[resolution.index]).id,ctx);return;
   }
-  const printedDamage=resolution.baseDamage+(resolution.doubleEdgeBoost?1:0)+(resolution.effectKind==='reversal'&&currentHp(target,ctx.catalogue)>currentHp(source,ctx.catalogue)?1:0)+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
-  const amount=damageImmune(room,target)?0:computeDamage(source,target,printedDamage,ctx.catalogue,damageOptions(room,source,target,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false}));
+  const amount = commandDamage(room, source, target, resolution, ctx.catalogue);
   if(amount>0 && source?.status!=='burn' && blazeBonus(source,ctx.catalogue,battleTraitsEffective(room,source))) {
     abilityVisual(room,activeOwner(room,source.instanceId),ctx.catalogue,{effect:'blaze'});
   }
@@ -1381,6 +1382,26 @@ function settleDamage(room, ctx) {
     abilityVisual(room,activeOwner(room,source.instanceId),ctx.catalogue);
   }
   return settleDealtDamage(room,ctx,amount);
+}
+
+function commandDamage(room, source, target, resolution, catalogue) {
+  const printedDamage=resolution.baseDamage+(resolution.doubleEdgeBoost?1:0)+(resolution.effectKind==='reversal'&&currentHp(target,catalogue)>currentHp(source,catalogue)?1:0)+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
+  return damageImmune(room,target)?0:computeDamage(source,target,printedDamage,catalogue,damageOptions(room,source,target,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false}));
+}
+
+// AI only. Estimate the current hit before optional responses, without mutating either partner.
+export function estimateCommandDamage(room, source, target, move, catalogue, boost = 0) {
+  const resolution = move ? {
+    baseDamage: move.printedValue + boost, effectKind: move.effectKind,
+    sourceFamily: source.catalogueId, sourceLevel: source.level,
+    powerBoost: battleReinforcementEffective(room, source, 'power')
+      ? source.reinforcements.filter(marker => marker === 'power').length : 0,
+    ignoresReinforcements: move.ignoresReinforcements,
+  } : room.resolution;
+  const amount = commandDamage(room, source, target, resolution, catalogue);
+  return capReceivingDamage(target, amount, damageOptions(room, source, target, {
+    reinforcements: !resolution.ignoresReinforcements,
+  }));
 }
 function settleDealtDamage(room,ctx,amount) {
   const resolution=room.resolution;

@@ -36,6 +36,8 @@ const strings = {
   copyShort:['Copy','复制'],
   leaveTab:['Leave session','退出会话'],
   startBattlePreview:['Start game','开始游戏'], combatPreview:['COMBAT PREVIEW · TEST DECK','战斗预览 · 测试牌库'],
+  practiceDuel:['Practice duel: Gym Leader vs. Team Rocket. Draw five Pokémon and choose two. The last trainer standing wins.','练习对决：道馆馆主对阵火箭队。各摸五只宝可梦并选两只，最后留场的训练家获胜。'],
+  startPracticeDuel:['Start practice duel','开始练习对决'],
   combatFixture:['3–6 ready trainers. View your identity first, then draw five different Pokémon and choose two.','需3–6位训练家准备。先查看自己的身份，再摸取五个不同宝可梦并选择两只。'],
   deckProfile:['Game deck','游戏牌库'], deckRetail:['Master Edition · 108 cards','原版大师版 · 108 张'],
   autoDraw:['Auto draw','自动摸牌'],
@@ -76,8 +78,11 @@ const strings = {
   disconnect: ['Leave this tab’s session', '退出此标签页会话'], disconnectHelp: ['This clears only this tab’s credential; it does not remove your seat. Save recovery details first.', '此操作只清除此标签页的凭据，不会移除席位。请先保存恢复信息。'],
   leaveConfirm: ['Clear this tab’s saved session? Your seat remains in the room. Make sure you saved the private recovery credential.', '清除此标签页保存的会话？房间内的席位仍将保留。请确认已保存私密恢复凭据。'],
   crew: ['The crew', '训练家们'], seats: ['testing seats', '个测试席位'], testing: ['For 3–6 trainers. View identities first, then draw five Pokémon each and choose two.', '供3–6位训练家游玩。先查看身份，再每人摸取五张宝可梦，选择两只。'],
+  addAi: ['Add AI', '添加 AI'], removeAi: ['Remove AI', '移除 AI'],
+  aiDifficulty: ['AI difficulty', 'AI 难度'], aiEasy: ['Easy', '简单'], aiNormal: ['Normal', '普通'], aiHard: ['Hard', '困难'],
+  aiPaused: ['AI action paused', 'AI 行动已暂停'],
   ready: ['Ready', '已准备'], notReady: ['Getting ready', '准备中'], readyButton: ['I’m ready', '准备好了'], unready: ['Cancel ready', '取消准备'],
-  start: ['Start partner selection', '开始选择搭档'], startHelp: ['The host can start when 3–6 seated players are ready.', '当3–6位入座玩家全部准备后，房主可以开始。'],
+  start: ['Start partner selection', '开始选择搭档'], startHelp: ['Start with 3–6 ready trainers, or one human and one AI for a practice duel.', '3–6 位训练家准备后可开局。一位真人加一名 AI 可开始练习对决。'],
   watch: ['Watch the table come together.', '一起等待牌桌就绪。'], watchCopy: ['Spectators can follow public activity. Candidates, hands and unrevealed reserves stay private. Previously revealed reserves remain public.', '观众可以查看公开进度。候选、手牌与未公开备战身份保持私密；已公开的备战搭档仍公开。'],
   arenaTitle: ['Choose a Gym', '选择属性道馆'],
   fire: ['Fire Gym','火属性道馆'], fireDesc: ['A cracked basalt platform above flowing lava.','熔岩环绕的裂纹玄武岩战台。'],
@@ -701,12 +706,22 @@ function renderLobby() {
         player ? el('span',{class:'checkin-state'},t(state)) : null,
         player?.id===view.ownerId || player?.id===view.selfId ? el('small',{},[player.id===view.ownerId?t('owner'):null,player.id===view.selfId?t('you'):null].filter(Boolean).join(' · ')) : null)];
     const seatClass = `checkin-seat ${state}${player?.id===view.selfId?' checkin-self':''}`;
-    seats.append(!player && !view.self.spectator
-      ? el('li',{class:'checkin-open-slot'},el('button',{id:`choose-seat-${number}`,type:'button',class:seatClass,
+    const seatCard = !player && !view.self.spectator
+      ? el('button',{id:`choose-seat-${number}`,type:'button',class:seatClass,
         disabled:busy,'aria-label':`${t('takeSeat')} · ${seatLabel}`,onclick:async()=>{
           if (await action('chooseSeat',{seatNumber:number})) $(`#checkin-seat-${number}`)?.focus({preventScroll:true});
-        }},content))
-      : el('li',{class:seatClass,id:`checkin-seat-${number}`,tabindex:player?.id===view.selfId?-1:null},content));
+        }},content)
+      : el('div',{class:seatClass,id:`checkin-seat-${number}`,tabindex:player?.id===view.selfId?-1:null},content);
+    const aiControl = isOwner() && (!player || player.ai)
+      ? button(player ? 'removeAi' : 'addAi',
+        () => player ? action('removeAi',{playerId:player.id}) : action('addAi',{seatNumber:number}),
+        'button secondary small', busy, {'aria-label':`${t(player?'removeAi':'addAi')} · ${seatLabel}`})
+      : null;
+    const difficulty = player?.ai ? el('label',{class:'checkin-ai-difficulty'},t('aiDifficulty'),
+      el('select',{'aria-label':`${player.nickname} · ${t('aiDifficulty')}`,disabled:busy||!isOwner(),
+        onchange:event=>action('setAiDifficulty',{playerId:player.id,difficulty:event.target.value})},
+      Object.entries({easy:'aiEasy',normal:'aiNormal',hard:'aiHard'}).map(([level,label])=>el('option',{value:level,selected:level===player.aiDifficulty},t(label))))) : null;
+    seats.append(el('li',{class:'checkin-open-slot'},seatCard,difficulty,aiControl));
   }
   const leave = button('leaveTab',()=>askConfirmation('leaveConfirm',clearSession,null,'leaveTab','leaveTab'),'button lobby-exit',false,{id:'lobby-exit'});
   $('#main').append(el('section',{class:'checkin','aria-labelledby':'checkin-title'},
@@ -782,13 +797,15 @@ function lobbyLaunch() {
   const settings = (isOwner() && settingsDraft) || view.settings;
   const automationChanged = (settings.autoDraw ?? false) !== (view.settings.autoDraw ?? false) ||
     (settings.autoJudgment ?? true) !== (view.settings.autoJudgment ?? true);
-  const allReady = seated().length >= 3 && seated().length <= 6 && seated().every(p => p.ready && p.connected);
+  const players = seated();
+  const practiceDuel = players.length === 2 && players.filter(player=>player.ai).length === 1;
+  const allReady = (practiceDuel || (players.length >= 3 && players.length <= 6)) && players.every(p => p.ready && p.connected);
   const launch = el('div', { class: 'launch-row' });
   if (!view.self.spectator) launch.append(button(ownPlayer()?.ready ? 'unready' : 'readyButton', () => action('ready', { ready: !ownPlayer()?.ready }), ownPlayer()?.ready ? 'button secondary' : 'button primary'));
   // The player-facing start follows identity → five private draws → partner choice.
-  if (isOwner()) launch.append(button('startBattlePreview',()=>{
+  if (isOwner()) launch.append(button(practiceDuel?'startPracticeDuel':'startBattlePreview',()=>{
     const code = view.code, arena = view.settings.arena;
-    askConfirmation('combatFixture',()=>{
+    askConfirmation(practiceDuel?'practiceDuel':'combatFixture',()=>{
       if(view?.code===code&&view.status==='lobby'&&view.settings.arena===arena)action('startBattlePreview');
     }, t('deckRetail'));
   },'button primary',!allReady||settings.arena!==view.settings.arena||automationChanged));
@@ -1348,7 +1365,7 @@ function renderBattleRoom() {
   const pending = view.pendingBattle;
   const responder = pending && view.players.find(p=>p.id===pending.actorId);
   const canRespond = pending?.actorId===view.selfId && !view.self.spectator;
-  const headline = pending ? canRespond?t('responseNow'):(language==='zh'?`等待 ${responder?.nickname||'—'} 响应`:`Waiting for ${responder?.nickname||'—'} to respond`)
+  const headline = view.aiError ? `${t('aiPaused')} (${view.aiError.kind})` : pending ? canRespond?t('responseNow'):(language==='zh'?`等待 ${responder?.nickname||'—'} 响应`:`Waiting for ${responder?.nickname||'—'} to respond`)
     : myTurn()?t('currentTurn'):(language==='zh'?`${current?.nickname||'—'} 的回合`:`${current?.nickname||'—'}’s turn`);
   const menu=el('details',{id:'match-menu',class:'battle-menu'},el('summary',{},t('arenaMenu')),el('div',{class:'battle-menu-body'},!view.self.spectator?trainerTray():null,crewPanel(),logPanel(),recoveryPanel(),isOwner()?controlPanel():null));
   const ribbon=el('header',{class:'match-ribbon'},
@@ -1905,6 +1922,7 @@ function setView(next, force = false) {
   if (view?.settings && JSON.stringify(view.settings) !== JSON.stringify(next.settings)) settingsDraft = null;
   const fasterPolling = next.status==='playing' && (view?.status!=='playing' || (!view.pendingBattle && next.pendingBattle));
   view = next;
+  suggestAiStrategy();
   if (fasterPolling) scheduleRoomPoll();
   if (next.status==='playing') gameAudio.prepareMoves(next.players.flatMap(player=>{
     const active = player.active;
@@ -1956,6 +1974,43 @@ function setBusy() {
   root.querySelectorAll('button').forEach(node => { if (busy) { node.dataset.wasDisabled = String(node.disabled); node.disabled = true; } else if ('wasDisabled' in node.dataset) { node.disabled = node.dataset.wasDisabled === 'true'; delete node.dataset.wasDisabled; } });
   root.setAttribute('aria-busy', String(busy));
 }
+let aiWorkerRequest;
+function suggestAiStrategy() {
+  const task = view?.aiTask;
+  if (!task || !session || !isOwner() || document.hidden) {
+    aiWorkerRequest?.worker?.terminate();
+    aiWorkerRequest = null;
+    return;
+  }
+  if (aiWorkerRequest?.id === task.id) return;
+  aiWorkerRequest?.worker?.terminate();
+  const request = { id: task.id, session, worker: null };
+  aiWorkerRequest = request;
+  try {
+    const worker = new Worker('/ai-worker.js', {type:'module'});
+    request.worker = worker;
+    const stop = () => { worker.terminate(); request.worker = null; };
+    worker.onerror = stop;
+    worker.onmessage = async ({data}) => {
+      stop();
+      if (aiWorkerRequest !== request || session !== request.session || view?.aiTask?.id !== task.id ||
+          !isOwner() || document.hidden) return;
+      const {id, revision, turnNumber, decisionId} = task;
+      try {
+        await api(`/api/rooms/${encodeURIComponent(session.code)}/ai-suggestions`, {
+          method:'POST', body:{id, revision, turnNumber, decisionId, ...data},
+        });
+      } catch {
+        // An expired or unavailable suggestion leaves the server timer in charge.
+      }
+    };
+    worker.postMessage({ actorId: task.actorId, players: task.players, difficulty: task.difficulty });
+  } catch {
+    request.worker?.terminate();
+    request.worker = null;
+  }
+}
+
 async function action(type, payload = {}) {
   if (busy || !view || !session) return;
   busy = true; errorKey = ''; noticeKey = ''; setBusy(); renderMessages();
@@ -2001,7 +2056,7 @@ async function saveSettings() {
   if (await action('settings', next)) $('#info-dialog')?.close();
 }
 function clearSession() {
-  sessionStorage.removeItem('rocket.session'); session = null; view = null; selected = []; settingsDraft = null; signature = ''; errorKey = ''; noticeKey = ''; credentialVisible = false; terminalReason = ''; clockSample = null; clockAnnouncement = ''; phaseAnnouncement = ''; if (turnLiveRegion) turnLiveRegion.textContent = ''; render();
+  sessionStorage.removeItem('rocket.session'); session = null; view = null; suggestAiStrategy(); selected = []; settingsDraft = null; signature = ''; errorKey = ''; noticeKey = ''; credentialVisible = false; terminalReason = ''; clockSample = null; clockAnnouncement = ''; phaseAnnouncement = ''; if (turnLiveRegion) turnLiveRegion.textContent = ''; render();
 }
 async function copyText(value) {
   try { await navigator.clipboard.writeText(value); noticeKey = 'copied'; errorKey = ''; }
@@ -2028,6 +2083,7 @@ scheduleRoomPoll();
 // Update only the clock text and warning styling; the arena remains mounted.
 setInterval(updateTurnClock, 200);
 document.addEventListener('visibilitychange', () => {
+  suggestAiStrategy();
   if (!document.hidden) poll();
   scheduleRoomPoll();
 });

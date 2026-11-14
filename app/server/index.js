@@ -12,6 +12,7 @@ const appDir = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const staticFiles = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
+  ['/ai-worker.js', ['ai-worker.js', 'text/javascript; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/catalogue.json', ['catalogue.json', 'application/json; charset=utf-8']],
@@ -123,10 +124,11 @@ export function createApplication({ store, dataDir = join(appDir, '.data'), publ
         const allowedOrigin = publicOrigin ?? `http://${req.headers.host}`;
         if (req.headers.origin && req.headers.origin !== allowedOrigin) throw new ApiError(403, 'ORIGIN_REJECTED', 'Cross-origin writes are unavailable.');
         if (path === '/api/rooms') return send(res, 201, rooms.create(await body(req)));
-        const match = /^\/api\/rooms\/([A-Za-z2-9]{6})\/(join|actions)$/.exec(path);
+        const match = /^\/api\/rooms\/([A-Za-z2-9]{6})\/(join|actions|ai-suggestions)$/.exec(path);
         if (match) {
           if (match[2] === 'join') return send(res, 201, rooms.join(match[1], await body(req)));
           const token = credential(req);
+          if (match[2] === 'ai-suggestions') return send(res, 202, rooms.suggestAi(match[1], token, await body(req)));
           return send(res, 200, rooms.action(match[1], token, await body(req)));
         }
       }
@@ -179,7 +181,10 @@ export function createApplication({ store, dataDir = join(appDir, '.data'), publ
     try { rooms.cleanup(); } catch { console.error('Room maintenance failed; private error details suppressed.'); }
   }, cleanupIntervalMs) : null;
   timer?.unref();
-  server.on('close', () => clearInterval(timer));
+  server.on('close', () => {
+    clearInterval(timer);
+    rooms.stopAi();
+  });
   return { server, store: rooms };
 }
 
