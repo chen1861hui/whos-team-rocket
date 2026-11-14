@@ -221,6 +221,29 @@ export function downloadDialog(kit, {drawNormally}={}) {
   }},say(language,'Replace Draw · choose trainers','替代摸牌 · 选择训练家'));
   dialog.append(node('div',{class:'action-row'},cancel,confirm));kit.openArenaPrompt(dialog);
 }
+export function moveTargetWarnings(move, active, language) {
+  if (!active || !(move.printedValue > 0)) return [];
+  if (active.damageProtected) return [say(language, 'Immune to damage', '免疫伤害')];
+  const defense = active.reinforcements?.includes('defense') && active.status !== 'paralysis' && !active.reinforcementsSuppressed;
+  const multiscale = active.catalogueId === 'dratini' && active.level === 3 &&
+    active.hp === active.maxHp && !active.traitsSuppressed;
+  return [
+    defense && !move.ignoresReinforcements ? say(language, 'Defense caps damage at 1', '防御强化：伤害至多 1') : null,
+    multiscale ? say(language, 'Multiscale caps damage at 1', '多重鳞片：伤害至多 1') : null,
+  ].filter(Boolean);
+}
+
+function movePaymentLabel(move, card, language, muscle, quick) {
+  if (muscle) return say(language, 'Cost · 2 hand cards with Muscle Band', '费用 · 力量头带弃置 2 张手牌');
+  const printedWeather = weatherLabel(card.weather, language);
+  if (move.condition?.kind === 'weather-card') {
+    const allowed = move.condition.weatherIconsInCondition.map(weather => weatherLabel(weather, language)).join(' / ');
+    return say(language, `Cost · Discard 1 card: ${allowed} (selected: ${printedWeather})`, `费用 · 弃置 1 张${allowed}手牌（已选${printedWeather}）`);
+  }
+  return say(language, `Cost · ${quick ? '1 sunny Command card' : '1 Command card'} (${printedWeather})`,
+    `费用 · 1 张${quick ? '晴天' : ''}「接招吧！」（${printedWeather}）`);
+}
+
 export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   const initial=kit.getView(),battle=initial.self.battle,quick=quickDecisionId?initial.pendingBattle:null;
   if(quickDecisionId&&(quick?.kind!=='quick-claw'||quick.id!==quickDecisionId||quick.actorId!==initial.selfId))return;
@@ -232,10 +255,27 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   const dialog = node('section', {class:'arena-prompt arena-attack-prompt',tabindex:-1,'aria-labelledby':'arena-attack-title'},
     node('h2', {id:'arena-attack-title'}, kit.localized(legal.move.name)),
     node('p', {}, quick?`${say(language,'Quick Claw','先制之爪')} · ${initial.players.find(player=>player.id===quick.targetId)?.nickname}`
-      : legal.move.maxTargets===1?say(language,'Choose a highlighted target on the field.','点击战场上高亮的目标。')
-      : say(language,`Choose up to ${legal.move.maxTargets} highlighted targets.`,`点击战场上高亮的目标，最多选择 ${legal.move.maxTargets} 个。`)));
+      : legal.move.maxTargets===1?say(language,'Choose a target below or on the field.','在下方名单或战场上选择目标。')
+      : say(language,`Choose up to ${legal.move.maxTargets} targets below or on the field.`,`在下方名单或战场上选择目标，最多 ${legal.move.maxTargets} 个。`)));
   const confirm = node('button', {type:'button',id:'confirm-arena-attack',class:'button primary',disabled:true},say(language,'Commit move','确认招式'));
   const targetSummary = node('span',{class:'arena-target-summary','aria-live':'polite'});
+  const targetList = node('div',{class:'arena-move-targets',role:'group','aria-label':say(language,'Legal move targets','合法招式目标')});
+  const targetButtons = new Map();
+  for (const id of legal.legalTargetIds) {
+    const player = initial.players.find(seat=>seat.id===id);
+    if (!player) continue;
+    const active = player.active;
+    const warnings = moveTargetWarnings(legal.move,active,language);
+    const label = active
+      ? `${player.nickname} · ${kit.partnerName(active.catalogueId,active.level)} · ${active.hp} HP`
+      : player.nickname;
+    const target = node('button',{type:'button',class:'button secondary arena-move-target',
+      'aria-pressed':'false',disabled:Boolean(quick),onclick:()=>selectTarget(id)},
+      node('strong',{},label), warnings.length ? node('small',{},warnings.join(' · ')) : null);
+    targetButtons.set(id,target);
+    targetList.append(target);
+  }
+  dialog.append(node('p',{class:'arena-move-cost'},movePaymentLabel(legal.move,card,language,muscle,quick)),targetList);
   let boostCardId='',effectChoice=legal.move.effectKind==='moonlight'?'heal':undefined;
   const payments=[];
   if(legal.move.effectKind==='swords-dance')dialog.append(node('p',{class:'muted'},say(language,'Discard this sunny card to use Swords Dance. It grants one Power marker when the move resolves.','弃置这张晴天牌发动剑舞。招式结算后获得一枚力量强化。')));
@@ -247,8 +287,17 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
       const target = initial.players.find(player=>player.id===id);
       return target?.active ? kit.partnerName(target.active.catalogueId,target.active.level) : target?.nickname;
     }).join(' · ');
+    for (const [id,button] of targetButtons) button.setAttribute('aria-pressed',String(selected.has(id)));
     kit.syncArenaPrompt();
   };
+  function selectTarget(id) {
+    if (kit.busy || quick || !legal.legalTargetIds.includes(id)) return;
+    if (!selected.delete(id)) {
+      if (legal.move.maxTargets===1) selected.clear();
+      if (selected.size<legal.move.maxTargets) selected.add(id);
+    }
+    update();
+  }
   if(muscle)for(let index=0;index<2;index++) {
     const select=node('select',{id:`muscle-payment-${index}`,'aria-label':say(language,`Muscle Band card ${index+1}`,`力量头带手牌${index+1}`)},node('option',{value:''},say(language,'Choose a hand card','选择一张手牌')));
     for(const held of initial.self.hand)select.append(node('option',{value:held.id},`${kit.localized(held.name)} · ${weatherLabel(held.weather,language)}`));
@@ -303,13 +352,7 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   kit.openArenaPrompt(dialog,quick?{}:{
     targets:()=>legal.legalTargetIds,
     selected:()=>[...selected],
-    onTarget(id) {
-      if (kit.busy || !legal.legalTargetIds.includes(id)) return;
-      if (selected.delete(id)) { update(); return; }
-      if (legal.move.maxTargets===1) selected.clear();
-      if (selected.size<legal.move.maxTargets) selected.add(id);
-      update();
-    },
+    onTarget:selectTarget,
   });
   update();
 }

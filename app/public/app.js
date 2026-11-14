@@ -1806,11 +1806,13 @@ function renderArenaEvent(stage) {
     return;
   }
   const pokemonAction = event.kind==='attack' && !event.external;
-  const actor = pokemonAction ? view.players.find(player=>player.id===event.sourceId) : null;
+  const actor = view.players.find(player=>player.id===event.sourceId);
+  const targets = (event.targetIds ?? []).map(id=>view.players.find(player=>player.id===id)?.nickname).filter(Boolean);
+  const actionLabel = [actor?.nickname, targets.length ? `→ ${targets.join('、')}` : null].filter(Boolean).join(' ');
   const art = !pokemonAction && playCardFace({kind:'event',eventType:event.effect},language).art[0];
   stage.append(el('div',{class:'arena-event-banner',role:'status','data-effect':event.effect},
     art?el('img',{class:'arena-event-icon',src:`/play-card-art/${art}`,alt:''}):partnerImage(actor?.active),
-    el('div',{},pokemonAction?el('small',{},language==='zh'?'招式':'Move'):null,
+    el('div',{},actionLabel ? el('small',{},actionLabel) : null,
       el('strong',{},localized(event.name)))));
   if (event.action==='shield') {
     const sprite = stage.querySelector(`[data-sprite-id="${CSS.escape(event.targetIds[0])}"]`);

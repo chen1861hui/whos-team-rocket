@@ -20,6 +20,31 @@ function availableAiName(players) {
   while (occupied.has(`小岚 ${number} · AI`)) number++;
   return `小岚 ${number} · AI`;
 }
+// Minimum time after a public action before any following AI action.
+function aiPresentationDelay(before, after, input) {
+  if (after.status !== 'playing') return 0;
+  const recent = new Set((before.visualEvents ?? []).map(cue => cue.id));
+  const cues = (after.visualEvents ?? []).filter(cue => !recent.has(cue.id));
+  if (cues.some(cue => cue.kind === 'knockout')) return 2200;
+  const previousJudgment = before.log.findLast(entry => entry.judgment)?.id;
+  const currentJudgment = after.log.findLast(entry => entry.judgment)?.id;
+  if (currentJudgment && currentJudgment !== previousJudgment) return 1850;
+  if (cues.some(cue => ['attack', 'event', 'event-action', 'hit'].includes(cue.kind))) return 1700;
+  if (input?.type === 'switchPokemon' ||
+      (input?.type === 'respondBattle' && ['potion', 'healer', 'switch'].includes(input.choice))) return 1400;
+  if (['attack', 'useEvent', 'useTool', 'equipItem', 'useLightBall'].includes(input?.type)) return 1350;
+  return 0;
+}
+
+const publicAiActions = {
+  attack: ['发起了招式。', ' used a move.'],
+  useEvent: ['打出了事件牌。', ' played an event.'],
+  useTool: ['使用了道具。', ' used a tool.'],
+  equipItem: ['装备了持有物。', ' equipped a held item.'],
+  useLightBall: ['使用了电气球。', ' used Light Ball.'],
+  switchPokemon: ['发起了搭档交替。', ' initiated a partner switch.'],
+};
+
 const seatNumbers = [1, 2, 3, 4, 5, 6];
 const openSeatNumber = players => seatNumbers.find(number => !players.some(player => player.seatNumber === number));
 const hash = token => createHash('sha256').update(token).digest('hex');
@@ -55,6 +80,7 @@ function replaceSavedRoom(source, destination) {
 
 export class RoomStore {
   #aiTasks = new Map();
+  #aiPresentationUntil = new Map();
   #aiStopped = false;
 
   constructor({ dataDir, catalogue, now = Date.now, allowTestDecks = false,
@@ -118,6 +144,7 @@ export class RoomStore {
       if (this.now() - room.lastActionAt >= IDLE_MS) {
         unlinkSync(join(this.dataDir, `${code}.json`));
         this.rooms.delete(code);
+        this.#aiPresentationUntil.delete(code);
         this.#clearAiTask(code);
       } else if (room.status !== 'closed') {
         this.synchronizeTurn(room);
@@ -656,13 +683,20 @@ export class RoomStore {
     if (player.ai) {
       // Each AI task consumes one revision; old suggestions cannot replay it.
       player.actions = {};
-      if (room.status === 'playing') log(room, `${player.nickname} 已行动。`, `${player.nickname} acted.`);
+      const description = publicAiActions[input.type];
+      if (description && room.status === 'playing') {
+        log(room, player.nickname + ' ' + description[0], player.nickname + description[1]);
+      }
     }
     this.synchronizeTurn(room, { commit: false });
     room.revision++;
     room.lastActionAt = this.now();
     this.persist(room);
     this.rooms.set(room.code, room);
+    if (room.players.some(player => player.ai)) {
+      const delay = aiPresentationDelay(current, room, input);
+      if (delay) this.#aiPresentationUntil.set(room.code, this.now() + Math.round(delay * this.aiPaceMs / 650));
+    }
     this.#updateAiTask(room);
     return room;
   }
@@ -675,6 +709,7 @@ export class RoomStore {
 
   stopAi() {
     this.#aiStopped = true;
+    this.#aiPresentationUntil.clear();
     for (const code of this.#aiTasks.keys()) this.#clearAiTask(code);
   }
 
@@ -690,20 +725,24 @@ export class RoomStore {
         existing.ownerId === room.ownerId && existing.decisionId === (room.pendingBattle?.id ?? null) &&
         existing.turnNumber === (room.turn?.number ?? null)) return;
     this.#clearAiTask(room.code);
-    if (!actor) return;
+    if (!actor) {
+      if (room.status !== 'playing') this.#aiPresentationUntil.delete(room.code);
+      return;
+    }
     const startedAt = this.now();
+    const readyAt = Math.max(startedAt + this.aiPaceMs, this.#aiPresentationUntil.get(room.code) ?? 0);
     const needsStrategy = needsAiStrategy(room);
     const task = {
       id: randomUUID(), ownerId: room.ownerId, actorId: actor.id, revision: room.revision,
       turnNumber: room.turn?.number ?? null, decisionId: room.pendingBattle?.id ?? null,
       decisionKind: room.pendingBattle?.kind ?? room.turn?.phase ?? room.status,
-      readyAt: startedAt + this.aiPaceMs, preferences: null, needsStrategy,
+      readyAt, preferences: null, needsStrategy,
       ...(needsStrategy ? { difficulty: aiDifficulty(actor), players: publicAiTable(room, this.catalogue) } : {}),
     };
     this.#aiTasks.set(room.code, task);
     const owner = room.players.find(player => player.id === room.ownerId);
-    const delay = needsStrategy && this.connected(owner) ? this.aiTimeoutMs : this.aiPaceMs;
-    this.#scheduleAiTask(room.code, task, delay);
+    const waitForSuggestion = needsStrategy && this.connected(owner) ? this.aiTimeoutMs : 0;
+    this.#scheduleAiTask(room.code, task, Math.max(waitForSuggestion, task.readyAt - startedAt));
   }
 
   #scheduleAiTask(code, task, delay) {

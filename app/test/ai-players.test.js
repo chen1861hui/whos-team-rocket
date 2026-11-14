@@ -43,6 +43,7 @@ function fixture(t) {
   t.after(() => { store.stopAi(); rmSync(dataDir, { recursive: true, force: true }); });
   return {
     get store() { return store; }, owner, room, get, act, tick, flushUntil, timers,
+    get nextAiDelay() { return timers.values().next().value?.at - time; },
     join: (name, spectator = false) => store.join(owner.code, { nickname: name, spectator }),
     restart() { store.stopAi(); store = new RoomStore(options); },
     elapse(ms) { time += ms; },
@@ -360,4 +361,39 @@ test('hard public lookahead prioritizes eliminating a reachable threat before it
   assert.equal(choose('hard', [actor, exposed, reserve]).targetIds[0], 'threat');
   const disabled = { ...threat, active: { ...threat.active, status: 'sleep' } };
   assert.deepEqual(choose('hard', [actor, exposed, disabled]), { targetIds: ['exposed', 'threat'], focus: 'attack' });
+});
+
+test('AI fallback leaves time to see a move, while manual draws advance at the short pace', t => {
+  const f = fixture(t);
+  startSolo(f, 1);
+  const room = f.room();
+  const actor = room.players.find(player => player.id === f.owner.playerId);
+  const target = room.players.find(player => player.ai);
+  const pokemon = (instanceId, catalogueId) => ({
+    instanceId, catalogueId, level: 1, damage: 0, status: null, reinforcements: [], revealed: true,
+  });
+  actor.active = pokemon('human-machop', 'machop');
+  actor.hand = [command];
+  target.active = pokemon('ai-snorlax', 'snorlax');
+  target.hand = [];
+  room.pendingBattle = null;
+  room.resolution = null;
+  delete room.turnStart;
+  room.turn = { playerId: actor.id, phase: 'play', number: 2, drawRemaining: 0, clock: null };
+  room.revision++;
+  f.store.persist(room);
+  f.restart();
+  f.act('attack', { cardId: command.id, targetIds: [target.id] });
+  assert.equal(f.get().pendingBattle.kind, 'defense');
+  assert.equal(f.nextAiDelay, 1700);
+  f.tick();
+  assert.equal(f.get().pendingBattle, null);
+  assert.equal(f.get().players.find(player => player.id === target.id).active.hp, 3);
+  f.act('finishPlay');
+  f.act('endTurn', { levelUp: true });
+  assert.equal(f.get().turn.phase, 'draw');
+  assert.equal(f.nextAiDelay, 1700);
+  f.tick();
+  assert.equal(f.get().turn.drawRemaining, 1);
+  assert.equal(f.nextAiDelay, 650);
 });
