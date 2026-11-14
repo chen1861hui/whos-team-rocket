@@ -206,12 +206,15 @@ export function vitalSpiritDialog(kit) {
   }},say(language,'Replace Draw · view cards','替代摸牌 · 观看牌'));
   dialog.append(node('div',{class:'action-row'},cancel,confirm));kit.openArenaPrompt(dialog);
 }
-export function downloadDialog(kit) {
+export function downloadDialog(kit, {drawNormally}={}) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number;
   const dialog=traitPanel(kit,say(language,'Download · replace Draw','下载 · 替代摸牌阶段'),
     node('p',{},say(language,'Before drawing normally, you may replace your entire ordinary Draw phase by taking one hand card from each of up to two other trainers. Other trainers’ card faces stay hidden while you choose.','正常摸牌前，可以替代整个通常摸牌阶段，获得至多两名其他训练家的各一张手牌。选择时，其他训练家的手牌保持背面。')),
-    node('p',{class:'muted'},say(language,'Confirming uses Download instead of your ordinary draws. Canceling here keeps ordinary Draw available.','确认后发动下载，替代通常摸牌。此处取消则仍可正常摸牌。')));
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Keep ordinary Draw','保留通常摸牌'));
+    drawNormally ? null : node('p',{class:'muted'},say(language,'Confirming uses Download instead of your ordinary draws. Canceling here keeps ordinary Draw available.','确认后发动下载，替代通常摸牌。此处取消则仍可正常摸牌。')));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>{
+    kit.closeArenaPrompt(!drawNormally);
+    drawNormally?.();
+  }},drawNormally?say(language,'Draw normally','正常摸牌'):say(language,'Keep ordinary Draw','保留通常摸牌'));
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download',disabled:kit.busy||Boolean(initial.pendingVote),onclick:()=>{
     const current=kit.getView();kit.closeArenaPrompt(false);
     if(current.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turnNumber&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='download'&&!kit.busy&&!current.pendingVote)kit.action('useTrait');
@@ -775,7 +778,7 @@ function vitalSpiritControls(pending,kit) {
 function downloadControls(pending,kit) {
   const draft=privateDecisionDraft(pending,kit,()=>({targetIds:[]})),view=kit.getView(),language=kit.language,legal=pending.legalTargetIds||[],max=pending.maxTargets??0;
   draft.targetIds=draft.targetIds.filter(id=>legal.includes(id)).slice(0,max);
-  const grid=node('div',{class:'hand-choice-grid arena-response-target-list'}),buttons=[];
+  const grid=node('div',{class:'hand-choice-grid download-target-list'}),buttons=[];
   const summary=node('p',{class:'muted','aria-live':'polite'});
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download-targets'});
   const update=()=>{
@@ -784,14 +787,16 @@ function downloadControls(pending,kit) {
       const selected=draft.targetIds.includes(id);
       button.setAttribute('aria-pressed',String(selected));button.disabled=blocked||(!selected&&draft.targetIds.length>=max);
     }
-    summary.textContent=say(language,`Selected trainers: ${draft.targetIds.length}/${max}. Selecting none still replaces your whole Draw phase.`,`已选择训练家：${draft.targetIds.length}/${max}。即使不选择训练家，也会替代整个摸牌阶段。`);
-    confirm.disabled=blocked;
-    confirm.textContent=draft.targetIds.length?say(language,'Confirm trainers · choose hand cards','确认训练家 · 选择手牌'):say(language,'Finish replacement without taking cards','不获得手牌并完成替代摸牌');
+    summary.textContent=max?say(language,`Selected trainers: ${draft.targetIds.length}/${max}`,`已选择训练家：${draft.targetIds.length}/${max}`)
+      :say(language,'No other trainer has a hand card to take.','其他训练家都没有可获得的手牌。');
+    confirm.disabled=blocked || (max>0 && !draft.targetIds.length);
+    confirm.textContent=max?say(language,'Confirm trainers · choose hand cards','确认训练家 · 选择手牌'):say(language,'Finish replacement without taking cards','不获得手牌并完成替代摸牌');
   };
   for(const id of legal) {
     const player=view.players.find(player=>player.id===id);
     const button=node('button',{type:'button',class:'button exile-card-choice download-target-choice',id:`download-target-${id}`,'data-arena-seat':id,'aria-pressed':'false',onclick:()=>{
-      const index=draft.targetIds.indexOf(id);if(index>=0)draft.targetIds.splice(index,1);else if(draft.targetIds.length<max)draft.targetIds.push(id);update();
+      const index=draft.targetIds.indexOf(id);if(index>=0)draft.targetIds.splice(index,1);else if(draft.targetIds.length<max)draft.targetIds.push(id);
+      update();kit.syncArenaPrompt();
     }},player?.nickname||'—');
     buttons.push([id,button]);grid.append(button);
   }

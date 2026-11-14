@@ -44,6 +44,10 @@ function visualEvent(room, kind, details) {
   room.visualEvents = [...(room.visualEvents || []), {id:randomUUID(),kind,
     ...(eventId ? {eventId} : {}),...details}].slice(-32);
 }
+export function revealBattleIdentity(room, player) {
+  player.identityPublic = true;
+  visualEvent(room,'identity-reveal',{targetIds:[player.id]});
+}
 function moveVisual(room, targetId, telegraph = false) {
   const resolution = room.resolution;
   visualEvent(room,'attack',{
@@ -1671,6 +1675,7 @@ function defeat(room, targetPlayerId, ctx) {
     note(room, '备战宝可梦强制登场；不消耗普通交替。', 'The reserve was deployed; this does not consume ordinary switching.');
   } else {
     player.eliminated = true; room.discardPile.push(...player.hand); player.hand = [];
+    if(player.role!=='leader'&&!player.identityPublic)revealBattleIdentity(room,player);
     note(room, '一名训练家退场并公开身份。', 'A trainer was eliminated and revealed their identity.');
   }
   const result = evaluateVictory(room.players);
@@ -1880,6 +1885,7 @@ export function respondBattle(room,player,input,ctx) {
     requireRule(input.cardId===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Use the Download controls only.');
     if(pending.kind==='download') {
       const ids=input.targetIds;
+      requireRule(!pending.legalTargetIds.length || ids?.length>0,'INVALID_RESPONSE','Choose at least one trainer before confirming Download.');
       requireRule(input.choice==='targets'&&input.handIndex===undefined&&Array.isArray(ids)&&ids.length<=pending.maxTargets&&new Set(ids).size===ids.length&&ids.every(id=>pending.legalTargetIds.includes(id)&&live(room).some(target=>target.id===id&&target.id!==player.id&&target.hand.length)),'INVALID_RESPONSE','Choose up to two distinct other trainers with hand cards.');
       Object.assign(choice,{targetIds:[...ids],index:0,cards:[]});return advanceDownload(room,player,ctx);
     }
@@ -2398,7 +2404,7 @@ function offerQuickClaw(room,ctx,start) {
   if(turnOwner.active.instanceId!==start.quickClawTarget)return false;
   while(start.quickClawIndex<start.quickClawHolders.length) {
     const holder=quickClawHolder(room,ctx,start.quickClawHolders[start.quickClawIndex]);
-    if(holder) {
+    if(holder?.hand.some(sunnyCommand)) {
       const moves=moveOptions(room,holder,ctx.catalogue,true,turnOwner.id).filter(move=>move.canUse);
       if(moves.length) {
         decision(room,'quick-claw',holder.id,turnOwner.id,ctx);

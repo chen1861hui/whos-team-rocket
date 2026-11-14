@@ -407,6 +407,7 @@ test('active identity reveal publishes only the acting trainer’s identity and 
   const revealed = roster().find(seat=>seat.id===rocket.playerId);
   assert.equal(revealed.role,'rocket');
   assert.ok(roleProfiles.rocket.includes(revealed.trainerAvatar));
+  assert.deepEqual(f.view(observer).visualEvents.filter(cue=>cue.kind==='identity-reveal').map(cue=>cue.targetIds),[[rocket.playerId]]);
   assert.deepEqual(roster().filter(seat=>!seat.role),hidden.filter(seat=>seat.id!==rocket.playerId));
   assert.deepEqual(f.room().turn,turn);
   rejects(()=>f.act(rocket,'revealRole'),'IDENTITY_ALREADY_PUBLIC');

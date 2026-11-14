@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective } from './combat.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective, revealBattleIdentity } from './combat.js';
 import { civilianProfiles, gymLeaderProfiles, roleProfiles } from '../public/trainer-profiles.js';
 import { pokemonTypes } from '../public/pokemon-types.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
@@ -482,7 +482,7 @@ export class RoomStore {
         check([]); ownTurn();
         if (!isBattle(room) || room.turn.phase!=='play' || player.eliminated) fail(409, 'WRONG_PHASE', 'Reveal your identity during your play phase.');
         if (!player.role || player.role==='leader' || player.identityPublic) fail(409, 'IDENTITY_ALREADY_PUBLIC', 'Your identity is already public.');
-        player.identityPublic = true;
+        revealBattleIdentity(room,player);
         log(room, `${player.nickname}主动公开了身份。`, `${player.nickname} revealed their identity.`);
         break;
       case 'useTrait':
