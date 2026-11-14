@@ -37,7 +37,7 @@ function fixture(t, { count = 3, turnSeconds = 0, responseSeconds = 0 } = {}) {
   const respond = (choice = 'pass', payload = {}) => { const pending = room().pendingBattle; return act(byId(pending.actorId), 'respondBattle', { decisionId: pending.id, choice, ...payload }); };
   const order = effect => respond('damage-effect', { effect });
   const helmet = who => { const card = { ...makeCard('held-item'), itemType: 'rocky-helmet' }; player(who).active.item = card; return card; };
-  const drain = () => { for (let i = 0; room().pendingBattle && i < 100; i++) { const pending = room().pendingBattle; if (pending.kind === 'mew-blessing') respond('heal'); else if (pending.kind === 'sweet-kiss') respond('discard', { cardIds: player(byId(pending.actorId)).hand.slice(0, 2).map(card => card.id) }); else if (pending.kind === 'damage-order') order(pending.effects[0]); else respond(pending.kind === 'effects' ? 'effect' : 'pass', pending.kind === 'effects' ? { effect: pending.effects[0] } : {}); } assert.equal(room().pendingBattle, null); };
+  const drain = () => { for (let i = 0; room().pendingBattle && i < 100; i++) { const pending = room().pendingBattle; if (pending.kind === 'mew-blessing') respond(pending.choices[0]); else if (pending.kind === 'sweet-kiss') respond('discard', { cardIds: player(byId(pending.actorId)).hand.slice(0, 2).map(card => card.id) }); else if (pending.kind === 'damage-order') order(pending.effects[0]); else respond(pending.kind === 'effects' ? 'effect' : 'pass', pending.kind === 'effects' ? { effect: pending.effects[0] } : {}); } assert.equal(room().pendingBattle, null); };
   const startStatus = (status = 'poison', who = target) => { player(who).active.status = status; store.startTurn(room(), who.playerId, 2); };
   return { store, dir, now, owner, seats, leader, target, third, room, player, byId, view, input, act, seed, makeCard, supply, top, judgments, play, attack, respond, order, helmet, drain, startStatus, advance: ms => { time += ms; } };
 }
@@ -139,19 +139,19 @@ test('an immediate victory stops later event targets and cleans the held event e
 });
 
 test('Mew Blessing targets all living original actives in self-first seat order with a mandatory owner choice', t => {
-  const f = fixture(t, { count: 6 }); f.play(); const removed = f.byId(f.room().players[3].id); f.player(removed).eliminated = true; const observer = f.store.join(f.owner.code, { nickname: 'Observer', spectator: true }), cardId = event(f, 'mew-blessing'), expected = f.room().players.filter(player => !player.spectator && !player.eliminated).map(player => player.id); assert.deepEqual(describe(f, 'mew-blessing').targetIds, expected); use(f, cardId); const actors = []; while (f.room().pendingBattle) { assert.equal(f.room().pendingBattle.kind, 'mew-blessing'); const pending = f.room().pendingBattle; assert.equal(pending.actorId, pending.targetId); actors.push(pending.actorId); f.respond('heal'); } assert.deepEqual(actors, expected); assert.equal(actors.includes(observer.playerId), false); assert.equal(countCard(f.room(), cardId), 1);
+  const f = fixture(t, { count: 6 }); f.play(); const removed = f.byId(f.room().players[3].id); f.player(removed).eliminated = true; const observer = f.store.join(f.owner.code, { nickname: 'Observer', spectator: true }), cardId = event(f, 'mew-blessing'), expected = f.room().players.filter(player => !player.spectator && !player.eliminated).map(player => player.id); assert.deepEqual(describe(f, 'mew-blessing').targetIds, expected); use(f, cardId); const actors = []; while (f.room().pendingBattle) { assert.equal(f.room().pendingBattle.kind, 'mew-blessing'); const pending = f.room().pendingBattle; assert.equal(pending.actorId, pending.targetId); actors.push(pending.actorId); f.respond('evolve'); } assert.deepEqual(actors, expected); assert.equal(actors.includes(observer.playerId), false); assert.equal(countCard(f.room(), cardId), 1);
 });
 
-test('Mew Blessing heals two capped at full HP, including a healthy no-op, without clearing statuses or markers', t => {
-  const f = fixture(t); f.play(); f.player(f.leader).active.damage = 0; Object.assign(f.player(f.target).active, { damage: 1, status: 'poison', reinforcements: ['defense'] }); Object.assign(f.player(f.third).active, { damage: 4, status: 'sleep' }); use(f, event(f, 'mew-blessing')); f.drain(); assert.equal(f.player(f.leader).active.damage, 0); assert.equal(f.player(f.target).active.damage, 0); assert.equal(f.player(f.third).active.damage, 2); assert.equal(f.player(f.target).active.status, 'poison'); assert.equal(f.player(f.third).active.status, 'sleep'); assert.deepEqual(f.player(f.target).active.reinforcements, ['defense']);
+test('Mew Blessing forces evolution at full HP below level three and caps healing without clearing statuses or markers', t => {
+  const f = fixture(t); f.play(); f.player(f.leader).active.damage = 0; Object.assign(f.player(f.target).active, { damage: 1, status: 'poison', reinforcements: ['defense'] }); Object.assign(f.player(f.third).active, { damage: 4, status: 'sleep' }); use(f, event(f, 'mew-blessing')); assert.deepEqual(f.view(f.leader).pendingBattle.choices, ['evolve']); rejectsAtomically(f, () => f.respond('heal')); f.drain(); assert.equal(f.player(f.leader).active.level, 2); assert.equal(f.player(f.leader).active.damage, 0); assert.equal(f.player(f.target).active.damage, 0); assert.equal(f.player(f.third).active.damage, 2); assert.equal(f.player(f.target).active.status, 'poison'); assert.equal(f.player(f.third).active.status, 'sleep'); assert.deepEqual(f.player(f.target).active.reinforcements, ['defense']);
 });
 
 test('Mew Blessing evolves exactly one level while preserving active identity, injury, status, markers, item and role bonus', t => {
   const f = fixture(t); f.play(); f.seed(f.leader, 'squirtle', 2, { damage: 2, status: 'burn', reinforcements: ['power', 'defense'], hpBonus: 1 }); f.helmet(f.leader); const before = structuredClone(f.player(f.leader).active), role = f.player(f.leader).role; use(f, event(f, 'mew-blessing')); f.respond('evolve'); assert.deepEqual(f.player(f.leader).active, { ...before, level: 3 }); assert.equal(f.player(f.leader).role, role); f.drain();
 });
 
-test('Mew Blessing level-three actor must heal rather than pass or evolve, even when healthy', t => {
-  const f = fixture(t); f.play('squirtle', 3); use(f, event(f, 'mew-blessing')); rejectsAtomically(f, () => f.respond('evolve')); rejectsAtomically(f, () => f.respond('pass')); f.respond('heal'); assert.equal(f.player(f.leader).active.level, 3); assert.equal(f.player(f.leader).active.damage, 0); f.drain();
+test('Mew Blessing skips full-HP level three and requires injured level three to heal', t => {
+  const f = fixture(t); f.play('squirtle', 3); f.seed(f.target, 'squirtle', 3, { damage: 3 }); use(f, event(f, 'mew-blessing')); assert.equal(f.room().pendingBattle.actorId, f.target.playerId); assert.deepEqual(f.view(f.target).pendingBattle.choices, ['heal']); rejectsAtomically(f, () => f.respond('evolve')); rejectsAtomically(f, () => f.respond('pass')); f.respond('heal'); assert.equal(f.player(f.target).active.damage, 1); assert.equal(f.player(f.leader).active.level, 3); assert.equal(f.player(f.leader).active.damage, 0); f.drain();
 });
 
 test('Mew Blessing evolves Tauros without entry triggers or touching its reserve partner', t => {
@@ -159,7 +159,7 @@ test('Mew Blessing evolves Tauros without entry triggers or touching its reserve
 });
 
 test('Mew Blessing holds its real card outside piles and permits neither another play nor ordinary handoff until complete', t => {
-  const f = fixture(t); f.play(); const cardId = event(f, 'mew-blessing'); use(f, cardId); assert.equal(f.room().discardPile.some(card => card.id === cardId), false); assert.equal(countCard(f.room(), cardId), 1); rejectsAtomically(f, () => f.act(f.leader, 'finishPlay'), 'RESPONSE_PENDING'); f.respond('heal'); assert.equal(f.room().discardPile.some(card => card.id === cardId), false); f.drain(); assert.equal(f.room().discardPile.filter(card => card.id === cardId).length, 1);
+  const f = fixture(t); f.play(); const cardId = event(f, 'mew-blessing'); use(f, cardId); assert.equal(f.room().discardPile.some(card => card.id === cardId), false); assert.equal(countCard(f.room(), cardId), 1); rejectsAtomically(f, () => f.act(f.leader, 'finishPlay'), 'RESPONSE_PENDING'); f.respond('evolve'); assert.equal(f.room().discardPile.some(card => card.id === cardId), false); f.drain(); assert.equal(f.room().discardPile.filter(card => card.id === cardId).length, 1);
 });
 
 test('Mew Blessing response authority and exact field validation reject fake payments, targets and level selectors atomically', t => {
@@ -171,7 +171,7 @@ test('Mew Blessing mandatory response expiry waits without auto-healing, auto-ev
 });
 
 test('Mew Blessing skips a queued original active that was replaced instead of evolving its new reserve', t => {
-  const f = fixture(t); f.play(); use(f, event(f, 'mew-blessing')); const before = f.player(f.target).active, incoming = f.player(f.target).reserve; f.player(f.target).active = incoming; f.player(f.target).reserve = before; f.respond('heal'); assert.equal(f.room().pendingBattle.actorId, f.third.playerId); assert.equal(f.player(f.target).active.level, 1); f.respond('heal'); assert.equal(f.room().pendingBattle, null);
+  const f = fixture(t); f.play(); use(f, event(f, 'mew-blessing')); const before = f.player(f.target).active, incoming = f.player(f.target).reserve; f.player(f.target).active = incoming; f.player(f.target).reserve = before; f.respond('evolve'); assert.equal(f.room().pendingBattle.actorId, f.third.playerId); assert.equal(f.player(f.target).active.level, 1); f.respond('evolve'); assert.equal(f.room().pendingBattle, null);
 });
 
 test('several real Mew events may be played in one Play phase without using command, move, switch or trait allowances', t => {

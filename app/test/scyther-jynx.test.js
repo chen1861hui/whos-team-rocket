@@ -88,24 +88,97 @@ test('paralysis keeps all ordinary Power inactive and unconsumed', t => {
   const f = fixture(t); f.play('squirtle'); f.player(f.leader).active.status = 'paralysis'; f.player(f.leader).active.reinforcements = ['power', 'power', 'power']; f.attack(); f.respond(); assert.equal(f.player(f.target).active.damage, 2); assert.equal(powerCount(f.player(f.leader).active), 3);
 });
 
-test('Fury Cutter gains its source damage value before receiving Defense without boosting itself', t => {
-  for (const defense of [false, true]) { const f = fixture(t); f.play('scyther', 2); f.player(f.leader).active.reinforcements = ['power', 'power']; if (defense) f.player(f.target).active.reinforcements = ['defense']; f.attack(); f.respond(); assert.equal(f.player(f.target).active.damage, defense ? 1 : 3); assert.equal(powerCount(f.player(f.leader).active), 3); }
+test('Fury Cutter gains Power from the final damage after Defense without boosting itself', t => {
+  for (const defense of [false, true]) {
+    const f = fixture(t);
+    f.play('scyther', 2);
+    f.player(f.leader).active.reinforcements = ['power', 'power'];
+    if (defense) f.player(f.target).active.reinforcements = ['defense'];
+    f.attack();
+    f.respond();
+    const expectedDamage = defense ? 1 : 3;
+    assert.equal(f.player(f.target).active.damage, expectedDamage);
+    assert.equal(powerCount(f.player(f.leader).active), expectedDamage);
+  }
 });
 
-test('Fury Cutter grant survives later Shed Skin reduction to zero', t => {
-  const f = fixture(t); f.play('scyther', 2); f.seed(f.target, 'caterpie', 2); const cost = f.supply(f.target, 'event'); f.attack(); f.respond(); assert.equal(f.room().pendingBattle.kind, 'shed-skin'); assert.equal(powerCount(f.player(f.leader).active), 1); f.respond('shed', { cardIds: [cost] }); assert.equal(f.player(f.target).active.damage, 0); assert.equal(powerCount(f.player(f.leader).active), 1);
+test('Fury Cutter waits for Shed Skin and grants zero or partial Power after a resumed decision', t => {
+  for (const power of [0, 2]) {
+    const f = fixture(t);
+    f.play('scyther', 2);
+    f.player(f.leader).active.reinforcements = Array(power).fill('power');
+    f.seed(f.target, 'caterpie', 2);
+    const cost = f.supply(f.target, 'event');
+    f.attack();
+    f.respond();
+    assert.equal(f.room().pendingBattle.kind, 'shed-skin');
+    assert.equal(powerCount(f.player(f.leader).active), 0);
+
+    const restored = new RoomStore({ dataDir: f.dir, catalogue, now: f.now });
+    const input = f.input('respondBattle', { decisionId: f.room().pendingBattle.id, choice: 'shed', cardIds: [cost] });
+    restored.action(f.owner.code, f.target.token, input);
+    restored.action(f.owner.code, f.target.token, input);
+    const room = restored.rooms.get(f.owner.code);
+    assert.equal(room.players.find(player => player.id === f.target.playerId).active.damage, power);
+    assert.equal(powerCount(room.players.find(player => player.id === f.leader.playerId).active), power);
+  }
 });
 
 test('Fury Cutter gets no Power after Dodge or known immunity', t => {
   for (const prevention of ['dodge', 'immunity']) { const f = fixture(t); f.play('scyther', 2); if (prevention === 'immunity') f.room().turn.damageImmunityIds = [f.player(f.target).active.instanceId]; f.attack(); f.respond(prevention === 'dodge' ? 'dodge' : 'pass', prevention === 'dodge' ? { cardId: f.supply(f.target, 'dodge') } : {}); assert.equal(powerCount(f.player(f.leader).active), 0); assert.equal(f.player(f.target).active.damage, 0); }
 });
 
-test('Burn caps Fury Cutter source value and its marker grant before Defense', t => {
+test('Burn caps Fury Cutter damage and its marker grant at one', t => {
   const f = fixture(t); f.play('scyther', 2); f.player(f.leader).active.status = 'burn'; f.player(f.leader).active.reinforcements = ['power', 'power', 'power']; f.attack(); f.respond(); assert.equal(f.player(f.target).active.damage, 1); assert.equal(powerCount(f.player(f.leader).active), 1);
+});
+
+test('Fury Cutter counts the full HP deduction before fainting rescue', t => {
+  const f = fixture(t);
+  f.play('scyther', 2);
+  f.player(f.leader).active.reinforcements = ['power', 'power'];
+  f.seed(f.target, 'squirtle', 1, { hpBonus: 0, damage: 2 });
+  f.attack();
+  f.respond();
+  assert.equal(f.room().pendingBattle.kind, 'rescue');
+  assert.equal(f.player(f.target).active.damage, 5);
+  assert.equal(powerCount(f.player(f.leader).active), 3);
 });
 
 test('Swords Dance accepts both sunny card weathers and stacks without consuming existing Power', t => {
   for (const weather of ['intense-sun', 'clear']) { const f = fixture(t); f.play('scyther', 2); f.player(f.leader).active.reinforcements = ['power', 'power']; dance(f, 1, weather); f.respond(); assert.equal(powerCount(f.player(f.leader).active), 3); assert.equal(f.player(f.leader).active.damage, 0); assert.equal(f.room().turn.commandCreatureId, null); }
+});
+
+test('a sunny Dodge pays for Swords Dance and its Power coexists with Defense', t => {
+  for (const [level, moveIndex, weather] of [[2, 1, 'clear'], [3, 3, 'intense-sun']]) {
+    const f = fixture(t);
+    f.play('scyther', level);
+    f.player(f.leader).active.reinforcements = ['defense'];
+    const cardId = f.supply(f.leader, 'dodge', weather);
+    const declared = f.attack({ moveIndex, cardId, targetIds: [f.leader.playerId] });
+    assert.equal(declared.pendingBattle.kind, 'defense');
+    assert.equal(declared.pendingBattle.moveEffect, 'swords-dance');
+    assert.equal(declared.self.hand.some(card => card.id === cardId), false);
+    assert.deepEqual(f.player(f.leader).active.reinforcements, ['defense']);
+
+    const resolved = f.respond();
+    assert.equal(resolved.pendingBattle, null);
+    assert.deepEqual(resolved.players.find(player => player.id === f.leader.playerId).active.reinforcements, ['defense', 'power']);
+    assert.equal(f.room().discardPile.filter(card => card.id === cardId).length, 1);
+  }
+});
+
+test('a separate Dodge in the response window cancels Swords Dance', t => {
+  const f = fixture(t);
+  f.play('scyther', 2);
+  f.player(f.leader).active.reinforcements = ['defense'];
+  const costId = f.supply(f.leader, 'dodge', 'clear');
+  const responseId = f.supply(f.leader, 'dodge', 'rain');
+  f.attack({ moveIndex: 1, cardId: costId, targetIds: [f.leader.playerId] });
+
+  const resolved = f.respond('dodge', { cardId: responseId });
+  assert.equal(resolved.pendingBattle, null);
+  assert.deepEqual(f.player(f.leader).active.reinforcements, ['defense']);
+  assert.deepEqual(ids(f.room().discardPile).sort(), [costId, responseId].sort());
 });
 
 test('paralyzed Swords Dance stacks Power but rejects rainy cost and another target', t => {
@@ -114,6 +187,25 @@ test('paralyzed Swords Dance stacks Power but rejects rainy cost and another tar
 
 test('Swords Dance is independent of commands and its Power boosts a later Fury Cutter', t => {
   const f = fixture(t); f.play('scyther', 2); dance(f); f.respond(); assert.equal(moves(f)[1].canUse, false); assert.equal(moves(f)[0].canUse, true); f.attack(); f.respond(); assert.equal(f.player(f.target).active.damage, 2); assert.equal(powerCount(f.player(f.leader).active), 2);
+});
+
+test('level-three Scyther can use X-Scissor, Fury Cutter and U-turn with three commands before switching', t => {
+  const f = fixture(t);
+  f.play('scyther', 3);
+  const sourceId = f.player(f.leader).active.instanceId;
+  const reserveId = f.player(f.leader).reserve.instanceId;
+  const commands = [0, 2, 1].map(() => f.supply(f.leader));
+  for (const [index, moveIndex] of [0, 2, 1].entries()) {
+    f.attack({ moveIndex, cardId: commands[index] });
+    f.respond();
+    assert.equal(f.room().turn.commandCreatureId, sourceId);
+  }
+  assert.equal(f.room().pendingBattle.kind, 'u-turn');
+  f.respond('switch');
+  assert.equal(f.player(f.leader).active.instanceId, reserveId);
+  assert.equal(f.room().turn.switchUsed, false);
+  assert.equal(f.room().turn.commandCreatureId, sourceId);
+  assert.deepEqual(ids(f.room().discardPile), commands);
 });
 
 test('normal X-Scissor consumes all Power and is canceled by one Dodge', t => {

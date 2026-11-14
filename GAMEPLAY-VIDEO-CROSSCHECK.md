@@ -30,11 +30,11 @@
 | 事件 | 目标、顺序和操作 | 核对证据 |
 | --- | --- | --- |
 | 火焰鸟的试炼 | 自己出牌时使用，覆盖其他所有训练家的出战。从下家起逐位打出一张实际的「接招吧！」或放弃。放弃时该目标受到火焰鸟造成的 2 点基础伤害。 | [牌面](reviewed-legendary-bird-events.md#L17) · [新物集约 10:01](https://www.bilibili.com/video/BV1oVKG6CEMF/?t=601) · [自动化](app/test/legendary-bird-events.test.js#L66) |
-| 急冻鸟的庇护 | 在一个目标即将受到事件效果时，可取消该目标的这一项结算；或在宝可梦刚陷入特殊状态后，解除该状态。任一仍在场的训练家都可在响应轮到自己时使用，包括保护远处的他人。网页从当前回合训练家起逐位询问，首张生效后结束该次询问。牌面未规定反制链，网页当前不对庇护再次开启庇护响应。 | [牌面及网页响应顺序](reviewed-articuno-protection.md#L7) · [新物集约 06:45](https://www.bilibili.com/video/BV1oVKG6CEMF/?t=405) · [取消单个目标](app/test/articuno-protection.test.js#L330) |
-| 树果大丰收 | 自己出牌时对所有在场训练家使用。先一次性公开与目标人数等量的牌，出牌人先选，然后每位训练家从剩下的牌里选一张。网页中被庇护取消的目标跳过选择，最后剩下的牌进入弃牌堆。 | [牌面核对](reviewed-remaining-events.md#L10) · [新物集约 10:34](https://www.bilibili.com/video/BV1oVKG6CEMF/?t=634) · [公开选牌与庇护](app/test/remaining-events.test.js#L107) |
-| 劲敌的挑战 | 自己出牌时选择一名其他训练家，可以跨座位。对方先出「接招吧！」，双方交替响应。最后出牌者的出战宝可梦对另一方的出战宝可梦造成 2 点基础伤害。网页在对方开场就放弃时按没有最后出牌者处理，直接结束；庇护可在挑战开始前取消该目标的事件效果。 | [牌面与开场处理](reviewed-remaining-events.md#L8) · [晖耀晴天约 46:03](https://www.bilibili.com/video/BV17jgn6EEU8/?t=2763) · [伤害归属测试](app/test/remaining-events.test.js#L63) |
+| 急冻鸟的庇护 | 在一个目标即将受到事件效果时，可取消该目标的这一项结算；或在宝可梦刚陷入特殊状态后，解除该状态。响应从当前回合训练家起，依座次询问持有庇护牌的训练家，可保护远处的他人。树果大丰收期间可用另一张庇护反制。 | [牌面及网页响应顺序](reviewed-articuno-protection.md#L7) · [新物集约 06:45](https://www.bilibili.com/video/BV1oVKG6CEMF/?t=405) · [取消单个目标](app/test/articuno-protection.test.js#L330) |
+| 树果大丰收 | 自己出牌时对所有在场训练家使用。先一次性公开与目标人数等量的牌，出牌人先选，然后每位训练家从剩下的牌里选一张。庇护最终生效时，该席跳过选择；反制生效后，该席继续选牌。最后剩下的牌进入弃牌堆。 | [牌面核对](reviewed-remaining-events.md#L10) · [新物集约 10:34](https://www.bilibili.com/video/BV1oVKG6CEMF/?t=634) · [公开选牌与庇护](app/test/remaining-events.test.js#L107) |
+| 劲敌的挑战 | 自己出牌时选择一名其他训练家，可以跨座位。对方先响应，双方轮流打出「接招吧！」。最后出牌者的出战宝可梦对另一方的出战宝可梦造成 2 点基础伤害。目标开场就放弃时，按试玩由事件使用者的出战宝可梦造成这次伤害。庇护可在挑战开始前取消该目标的事件效果。 | [牌面与开场处理](reviewed-remaining-events.md#L8) · [晖耀晴天约 46:17](https://www.bilibili.com/video/BV17jgn6EEU8/?t=2777) · [伤害归属测试](app/test/remaining-events.test.js#L63) |
 | 超梦的威压 | 自己出牌时使用，覆盖其他所有训练家的出战。从下家起逐位打出一张实际的「快躲开！」或放弃。放弃时该目标受到超梦造成的 2 点基础伤害。 | [牌面](reviewed-mew-events.md#L17) · [大师版画面约 24:16](https://www.bilibili.com/video/BV1juYi6UEkv/?t=1456) · [自动化](app/test/mew-events.test.js#L61) |
-| 梦幻的祝福 | 自己出牌时对所有出战宝可梦使用。从出牌人开始，各目标的训练家选回复 2 点体力或升 1 级。Lv.3 只剩回复选项，满血选择回复仍可结算。 | [牌面](reviewed-mew-events.md#L25) · [新物集约 15:05](https://www.bilibili.com/video/BV1oVKG6CEMF/?t=905) · [自动化](app/test/mew-events.test.js#L141) |
+| 梦幻的祝福 | 自己出牌时对所有出战宝可梦使用，从出牌人开始逐席结算。网页采用日版裁定：满体力未满级升 1 级，满级受伤回复至多 2 点体力，未满级且受伤可任选，满级满体力跳过。 | [牌面与日版裁定](reviewed-mew-events.md#L25) · [新物集约 15:05](https://www.bilibili.com/video/BV1oVKG6CEMF/?t=905) · [自动化](app/test/mew-events.test.js#L141) |
 
 本次以牌面和当前服务端实现核对，四个相关测试文件串行复跑 144 项全部通过。五人浏览器房尚未逐张实测这六张。
 
