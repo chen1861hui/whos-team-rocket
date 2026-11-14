@@ -7,6 +7,7 @@ import {civilianProfiles, gymLeaderProfiles} from './trainer-profiles.js';
 import {waterGymArcadeBounds,waterGymRearStation} from './battlefield-arcade.js';
 import {createGymTerrain} from './battlefield-terrain.js';
 import {fireGymLeaderStation} from './battlefield-fire.js';
+import {grassGymLeaderStation} from './battlefield-grass.js';
 import {createDraftModels} from './battlefield-draft.js';
 import {createPokemonBattleMotion,preparePokemonIdle} from './pokemon-battle-motion.js';
 
@@ -14,7 +15,7 @@ const colors = [0xec604a, 0x4599d5, 0xe4b643, 0x8b78c5, 0x3f9c85, 0xe289a0];
 const palettes = {
   fire: {sky:0x161827, edge:0xa78355, trim:0x373740, accent:0xff9b49},
   water: {sky:0x81bddc, edge:0xd9c4a3, trim:0x807566, accent:0x80eaff},
-  grass: {sky:0xa7c09a, edge:0xa9a580, trim:0x536248, accent:0xd1ed79},
+  grass: {sky:0xa6c8ee, edge:0xa9a580, trim:0x536248, accent:0xd1ed79},
   stadium: {sky:0xd8e8e6, ground:0x719a71, field:0x5d8e63, edge:0xe5e4cd, trim:0x213d42, seats:0xc65242},
   gym: {sky:0x162c41, ground:0x1b354a, field:0x32576b, edge:0x6e98ac, trim:0x112b3b, seats:0x497b95},
   floating: {sky:0xbcdbe7, ground:0x9ac2d3, field:0x83a784, edge:0xf1e6cc, trim:0x507886, seats:0xe6c396},
@@ -73,6 +74,7 @@ export function createBattlefield() {
   let sceneryAngle = 0;
   let seatedCoastalViewer = false;
   let seatedFireViewer = false;
+  let seatedGrassViewer = false;
   let forms, draftModels, cameraReady = false, eligible = null, marked = [], aimBottom = 0, previousFrame = 0;
   let turnFocus = null;
   const identityReveals = [];
@@ -837,15 +839,17 @@ export function createBattlefield() {
     const themed = Boolean(p.accent);
     const coast = config.theme==='water' && !Number.isInteger(config.portraitIndex);
     const fire = config.theme==='fire' && !Number.isInteger(config.portraitIndex);
+    const grass = config.theme==='grass' && !Number.isInteger(config.portraitIndex);
+    if (grass) scene.fog = new THREE.Fog(0x98b4aa,23,68);
     if (coast) scene.fog = new THREE.Fog(0x9fc1d1,24,82);
     if (fire) scene.fog = new THREE.Fog(p.sky,26,65);
-    renderer.toneMappingExposure = coast ? 1.03 : fire ? 1.12 : 1.35;
+    renderer.toneMappingExposure = coast ? 1.03 : fire ? 1.12 : grass ? 1.00 : 1.35;
     scene.add(new THREE.HemisphereLight(coast || fire ? 0xc5dcff : 0xeafaff,
-      coast ? 0x827b73 : fire ? 0x564b59 : 0x58705b, coast ? 1.29 : fire ? 1.58 : 2.5));
+      coast ? 0x827b73 : fire ? 0x564b59 : grass ? 0x887761 : 0x58705b, coast ? 1.29 : fire ? 1.58 : grass ? 1.19 : 2.5));
     const sun = new THREE.DirectionalLight(coast ? 0xffebd8 : fire ? 0xd7e3ff : 0xfff0d4,
-      coast ? 3.65 : fire ? 2.62 : 3.2);
+      coast ? 3.65 : fire ? 2.62 : grass ? 3.52 : 3.2);
     sun.position.set(coast ? -16 : -12, coast ? 11.5 : 22, coast ? 9 : 8); sun.castShadow = true;
-    sun.shadow.mapSize.setScalar(coast && window.innerWidth>=850 ? 2048 : 1024);
+    sun.shadow.mapSize.setScalar((coast || grass) && window.innerWidth>=850 ? 2048 : 1024);
     Object.assign(sun.shadow.camera,{left:-17,right:17,top:17,bottom:-17,near:1,far:65});
     sun.shadow.bias = -0.001;
     if (coast) {
@@ -877,10 +881,25 @@ export function createBattlefield() {
       return;
     }
     const coastalStations = config.coastalBattle ? coastalStationLayout(config.players,config.viewerId) : null;
-    const fireLayout = fire ? fireGymLayout(config.players,config.viewerId) : null;
+    const fixedLayout = fire || grass ? fireGymLayout(config.players,config.viewerId) : null;
     seatedCoastalViewer = coastalStations?.seated ?? false;
-    seatedFireViewer = fireLayout?.seated ?? false;
-    sceneryAngle = coastalStations?.sceneryAngle ?? fireLayout?.sceneryAngle ?? 0;
+    seatedFireViewer = fire && Boolean(fixedLayout?.seated);
+    seatedGrassViewer = grass && Boolean(fixedLayout?.seated);
+    sceneryAngle = coastalStations?.sceneryAngle ?? fixedLayout?.sceneryAngle ?? 0;
+    if (grass) {
+      sun.position.set(-23,18,3.5).applyAxisAngle(scene.up,sceneryAngle);
+      Object.assign(sun.shadow.camera,{left:-23,right:23,top:22,bottom:-22});
+      sun.shadow.camera.updateProjectionMatrix();
+      sun.shadow.normalBias = .030;
+      sun.shadow.bias = -.00024;
+      sun.shadow.radius = 3.05;
+      const forestFill = new THREE.DirectionalLight(0xc8dfed,.58);
+      forestFill.position.set(8,7,12).applyAxisAngle(scene.up,sceneryAngle);
+      scene.add(forestFill);
+      const canopyRim = new THREE.DirectionalLight(0xffedc6,.81);
+      canopyRim.position.set(6,12,-19).applyAxisAngle(scene.up,sceneryAngle);
+      scene.add(canopyRim);
+    }
     if (fire) {
       sun.position.set(-9,18,-5).applyAxisAngle(scene.up,sceneryAngle);
       sun.shadow.normalBias = .033;
@@ -888,7 +907,7 @@ export function createBattlefield() {
     }
     const layout = config.coastalBattle
       ? coastalSeatLayout(config.players,config.viewerId)
-      : fireLayout?.seats ?? seatLayout(config.players,config.viewerId);
+      : fixedLayout?.seats ?? seatLayout(config.players,config.viewerId);
     if (themed) {
       const terrainScene = scene;
       terrain = createGymTerrain(scene,config.theme,()=>{
@@ -950,7 +969,7 @@ export function createBattlefield() {
       const group=new THREE.Group(); group.position.set(position.x,.24,position.z); group.rotation.y=position.angle;
       scene.add(group);
       const color=colors[position.index%colors.length];
-      if (fire) {
+      if (fire || grass) {
         terrain.createPokemonPodium(group,pokemonPodiumTop);
       } else {
         const facets = coast ? 36 : 8;
@@ -979,14 +998,16 @@ export function createBattlefield() {
       cylinder(.508,.075,p.trim,0,.53,0,proxy,32);
       const leader=layouts.get(position.id).leader;
       const station = coastalStations?.stations.get(position.id) ??
-        (fire ? {angle:leader ? Math.PI+sceneryAngle : position.angle,rear:leader} : null);
+        ((fire || grass) ? {angle:leader ? Math.PI+sceneryAngle : position.angle,rear:leader} : null);
       const rearStation = station?.rear ?? false;
       let trainerParent = group;
       let commandPost;
       if (station) {
         const radius = fire ? (rearStation ? fireGymLeaderStation.radius : 9.75)
+          : grass ? (rearStation ? grassGymLeaderStation.radius : 10.37)
           : (rearStation ? waterGymRearStation.radius : 13.0);
         const baseHeight = fire ? (rearStation ? fireGymLeaderStation.height : .22)
+          : grass ? (rearStation ? grassGymLeaderStation.height : .22)
           : (rearStation ? waterGymRearStation.baseHeight : .49);
         trainerParent = new THREE.Group();
         trainerParent.position.set(Math.sin(station.angle)*radius,baseHeight,Math.cos(station.angle)*radius);
@@ -1001,7 +1022,7 @@ export function createBattlefield() {
         previous:previousTrainers?.get(position.id),
       });
       let commandDais;
-      if (commandPost && fire) {
+      if (commandPost && (fire || grass)) {
         if (!rearStation) {
           commandDais = terrain.createStation(trainerParent);
         }
@@ -1258,11 +1279,12 @@ export function createBattlefield() {
       mode = 'free';
       desiredTarget.set(0,1.1,0);
       desiredCamera.setFromSpherical(orbit);
-      if (config.coastalBattle) {
+      if (config.coastalBattle || config.theme==='grass') {
         const horizontal = Math.hypot(desiredCamera.x,desiredCamera.z);
-        if (horizontal>14.8) {
-          desiredCamera.x *= 14.8/horizontal;
-          desiredCamera.z *= 14.8/horizontal;
+        const innerLimit = config.theme==='grass' ? 13.10 : 14.8;
+        if (horizontal>innerLimit) {
+          desiredCamera.x *= innerLimit/horizontal;
+          desiredCamera.z *= innerLimit/horizontal;
         }
       }
       desiredCamera.add(desiredTarget);
@@ -1310,7 +1332,7 @@ export function createBattlefield() {
         desiredTarget.z -= Math.sin(yaw)*2.35;
       }
     } else {
-      const arenaDesktop = (config.coastalBattle || config.theme==='fire') && host.clientWidth>=900 && camera.aspect>=1.4;
+      const arenaDesktop = (config.coastalBattle || config.theme==='fire' || config.theme==='grass') && host.clientWidth>=900 && camera.aspect>=1.4;
       if (arenaDesktop) {
         const compact = camera.aspect < 1.7;
         camera.fov = compact ? 46 : 44;
@@ -1321,6 +1343,11 @@ export function createBattlefield() {
           camera.fov = compact ? 48 : 46;
           desiredCamera.set(5.05,3.30,compact ? 17.05 : 14.95);
           desiredTarget.set(compact ? .55 : 1.08,1.40,-1.05);
+        }
+        if (config.theme==='grass') {
+          camera.fov = compact ? 49 : 43;
+          desiredCamera.set(seatedGrassViewer ? 4.45 : 0,3.64,compact ? 17.8 : 16.4);
+          desiredTarget.set(1.42,1.44,-2.35);
         }
         if (config.theme==='fire') {
           camera.fov = compact ? 50 : 46;
@@ -1335,13 +1362,13 @@ export function createBattlefield() {
           camera.fov = 57;
           desiredCamera.set(0,distance*.28,distance*.77);
         }
-        if (seatedCoastalViewer || seatedFireViewer) {
+        if (seatedCoastalViewer || seatedFireViewer || seatedGrassViewer) {
           desiredCamera.x = narrow ? 3.0 : 4.4;
           desiredTarget.x = narrow ? .56 : .82;
         }
       }
     }
-    if ((seatedCoastalViewer || seatedFireViewer) && mode==='trainer' && pods.length) fitTrainerView();
+    if ((seatedCoastalViewer || seatedFireViewer || seatedGrassViewer) && mode==='trainer' && pods.length) fitTrainerView();
     if (config.coastalBattle && (mode==='trainer' || mode==='target')) {
       const radius = Math.hypot(desiredCamera.x,desiredCamera.z);
       const scenicSin = Math.sin(sceneryAngle), scenicCos = Math.cos(sceneryAngle);
@@ -1404,18 +1431,18 @@ export function createBattlefield() {
     const trainerCamera = host.dataset.camera==='trainer';
     const clipOwnStation = trainerCamera && camera.near>.1;
     const clipRearStation = clipOwnStation && pods.some(pod=>pod.rearStation && pod.id===config.viewerId);
-    if (config.theme==='fire') terrain?.update(time,config.reducedMotion,host.dataset.camera==='wide',camera.position);
+    if (['fire','grass'].includes(config.theme)) terrain?.update(time,config.reducedMotion,host.dataset.camera==='wide',camera.position);
     else terrain?.update(time,config.reducedMotion,clipRearStation,config.waterMotion);
     const dt = Math.min(.075,Math.max(0,(time-previousFrame)/1000));
     previousFrame = time;
     const viewWidth = host.clientWidth, viewHeight = host.clientHeight;
     const partners = projectedPartners(camera,viewWidth,viewHeight);
-    const visiblePartners = (config.coastalBattle || config.theme==='fire') && trainerCamera ? partners : [];
+    const visiblePartners = (config.coastalBattle || ['fire','grass'].includes(config.theme)) && trainerCamera ? partners : [];
     for (const pod of pods) {
-      const hideOwnTrainer = config.coastalBattle || (config.theme==='fire' && !pod.rearStation);
+      const hideOwnTrainer = config.coastalBattle || (['fire','grass'].includes(config.theme) && !pod.rearStation);
       const ownTrainerView = hideOwnTrainer && trainerCamera && pod.id===config.viewerId;
       pod.trainerSlot.visible = !ownTrainerView;
-      if (pod.commandDais) pod.commandDais.visible = !ownTrainerView || (!clipOwnStation && config.theme!=='fire');
+      if (pod.commandDais) pod.commandDais.visible = !ownTrainerView || (!clipOwnStation && !['fire','grass'].includes(config.theme));
     }
     const targets = focus?.targetIds || [];
     const obscuring = obscuringModels(partners,eligible ?? targets,viewWidth,viewHeight,revealedTrainer);
@@ -1678,7 +1705,7 @@ export function createBattlefield() {
         }
         labelAnchor.x += shift;
       }
-      if (config.theme==='fire' && pod.rearStation && trainerCamera && Math.cos(pod.angle)<-.85) {
+      if (['fire','grass'].includes(config.theme) && pod.rearStation && trainerCamera && Math.cos(pod.angle)<-.85) {
         labelAnchor.x -= camera.aspect<.9 ? 1.42 : 2.05;
         labelAnchor.y -= .46;
       }

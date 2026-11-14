@@ -1174,7 +1174,7 @@ function worldPanel(players, viewerId, turnId, theme) {
   const seats = players.map(player=>({id:player.id,leader:showLeader(player)}));
   const layout = coastalBattle
     ? coastalSeatLayout(seats,viewerId)
-    : theme==='fire' ? fireGymLayout(seats,viewerId).seats : seatLayout(players,viewerId);
+    : (theme==='fire' || theme==='grass') ? fireGymLayout(seats,viewerId).seats : seatLayout(players,viewerId);
   for(const [index,player] of players.entries()) {
     const position=layout[index], own=player.id===viewerId;
     const side = Math.sin(position.angle), depth = Math.cos(position.angle);
@@ -1428,7 +1428,7 @@ function renderBattleRoom() {
 }
 function renderBattlePreview() {
   const ids=['pikachu','charmander','squirtle','bulbasaur','vulpix','mankey'];
-  const leaderIndex = previewTheme==='fire' ? 3 : 0;
+  const leaderIndex = ['fire','grass'].includes(previewTheme) ? 3 : 0;
   const players=ids.map((id,i)=>({id:`preview-${i}`,nickname:i===0?t('you'):`${t('previewPlayer')} ${i+1}`,role:i===leaderIndex?'leader':null,handCount:4,active:{catalogueId:id,level:1}}));
   $('#main').append(worldPanel(players,'preview-0','preview-0',previewTheme),
     el('div',{class:'battle-hud'},el('div',{},el('span',{class:'hud-kicker'},t('visualPreview')),el('h1',{},t(previewTheme))),button('newAdventure',()=>{scenePreview=false;render();},'button secondary')),

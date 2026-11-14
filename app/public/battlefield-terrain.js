@@ -1,6 +1,7 @@
 import * as THREE from '/vendor/three.module.js';
 import {createCoastalScenery} from './battlefield-coast.js';
 import {createFireGym} from './battlefield-fire.js';
+import {createGrassGym} from './battlefield-grass.js';
 
 const fullTurn = Math.PI * 2;
 const floorRadius = 11.2;
@@ -294,6 +295,7 @@ function wetLimestone(map) {
 
 export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
   if (theme==='fire') return createFireGym(scene,sceneryAngle,refresh);
+  if (theme==='grass') return createGrassGym(scene,sceneryAngle,refresh);
   const palette = design[theme];
   const random = randomFor(palette.seed+24);
   const add = (geometry,material,x,y,z,shadow=true) => {

@@ -2518,3 +2518,27 @@ button.checkin-seat .checkin-seat-copy { color:#5d3918; }
   .match-table.theme-fire .match-progress { top:100px; left:10px; width:119px; }
   .match-table.theme-fire .rail-activity,.match-table.theme-fire .arena-event-banner { left:144px; }
 }
+
+/* Keep the Grass Gym foreground visible at the reference framing. */
+@media (min-width:900px) and (min-aspect-ratio:7/5) {
+  .match-table.theme-grass .match-tray { left:40%; right:12%; bottom:4px; gap:4px; }
+  .match-table.theme-grass .screen-deck { width:65px; height:107px; }
+  .match-table.theme-grass .screen-deck .table-deck-back { width:53px; height:70px; }
+  .battle-view .match-table.theme-grass .hand-cards { gap:5px; padding:6px; }
+  .battle-view .match-table.theme-grass .hand-card {
+    flex:0 0 clamp(82px,7.9vw,110px); min-height:104px; padding:4px; gap:2px;
+    transform:translateY(calc(var(--hand-drop,0px)*.5)) rotate(clamp(-4deg,var(--hand-tilt,0deg),4deg));
+  }
+  .battle-view .match-table.theme-grass .hand-card>strong { font-size:11px; }
+  .match-table.theme-grass .hand-card-art { height:34px; }
+  .match-table.theme-grass .hand-card-art img { width:37px; height:37px; }
+  .match-table.theme-grass .hand-card-brief {
+    display:-webkit-box; -webkit-box-orient:vertical; -webkit-line-clamp:2; overflow:hidden;
+  }
+  .battle-view .match-table.theme-grass .hand-card .button { min-height:20px; margin:0; padding:2px 3px; font-size:9px; }
+  .match-table.theme-grass .match-progress { top:100px; bottom:auto; left:14px; width:132px; }
+  .match-table.theme-grass .match-progress .phase-strip { grid-template-columns:1fr; gap:3px; }
+  .match-table.theme-grass .match-progress .phase-strip li { justify-content:flex-start; }
+  .match-table.theme-grass .match-progress .battle-actions:not(:has(button)) { display:none; }
+  .match-table.theme-grass .rail-activity,.match-table.theme-grass .arena-event-banner { left:160px; }
+}
