@@ -1392,6 +1392,12 @@ body:has(.closed-state) .foundation-strip { display:none; }
   border:0; border-radius:0; background:none; box-shadow:none; pointer-events:none;
 }
 .battle-view .match-table .hand-panel { flex:1; }
+.match-table .hand-traits { display:grid; align-self:end; flex:0 0 auto; gap:4px; padding-bottom:10px; pointer-events:auto; }
+.battle-view .match-table .hand-traits .trait-control { display:flex; align-items:center; gap:4px; max-width:112px; padding:5px; white-space:normal; }
+.match-table .hand-traits img { width:24px; height:24px; object-fit:contain; }
+.match-table .hand-traits :is(small,strong) { display:block; }
+.world-host[data-camera='free'] .battlefield-canvas { cursor:grab; touch-action:none; }
+.world-host[data-camera='free'] .battlefield-canvas:active { cursor:grabbing; }
 .battle-view .match-table .hand-panel>.section-heading { justify-content:center; text-shadow:0 1px 4px #120d19; }
 .battle-view .match-table .hand-cards { justify-content:safe center; gap:5px; padding:12px 10px 10px; pointer-events:auto; }
 .battle-view .match-table .hand-card {
@@ -1841,6 +1847,7 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
 .world-target[hidden] { display:none; }
 .world-target:disabled { opacity:.42; cursor:default; }
 .arena-response-aiming :is(.arena-response-target-list,[data-arena-seat],.action-row:has(>[data-arena-seat])) { display:none; }
+.arena-response-aiming .download-target-list [data-arena-seat] { display:block; }
 .match-table .arena-response-aiming .match-tray { visibility:hidden; }
 .match-table .arena-response-aiming .arena-has-response {
   position:absolute; inset:auto auto 13px 50%; translate:-50% 0;
@@ -1955,6 +1962,14 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
   width:clamp(86px,8.2vw,106px); border-radius:7px; transform:translate(-50%,calc(-100% - 5px));
   color:#fff6e3; background:#221e2ef2; box-shadow:0 2px 7px #1513216b;
 }
+.match-table .world-host[data-mode='flat'] .world-seat-compact.world-self {
+  top:min(var(--flat-top),calc(100% - var(--hand-tray-inset,0px) - 8px));
+}
+@media(max-width:850px) {
+  .match-table .world-host[data-mode='flat'] .world-seat-compact.world-self {
+    top:min(var(--flat-top),calc(100% - max(var(--hand-tray-inset,0px),var(--progress-inset,0px)) - 8px));
+  }
+}
 .match-table .world-seat-compact.world-active { border-color:#ffda7a; box-shadow:0 0 0 1px #ffda7a,0 2px 7px #1513216b; }
 .match-table .world-seat-compact.world-responding { border-color:#ffb093; box-shadow:0 0 0 1px #ffb093,0 2px 7px #1513216b; }
 .match-table .world-crowded[data-mode="3d"] .world-seat.world-seat-compact { translate:none; }
@@ -1993,6 +2008,16 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
   box-shadow:0 2px 3px #201822a0,inset 0 -2px 0 #16122544; color:#fff9eb;
   font:800 13px/1 system-ui,sans-serif; pointer-events:auto;
 }
+button.world-token { padding:0; cursor:pointer; }
+button.world-token:focus-visible { outline:2px solid #ffe4a2; outline-offset:2px; }
+button.world-token:disabled { pointer-events:none; }
+.battle-condition-subject,.battle-condition-dialog .battle-condition-list { margin:12px; }
+.battle-condition-list { display:grid; gap:8px; margin:10px 0 0; }
+.battle-condition-list>div { border-top:1px solid currentColor; padding-top:7px; }
+.battle-condition-list dt { display:flex; align-items:center; gap:6px; font-weight:700; }
+.battle-condition-list dt img { width:18px; height:18px; object-fit:contain; }
+.battle-condition-list dd { margin:3px 0 0; font-size:13px; line-height:1.45; }
+.battle-condition-note { font-weight:650; }
 .world-token[data-inactive] { filter:saturate(.25); }
 .world-token[data-inactive]::after {
   content:""; position:absolute; inset:48% 0 auto; height:1px; rotate:-45deg; background:#fff2d8;
@@ -2033,7 +2058,7 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
   font-size:8px; text-align:center;
 }
 
-.coastal-round,.coastal-cue,.coastal-hand-toggle { display:none; }
+.coastal-round,.coastal-cue { display:none; }
 
 :is(.match-table,.match-prep,.match-finished).theme-water {
   --coastal-ink:#102231;
@@ -2190,13 +2215,6 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
     justify-content:flex-start; gap:7px; margin:0 0 0 16px; padding:0;
     color:#fff7e5; text-shadow:0 1px 5px #071321,0 1px 3px #071321;
   }
-  .match-table.theme-water .coastal-hand-toggle {
-    display:inline-flex; align-items:center; gap:5px; min-height:23px; padding:2px 7px;
-    border:1px solid #c6ab7d; border-radius:13px; background:#152b3cf0; color:var(--coastal-paper);
-    font:inherit; font-size:10px; font-weight:700; pointer-events:auto; cursor:pointer;
-  }
-  .match-table.theme-water .coastal-hand-toggle::after { content:"⌃"; font-size:12px; }
-  .match-table.theme-water .coastal-hand-toggle[aria-expanded='true']::after { content:"⌄"; }
   .battle-view .match-table.theme-water .hand-cards { gap:4px; padding:7px 9px 9px; }
   .battle-view .match-table.theme-water .hand-card {
     flex:0 0 clamp(89px,8.1vw,122px); min-width:0; min-height:100px; padding:4px; gap:2px;
@@ -2206,19 +2224,14 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
   .battle-view .match-table.theme-water .hand-card>strong {
     min-height:0; color:#24303d; font-size:11px; line-height:1.14; padding:1px 2px;
   }
-  .match-table.theme-water .hand-card-art { height:31px; }
-  .match-table.theme-water .hand-card-art img { width:38px; height:38px; }
-  .match-table.theme-water .hand-card-brief { display:none; }
+  .match-table.theme-water .hand-card-art { height:42px; }
+  .match-table.theme-water .hand-card-art img { width:48px; height:48px; }
   .match-table.theme-water .hand-card-weather { font-size:9px; line-height:11px; margin:0; }
   .battle-view .match-table.theme-water .hand-card .button {
     margin:0; min-height:20px; font-size:9px; padding:2px 3px;
   }
-  .match-table.theme-water .hand-expanded .hand-card-brief { display:block; }
-  .match-table.theme-water .hand-expanded .hand-card-art { height:42px; }
-  .match-table.theme-water .hand-expanded .hand-card-art img { width:48px; height:48px; }
   .match-table.theme-water .coastal-field-prompt :is(.match-tray,.arena-quick-actions) { visibility:visible; opacity:.88; }
-  .match-table.theme-water .coastal-field-prompt :is(.hand-card-brief,.hand-card-actions) { display:none; }
-  .match-table.theme-water .coastal-field-prompt .coastal-hand-toggle { visibility:hidden; }
+  .match-table.theme-water .coastal-field-prompt .hand-card-actions { display:none; }
   .match-table.theme-water .coastal-field-prompt .arena-prompt {
     inset:auto 15px 85px auto; translate:none;
     width:min(306px,31vw); max-height:42dvh; border-radius:12px;

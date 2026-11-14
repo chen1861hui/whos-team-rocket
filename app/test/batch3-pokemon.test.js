@@ -227,12 +227,15 @@ test('Future Sight validates order atomically and an exact retry cannot reorder 
 });
 
 test('Future Sight handles short/empty decks and reshuffles discard beneath existing top cards without inventing cards', t => {
-  for (const [drawCount, discardCount] of [[0, 0], [1, 0], [2, 0], [1, 4], [0, 2]]) {
+  for (const [drawCount, discardCount] of [[0, 0], [1, 0], [2, 0], [1, 4], [0, 2], [3, 4]]) {
     const f = fixture(t); f.play(); f.seed(f.leader, 'slowpoke', 3);
     const draw = Array.from({ length: drawCount }, () => f.makeCard()), discarded = Array.from({ length: discardCount }, () => f.makeCard());
     f.room().drawPile = [...draw]; f.room().discardPile = [...discarded]; f.attack(); f.respond('trait');
     const available = drawCount + discardCount;
     assert.equal(f.room().drawPile.length + f.room().discardPile.length, available);
+    const refills = f.view(f.leader).log.filter(entry => entry.text.zh.includes('已洗混'));
+    assert.deepEqual(refills.map(entry => entry.text.zh), drawCount < 3 && discardCount > 0
+      ? [`牌堆剩${drawCount}张，本次操作需要3张。已洗混${discardCount}张弃牌并放到牌堆底。`] : []);
     if (!available) { assert.equal(f.room().pendingBattle.kind, 'defense'); continue; }
     assert.equal(f.room().pendingBattle.kind, 'reorder'); const inspected = f.view(f.leader).pendingBattle.cards;
     assert.equal(inspected.length, Math.min(3, available));

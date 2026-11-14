@@ -15,9 +15,11 @@ Sources under `research-assets/douyin-7684572630280187855/`: Scyther1 `ecaafd9dc
 
 Technician permits lower-level MOVES, not lower HP or traits. Native moves appear first; lower faces follow ascending level, preserving their native order. Lv2 indexes: Fury Cutter0, Swords Dance1, U-turn2. Lv3: X-Scissor0, U-turn1, Fury Cutter2, Swords Dance3. Gas removes inherited options but leaves native moves and their text effective. A stale inherited index fails before payment. The existing instance+move-name usage key follows a move through evolution or switching; inheritance does not reset it or the one-command-user restriction.
 
+The user supplied a 新物集 App reply confirming that Lv.3 Scyther can use X-Scissor, Fury Cutter and U-turn in one Play phase, then use U-turn's optional switch. Each of those three moves costs its own Take this! card.
+
 Booklet08 p11 gives each effective Power marker a discard-on-command trigger and +1 damage until that card ends. Scyther’s moves override the normal identical-marker cap, so all effective carried Power is consumed and its count becomes the saved boost. Paralysis suppresses that trigger and leaves the markers carried. A marker gained after use cannot boost the current card.
 
-Fury Cutter explicitly says 造成伤害时, not 后. Following booklet08’s dealing→receiving→HP order, it gains Power equal to the source-stage damage value after source arithmetic, before Defense/Multiscale/Shed Skin/Marvel Scale. Burn caps that value first. The receiving queue then processes normal reductions. Explicit termination interpretation: keep a resolved grant even if a later receiving modifier reduces damage to0; the booklet states termination/no damage but supplies no rollback rule. Dodge or known damage prevention before the dealing stage grants none. New markers never retroactively increase the captured command boost.
+Fury Cutter gains one Power per point of HP actually deducted, as confirmed by the user. Apply the final damage after reductions, then grant the markers before any rescue. A canceled or zero-damage hit grants zero. HP can fall below zero during damage settlement, and the grant counts the full HP deduction before rescue. New markers apply to subsequent moves.
 
 Swords Dance self-targets and gains one Power ignoring the duplicate cap, including while carried markers are inactive. It uses a sunny-weather card, deals no damage and does not consume Power or the command-user allowance.
 

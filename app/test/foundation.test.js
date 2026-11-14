@@ -443,13 +443,41 @@ test('HTTP separates credentials and JSON errors, bounds bodies, and serves only
   assert.equal((await fetch(base + `/api/rooms/${f.a.code}`)).status, 401);
   assert.equal((await post(`/api/rooms/${f.a.code}/actions`, { id: 'one', revision: f.store.rooms.get(f.a.code).revision, type: 'ready', ready: true }, f.b.token)).status, 200);
   assert.equal(f.store.view(f.a.code, f.a.token).view.players.find(player => player.id === f.b.playerId).ready, true);
-  const made = await (await post('/api/rooms', { nickname: 'Separate' })).json();
+  const local = await fetch(base + '/api/rooms', { method: 'POST', headers: { 'content-type': 'application/json', origin: base }, body: '{"nickname":"Separate"}' });
+  assert.equal(local.status, 201);
+  const made = await local.json();
   assert.equal((await fetch(base + `/api/rooms/${f.a.code}`, { headers: { authorization: `Bearer ${made.token}` } })).status, 401);
   assert.equal((await post('/api/rooms', '{oops')).status, 400);
   assert.equal((await post('/api/rooms', 'x'.repeat(9000))).status, 413);
   assert.equal((await post('/api/rooms', { nickname: 'X', token: f.a.token })).status, 400);
   const cross = await fetch(base + '/api/rooms', { method: 'POST', headers: { 'content-type': 'application/json', origin: 'https://other.example' }, body: '{"nickname":"X"}' });
   assert.equal(cross.status, 403);
+});
+
+test('public HTTPS origin permits room writes and rejects other origins behind an HTTP proxy', async t => {
+  const f = fixture(t);
+  const publicOrigin = 'https://rocket.onrender.com';
+  const { server } = createApplication({ store: f.store, cleanupIntervalMs: 0, publicOrigin });
+  await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
+  t.after(() => new Promise(resolve => { server.close(resolve); server.closeAllConnections(); }));
+  const base = `http://127.0.0.1:${server.address().port}`;
+  const post = (path, body, { origin = publicOrigin, token } = {}) => fetch(base + path, {
+    method: 'POST', headers: { 'content-type': 'application/json', origin, ...(token ? { authorization: `Bearer ${token}` } : {}) }, body: JSON.stringify(body),
+  });
+
+  for (const origin of [base, 'https://other.example']) {
+    const rejected = await post('/api/rooms', { nickname: 'External' }, { origin });
+    assert.equal(rejected.status, 403);
+    assert.equal((await rejected.json()).code, 'ORIGIN_REJECTED');
+  }
+  const created = await post('/api/rooms', { nickname: 'Host' });
+  assert.equal(created.status, 201);
+  const { code } = await created.json();
+  const joined = await post(`/api/rooms/${code}/join`, { nickname: 'Guest' });
+  assert.equal(joined.status, 201);
+  const guest = await joined.json();
+  const action = { id: 'ready-behind-proxy', revision: guest.view.revision, type: 'ready', ready: true };
+  assert.equal((await post(`/api/rooms/${code}/actions`, action, { token: guest.token })).status, 200);
 });
 
 

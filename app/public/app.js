@@ -165,7 +165,8 @@ const strings = {
   confirmAction: ['Confirm', '确认'], cancelAction: ['Cancel', '取消'], confirmationTitle: ['Confirm action', '确认操作'],
   visualPreview: ['6-SEAT VISUAL PREVIEW', '六人场地视觉预览'],
   previewNotice: ['Layout preview · no match is running', '场地布局预览 · 未运行对局'],
-  tableCamera: ['Table view', '桌面视角'], overheadCamera: ['Overhead', '俯视视角'],
+  tableCamera: ['Table view', '桌面视角'], overheadCamera: ['Overhead', '俯视视角'], freeCamera: ['Free view','自由视角'],
+  freeCameraControls: ['Free view. Drag or use arrow keys to rotate. Scroll or use plus and minus to zoom.','自由视角。拖动或按方向键旋转，滚轮或加减键缩放。'],
   arenaMenu: ['Table menu', '牌桌菜单'],
   fallbackView: ['2D field · 3D unavailable or disabled', '二维场地 · 三维不可用或已关闭'],
   previewCard: ['CARD SLOT', '手牌位置'], previewPlayer: ['Player', '玩家'],
@@ -198,13 +199,14 @@ function setAudioPreference(key,value) {
 const t = key => strings[key]?.[language === 'zh' ? 1 : 0] ?? key;
 const localized = value => typeof value === 'string' ? value : (value?.[language] || value?.en || value?.zh || '—');
 let catalogue = [];
+let heldItemCatalogue = [];
 let dexQuery = '', dexType = '', dexFocus = null;
 let session = null;
 try { const saved = JSON.parse(sessionStorage.getItem('rocket.session') || 'null'); if (saved?.code && saved?.token) session = saved; } catch { sessionStorage.removeItem('rocket.session'); }
 let identityFaceShown = false, revealedCandidate = null, arrivingHandCards = [], enteringArena = false, leaderPortrait = null;
 let drawCeremony = 'sealed', drawCeremonyTimer, inspectedCandidate = null, inspectedLevel = 1;
-let coastalHandExpanded = false;
 let revealVictory = false, victorySoundTimer;
+let victoryRevealDelay = 0;
 const gymThemes = ['fire', 'water', 'grass'];
 let view = null, busy = false, pollRunning = false, connected = true, errorKey = '', errorCode = '', noticeKey = '', selected = [], settingsDraft = null, signature = '', dialogKind = null, terminalReason = '';
 let credentialVisible = false, dialogReturnFocus = null;
@@ -254,6 +256,7 @@ function phaseHint() {
   if (view.pendingBattle) return t('responsePending');
   if (view.self.spectator) return t('watchCopy');
   if (!myTurn()) return t('waitTurn');
+  if (turnPhase() === 'draw' && canIlluminate()) return language==='zh'?'可发动「发光」额外摸 1 张。':'Use Illuminate to draw 1 extra card.';
   if (view.gameMode === 'combat-preview' && turnPhase() === 'play') return t('combatPlayHelp');
   return turnPhase() === 'draw' ? `${view.turn.drawRemaining} ${t('drawsLeft')}` : t({play:view.turn.switchUsed?'switchUsedHelp':'switchHelp',discard:'trim',end:'turnReady'}[turnPhase()]);
 }
@@ -432,6 +435,7 @@ function preserveFocus(work) {
   if (id) { const target = document.getElementById(id); if (target && !target.disabled) { target.focus({ preventScroll: true }); if (typeof start === 'number' && target.setSelectionRange) { try { target.setSelectionRange(start, end); } catch {} } } }
 }
 function render() {
+  handTrayObserver.disconnect();
   const previousDialog = $('#info-dialog');
   const activeDialog = previousDialog?.open ? dialogKind : null;
   const dialogScroll = activeDialog ? previousDialog.scrollTop : 0;
@@ -585,8 +589,7 @@ function syncArenaPrompt() {
     const id = element.dataset.seatId ?? element.dataset.spriteId;
     element.classList.toggle('world-eligible',ids.includes(id));
     element.classList.toggle('world-targeted',marked.includes(id));
-    const details = element.querySelector('.pokemon-name-button');
-    if (details) details.disabled = aiming;
+    for (const button of element.querySelectorAll('.pokemon-name-button,button.world-token')) button.disabled = aiming;
   }
   battlefield?.targeting(aiming ? ids : null,marked,aimBottom);
 }
@@ -648,7 +651,8 @@ function victoryScene(result, theme) {
   }
   if (revealVictory) {
     revealVictory = false;
-    play(richGraphics ? 1000 : 220);
+    play(richGraphics ? Math.max(1000,victoryRevealDelay) : 220);
+    victoryRevealDelay = 0;
   }
   return {overlay,play};
 }
@@ -1072,49 +1076,36 @@ function reinforcementName(kind) {
     : {power:'Power',defense:'Defense',speed:'Speed'};
   return names[kind] || kind;
 }
-function heldItemSummary(active) {
-  const replacement = active.itemEffectReplacement==='gluttony'
-    ? (language==='zh'?' · 贪吃鬼替换效果：自身回合结束回复1':' · Gluttony replaces effect: own turn-end heal 1') : '';
-  return localized(active.item.name)+replacement+(active.itemSuppressed?` · ${t('itemSuppressed')}`:'');
+const battleStatusText = {
+  burn:['Move damage cannot increase and is capped at 1.','招式造成的伤害不能增加，超过 1 点时改为 1 点。'],
+  flinch:['At your next turn start, clear Flinch and draw one fewer card in the ordinary Draw phase.','下次自己的回合开始时解除畏缩，本回合通常摸牌少摸 1 张。'],
+  sleep:['At your next turn start, clear Sleep. This turn the Pokémon cannot use moves, and you cannot switch normally.','下次自己的回合开始时解除睡眠，本回合该宝可梦不能使用招式，你也不能普通交替。'],
+  confusion:['At your next turn start, clear Confusion. This Pokémon deals 1 base damage to itself and cannot use moves that turn.','下次自己的回合开始时解除混乱。此宝可梦对自己造成 1 点基础伤害，本回合不能使用招式。'],
+  paralysis:['Reinforcements are inactive. Only intense-sun or clear Take this! cards can pay for command moves.','强化指示物不生效。指挥招式只能用烈日或晴朗的「接招吧！」发动。'],
+  poison:['At the start of each of your turns, this Pokémon takes 1 base damage with no damage source.','每次自己的回合开始时，此宝可梦受到 1 点无来源基础伤害。'],
+  power:['When you use a command move, spend all effective Power markers. Each adds 1 to the move’s damage when applicable.','使用指挥招式时消耗所有生效的力量强化。招式可增伤时，每枚增加 1 点伤害。'],
+  defense:['Incoming damage above 1 is reduced to 1.','受到的伤害高于 1 点时，改为 1 点。'],
+  speed:['The holder’s moves and its trainer’s cards ignore distance restrictions.','此宝可梦使用招式和其训练家使用牌时，无视距离限制。'],
+};
+const battleText = pair => pair?.[language==='zh'?1:0];
+function heldItemDetails(pokemon, reserve) {
+  const item = pokemon.item;
+  const art = playCardFace({kind:'held-item',itemType:item.itemType},language).art[0];
+  const effect = heldItemCatalogue.find(entry=>entry.id===item.itemType)?.effectText;
+  const replaced = pokemon.itemEffectReplacement==='gluttony';
+  const note = reserve ? t('reserveItem') : pokemon.itemSuppressed ? t('itemSuppressed')
+    : replaced ? battleText(['Gluttony replaces this item: heal 1 HP at the end of your turn.','贪吃鬼替代此持有物的效果：自己的回合结束时回复 1 点体力。']) : '';
+  return {kind:'item',title:localized(item.name),description:effect?localized(effect):'',note,glyph:'◇',
+    art:art?`/play-card-art/${art}`:null,inactive:reserve||pokemon.itemSuppressed||replaced};
 }
-function battleSeatDetails(player) {
+function battleConditions(player,readyTrait) {
   const active = player.active;
   if (!active) return [];
-  const details = [];
-  if (active.item) details.push(['held-item',heldItemSummary(active)]);
-  const markers = active.reinforcements || [];
-  if (markers.length) {
-    const summary = [...new Set(markers)].map(kind=>{
-      const count = markers.filter(marker=>marker===kind).length;
-      return reinforcementName(kind)+(count>1?` ×${count}`:'');
-    }).join(' · ');
-    const inactive = active.status==='paralysis' || active.reinforcementsSuppressed;
-    details.push(['reinforcements',summary+(inactive?(language==='zh'?' · 不生效':' · inactive'):'')]);
-  }
-  if (Number.isFinite(active.hp)) {
-    details.push(['health',[
-      `${active.hp}/${active.maxHp} HP`,
-      active.defeated ? t('defeatedPokemon') : active.hp <= 0 ? t('faintingPokemon') : null,
-      active.status ? statusName(active.status,language) : null,
-      active.traitsSuppressed ? (language==='zh'?'特性失效':'Traits suppressed') : null,
-      active.damageProtected ? t('damageProtected') : null,
-      player.eliminated ? t('eliminated') : null,
-    ].filter(Boolean).join(' · ')]);
-  }
-  return details;
-}
-function battleSeatTokens(player,readyTrait) {
-  const active = player.active;
-  if (!active) return [];
-  const tokens = [];
-  const add = (kind,title,glyph,{count=1,inactive=false,art=null,icon=null}={})=>{
-    tokens.push(el('span',{class:'world-token','data-token':kind,'data-inactive':inactive?'true':null,title,role:'img','aria-label':title},
-      art?el('img',{src:art,alt:'',draggable:false})
-        :icon || el('span',{class:'world-token-mark','aria-hidden':'true'},glyph),
-      count>1?el('b',{class:'world-token-count','aria-hidden':'true'},count):null));
-  };
-  if (player.eliminated) add('out',t('eliminated'),'×');
-  else if (active.defeated || active.hp<=0) add('out',t(active.defeated?'defeatedPokemon':'faintingPokemon'),'♥');
+  const conditions = [];
+  const add = (kind,title,glyph,options={})=>conditions.push({kind,title,glyph,description:battleText(battleStatusText[kind]),...options});
+  if (player.eliminated) add('out',t('eliminated'),'×',{description:battleText(['Both Pokémon have been defeated. This trainer leaves the battle.','两只搭档均已失去战斗能力，该训练家退场。'])});
+  else if (active.defeated) add('out',t('defeatedPokemon'),'♥',{description:battleText(['This Pokémon has lost its ability to battle. Revive can restore it while its trainer remains in play.','此宝可梦已失去战斗能力。训练家仍在场时，可用活力碎片恢复。'])});
+  else if (active.hp<=0) add('out',t('faintingPokemon'),'♥',{description:battleText(['During rescue, its HP must recover to at least 1.','救援期间必须将体力回复至至少 1 点。'])});
   if (statusKinds.has(active.status)) {
     add(active.status,statusName(active.status,language),'',{art:`/battle-token-art/${active.status}.png`});
   }
@@ -1122,22 +1113,35 @@ function battleSeatTokens(player,readyTrait) {
   const inactive = active.status==='paralysis' || active.reinforcementsSuppressed;
   for (const kind of new Set(markers)) {
     const count = markers.filter(marker=>marker===kind).length;
-    const title = reinforcementName(kind)+(count>1?` ×${count}`:'')+(inactive?(language==='zh'?' · 不生效':' · inactive'):'');
+    const title = reinforcementName(kind)+(count>1?` ×${count}`:'');
     const art = reinforcementArt[kind];
-    add(kind,title,'↑',{count,inactive,art:art?`/play-card-art/${art}`:null});
+    add(kind,title,'↑',{count,inactive,note:inactive?t('itemSuppressed'):'',art:art?`/play-card-art/${art}`:null});
   }
-  if (active.item) {
-    const art = playCardFace({kind:'held-item',itemType:active.item.itemType},language).art[0];
-    add('item',heldItemSummary(active),'◇',{art:art?`/play-card-art/${art}`:null,inactive:active.itemSuppressed});
-  }
-  if (active.traitsSuppressed) add('suppressed',language==='zh'?'特性失效':'Traits suppressed','⊘');
-  if (active.damageProtected) add('protected',t('damageProtected'),'⬟');
+  if (active.item) conditions.push(heldItemDetails(active,false));
+  if (active.traitsSuppressed) add('suppressed',language==='zh'?'特性失效':'Traits suppressed','⊘',{description:battleText(['This Pokémon’s ability is currently inactive.','此宝可梦的特性当前不生效。'])});
+  if (active.damageProtected) add('protected',t('damageProtected'),'⬟',{description:battleText(['This Pokémon cannot take damage for the rest of this turn while the protection is active.','免疫生效期间，本回合剩余时间内此宝可梦不会受到伤害。'])});
   if (readyTrait) {
     const face = catalogueEntry(active.catalogueId)?.levels.find(level=>level.level===active.level);
     if (face?.traitName) add(`trait-${readyTrait}`,`${localized(face.traitName)} · ${language==='zh'?'条件已满足':'Condition met'}`,'',
-      {icon:pokemonTypeIcon(active,readyTrait)});
+      {icon:pokemonTypeIcon(active,readyTrait),description:localized(face.abilityText)});
   }
-  return tokens;
+  return conditions;
+}
+function battleSeatTokens(player) {
+  return battleConditions(player,readyBattleTrait(player)).map(({kind,title,description,note,glyph,count,inactive,art,icon})=>{
+    const id = `condition-${player.id}-${kind}`;
+    return el('button',{id,type:'button',class:'world-token','data-token':kind,'data-inactive':inactive?'true':null,
+      title:[title,description,note].filter(Boolean).join('\n'),'aria-label':title,'aria-haspopup':'dialog',
+      onclick:()=>openSystemDialog(`conditions:${player.id}`,id)},
+      art?el('img',{src:art,alt:'',draggable:false})
+        :icon || el('span',{class:'world-token-mark','aria-hidden':'true'},glyph),
+      count>1?el('b',{class:'world-token-count','aria-hidden':'true'},count):null);
+  });
+}
+function battleConditionList(conditions) {
+  return el('dl',{class:'battle-condition-list'},conditions.map(({title,description,note,art})=>el('div',{},
+    el('dt',{},art?el('img',{src:art,alt:''}):null,title),
+    description?el('dd',{},description):null,note?el('dd',{class:'battle-condition-note'},note):null)));
 }
 function compactBattleSeat(player,leader,theme) {
   const active = player.active;
@@ -1185,7 +1189,7 @@ function worldPanel(players, viewerId, turnId, theme) {
     label.style.setProperty('--flat-left', flatLeft);
     label.style.setProperty('--flat-top', flatTop);
     if(!compact && leader)label.append(el('small',{class:'world-leader-title'},roleName('leader',language)));
-    const tokens = compact ? battleSeatTokens(player,readyBattleTrait(player)) : [];
+    const tokens = compact ? battleSeatTokens(player) : [];
     if (tokens.length) label.append(el('div',{class:'world-status-tokens'},tokens));
     const entry=player.active && catalogueEntry(player.active.catalogueId);
     const art=entry?.levels?.find(face=>face.level===player.active.level)?.portraitImage?.url || entry?.portraitImage?.url;
@@ -1244,7 +1248,7 @@ function worldPanel(players, viewerId, turnId, theme) {
             trainerAvatar:p.trainerAvatar,passiveTrait,passiveStyle:passiveTraitStyles[passiveTrait]};
         }),
         roomCode:view?.code, viewerId,turnId,turnNumber:stage ? view.turn?.number : null,
-        theme,camera:cameraMode,focus,coastalBattle:Boolean(inBattle && theme==='water'),
+        theme,camera:cameraMode,freeCameraLabel:t('freeCameraControls'),focus,coastalBattle:Boolean(inBattle && theme==='water'),
         defendingTrainerId:pending?.kind==='defense' ? pending.actorId : null,
         victoryWinners:stage ? null : view?.result?.winnerIds,
         rescuePanel:Boolean(stage && pending?.kind==='rescue' && pending.actorId===view.selfId),
@@ -1270,7 +1274,12 @@ function worldPanel(players, viewerId, turnId, theme) {
   return host;
 }
 function cameraControls() {
-  return el('div',{class:'camera-controls'},button('trainerCamera',()=>{cameraMode='table';render();},`button ${cameraMode==='table'?'selected':''}`),button('overheadCamera',()=>{cameraMode='overhead';render();},`button ${cameraMode==='overhead'?'selected':''}`));
+  const options = [['table','trainerCamera'],['overhead','overheadCamera'],...(richGraphics?[['free','freeCamera']]:[])];
+  const selected = !richGraphics && cameraMode==='free' ? 'table' : cameraMode;
+  return el('div',{class:'camera-controls'},options.map(([mode,label])=>button(label,()=>{
+    cameraMode=mode;
+    render();
+  },`button ${selected===mode?'selected':''}`,false,{id:`camera-${mode}`,'aria-pressed':String(selected===mode)})));
 }
 function arenaControl(id,label,className,icon,onclick,disabled=false) {
   return el('div',{class:'arena-quick-control'},
@@ -1278,6 +1287,26 @@ function arenaControl(id,label,className,icon,onclick,disabled=false) {
     el('span',{class:'arena-quick-tooltip','aria-hidden':'true'},label));
 }
 const traitChoices = {download:downloadDialog,'vital-spirit':vitalSpiritDialog,reckless:recklessDialog,analytic:analyticDialog};
+function canIlluminate() {
+  return view?.self.battle?.canTrait && view.self.battle.trait?.kind==='illuminate';
+}
+function confirmLastDraw() {
+  const trainer = view.selfId;
+  const turn = view.turn.number;
+  const choose = async useTrait => {
+    if (!myTurn() || view.selfId!==trainer || view.turn.number!==turn || turnPhase()!=='draw' || view.turn.drawRemaining!==1) return;
+    closeArenaPrompt(false);
+    if (useTrait && (!canIlluminate() || !await action('useTrait'))) return;
+    if (myTurn() && view.selfId===trainer && view.turn.number===turn && turnPhase()==='draw') await action('draw');
+  };
+  const title = language==='zh'?'发动发光？':'Use Illuminate?';
+  openArenaPrompt(el('section',{class:'arena-prompt arena-trait-prompt',tabindex:-1,'aria-label':title},
+    el('h2',{},title),
+    el('p',{},language==='zh'?'发光可在结束摸牌前额外摸 1 张牌。':'Illuminate lets you draw 1 extra card before the Draw phase ends.'),
+    el('div',{class:'action-row'},
+      el('button',{type:'button',class:'button secondary',onclick:()=>choose(false)},language==='zh'?'只摸最后一张':'Draw without Illuminate'),
+      el('button',{type:'button',class:'button primary',onclick:()=>choose(true)},language==='zh'?'发动发光并摸牌':'Use Illuminate and draw'))));
+}
 function arenaTraitButton() {
   const battle = view.self.battle;
   if (!battle?.canTrait) return null;
@@ -1299,6 +1328,19 @@ function arenaTraitButton() {
         },'button primary',false,{id:'confirm-arena-trait'}))));
   }},partnerImage(active),el('span',{},el('small',{},t('traitLabel')),el('strong',{},label)));
 }
+let fireHandExpanded = false;
+const handTrayObserver = new ResizeObserver(entries => {
+  const stage = entries[0]?.target.closest('.match-stage');
+  const tray = stage && $('.match-tray',stage);
+  if (!tray) return;
+  const inset = stage.getBoundingClientRect().bottom - tray.getBoundingClientRect().top;
+  stage.style.setProperty('--hand-tray-inset',`${Math.max(0,inset)}px`);
+  const rail = $('.match-progress',stage);
+  if (rail) {
+    const progressInset = stage.getBoundingClientRect().bottom - rail.getBoundingClientRect().top;
+    stage.style.setProperty('--progress-inset',`${Math.max(0,progressInset)}px`);
+  }
+});
 function renderBattleRoom() {
   const current=view.players.find(p=>p.id===view.turn?.playerId);
   const main=$('#main');
@@ -1316,7 +1358,10 @@ function renderBattleRoom() {
     el('span',{class:'match-round'},`${t('round')} ${view.turn?.number ?? '—'}`),menu);
   const canJudge = canRespond && pending.kind==='reveal-judgment' && !view.pendingVote;
   const canDraw = myTurn() && turnPhase()==='draw' && view.turn.drawRemaining>0;
-  const deckAction = canJudge ? () => action('respondBattle',{decisionId:pending.id,choice:'reveal'}) : () => action('draw');
+  const canDownload = canDraw && view.self.battle?.canTrait && view.self.battle.trait?.kind==='download';
+  const deckAction = canJudge ? () => action('respondBattle',{decisionId:pending.id,choice:'reveal'})
+    : canDownload ? () => downloadDialog(combatKit(),{drawNormally:()=>action('draw')})
+    : canIlluminate() && view.turn.drawRemaining===1 ? confirmLastDraw : () => action('draw');
   const deckLabel = canJudge ? (language==='zh'?'翻开判定':'Reveal judgment') : canDraw ? t('draw') : t('deckPile');
   const showDeck = canJudge || (!view.self.spectator && !ownPlayer()?.eliminated && view.turn?.playerId===view.selfId);
   const deck = el('div',{class:'screen-deck','data-hand-deck':''},showDeck ? el('button',{
@@ -1349,7 +1394,17 @@ function renderBattleRoom() {
   if(view.self.spectator) {
     if (!pending) rail.append(el('p',{class:'rail-waiting'},t('watchCopy')));
   } else {
-    stage.append(el('div',{class:`match-tray${(theme==='water' || theme==='fire') && coastalHandExpanded?' hand-expanded':''}`},handPanel(theme==='water' || theme==='fire'),deck));
+    const traits = !pending && myTurn() ? [
+      arenaTraitButton(),
+      view.self.battle?.canGive ? button('giveCards',()=>giftCardsDialog(combatKit()),'button secondary trait-control') : null,
+    ].filter(Boolean) : [];
+    const compactHand = theme==='fire';
+    const tray = el('div',{class:compactHand && fireHandExpanded ? 'match-tray hand-expanded' : 'match-tray'},
+      traits.length ? el('div',{class:'hand-traits'},traits) : null,handPanel(compactHand),deck);
+    stage.append(tray);
+    handTrayObserver.observe(stage);
+    handTrayObserver.observe(tray);
+    handTrayObserver.observe(rail);
     if (!pending && myTurn() && ['play','end'].includes(turnPhase())) {
       const switchLabel = t(view.turn.switchUsed?'switchUsed':'switchPokemon');
       const tier = view.self.reserve?.level ?? 1;
@@ -1365,8 +1420,6 @@ function renderBattleRoom() {
       view.self.battle?.lightBallTargets?.length?el('button',{type:'button',id:'use-light-ball',class:'button secondary',disabled:busy,onclick:()=>lightBallDialog(combatKit())},language==='zh'?'使用电气球':'Use Light Ball'):null,
       ...(view.self.battle?.muscleBand?view.self.battle.moves.filter(move=>move.canUse&&move.condition?.kind==='command'&&move.legalTargetIds.length).map(move=>
         el('button',{type:'button',id:`muscle-band-${move.index}`,class:'button secondary',disabled:busy,onclick:()=>attackDialog(null,combatKit(),move.index)},`${language==='zh'?'力量头带':'Muscle Band'} · ${localized(move.name)}`)):[]),
-      view.self.battle?.canGive ? button('giveCards',()=>giftCardsDialog(combatKit()),'button secondary trait-control') : null,
-      arenaTraitButton(),
       ]:null));
   }
   const latest=view.log.at(-1);
@@ -1403,17 +1456,21 @@ function trainerTray() {
     el('span',{class:'trainer-avatar','aria-hidden':'true'},Array.from(player?.nickname||'?')[0]),
     el('div',{class:'tray-trainer-name'},el('strong',{},player?.nickname||t('you')),
       view.self.role?el('small',{},roleName(view.self.role,language)):null,
-      canReveal && myTurn() && turnPhase()==='play' ? button('revealRole',()=>{
+      canReveal && myTurn() && turnPhase()==='play' ? button('revealRole',event=>{
         const code = view.code;
+        const menu = event.currentTarget.closest('#match-menu');
         askConfirmation('revealRoleConfirm',()=>{
-          if (view?.code===code && myTurn() && turnPhase()==='play' && !ownPlayer()?.role) action('revealRole');
+          if (view?.code===code && myTurn() && turnPhase()==='play' && !ownPlayer()?.role) {
+            if (menu) menu.open = false;
+            action('revealRole');
+          }
         });
       },'button subtle small',busy) : null),
     privateReserve());
 }
-function handPanel(coastal = false) {
+function handPanel(compact = false) {
   const canDiscard = myTurn() && turnPhase() === 'discard' && view.self.hand.length > ownHandLimit();
-  const cards = el('div', { class: 'hand-cards', id:coastal?'coastal-hand-cards':null });
+  const cards = el('div', { class: 'hand-cards' });
   for (const [index, card] of view.self.hand.entries()) {
     const commandMoves=(view.self.battle?.moves||[]).filter(move=>move.condition?.kind==='command');
     const weatherMoves=(view.self.battle?.moves||[]).filter(move=>move.condition?.kind==='weather-card'&&move.condition.weatherIconsInCondition.includes(card.weather));
@@ -1447,17 +1504,17 @@ function handPanel(coastal = false) {
     handCard.style.setProperty('--hand-drop',`${Math.abs(tilt)*1.1}px`);
     cards.append(handCard);
   }
-  const toggle = coastal ? el('button',{
-    type:'button',id:'coastal-hand-toggle',class:'coastal-hand-toggle','aria-expanded':String(coastalHandExpanded),
-    'aria-controls':'coastal-hand-cards',onclick:event=>{
-      coastalHandExpanded = !coastalHandExpanded;
-      event.currentTarget.setAttribute('aria-expanded',String(coastalHandExpanded));
-      event.currentTarget.closest('.match-tray').classList.toggle('hand-expanded',coastalHandExpanded);
+  const details = compact ? el('button',{
+    type:'button',id:'coastal-hand-toggle',class:'coastal-hand-toggle','aria-expanded':String(fireHandExpanded),
+    onclick:event=>{
+      fireHandExpanded = !fireHandExpanded;
+      event.currentTarget.setAttribute('aria-expanded',String(fireHandExpanded));
+      event.currentTarget.closest('.match-tray').classList.toggle('hand-expanded',fireHandExpanded);
     },
   },language==='zh'?'牌面详情':'Card details') : null;
   return el('section',{class:'hand-panel','aria-label':t('handTitle')},
-    el('div',{class:'section-heading'},
-      view.self.exiledCount?el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`):null,toggle),
+    details || view.self.exiledCount ? el('div',{class:'section-heading'},details,
+      view.self.exiledCount ? el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`) : null) : null,
     cards);
 }
 function logPanel() {
@@ -1495,6 +1552,9 @@ function moveCostText(move) {
   if(move.condition?.kind==='weather-card' && move.condition.weatherIconsInCondition?.every(weather=>['rain','thunderstorm'].includes(weather)))return language==='zh'?'弃置1张雨天天气手牌（暴雨或雷雨）':'Discard 1 rainy-weather hand card (heavy rain or thunderstorm)';
   return language==='zh'?'招式条件待复核':'Move condition pending review';
 }
+const movesWithoutEffectParagraph = new Set([
+  'none-printed', 'no-paragraph-printed', 'no-effect-paragraph-printed', 'no-additional-effect-paragraph-printed',
+]);
 function pokemonDetails(entry, selectedLevel, {prefix='pokemon',compact=false,selectLevel}={}) {
   const face=entry.levels.find(item=>item.level===selectedLevel)||entry.levels[0];
   const showLevel = selectLevel || (level=>{
@@ -1518,7 +1578,9 @@ function pokemonDetails(entry, selectedLevel, {prefix='pokemon',compact=false,se
     el('section',{class:'pokemon-moves-section'},el('small',{class:'pokemon-section-label'},t('movesLabel')),
       ...(face.moves?.length?face.moves.map(move=>el('article',{class:'pokemon-move'},el('div',{class:'pokemon-move-heading'},el('h4',{},localized(move.name)),move.printedValue!=null?tag(`${t('printedValue')} ${move.printedValue}`):null),
         el('small',{},moveCostText(move)),
-        el('p',{},move.effectParagraphStatus==='none-printed'?(language==='zh'?'此招式没有额外的效果段落。':'No additional printed effect.'):move.effectText?localized(move.effectText):t('movesPending')),
+        el('p',{},movesWithoutEffectParagraph.has(move.effectParagraphStatus)
+          ? (language==='zh'?'此招式没有额外的效果段落。':'No additional printed effect.')
+          : move.effectText ? localized(move.effectText) : t('movesPending')),
         ...(move.unresolvedSymbols||[]).map(symbol=>el('p',{class:'pokemon-uncertainty'},localized(symbol)))
       )):[el('p',{class:'muted'},t('movesPending'))])),
     el('p',{class:'pokemon-effect-status'},t(face.effectStatus==='combat-preview'?'previewEffects':'effectsPending')),
@@ -1592,6 +1654,22 @@ function gameFlow() {
 function openDialog(kind) {
   const dialog = $('#info-dialog');
   dialogKind = kind;
+  if (kind.startsWith('conditions:')) {
+    const trainer = view?.players.find(player=>player.id===kind.slice('conditions:'.length));
+    const heading = battleText(['Battle status and held item','战斗状态与持有物']);
+    const close = button('close',()=>dialog.close(),'button subtle small',false,{id:'close-info-dialog'});
+    const conditions = trainer ? battleConditions(trainer,readyBattleTrait(trainer)) : [];
+    dialog.className = 'info-dialog pokemon-dialog battle-condition-dialog';
+    dialog.setAttribute('aria-labelledby','info-dialog-title');
+    dialog.replaceChildren(
+      el('div',{class:'dialog-heading'},el('h2',{id:'info-dialog-title'},heading),close),
+      trainer?.active ? el('p',{class:'battle-condition-subject'},`${trainer.nickname} · ${partnerName(trainer.active.catalogueId,trainer.active.level)}`) : null,
+      conditions.length ? battleConditionList(conditions)
+        : el('p',{class:'battle-condition-subject'},battleText(['No current status or held item.','当前没有状态或持有物。'])));
+    if (!dialog.open) dialog.showModal();
+    close.focus();
+    return;
+  }
   if (kind.startsWith('entry:') || kind === 'lobby-settings' || kind === 'preferences') {
     const entry = kind.startsWith('entry:');
     const [title, content] = entry ? entryDialogContent(kind.slice(6)) : kind === 'preferences'
@@ -1624,9 +1702,12 @@ function openDialog(kind) {
   if (detailEntry) {
     const trainer = view?.players.find(player=>`active-details-${player.id}`===dialogReturnFocus && player.active?.catalogueId===detailEntry.id);
     if (trainer) {
+      const conditions = battleConditions(trainer,readyBattleTrait(trainer));
       dialog.append(el('div',{class:'pokemon-battle-stats'},el('strong',{},trainer.nickname),
-        el('p',{},`${trainer.handCount} ${t('cards')}`),
-        ...battleSeatDetails(trainer).map(([,text])=>el('p',{},text))));
+        el('p',{},`${trainer.active.hp}/${trainer.active.maxHp} HP · ${trainer.handCount} ${t('cards')}`),
+        conditions.length ? battleConditionList(conditions) : null));
+    } else if (dialogReturnFocus==='reserve-details' && view?.self.reserve?.item) {
+      dialog.append(el('div',{class:'pokemon-battle-stats'},battleConditionList([heldItemDetails(view.self.reserve,true)])));
     }
     dialog.append(...pokemonDetails(detailEntry,Number(detailMatch[3]),inDex?{selectLevel:level=>{
       openDialog(`dex:${detailEntry.id}:${level}`);
@@ -1793,8 +1874,13 @@ function setView(next, force = false) {
   if (sameSeat && view.status==='playing' && (next.status==='playing' || finishedBattle)) {
     const previousCues = new Set((view.visualEvents || []).map(event=>event.id));
     const cues = (next.visualEvents || []).filter(event=>!previousCues.has(event.id));
+    const identityCue = cues.findLast(cue=>cue.kind==='identity-reveal');
+    if (finishedBattle) victoryRevealDelay = identityCue ? 3200 : 0;
     if (richGraphics && $('.world-host')?.dataset.mode==='3d') arenaCues.push(...cues);
-    else gameAudio.playCues(cues);
+    else {
+      if (richGraphics) arenaCues.push(...cues.filter(cue=>cue.kind==='identity-reveal'));
+      gameAudio.playCues(cues);
+    }
     const trait = cues.findLast(cue=>cue.kind==='ability' && cue.name);
     if (trait && !finishedBattle) {
       arenaTraitEvent = trait;
@@ -1804,7 +1890,7 @@ function setView(next, force = false) {
         renderArenaEvent($('.match-stage'));
       },2300);
     }
-    const revealed = !finishedBattle && next.players.find(player=>player.role && !player.eliminated && !view.players.find(prior=>prior.id===player.id)?.role);
+    const revealed = !finishedBattle && identityCue && next.players.find(player=>player.id===identityCue.targetIds[0]);
     const event = revealed ? {kind:'identity-reveal',nickname:revealed.nickname,role:revealed.role} :
       cues.findLast(cue=>cue.kind==='event'||cue.kind==='event-action'||cue.external) ||
       cues.findLast(cue=>cue.name && cue.kind==='attack');
@@ -1933,7 +2019,11 @@ async function copyText(value) {
   renderMessages();
 }
 render();
-fetch('/catalogue.json', { cache: 'no-store' }).then(response => { if (!response.ok) throw new Error(); return response.json(); }).then(data => { catalogue = Array.isArray(data.entries) ? data.entries : []; if (scenePreview || view || dialogKind === 'catalogue') render(); }).catch(() => {});
+fetch('/catalogue.json', { cache: 'no-store' }).then(response => { if (!response.ok) throw new Error(); return response.json(); }).then(data => {
+  catalogue = Array.isArray(data.entries) ? data.entries : [];
+  heldItemCatalogue = Array.isArray(data.heldItems) ? data.heldItems : [];
+  if (scenePreview || view || dialogKind === 'catalogue') render();
+}).catch(() => {});
 if (session) poll(true);
 let roomPollTimer;
 function scheduleRoomPoll() {

@@ -88,7 +88,8 @@ function fixture(t, { count = 3, responseSeconds = 0 } = {}) {
     assert.equal(pending().targetId, intended.playerId);
     assert.equal(pending().actorId, actor.playerId);
   };
-  const passWindow = (expected = seats.filter(who => !player(who).eliminated)) => {
+  const passWindow = (expected = seats.filter(who => !player(who).eliminated &&
+    player(who).hand.some(card => card.kind === 'event' && card.eventType === protection))) => {
     const { mode, targetId } = pending();
     for (const who of expected) {
       expectWindow(mode, byId(targetId), who);
@@ -159,24 +160,17 @@ for (const flag of [undefined, false, 'true']) {
   });
 }
 
-test('an enabled room with zero copies opens identical pre-event and post-status pass queues', t => {
+test('an enabled room without any live holder skips both Articuno windows', t => {
   const f = fixture(t);
   f.play();
   assert.equal(f.view(f.target).scenario.articunoReactions, true);
   const original = beginSong(f);
-  f.expectWindow('cancel-event', f.target);
-  assert.match(f.view(f.leader).pendingBattle.eventName.en, /Jigglypuff/);
-  assert.deepEqual(f.view(f.leader).pendingBattle.protectionCards, []);
-  f.passWindow();
-  f.expectWindow('cure-status', f.target);
-  assert.equal(f.pending().status, 'sleep');
-  f.passWindow();
   assertDone(f);
   assert.equal(f.player(f.target).active.status, 'sleep');
   assertOne(f.room(), original);
 });
 
-test('the current trainer gets first offer, wrapping seats and skipping eliminated trainers and spectators', t => {
+test('only live Articuno holders are offered protection in turn order', t => {
   const f = fixture(t, { count: 5 });
   const actor = f.seats[3];
   f.play(actor);
@@ -184,10 +178,13 @@ test('the current trainer gets first offer, wrapping seats and skipping eliminat
   f.player(f.seats[4]).eliminated = true;
   f.protectCard(f.seats[4]);
   f.protectCard(observer);
+  f.protectCard(actor);
+  f.protectCard(f.target);
+  f.protectCard(f.third);
   f.judgments('thunderstorm');
   f.event(song, { targetId: f.target.playerId }, actor);
   f.expectWindow('cancel-event', f.target, actor);
-  f.passWindow([actor, f.leader, f.target, f.third]);
+  f.passWindow([actor, f.target, f.third]);
   assertDone(f);
   assert.equal(f.player(f.seats[4]).hand.length, 1);
   assert.equal(f.player(observer).hand.length, 1);
@@ -288,7 +285,6 @@ test('the first acceptance stops this queue and leaves every other Articuno unsp
   const other = f.protectCard(f.target);
   const counter = f.protectCard(f.third);
   const original = beginSong(f);
-  f.respond();
   f.expectWindow('cancel-event', f.target, f.target);
   const expired = f.pending().id;
   f.protect(chosen);
@@ -310,14 +306,10 @@ for (const [eventType, defenseKind, defenseCardKind] of multiTargetDamageEvents)
     const reply = f.protectCard(f.third);
     const defense = f.give(f.target, { kind: defenseCardKind });
     const original = f.event(eventType);
-    f.expectWindow('cancel-event', f.target);
-    f.respond();
-    f.respond();
+    f.expectWindow('cancel-event', f.target, f.third);
     f.protect(reply);
     assert.equal(f.player(f.target).active.damage, 0);
     assert.deepEqual(f.player(f.target).hand, [defense]);
-    f.expectWindow('cancel-event', f.third);
-    f.passWindow();
     assert.equal(f.pending().kind, defenseKind);
     assert.equal(f.pending().actorId, f.third.playerId);
     f.respond();
@@ -335,12 +327,8 @@ test('Articuno can cancel the self-first Mew slot and resume later healing and e
   const original = f.event('mew-blessing');
   f.expectWindow('cancel-event', f.leader);
   f.protect(reply);
-  f.expectWindow('cancel-event', f.target);
-  f.passWindow();
   assert.equal(f.pending().kind, 'mew-blessing');
   f.respond('heal');
-  f.expectWindow('cancel-event', f.third);
-  f.passWindow();
   f.respond('evolve');
   assertDone(f);
   assert.equal(f.player(f.leader).active.damage, 3);
@@ -357,12 +345,7 @@ test('Zapdos cancellation consumes no judgment and preserves the later self-last
   const original = f.event('zapdos-punishment');
   f.expectWindow('cancel-event', f.target);
   f.protect(reply);
-  assert.ok(f.room().drawPile.some(card => card.id === thunder.id));
-  f.expectWindow('cancel-event', f.third);
-  f.passWindow();
   assert.equal(f.player(f.third).active.damage, 1);
-  f.expectWindow('cancel-event', f.leader);
-  f.passWindow();
   assertDone(f);
   assert.equal(f.player(f.target).active.damage, 0);
   assert.equal(f.player(f.leader).active.damage, 0);
@@ -396,6 +379,7 @@ test('passing Mr. Mime hand protection restores the original private choice and 
   const f = fixture(t);
   f.play();
   const taken = f.give(f.target, { kind: 'command' });
+  const reply = f.protectCard(f.third);
   f.event('mr-mime-trick', { effect: 'hand', targetId: f.target.playerId });
   f.passWindow();
   assert.equal(f.pending().kind, 'event-hand');
@@ -405,6 +389,7 @@ test('passing Mr. Mime hand protection restores the original private choice and 
   assertDone(f);
   assert.deepEqual(f.player(f.leader).hand, [taken]);
   assert.deepEqual(f.player(f.target).hand, []);
+  assert.deepEqual(f.player(f.third).hand, [reply]);
   const cue = f.view(f.third).visualEvents.at(-1);
   assert.deepEqual([cue.kind,cue.action,cue.object], ['event-action','take','card']);
 });
@@ -506,7 +491,7 @@ test('Articuno cures the final Poison Touch replacement once, preserving unrelat
   assert.equal(f.pending().status, 'poison');
   assert.equal(f.player(f.target).active.status, 'poison');
   f.respond();
-  f.respond();
+  f.expectWindow('cure-status', f.target, f.third);
   f.protect(reply);
   assertDone(f);
   assert.equal(f.player(f.target).active.status, null);
@@ -562,11 +547,12 @@ test('passing a non-event status window leaves its new marker in place', t => {
   f.play();
   f.seed(f.leader, 'grimer', 2);
   f.judgments('rain');
+  f.protectCard(f.third);
   const payment = f.give(f.leader, { kind: 'command' });
   f.act(f.leader, 'attack', { cardId: payment.id, targetIds: [f.target.playerId] });
   f.respond();
-  f.expectWindow('cure-status', f.target);
-  assert.deepEqual(f.view(f.leader).pendingBattle.protectionCards, []);
+  f.expectWindow('cure-status', f.target, f.third);
+  assert.equal(f.view(f.leader).pendingBattle.protectionCards, undefined);
   f.passWindow();
   assertDone(f);
   assert.equal(f.player(f.target).active.damage, 2);
@@ -637,7 +623,6 @@ for (const mode of ['cancel-event', 'cure-status']) {
     const reply = f.protectCard(f.target, { weather: 'rain' });
     const original = beginSong(f);
     if (mode === 'cure-status') f.passWindow();
-    f.respond();
     f.expectWindow(mode, f.target, f.target);
     f.advance(2000);
     assert.equal(f.view(f.target).pendingBattle.clock.remainingMs, 3000);
@@ -672,9 +657,10 @@ test('each Articuno timeout passes only the current seat and the final timeout r
   const f = fixture(t, { responseSeconds: 5 });
   f.play();
   const unused = f.protectCard(f.leader);
+  const other = f.protectCard(f.third);
   f.judgments('thunderstorm');
   const original = beginSong(f);
-  for (const who of f.seats) {
+  for (const who of [f.leader, f.third]) {
     f.expectWindow('cancel-event', f.target, who);
     const id = f.pending().id;
     f.advance(5000);
@@ -684,6 +670,7 @@ test('each Articuno timeout passes only the current seat and the final timeout r
   assertDone(f);
   assert.equal(f.player(f.target).active.status, null);
   assert.deepEqual(f.player(f.leader).hand, [unused]);
+  assert.deepEqual(f.player(f.third).hand, [other]);
   assertOne(f.room(), original);
 });
 

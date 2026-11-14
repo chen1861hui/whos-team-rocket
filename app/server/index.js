@@ -105,7 +105,7 @@ function credential(req) {
   return match[1];
 }
 
-export function createApplication({ store, dataDir = join(appDir, '.data'), publicDir = join(appDir, 'public'), catalogue, now, cleanupIntervalMs = 30_000 } = {}) {
+export function createApplication({ store, dataDir = join(appDir, '.data'), publicDir = join(appDir, 'public'), catalogue, now, cleanupIntervalMs = 30_000, publicOrigin } = {}) {
   const rooms = store || new RoomStore({ dataDir, catalogue: catalogue || JSON.parse(readFileSync(join(appDir, 'content', 'catalogue.json'), 'utf8')), now });
   const server = createHttpServer(async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
@@ -117,7 +117,8 @@ export function createApplication({ store, dataDir = join(appDir, '.data'), publ
       const path = req.url.split('?')[0];
       if (req.method === 'GET' && path === '/api/health') return send(res, 200, { ok: true });
       if (req.method === 'POST') {
-        if (req.headers.origin && req.headers.origin !== `http://${req.headers.host}`) throw new ApiError(403, 'ORIGIN_REJECTED', 'Cross-origin writes are unavailable.');
+        const allowedOrigin = publicOrigin ?? `http://${req.headers.host}`;
+        if (req.headers.origin && req.headers.origin !== allowedOrigin) throw new ApiError(403, 'ORIGIN_REJECTED', 'Cross-origin writes are unavailable.');
         if (path === '/api/rooms') return send(res, 201, rooms.create(await body(req)));
         const match = /^\/api\/rooms\/([A-Za-z2-9]{6})\/(join|actions)$/.exec(path);
         if (match) {
@@ -183,9 +184,12 @@ if (process.argv[1] && import.meta.url === pathToFileURL(resolve(process.argv[1]
   try {
     const port = Number(process.env.PORT || 4173);
     if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('Invalid port');
-    const { server } = createApplication();
+    const onRender = process.env.RENDER === 'true';
+    const host = onRender ? '0.0.0.0' : '127.0.0.1';
+    const publicOrigin = onRender ? new URL(process.env.RENDER_EXTERNAL_URL).origin : undefined;
+    const { server } = createApplication({ publicOrigin });
     server.on('error', () => { console.error('Server could not listen. Check the configured port.'); process.exitCode = 1; server.close(); });
-    server.listen(port, '127.0.0.1', () => console.log(`Foundation running at http://127.0.0.1:${port}`));
+    server.listen(port, host, () => console.log(`Foundation running at ${publicOrigin ?? `http://${host}:${port}`}`));
     for (const signal of ['SIGINT', 'SIGTERM']) process.on(signal, () => server.close());
   } catch { console.error('Startup failed. Check the catalogue and private saved-room data.'); process.exitCode = 1; }
 }

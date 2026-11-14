@@ -206,12 +206,15 @@ export function vitalSpiritDialog(kit) {
   }},say(language,'Replace Draw · view cards','替代摸牌 · 观看牌'));
   dialog.append(node('div',{class:'action-row'},cancel,confirm));kit.openArenaPrompt(dialog);
 }
-export function downloadDialog(kit) {
+export function downloadDialog(kit, {drawNormally}={}) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number;
   const dialog=traitPanel(kit,say(language,'Download · replace Draw','下载 · 替代摸牌阶段'),
     node('p',{},say(language,'Before drawing normally, you may replace your entire ordinary Draw phase by taking one hand card from each of up to two other trainers. Other trainers’ card faces stay hidden while you choose.','正常摸牌前，可以替代整个通常摸牌阶段，获得至多两名其他训练家的各一张手牌。选择时，其他训练家的手牌保持背面。')),
-    node('p',{class:'muted'},say(language,'Confirming uses Download instead of your ordinary draws. Canceling here keeps ordinary Draw available.','确认后发动下载，替代通常摸牌。此处取消则仍可正常摸牌。')));
-  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Keep ordinary Draw','保留通常摸牌'));
+    drawNormally ? null : node('p',{class:'muted'},say(language,'Confirming uses Download instead of your ordinary draws. Canceling here keeps ordinary Draw available.','确认后发动下载，替代通常摸牌。此处取消则仍可正常摸牌。')));
+  const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>{
+    kit.closeArenaPrompt(!drawNormally);
+    drawNormally?.();
+  }},drawNormally?say(language,'Draw normally','正常摸牌'):say(language,'Keep ordinary Draw','保留通常摸牌'));
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download',disabled:kit.busy||Boolean(initial.pendingVote),onclick:()=>{
     const current=kit.getView();kit.closeArenaPrompt(false);
     if(current.code===initial.code&&current.selfId===initial.selfId&&current.turn?.number===turnNumber&&current.self.battle?.canTrait&&current.self.battle.trait?.kind==='download'&&!kit.busy&&!current.pendingVote)kit.action('useTrait');
@@ -235,6 +238,7 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   const targetSummary = node('span',{class:'arena-target-summary','aria-live':'polite'});
   let boostCardId='',effectChoice=legal.move.effectKind==='moonlight'?'heal':undefined;
   const payments=[];
+  if(legal.move.effectKind==='swords-dance')dialog.append(node('p',{class:'muted'},say(language,'Discard this sunny card to use Swords Dance. It grants one Power marker when the move resolves.','弃置这张晴天牌发动剑舞。招式结算后获得一枚力量强化。')));
   const paymentIds=()=>payments.map(select=>select.value);
   const validPayment=()=>!muscle||(paymentIds().every(Boolean)&&new Set(paymentIds()).size===2&&!paymentIds().includes(boostCardId));
   const update=()=>{
@@ -774,7 +778,7 @@ function vitalSpiritControls(pending,kit) {
 function downloadControls(pending,kit) {
   const draft=privateDecisionDraft(pending,kit,()=>({targetIds:[]})),view=kit.getView(),language=kit.language,legal=pending.legalTargetIds||[],max=pending.maxTargets??0;
   draft.targetIds=draft.targetIds.filter(id=>legal.includes(id)).slice(0,max);
-  const grid=node('div',{class:'hand-choice-grid arena-response-target-list'}),buttons=[];
+  const grid=node('div',{class:'hand-choice-grid download-target-list'}),buttons=[];
   const summary=node('p',{class:'muted','aria-live':'polite'});
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-download-targets'});
   const update=()=>{
@@ -783,14 +787,16 @@ function downloadControls(pending,kit) {
       const selected=draft.targetIds.includes(id);
       button.setAttribute('aria-pressed',String(selected));button.disabled=blocked||(!selected&&draft.targetIds.length>=max);
     }
-    summary.textContent=say(language,`Selected trainers: ${draft.targetIds.length}/${max}. Selecting none still replaces your whole Draw phase.`,`已选择训练家：${draft.targetIds.length}/${max}。即使不选择训练家，也会替代整个摸牌阶段。`);
-    confirm.disabled=blocked;
-    confirm.textContent=draft.targetIds.length?say(language,'Confirm trainers · choose hand cards','确认训练家 · 选择手牌'):say(language,'Finish replacement without taking cards','不获得手牌并完成替代摸牌');
+    summary.textContent=max?say(language,`Selected trainers: ${draft.targetIds.length}/${max}`,`已选择训练家：${draft.targetIds.length}/${max}`)
+      :say(language,'No other trainer has a hand card to take.','其他训练家都没有可获得的手牌。');
+    confirm.disabled=blocked || (max>0 && !draft.targetIds.length);
+    confirm.textContent=max?say(language,'Confirm trainers · choose hand cards','确认训练家 · 选择手牌'):say(language,'Finish replacement without taking cards','不获得手牌并完成替代摸牌');
   };
   for(const id of legal) {
     const player=view.players.find(player=>player.id===id);
     const button=node('button',{type:'button',class:'button exile-card-choice download-target-choice',id:`download-target-${id}`,'data-arena-seat':id,'aria-pressed':'false',onclick:()=>{
-      const index=draft.targetIds.indexOf(id);if(index>=0)draft.targetIds.splice(index,1);else if(draft.targetIds.length<max)draft.targetIds.push(id);update();
+      const index=draft.targetIds.indexOf(id);if(index>=0)draft.targetIds.splice(index,1);else if(draft.targetIds.length<max)draft.targetIds.push(id);
+      update();kit.syncArenaPrompt();
     }},player?.nickname||'—');
     buttons.push([id,button]);grid.append(button);
   }
@@ -813,7 +819,7 @@ function eventResponseControls(pending,kit) {
         if(currentDecision()&&kit.getView().self.hand.some(held=>held.id===cardId&&held.kind===responseKind))kit.action('respondBattle',{decisionId,choice:responseKind,cardId});
       }},responseKind==='command'?say(language,'Play Take this! as response','打出接招吧！响应'):say(language,'Play Dodge! as response','打出快躲开！响应'),` · ${weatherLabel(card.weather,language)}`));
     }
-    row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:blocked,onclick:()=>{if(currentDecision())kit.action('respondBattle',{decisionId,choice:'pass'});}},kind==='rival-command'?say(language,'Pass · end duel','放弃响应 · 结束挑战'):say(language,'Pass · resolve event damage','放弃响应 · 结算事件伤害')));
+    row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:blocked,onclick:()=>{if(currentDecision())kit.action('respondBattle',{decisionId,choice:'pass'});}},kind==='rival-command'?say(language,'Pass · resolve duel damage','放弃响应 · 结算挑战伤害'):say(language,'Pass · resolve event damage','放弃响应 · 结算事件伤害')));
   }else if(kind==='event-hand'){
     row.className='hand-choice-grid';
     for(const choice of pending.choices||[])row.append(node('button',{type:'button',class:'button blind-hand-choice',id:`event-hand-${choice.index}`,disabled:blocked,onclick:()=>{
@@ -867,7 +873,7 @@ function articunoControls(pending,kit) {
   }
   row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:blocked,onclick:()=>{
     if(currentView())kit.action('respondBattle',{decisionId,choice:'pass'});
-  }},say(language,'Pass protection','放弃庇护')));
+  }},pending.counterProtection?say(language,'Pass counter','放弃反制'):say(language,'Pass protection','放弃庇护')));
   return row;
 }
 function rescueControls(pending,kit) {
@@ -913,6 +919,7 @@ function pressureControls(pending,kit) {
 }
 export function decisionPanel(view,kit) {
   const pending=view.pendingBattle;if(!pending)return null;
+  const swordsDance=pending.kind==='defense'&&pending.moveEffect==='swords-dance';
   const language=kit.language,actor=view.players.find(p=>p.id===pending.actorId),target=view.players.find(p=>p.id===pending.targetId);
   const titles={'poison-touch':['Poison Touch · optional ability','毒手 · 可选特性'],cycle:['Spike Cannon · cycle a card','尖刺加农炮 · 交换手牌'],scales:['Marvel Scale · reduce damage','神奇鳞片 · 减少伤害'],effects:['Choose effect order','选择效果结算顺序'],defiant:['Defiant · optional ability','不服输 · 可选特性'],judgment:['Drought · replace judgment','日照 · 替换判定'],defense:['Respond to the move','响应招式'],static:['Static · optional ability','静电 · 可选特性'],synchronize:['Synchronize · optional ability','同步 · 可选特性'],'cursed-body':['Cursed Body · optional ability','咒术之躯 · 可选特性'],foresee:['Future Sight','预知未来'],reorder:['Choose the deck order','选择牌堆顺序'],reinforcement:['Remove a reinforcement','弃置强化指示物'],hand:['Choose a hand card','选择一张手牌'],rescue:['Rescue settlement','昏厥救援结算']};
   Object.assign(titles,{'battle-armor':['Battle Armor · gain Defense','战斗盔甲 · 获得防御强化'],bonemerang:['Bonemerang · one more settlement','骨头回力镖 · 再次结算'],'neutralizing-gas':['Neutralizing Gas · suppress traits','化学变化气体 · 特性失效'],'cute-charm':['Cute Charm · redirect the move','迷人之躯 · 转移招式'],'arena-trap':['Arena Trap · interrupt switch','沙穴 · 响应交替'],'switch-payment':['Arena Trap · pay or cancel switch','沙穴 · 弃牌或取消交替'],'poison-point':['Poison Point · optional ability','毒刺 · 可选特性']});
@@ -928,7 +935,7 @@ export function decisionPanel(view,kit) {
   titles['blunder-policy']=['Blunder Policy · discard to resolve','打空保险 · 弃牌后结算'];
   titles['quick-claw']=['Quick Claw · turn-start command','先制之爪 · 回合开始时使用接招吧！'];
   if(pending.kind==='event-hand'&&pending.eventName?.zh==='大葱鸭的恶作剧')titles['event-hand']=['Farfetch’d’s Prank · discard a hand card','大葱鸭的恶作剧 · 弃置手牌'];
-  if(pending.kind==='articuno')titles.articuno=pending.mode==='cancel-event'
+  if(pending.kind==='articuno')titles.articuno=pending.counterProtection?['Counter Articuno’s Protection','反制急冻鸟的庇护']:pending.mode==='cancel-event'
     ?['Articuno’s Protection · cancel event effect','急冻鸟的庇护 · 抵消事件效果']
     :['Articuno’s Protection · cure new status','急冻鸟的庇护 · 解除新状态'];
   titles['reveal-judgment']=['Judgment','判定'];
@@ -941,17 +948,19 @@ export function decisionPanel(view,kit) {
     actor?.id===target?.id?node('p',{},actor?.nickname):node('p',{},`${actor?.nickname||'—'} · ${say(language,'deciding for','正在处理')} ${target?.nickname||'—'}`));
   if(pending.kind==='articuno'){
     const subject=pending.mode==='cancel-event'?kit.localized(pending.eventName):statusName(pending.status,language);
-    const help=pending.mode==='cancel-event'
+    const help=pending.counterProtection
+      ?say(language,'Play another Articuno’s Protection to counter the previous one for this Berry Harvest target.','可再打出一张「急冻鸟的庇护」，反制上一张对这一席的效果。')
+      :pending.mode==='cancel-event'
       ?say(language,'Articuno can cancel this event’s effect on the indicated target only.','急冻鸟的庇护仅抵消此事件对指定目标的效果。')
       :say(language,'Articuno can remove the status the indicated Pokémon just gained.','急冻鸟的庇护可以解除指定宝可梦刚陷入的特殊状态。');
     panel.append(node('p',{},[subject,help].filter(Boolean).join(' · ')));
   }
   if(pending.kind==='event-hand')panel.append(node('p',{},pending.eventName?.zh==='大葱鸭的恶作剧'?say(language,'Choose one face-down card to discard.','选择并弃置一张背面手牌。'):say(language,'Choose one face-down card to take into your hand. Its face stays private until you receive it. This required choice cannot be passed.','选择一张背面手牌加入你的手牌，获得前牌面保持隐藏。此选择必须完成，不可放弃。')));
-  if(pending.kind==='rival-command')panel.append(node('p',{},say(language,'Play one command from your hand or pass. If a command was played, the last player to respond deals 2 base damage with their active Pokémon.','打出一张接招吧！或放弃。若有人打出过此牌，最后打出的一方以其出战宝可梦造成2点基础伤害。')));
+  if(pending.kind==='rival-command')panel.append(node('p',{},say(language,'Play Take this! to make the other trainer respond. If you pass, their active Pokémon deals 2 base damage to yours.','打出「接招吧！」后轮到对方响应。若放弃，对方的出战宝可梦会对你的出战宝可梦造成2点基础伤害。')));
   if(pending.berryCards?.length)panel.append(berryHarvestCards(pending,kit,view));
   if(pending.kind==='event-command')panel.append(node('p',{},`${pending.eventName?`${kit.localized(pending.eventName)} · `:''}${say(language,'Damage source:','伤害来源：')} ${kit.localized(pending.source?.name)||say(language,'Moltres','火焰鸟')} · ${say(language,`Incoming damage: ${pending.damage}`,`将受到${pending.damage}点伤害`)}`),node('p',{},say(language,'Play one actual Take this! card as a response. This does not use a Pokémon move or spend Power. Paralysis weather restrictions and used move allowances do not block this response.','打出手牌中一张实际的接招吧！响应。此操作不使用宝可梦招式，也不消耗力量强化；麻痹的天气限制及已用招式次数不影响此响应。')));
   if(pending.kind==='event-dodge')panel.append(node('p',{},`${pending.eventName?`${kit.localized(pending.eventName)} · `:''}${say(language,'Damage source:','伤害来源：')} ${kit.localized(pending.source?.name)||say(language,'Mewtwo','超梦')} · ${say(language,`Incoming damage: ${pending.damage}`,`将受到${pending.damage}点伤害`)}`),node('p',{},say(language,'Respond by playing an actual Dodge! card from your hand. Sand Veil and Levitate do not provide this response; move Dodge restrictions do not stop it.','打出手牌中一张实际的快躲开！响应。沙隐与飘浮不提供本响应，招式的躲闪限制不影响此响应。')));
-  if(pending.kind==='mew-blessing')panel.append(node('p',{},say(language,'Choose healing or, when offered, a level increase. Healing is capped at maximum HP and may be chosen even at full HP. This required choice cannot be passed.','选择回复体力，或在提供该选项时提升等级。回复不超过体力上限，即使体力已满也可选择回复。此选择必须完成，不可放弃。')),node('p',{class:'muted'},say(language,'Leveling up preserves injuries, status, held items and reinforcement. It does not refresh this turn’s used actions.','升级保留已有伤害、特殊状态、持有物及强化指示物，不会刷新本回合已用的操作次数。')));
+  if(pending.kind==='mew-blessing')panel.append(node('p',{},say(language,'At full HP, level up. At Lv. 3 with injuries, heal up to 2 HP. An injured Pokémon below Lv. 3 can choose either effect.','满体力时升 1 级；Lv.3 受伤时回复最多 2 点体力。未满级且受伤时，可以二选一。')),node('p',{class:'muted'},say(language,'Leveling up preserves injuries, status, held items and reinforcement. It does not refresh this turn’s used actions.','升级保留已有伤害、特殊状态、持有物及强化指示物，不会刷新本回合已用的操作次数。')));
   if(pending.kind==='pressure')panel.append(node('p',{},say(language,'Your Pokémon became a Take this! target. You may discard one of your hand cards. The command’s user must then also discard one card, or that command’s whole move becomes ineffective against your originally targeted Pokémon. Other targets remain affected. Passing here gives no Pressure protection.','你的宝可梦成为接招吧！的目标。可以弃置自己的一张手牌，然后该指令的使用者也须弃置一张手牌，否则此次指令使用的整个招式对原本被指定的这只宝可梦无效。其他目标仍受影响。此处放弃则不获得压迫感的保护。')));
   if(pending.kind==='pressure-payment')panel.append(node('p',{},say(language,'Pressure’s owner has already discarded a card. You may discard one of your own hand cards to keep the command move effective against that originally targeted Pokémon. If you do not, the whole move is ineffective only against that Pokémon; other targets are unaffected by this protection. Paid costs are not refunded.','压迫感的持有者已弃置一张手牌。你可以弃置自己的一张手牌，使指令招式对原本被指定的那只宝可梦保持有效。若不弃牌，整个招式仅对该宝可梦无效，其他目标不受此保护影响。已支付的费用不会退还。')));
   if(pending.kind==='download')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Choose up to ${pending.maxTargets} other trainers to take one hand card from each. Distance does not restrict this choice. Download replaces your entire ordinary Draw phase, even if Flinch would reduce your ordinary draws. You must finish this replacement now.`,`选择至多${pending.maxTargets}名其他训练家，获得其各一张手牌。此选择不受距离限制。下载替代整个通常摸牌阶段，畏缩减少通常摸牌数也不改变此效果。发动后必须完成替代摸牌。`):say(language,'The indicated trainer is privately choosing other trainers for Download, replacing their ordinary Draw phase.','指定训练家正在通过下载私下选择其他训练家，以替代通常摸牌阶段。')));
@@ -998,6 +1007,7 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='poison-touch')panel.append(node('p',{},pending.mode==='poison'?say(language,'Poison is about to deal 1 source-free damage. You may set its base damage to 2; receiving effects still apply.','中毒即将造成1点无来源伤害。你可以将基础伤害改为2点，受到伤害时的效果仍然生效。'):say(language,`Pending status: ${statusName(pending.status,language)}. You may change this status to Poison before it takes effect.`,`即将陷入${statusName(pending.status,language)}。你可以在其生效前将此状态改为中毒。`)));
   if(pending.kind==='cycle')panel.append(node('p',{},say(language,'You may discard one hand card, then draw one card. Only you can see the choices.','你可以弃置一张手牌，然后摸一张牌。仅你能看到可选手牌。')));
   if(pending.kind==='scales')panel.append(node('p',{},say(language,`Incoming damage: ${pending.damage}. You may reduce it by 1 before losing HP.`,`将受到${pending.damage}点伤害。你可以在扣减体力前令伤害值减1。`)));
+  if(swordsDance)panel.append(node('p',{},say(language,'The sunny card has been paid. Resolve Swords Dance to gain one Power marker.', '晴天牌已支付。选择「结算剑舞」获得一枚力量强化。'),pending.cannotDodge?'':say(language,' Playing Dodge! here cancels Swords Dance.','此时打出「快躲开！」会抵消剑舞。')));
   if(pending.kind==='defense'&&pending.cannotDodge)panel.append(node('p',{},pending.dodgeBlockedBy==='lock-on'?say(language,'Lock-On prevents the originally targeted Pokémon from using Dodge for this global turn, including virtual Dodges. Reinforcement markers still affect this move normally. Continue the settlement.','锁定使原本被指定的宝可梦在本全局回合无法使用快躲开！，也无法使用视为快躲开！的效果。强化指示物仍正常影响此招式，请继续结算。'):say(language,'This move ignores reinforcement markers. Dodge and Sand Veil cannot cancel it. Continue to resolve the damage.','此招式不受强化指示物影响。快躲开！与沙隐无法抵消此招式，请继续结算伤害。')));
   if(pending.kind==='defiant')panel.append(node('p',{},say(language,'You may draw two cards, then have no hand limit for the current turn. Passing grants neither effect.','你可以摸两张牌，然后本回合没有手牌上限。放弃则两项效果均不结算。')));
   if(pending.kind==='judgment')panel.append(node('p',{},say(language,'You may replace this judgment with one sunny-weather hand card and take the displaced card.','可打出一张晴天天气手牌替换判定，并获得被替换的牌。')));
@@ -1103,9 +1113,9 @@ export function decisionPanel(view,kit) {
             }
           }},say(language,'Use Bright Powder','发动光粉')));
           const active=view.players.find(player=>player.id===view.selfId)?.active,levitate=active?.catalogueId==='gastly'&&active.level<=2;
-          for(const card of view.self.hand.filter(c=>(c.kind==='dodge'||(levitate&&['rain','thunderstorm'].includes(c.weather)))&&!pending.blockedDodgeWeathers?.includes(c.weather)))row.append(node('button',{type:'button',class:'button primary',id:`respond-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'dodge',cardId:card.id})},levitate&&card.kind!=='dodge'?say(language,'Levitate as Dodge','飘浮视为快躲开！'):say(language,'Use Dodge!','打出快躲开！'),` · ${weatherLabel(card.weather,language)}`));
+          for(const card of view.self.hand.filter(c=>(c.kind==='dodge'||(levitate&&['rain','thunderstorm'].includes(c.weather)))&&!pending.blockedDodgeWeathers?.includes(c.weather)))row.append(node('button',{type:'button',class:swordsDance?'button secondary':'button primary',id:`respond-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'dodge',cardId:card.id})},levitate&&card.kind!=='dodge'?say(language,'Levitate as Dodge','飘浮视为快躲开！'):say(language,'Use Dodge!','打出快躲开！'),` · ${weatherLabel(card.weather,language)}`));
         }
-        row.append(node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},pending.kind==='arena-trap'?say(language,'Allow switch','允许交替'):pending.kind==='defense'&&pending.dodgeReducesDamage?say(language,'Resolve damage','结算伤害'):pending.kind==='defense'&&pending.cannotDodge?say(language,'Continue settlement','继续结算'):say(language,'Pass response','放弃响应')));
+        row.append(node('button',{type:'button',class:swordsDance?'button primary':'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},swordsDance?say(language,'Resolve Swords Dance','结算剑舞'):pending.kind==='arena-trap'?say(language,'Allow switch','允许交替'):pending.kind==='defense'&&pending.dodgeReducesDamage?say(language,'Resolve damage','结算伤害'):pending.kind==='defense'&&pending.cannotDodge?say(language,'Continue settlement','继续结算'):say(language,'Pass response','放弃响应')));
       }
       panel.append(row);
     }

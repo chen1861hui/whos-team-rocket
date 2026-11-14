@@ -125,7 +125,7 @@ test('Quick Claw restricts the interrupt to an actual sunny command and resumes 
   assert.ok(f.view(f.target).self.battle.canCommand);
 });
 
-test('Quick Claw grants move and card range and presents the same public window with an empty hand', t => {
+test('Quick Claw grants move and card range even when there is no sunny command to play', t => {
   const f=fixture(t,{count:5});
   f.play();
   const distant=f.room().players[2].id;
@@ -137,12 +137,32 @@ test('Quick Claw grants move and card range and presents the same public window 
   const battle=f.view(f.leader).self.battle;
   assert.ok(battle.legalTargetIds.includes(distant));
   assert.ok(battle.events.find(option=>option.eventType==='mr-mime-trick').targetIds.includes(distant));
-  f.player(f.leader).hand=[];
+  f.player(f.leader).hand=[event];
+  f.supply(f.leader,'command','rain');
   finish(f,f.leader);
-  assert.equal(f.room().pendingBattle.kind,'quick-claw');
-  assert.deepEqual(f.view(f.leader).pendingBattle.commandCards,[]);
+  assert.equal(f.room().pendingBattle,null);
+  assert.equal(f.room().turn.playerId,f.target.playerId);
+  f.act(f.target,'draw');
+  assert.equal(f.room().turn.drawRemaining,1);
+});
+
+test('Quick Claw skips an empty holder and offers each eligible holder once per turn', t => {
+  const f=fixture(t,{count:4});
+  const order=f.room().players.map(player=>f.byId(player.id));
+  const index=order.indexOf(f.leader);
+  const [first,second,empty]=[...order.slice(index+1),...order.slice(0,index)];
+  for(const seat of [first,second,empty])holdItem(f,seat,'quick-claw');
+  f.supply(first,'command','clear');
+  f.supply(second,'command','intense-sun');
+  f.store.startTurn(f.room(),f.leader.playerId,2);
+  assert.equal(f.room().pendingBattle.actorId,first.playerId);
+  f.respond();
+  assert.equal(f.room().pendingBattle.actorId,second.playerId);
   f.respond();
   assert.equal(f.room().pendingBattle,null);
+  assert.equal(f.room().turnStart,undefined);
+  f.act(f.leader,'draw');
+  assert.equal(f.room().turn.drawRemaining,1);
 });
 
 test('Life Orb boosts before Defense and its HP cost can be rescued', t => {

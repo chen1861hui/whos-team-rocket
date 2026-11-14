@@ -107,12 +107,7 @@
               },
               "effectStatus": "combat-preview",
               "engineEligible": false,
-              "unresolvedSymbols": [
-                {
-                  "zh": "数值旁有红底白火焰图标；该位置的具体含义未核实，不作为额外费用或自动灼伤。",
-                  "en": "A red square with white flames appears beside the numeral. Its role in this position remains unresolved; it is not treated as an extra cost or automatic burn."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineScope": "combat-preview-only"
             }
           ],
@@ -181,12 +176,7 @@
               },
               "effectStatus": "combat-preview",
               "engineEligible": false,
-              "unresolvedSymbols": [
-                {
-                  "zh": "数值旁有红底白火焰图标；该位置的具体含义未核实，不作为额外费用或自动灼伤。",
-                  "en": "A red square with white flames appears beside the numeral. Its role in this position remains unresolved; it is not treated as an extra cost or automatic burn."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineScope": "combat-preview-only"
             }
           ],
@@ -255,12 +245,7 @@
               },
               "effectStatus": "combat-preview",
               "engineEligible": false,
-              "unresolvedSymbols": [
-                {
-                  "zh": "数值旁有红底白火焰图标；该位置的具体含义未核实，不作为额外费用或自动灼伤。",
-                  "en": "A red square with white flames appears beside the numeral. Its role in this position remains unresolved; it is not treated as an extra cost or automatic burn."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineScope": "combat-preview-only"
             }
           ],
@@ -602,6 +587,7 @@
               },
               "printedValue": 2,
               "effectText": null,
+                "effectParagraphStatus": "none-printed",
               "effectStatus": "combat-preview",
               "engineEligible": false,
               "engineScope": "combat-preview-only"
@@ -2760,12 +2746,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "heavy-rain",
@@ -3086,12 +3067,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "thunderstorm",
@@ -3190,12 +3166,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "thunderstorm",
@@ -3294,12 +3265,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "thunderstorm",
@@ -3535,12 +3501,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "intense-sun",
@@ -3639,12 +3600,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "intense-sun",
@@ -4720,12 +4676,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectStatus": "combat-preview",
               "engineScope": "combat-preview-only"
@@ -4947,12 +4898,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face itself has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "thunderstorm",
@@ -6434,12 +6380,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "intense-sun",
@@ -6538,12 +6479,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "intense-sun",
@@ -6590,12 +6526,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "heavy-rain",
@@ -6695,12 +6626,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "intense-sun",
@@ -6747,12 +6673,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "heavy-rain",
@@ -7592,12 +7513,7 @@
                 "max": 1,
                 "description": "One Pokémon within this Pokémon's distance restriction; command active/reserve and self/adjacent rules come from reviewed-playcard-spec.md and reviewed-combat-spec.md. The face has no additional target restriction."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "intense-sun",
@@ -7696,12 +7612,7 @@
                 "max": 2,
                 "description": "Up to two Pokémon within this Pokémon's distance restriction. The photographed face does not waive distance or establish target/defense/judgment sequencing."
               },
-              "unresolvedSymbols": [
-                {
-                  "zh": "伤害数值旁的小图标尚待核实。",
-                  "en": "The small symbol beside the damage value has not yet been identified."
-                }
-              ],
+              "unresolvedSymbols": [],
               "engineEligible": false,
               "effectJudgment": {
                 "resultWeather": "intense-sun",

@@ -4,6 +4,8 @@ import {clone} from '/vendor/addons/utils/SkeletonUtils.js';
 function poseDraftModel(model, dex) {
   const aerodactyl = dex===142;
   model.rotation.set(aerodactyl ? .29 : .11, aerodactyl ? -.55 : -.28,0);
+  // The draft camera faces the opposite side of Gastly's battle-facing axis.
+  if (dex===92) model.rotation.y += Math.PI;
   if (dex!==66) return;
   model.updateMatrixWorld(true);
   for (const side of ['L','R']) {

@@ -133,11 +133,23 @@ test('Download is available on every level only before any ordinary Draw has sta
 });
 
 test('Download chooses up to two other live nonempty hands regardless of range', t => {
-  const f = fixture(t, { count: 6 }); drawSetup(f); for (const who of f.seats.filter(who => who !== f.leader)) f.supply(who); const excluded = f.byId(f.room().players[3].id); f.player(excluded).eliminated = true; const observer = f.store.join(f.owner.code, { nickname: 'Observer', spectator: true }); download(f); assert.equal(f.room().pendingBattle.kind, 'download'); assert.equal(f.room().pendingBattle.maxTargets, 2); assert.deepEqual(new Set(f.room().pendingBattle.legalTargetIds), new Set(f.seats.filter(who => ![f.leader, excluded].includes(who)).map(who => who.playerId))); assert.equal(f.room().pendingBattle.legalTargetIds.includes(observer.playerId), false); choose(f, []); assert.equal(f.room().turn.phase, 'play');
+  const f = fixture(t, { count: 6 }); drawSetup(f); for (const who of f.seats.filter(who => who !== f.leader)) f.supply(who); const excluded = f.byId(f.room().players[3].id); f.player(excluded).eliminated = true; const observer = f.store.join(f.owner.code, { nickname: 'Observer', spectator: true }); download(f); assert.equal(f.room().pendingBattle.kind, 'download'); assert.equal(f.room().pendingBattle.maxTargets, 2); assert.deepEqual(new Set(f.room().pendingBattle.legalTargetIds), new Set(f.seats.filter(who => ![f.leader, excluded].includes(who)).map(who => who.playerId))); assert.equal(f.room().pendingBattle.legalTargetIds.includes(observer.playerId), false);
 });
 
-test('Download zero selected targets consumes the complete Draw without taking a card or ordinary drawing', t => {
-  const f = fixture(t); drawSetup(f); f.supply(f.target); const deck = structuredClone(f.room().drawPile); download(f); choose(f); assert.equal(f.player(f.leader).hand.length, 0); assert.equal(f.player(f.target).hand.length, 1); assert.deepEqual(f.room().drawPile, deck); assert.equal(f.room().turn.drawRemaining, 0); assert.equal(f.room().turn.phase, 'play'); assert.equal(f.view(f.leader).self.battle.canTrait, false); assert.equal(f.room().drawChoice ?? null, null);
+test('Download rejects empty confirmation while two other trainers have hand cards', t => {
+  const f = fixture(t);
+  drawSetup(f);
+  f.supply(f.target);
+  f.supply(f.third);
+  download(f);
+  rejectsAtomically(f, () => choose(f), 'INVALID_RESPONSE');
+  assert.equal(f.room().turn.phase, 'draw');
+  assert.equal(f.room().pendingBattle.kind, 'download');
+  choose(f, [f.target, f.third]);
+  steal(f);
+  steal(f);
+  assert.equal(f.room().turn.phase, 'play');
+  assert.equal(f.player(f.leader).hand.length, 2);
 });
 
 test('Download with no available hands still offers an explicit zero-target whole-Draw replacement', t => {

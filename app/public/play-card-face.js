@@ -13,8 +13,8 @@ const tools = {
 
 const events = {
   'mewtwo-threat': ['mewtwo', 'Each other active takes 2 damage unless its trainer Dodges.', '其他出战宝可梦受到 2 点伤害，除非训练家打出快躲开。'],
-  'mew-blessing': ['mew', 'Each active Pokémon heals 2 HP or gains a level.', '每只出战宝可梦回复 2 点体力或升 1 级。'],
-  'rival-challenge': ['rival.svg', 'Trade commands with a rival. Last to play deals 2.', '与对手轮流打出接招吧，最后打出者造成 2 点伤害。'],
+  'mew-blessing': ['mew', 'Heal 2 HP or gain a level. At full HP, only level up. At Lv. 3, only heal if injured.', '回复 2 点体力或升 1 级。满体力只能升级；Lv.3 仅在受伤时回复。'],
+  'rival-challenge': ['rival.svg', 'Trade commands with a rival. First to pass takes 2 base damage.', '与对手轮流打出「接招吧！」，先放弃的一方受到2点基础伤害。'],
   'berry-harvest': ['oran-berry', 'Each trainer takes one card from a shared reveal.', '每名训练家从公开的牌中选取 1 张。'],
   'farfetchd-prank': ['farfetchd', 'Discard a hand card, held item or boost marker.', '弃置一张对手手牌、一件持有物或一枚强化。'],
   'moltres-trial': ['moltres', 'Each other active takes 2 damage unless its trainer plays a command.', '其他出战宝可梦受到 2 点伤害，除非训练家打出接招吧。'],

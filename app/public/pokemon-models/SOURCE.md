@@ -14,6 +14,12 @@ The same archives supply the battle idle for 77 more forms. Most use their exist
 
 The archives also supply `ba41_down01` for 86 forms, exported as the `faint` clip alongside any existing idle. The clip uses the matching skeleton where possible. Models with different rigs use retargeted joint motion, with Gastly and Koffing using the original torso motion. Kakuna, Magikarp, and Porygon use the arena's fallback faint pose.
 
+Raichu (`26.glb`, `pm0026_00`) uses the matching Let's Go body and tail meshes, native skin weights, and idle and faint clips.
+
+Weedle (`13.glb`, `pm0013_00`) uses the matching Let's Go meshes, textures, native skin weights, and idle and faint clips.
+
+Farfetch’d (`83.glb`, `pm0083_00`) uses the matching Let's Go meshes, eye and body textures, native skin weights, and idle and faint clips.
+
 Charmander, Squirtle, Staryu and Lapras also include the Let's Go `ba21_tokusyu01` special attack as `special`. Squirtle, Staryu and Lapras use the original skeleton tracks. Charmander uses joint rotations retargeted to the arena model.
 
 Bulbasaur, Pikachu, Clefairy, Abra and Dratini also include `ba21_tokusyu01`. Pidgey, Machop, Cubone, Scyther, Tauros, Aerodactyl and Snorlax include the Let's Go `ba20_buturi01` physical attack as `physical`. Bulbasaur, Pikachu and Dratini use retargeted motion. The other forms use the original skeleton tracks.

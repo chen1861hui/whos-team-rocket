@@ -89,6 +89,7 @@ test('Master Edition deals from one fixed deck and keeps opening hands private',
     }
     assert.equal(cards.filter(card => card.kind === 'command' && card.weather === 'rain').length, 14);
     assert.equal(cards.filter(card => card.toolType === 'potion-full-heal').length, 8);
+    assert.deepEqual(cards.filter(card => card.eventType === 'moltres-trial').map(card => card.weather), Array(3).fill('intense-sun'));
     assert.equal(cards.filter(card => card.eventType === 'articuno-protection' && card.weather === 'thunderstorm').length, 1);
     assert.equal(observer.settings.deckProfile, 'retail');
     assert.equal(observer.scenario.deckCardCount, 108);
@@ -99,6 +100,59 @@ test('Master Edition deals from one fixed deck and keeps opening hands private',
     assert.ok(observer.players.every(player => player.hand === undefined));
     assert.equal(observer.drawPile, undefined);
   }
+});
+
+test('Master Edition can resolve Moltres four times without refilling when Synchronize recovers one of its three cards', t => {
+  const f = fixture(t, { deckProfile: 'retail' });
+  f.play();
+  const room = f.room(), target = f.target();
+  for (const seat of f.seats) f.player(seat).active.hpBonus = 10;
+  f.player(target).active.catalogueId = 'abra';
+  const piles = [room.drawPile, ...room.players.map(player => player.hand)];
+  const trials = piles.flatMap(pile => pile.filter(card => card.eventType === 'moltres-trial'));
+  for (const pile of piles) {
+    for (const card of trials) {
+      const index = pile.indexOf(card);
+      if (index !== -1) pile.splice(index, 1);
+    }
+  }
+  f.player(f.leader).hand.push(...trials);
+
+  for (const [index, card] of trials.entries()) {
+    f.act(f.leader, 'useEvent', { cardId: card.id });
+    while (f.room().pendingBattle) {
+      const decision = f.room().pendingBattle;
+      if (index === 0 && decision.kind === 'synchronize') {
+        f.act(target, 'respondBattle', { decisionId: decision.id, choice: 'trait' });
+      } else f.pass();
+    }
+  }
+  assert.equal(f.player(target).hand.filter(card => card.id === trials[0].id).length, 1);
+  f.store.startTurn(f.room(), target.playerId, f.room().turn.number + 1);
+  while (f.room().turn.drawRemaining) f.act(target, 'draw');
+  f.act(target, 'useEvent', { cardId: trials[0].id });
+  while (f.room().pendingBattle) f.pass();
+
+  assert.ok(f.room().drawPile.length > 0);
+  assert.deepEqual(f.room().discardPile.filter(card => card.eventType === 'moltres-trial').map(card => card.id).sort(), trials.map(card => card.id).sort());
+  const cards = [...f.room().drawPile, ...f.room().discardPile, ...f.room().players.flatMap(player => player.hand)];
+  assert.equal(cards.length, 108);
+  assert.equal(new Set(cards.map(card => card.id)).size, 108);
+  const log = f.view(f.leader).log.map(entry => entry.text.zh);
+  assert.equal(log.filter(entry => entry === '使用火焰鸟的试炼。').length, 4);
+  assert.ok(log.some(entry => entry.includes('发动同步，将刚使用的「火焰鸟的试炼」收入手牌。')));
+  assert.ok(log.every(entry => !entry.includes('已洗混')));
+});
+
+test('Master Edition discard adds the card to the pile and uses the match log wording', t => {
+  const f = fixture(t, { deckProfile: 'retail' });
+  const played = f.play();
+  const cardId = played.self.hand[0].id;
+  f.act(f.leader, 'finishPlay');
+  const result = f.act(f.leader, 'discard', { cardId });
+  assert.equal(result.self.hand.length, 5);
+  assert.equal(f.room().discardPile.at(-1).id, cardId);
+  assert.deepEqual(result.log.at(-1).text, { zh: '当前玩家弃置一张手牌。', en: 'The current player discarded one card.' });
 });
 
 test('only the host can save a known deck and a timer-only save preserves the profile across restart', t => {
@@ -211,6 +265,8 @@ test('leader elimination triggers immediate Challenger victory and only then dis
   const lobby = f.act(f.owner, 'returnToLobby');
   assert.equal(lobby.status, 'lobby'); assert.equal(lobby.gameMode, undefined);
   assert.ok(lobby.players.every(p => p.role === undefined && p.hand === undefined && p.active === null));
+  rejects(() => f.act(f.owner, 'ready', { revision: ended.revision, ready: true }), 'STALE_REVISION');
+  assert.equal(f.view(f.owner).players.find(p => p.id === f.owner.playerId).ready, false);
 });
 
 test('multi-target Surf opens independent defense windows and one dodge leaves the other target affected', t => {
@@ -351,6 +407,7 @@ test('active identity reveal publishes only the acting trainer’s identity and 
   const revealed = roster().find(seat=>seat.id===rocket.playerId);
   assert.equal(revealed.role,'rocket');
   assert.ok(roleProfiles.rocket.includes(revealed.trainerAvatar));
+  assert.deepEqual(f.view(observer).visualEvents.filter(cue=>cue.kind==='identity-reveal').map(cue=>cue.targetIds),[[rocket.playerId]]);
   assert.deepEqual(roster().filter(seat=>!seat.role),hidden.filter(seat=>seat.id!==rocket.playerId));
   assert.deepEqual(f.room().turn,turn);
   rejects(()=>f.act(rocket,'revealRole'),'IDENTITY_ALREADY_PUBLIC');

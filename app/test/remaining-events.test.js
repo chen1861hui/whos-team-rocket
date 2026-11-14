@@ -60,14 +60,25 @@ function fixture(t, { protection = false } = {}) {
   return { room, player, view, seats, leader, opponent, third, spectator, card, give, use, pending, respond };
 }
 
-test('Rival starts with the selected trainer and an opening pass has no damage source', t => {
-  const f = fixture(t);
-  const event = f.use('rival-challenge', { targetId: f.opponent.playerId });
-  assert.equal(f.pending().actorId, f.opponent.playerId);
-  f.respond('pass');
-  assert.equal(f.player(f.opponent).active.damage, 0);
-  assert.equal(f.player(f.leader).active.damage, 0);
-  assert.deepEqual(f.room().discardPile, [event]);
+test('Rival starts with the selected trainer and an opening pass takes damage from the challenger', t => {
+  for (const hasCommand of [false, true]) {
+    const f = fixture(t);
+    const unused = f.card('Unused command');
+    if (hasCommand) f.give(f.opponent, unused);
+    const event = f.use('rival-challenge', { targetId: f.opponent.playerId });
+    assert.equal(f.pending().actorId, f.opponent.playerId);
+    f.respond('pass');
+    assert.equal(f.pending(), null);
+    assert.equal(f.player(f.opponent).active.damage, 2);
+    assert.equal(f.player(f.leader).active.damage, 0);
+    assert.deepEqual(f.player(f.opponent).hand, hasCommand ? [unused] : []);
+    assert.deepEqual(f.room().discardPile, [event]);
+    assert.equal(f.room().turn.playerId, f.leader.playerId);
+    assert.equal(f.room().turn.phase, 'play');
+    const strike = f.view(f.spectator).visualEvents.find(cue => cue.action === 'duel-strike');
+    assert.equal(strike.sourceId, f.leader.playerId);
+    assert.deepEqual(strike.targetIds, [f.opponent.playerId]);
+  }
 });
 
 test('Rival accepts only the responder’s actual command and attributes the hit to the last player', t => {
@@ -140,11 +151,54 @@ test('Berry keeps its pool through Articuno and discards the unclaimed card at t
   f.respond('protect', { cardId: art.id });
   for (const seat of [f.opponent, f.third]) {
     assert.equal(f.pending().targetId, seat.playerId);
-    for (const responder of f.seats) f.respond('pass', {}, responder);
+    assert.equal(f.pending().kind, 'berry-pick');
     f.respond('card', { handIndex: 0 });
   }
   assert.deepEqual(f.player(f.leader).hand, []);
   assert.deepEqual(f.room().discardPile, [art, event, cards[2]]);
+});
+
+test('Berry starts choosing immediately when Articuno is in the deck and nobody holds it', t => {
+  const f = fixture(t, { protection: true });
+  const art = f.card('Articuno', { kind: 'event', eventType: 'articuno-protection' });
+  f.room().drawPile = [art, ...['Third', 'Second', 'First'].map(label => f.card(label))];
+  f.use('berry-harvest');
+  for (const seat of f.seats) {
+    assert.equal(f.pending().kind, 'berry-pick');
+    assert.equal(f.pending().actorId, seat.playerId);
+    f.respond('card', { handIndex: 0 });
+  }
+  assert.equal(f.pending(), null);
+  assert.deepEqual(f.room().drawPile, [art]);
+});
+
+test('Berry allows another Articuno to counter protection for the same seat', t => {
+  for (const counterCount of [1, 2]) {
+    const f = fixture(t, { protection: true });
+    const cards = ['First', 'Second', 'Third'].map(label => f.card(label));
+    f.room().drawPile = [...cards].reverse();
+    const protect = seat => {
+      const card = f.card('Articuno', { kind: 'event', eventType: 'articuno-protection' });
+      f.give(seat, card);
+      return card;
+    };
+    const first = protect(f.leader), second = protect(f.opponent);
+    const third = counterCount === 2 ? protect(f.third) : null;
+    f.use('berry-harvest');
+    f.respond('protect', { cardId: first.id });
+    assert.equal(f.pending().actorId, f.opponent.playerId);
+    assert.equal(f.pending().targetId, f.leader.playerId);
+    assert.equal(f.pending().counterProtection, true);
+    assert.equal(f.view(f.spectator).pendingBattle.berryCards.length, 3);
+    f.respond('protect', { cardId: second.id });
+    if (third) f.respond('protect', { cardId: third.id });
+
+    assert.equal(f.pending().kind, 'berry-pick');
+    assert.equal(f.pending().actorId, third ? f.opponent.playerId : f.leader.playerId);
+    assert.deepEqual(f.room().discardPile, third ? [first, second, third] : [first, second]);
+    while (f.pending()) f.respond('card', { handIndex: 0 });
+    assert.deepEqual(f.player(f.leader).hand, third ? [] : [cards[0]]);
+  }
 });
 
 test('Berry with a short supply offers the real card and finishes when the pool is empty', t => {

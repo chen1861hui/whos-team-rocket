@@ -57,7 +57,7 @@ export function createBattlefield() {
   const camera = new THREE.PerspectiveCamera(41, 1, 0.1, 150);
   const loader = new GLTFLoader();
   const models = new Map();
-  const mutedMaterials = new Map(), modelMaterials = new WeakMap();
+  const materialVariants = new Map(), modelMaterials = new WeakMap();
   const trainerSlots = [];
   const cameraBase = new THREE.Vector3(), cameraTarget = new THREE.Vector3();
   const turnTarget = new THREE.Vector3(), cameraRight = new THREE.Vector3();
@@ -75,31 +75,82 @@ export function createBattlefield() {
   let seatedFireViewer = false;
   let forms, draftModels, cameraReady = false, eligible = null, marked = [], aimBottom = 0, previousFrame = 0;
   let turnFocus = null;
+  const identityReveals = [];
+  const trainerCameraOffset = new THREE.Vector3();
+  const trainerCameraRotation = new THREE.Quaternion();
+  const orbit = new THREE.Spherical(19,1.05,0);
+  const canvas = renderer.domElement;
+  let orbitDrag;
   let scene, host, config, battleEffects, terrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
 
-  function muteModel(model, muted) {
+  function shadeModel(model, muted, faded) {
     model?.traverse(part => {
       if (!part.isMesh) return;
-      if (!muted) {
+      if (!muted && !faded) {
         if (modelMaterials.has(part)) {
           part.material = modelMaterials.get(part);
           modelMaterials.delete(part);
         }
         return;
       }
-      modelMaterials.set(part,part.material);
-      const dim = material => {
-        if (!mutedMaterials.has(material)) {
+      const original = modelMaterials.get(part) ?? part.material;
+      modelMaterials.set(part,original);
+      const flags = (muted ? 1 : 0)+(faded ? 2 : 0);
+      const shade = material => {
+        if (!materialVariants.has(material)) materialVariants.set(material,new Map());
+        const variants = materialVariants.get(material);
+        if (!variants.has(flags)) {
           const copy = material.clone();
-          copy.color?.multiplyScalar(.59);
-          copy.emissive?.multiplyScalar(.59);
-          mutedMaterials.set(material,copy);
+          if (muted) {
+            copy.color?.multiplyScalar(.59);
+            copy.emissive?.multiplyScalar(.59);
+          }
+          if (faded) {
+            copy.transparent = true;
+            copy.opacity *= .28;
+            copy.depthWrite = false;
+          }
+          variants.set(flags,copy);
         }
-        return mutedMaterials.get(material);
+        return variants.get(flags);
       };
-      part.material = Array.isArray(part.material) ? part.material.map(dim) : dim(part.material);
+      part.material = Array.isArray(original) ? original.map(shade) : shade(original);
     });
   }
+
+  function moveOrbit(yaw,pitch,zoom=0) {
+    orbit.theta -= yaw;
+    orbit.phi = THREE.MathUtils.clamp(orbit.phi-pitch,.28,1.43);
+    orbit.radius = THREE.MathUtils.clamp(orbit.radius*Math.exp(zoom),8,config.coastalBattle ? 22 : 33);
+    draw(performance.now());
+  }
+  const freeOrbitActive = () => config?.camera==='free' && host?.dataset.camera==='free';
+  canvas.addEventListener('pointerdown',event=>{
+    if (!freeOrbitActive() || event.button!==0 || orbitDrag) return;
+    orbitDrag={id:event.pointerId,x:event.clientX,y:event.clientY};
+    canvas.setPointerCapture(event.pointerId);
+    canvas.focus({preventScroll:true});
+  });
+  canvas.addEventListener('pointermove',event=>{
+    if (event.pointerId!==orbitDrag?.id || !freeOrbitActive()) return;
+    const {x,y}=orbitDrag;
+    orbitDrag.x=event.clientX; orbitDrag.y=event.clientY;
+    moveOrbit((event.clientX-x)*.006,(event.clientY-y)*.006);
+  });
+  canvas.addEventListener('lostpointercapture',()=>{ orbitDrag=undefined; });
+  canvas.addEventListener('wheel',event=>{
+    if (!freeOrbitActive()) return;
+    event.preventDefault();
+    const unit = event.deltaMode===1 ? 16 : event.deltaMode===2 ? host.clientHeight : 1;
+    moveOrbit(0,0,THREE.MathUtils.clamp(event.deltaY*unit*.001,-.45,.45));
+  },{passive:false});
+  canvas.addEventListener('keydown',event=>{
+    if (!freeOrbitActive()) return;
+    const input = {ArrowLeft:[-.14,0],ArrowRight:[.14,0],ArrowUp:[0,-.12],ArrowDown:[0,.12],'+':[0,0,-.13],'=':[0,0,-.13],'-':[0,0,.13]}[event.key];
+    if (!Array.isArray(input)) return;
+    event.preventDefault();
+    moveOrbit(...input);
+  });
 
   function modelFor(active) {
     forms ??= fetch('/pokemon-models/forms.json').then(response => {
@@ -110,7 +161,8 @@ export function createBattlefield() {
   }
   function modelForDex(dex) {
     if (!dex) return null;
-    if (!models.has(dex)) models.set(dex, loader.loadAsync(`/pokemon-models/${dex}.glb?v=11`).then(({scene: asset, animations}) => {
+    const version = [13,26,83].includes(dex) ? 12 : 11;
+    if (!models.has(dex)) models.set(dex, loader.loadAsync(`/pokemon-models/${dex}.glb?v=${version}`).then(({scene: asset, animations}) => {
       const idle = animations.find(clip=>clip.name==='idle');
       const faint = animations.find(clip=>clip.name==='faint');
       const special = animations.find(clip=>clip.name==='special');
@@ -151,7 +203,8 @@ export function createBattlefield() {
         }
       });
       mount.add(asset);
-      mount.rotation.y = Math.PI;
+      // Gastly keeps its original mesh, whose forward axis already faces the arena.
+      mount.rotation.y = dex === 92 ? 0 : Math.PI;
       return {dex,mount,idle,faint,special,physical,arenaScaleRatio:arenaScale/scale,
         footprint:{halfWidth:size.x*arenaScale/2,halfDepth:size.z*arenaScale/2,
           bottom:(bounds.min.y-ground)*arenaScale,top:(bounds.max.y-ground)*arenaScale},
@@ -1050,12 +1103,42 @@ export function createBattlefield() {
       const halfWidth = Math.max(7,(body.right-body.left)*.18);
       const halfHeight = Math.max(7,(body.bottom-body.top)*.19);
       const core = {left:center.x-halfWidth,right:center.x+halfWidth,top:center.y-halfHeight,bottom:center.y+halfHeight};
-      return {id:pod.id,center,body,core};
+      return {id:pod.id,model:pod.visual.model,center,body,core};
     });
   }
   function overlap(a,b) {
     return Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left)) *
       Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+  }
+  function obscuringModels(partners, targets, width, height, revealedTrainer) {
+    const bodies = partners.filter(({center})=>center.depth>=-1 && center.depth<=1);
+    for (const pod of pods) {
+      const slot = pod.trainerSlot;
+      if (!slot.visible || !slot.model) continue;
+      const base = slot.getWorldPosition(new THREE.Vector3());
+      const center = base.clone().addScaledVector(scene.up,slot.scale.y*.52).project(camera);
+      if (center.z < -1 || center.z > 1) continue;
+      const head = base.clone().addScaledVector(scene.up,slot.scale.y).project(camera);
+      base.project(camera);
+      const x = (center.x+1)*width/2, y = (1-center.y)*height/2;
+      const h = Math.max(10,Math.abs(head.y-base.y)*height/2);
+      const body = {left:x-h*.24,right:x+h*.24,top:y-h*.52,bottom:y+h*.52};
+      const core = {left:x-h*.16,right:x+h*.16,top:y-h*.37,bottom:y+h*.30};
+      bodies.push({id:pod.id,model:slot.model,trainer:true,center:{x,y,depth:center.z},body,core});
+    }
+    const subjects = bodies.filter(body=>revealedTrainer
+      ? body.trainer && body.id===revealedTrainer.id
+      : !body.trainer && (!targets.length || targets.includes(body.id)));
+    const obscuring = new Set();
+    for (const front of bodies) for (const back of subjects) {
+      const {core,center} = back;
+      if (front===back || front.center.depth>=center.depth ||
+          center.x<0 || center.x>width || center.y<0 || center.y>height) continue;
+      if (overlap(core,front.body) > (core.right-core.left)*(core.bottom-core.top)*.34) {
+        obscuring.add(front.model);
+      }
+    }
+    return obscuring;
   }
   function fitTrainerView() {
     const key = JSON.stringify([host.clientWidth,camera.aspect,camera.fov,desiredCamera.toArray(),desiredTarget.toArray(),
@@ -1134,7 +1217,24 @@ export function createBattlefield() {
     host.dataset.turnFocus = pod.id;
   }
 
-  function frameCamera(focus, nearFocus, time) {
+  function revealedTrainerAt(time) {
+    while (identityReveals.length) {
+      const reveal = identityReveals[0];
+      const pod = pods.find(pod=>pod.id===reveal.playerId);
+      if (!pod || time-reveal.queuedAt>3100 || (reveal.startedAt!=null && time-reveal.startedAt>=1450)) {
+        identityReveals.shift();
+        continue;
+      }
+      if (eligible || pod.change?.waitForHit || battleEffects?.pendingHit(pod.id)) return null;
+      const slot = pod.trainerSlot;
+      if (!slot.model || (slot.modelProfile!==slot.profile && !slot.pendingTrainer && time-reveal.queuedAt<1400)) return null;
+      reveal.startedAt ??= time;
+      return pod;
+    }
+    return null;
+  }
+
+  function frameCamera(focus, nearFocus, time, revealedTrainer) {
     const targets = pods.filter(pod => focus?.targetIds?.includes(pod.id));
     const source = pods.find(pod => pod.id === focus?.sourceId);
     const narrow = camera.aspect < .9;
@@ -1145,6 +1245,27 @@ export function createBattlefield() {
     if (Number.isInteger(config.portraitIndex)) {
       desiredCamera.set(0,1.05,Math.max(2.95, 2.9/camera.aspect));
       desiredTarget.set(0,1.04,0);
+    } else if (revealedTrainer) {
+      mode = 'identity-reveal';
+      const slot = revealedTrainer.trainerSlot;
+      slot.getWorldPosition(desiredTarget);
+      desiredTarget.y += slot.scale.y*.52;
+      slot.parent.getWorldQuaternion(trainerCameraRotation);
+      trainerCameraOffset.set(1.25,.35,narrow ? 5.2 : 4.6)
+        .applyAxisAngle(scene.up,slot.restYaw).applyQuaternion(trainerCameraRotation);
+      desiredCamera.copy(desiredTarget).add(trainerCameraOffset);
+    } else if (config.camera==='free') {
+      mode = 'free';
+      desiredTarget.set(0,1.1,0);
+      desiredCamera.setFromSpherical(orbit);
+      if (config.coastalBattle) {
+        const horizontal = Math.hypot(desiredCamera.x,desiredCamera.z);
+        if (horizontal>14.8) {
+          desiredCamera.x *= 14.8/horizontal;
+          desiredCamera.z *= 14.8/horizontal;
+        }
+      }
+      desiredCamera.add(desiredTarget);
     } else if (config.camera!=='overhead' && !eligible && !nearFocus && battleEffects?.skyActive) {
       mode = 'event';
       if (config.coastalBattle && !narrow) {
@@ -1251,13 +1372,14 @@ export function createBattlefield() {
       camera.near = Math.max(.1,radius-12.4);
     }
     host.dataset.camera = mode;
+    host.dataset.identityFocus = revealedTrainer?.id ?? '';
     if (turnFocus?.startedAt!=null && (mode!=='trainer' || focus || eligible || config.reducedMotion)) {
       // Continue from the frame on screen when the player chooses another view mid-push.
       cameraBase.copy(camera.position);
       cameraTarget.copy(turnTarget);
       turnFocus = null;
     }
-    const blend = !cameraReady || config.reducedMotion ? 1 : .14;
+    const blend = !cameraReady || config.reducedMotion || mode==='free' ? 1 : .14;
     cameraBase.lerp(desiredCamera,blend);
     cameraTarget.lerp(desiredTarget,blend);
     camera.position.copy(cameraBase);
@@ -1277,7 +1399,8 @@ export function createBattlefield() {
     const actionFocus = !config.reducedMotion && (switchFocus || battleEffects?.responseFocus ||
       (fallen && {targetIds:[fallen.id],sourceId:config.turnId}));
     const focus = eligible ? null : nearFocus || actionFocus || config.focus;
-    frameCamera(focus,nearFocus,time);
+    const revealedTrainer = config.reducedMotion ? null : revealedTrainerAt(time);
+    frameCamera(focus,nearFocus,time,revealedTrainer);
     const trainerCamera = host.dataset.camera==='trainer';
     const clipOwnStation = trainerCamera && camera.near>.1;
     const clipRearStation = clipOwnStation && pods.some(pod=>pod.rearStation && pod.id===config.viewerId);
@@ -1286,8 +1409,16 @@ export function createBattlefield() {
     const dt = Math.min(.075,Math.max(0,(time-previousFrame)/1000));
     previousFrame = time;
     const viewWidth = host.clientWidth, viewHeight = host.clientHeight;
-    const visiblePartners = (config.coastalBattle || config.theme==='fire') && trainerCamera
-      ? projectedPartners(camera,viewWidth,viewHeight) : [];
+    const partners = projectedPartners(camera,viewWidth,viewHeight);
+    const visiblePartners = (config.coastalBattle || config.theme==='fire') && trainerCamera ? partners : [];
+    for (const pod of pods) {
+      const hideOwnTrainer = config.coastalBattle || (config.theme==='fire' && !pod.rearStation);
+      const ownTrainerView = hideOwnTrainer && trainerCamera && pod.id===config.viewerId;
+      pod.trainerSlot.visible = !ownTrainerView;
+      if (pod.commandDais) pod.commandDais.visible = !ownTrainerView || (!clipOwnStation && config.theme!=='fire');
+    }
+    const targets = focus?.targetIds || [];
+    const obscuring = obscuringModels(partners,eligible ?? targets,viewWidth,viewHeight,revealedTrainer);
     const placedBadges = [];
     function placeBadge(badge,x,y) {
       let size = badgeSizes.get(badge);
@@ -1333,7 +1464,6 @@ export function createBattlefield() {
         element.classList.toggle('off-camera',Math.abs(p.x)>sideLimit || Math.abs(p.y)>.91 || p.z>1);
       }
     };
-    const targets = focus?.targetIds || [];
     host.dataset.effects = [...(motions?.values() || [])].map(motion=>motion.style).join(' ');
     host.dataset.eventModel = battleEffects?.eventModel || '';
     host.dataset.eventEffect = battleEffects?.eventEffect || '';
@@ -1344,10 +1474,6 @@ export function createBattlefield() {
     let loaded = 0;
     for(const pod of pods) {
       const active=pod.id===config.turnId;
-      const ownTrainerView = (config.coastalBattle || (config.theme==='fire' && !pod.rearStation)) &&
-        trainerCamera && pod.id===config.viewerId;
-      pod.trainerSlot.visible = !ownTrainerView;
-      if (pod.commandDais) pod.commandDais.visible = !ownTrainerView || (!clipOwnStation && config.theme!=='fire');
       const size = pod.visual?.size ?? pokemonLevelScale(pod.modelRequest?.level);
       pod.turnMarker.visible=active && !eligible;
       pod.turnMarker.position.y=2.1+(size-1)*1.8+(config.reducedMotion?0:Math.sin(time*.002)*.08);
@@ -1363,14 +1489,15 @@ export function createBattlefield() {
       }
       const muted = config.coastalBattle && Boolean(eligible && !isEligible && config.viewerId!==pod.id);
       const model = pod.visual?.model;
-      if (pod.mutedModel && (pod.mutedModel!==model || !muted)) {
-        muteModel(pod.mutedModel,false);
-        pod.mutedModel = null;
-      }
-      if (model && muted && !pod.mutedModel) {
-        muteModel(model,true);
-        pod.mutedModel = model;
-      }
+      const faded = obscuring.has(model);
+      if (pod.shadedModel!==model) shadeModel(pod.shadedModel,false,false);
+      if (pod.shadedModel!==model || pod.modelMuted!==muted || pod.modelFaded!==faded) shadeModel(model,muted,faded);
+      pod.shadedModel=model; pod.modelMuted=muted; pod.modelFaded=faded;
+      const trainerModel = pod.trainerSlot.model;
+      const trainerFaded = obscuring.has(trainerModel);
+      if (pod.shadedTrainer!==trainerModel) shadeModel(pod.shadedTrainer,false,false);
+      if (pod.shadedTrainer!==trainerModel || pod.trainerFaded!==trainerFaded) shadeModel(trainerModel,false,trainerFaded);
+      pod.shadedTrainer=trainerModel; pod.trainerFaded=trainerFaded;
       const label=labelLayer?.querySelector(`[data-seat-id="${CSS.escape(pod.id)}"]`);
       const sprite=spriteLayer?.querySelector(`[data-sprite-id="${CSS.escape(pod.id)}"]`);
       const motion = motions?.get(pod.id);
@@ -1441,6 +1568,7 @@ export function createBattlefield() {
       const knockedOut = pod.change?.kind === 'knockout' || replacingKnockedOut;
       const burst = battleEffects?.traitBurst(pod.id);
       if (label) {
+        label.dataset.modelTransparent = faded || trainerFaded ? 'true' : '';
         const activePokemon = pod.activePokemon;
         const waitingHit = config.reducedMotion ? null : battleEffects?.pendingHit(pod.id);
         const health = activePokemon?.catalogueId===waitingHit?.targetCatalogueId && Number.isFinite(waitingHit?.hpBefore)
@@ -1590,6 +1718,7 @@ export function createBattlefield() {
     mount(nextHost, nextConfig) {
       const sameTable = config?.roomCode && config.roomCode===nextConfig.roomCode && config.theme===nextConfig.theme;
       const sameViewer = sameTable && config.viewerId===nextConfig.viewerId;
+      if (!sameViewer || nextConfig.reducedMotion) identityReveals.length = 0;
       if (!sameViewer || !nextConfig.turnId || !nextConfig.turnNumber) {
         turnFocus = null;
       } else if (config.turnId && nextConfig.turnNumber>config.turnNumber && nextConfig.turnId!==config.turnId &&
@@ -1597,6 +1726,15 @@ export function createBattlefield() {
         turnFocus = {playerId:nextConfig.turnId,queuedAt:performance.now(),startedAt:null};
       }
       host=nextHost; config=nextConfig; labelLayer=host.querySelector('.world-labels'); spriteLayer=host.querySelector('.world-sprites'); targetLayer=host.querySelector('.world-targets');
+      if (config.camera==='free') {
+        canvas.tabIndex=0;
+        canvas.removeAttribute('aria-hidden');
+        canvas.setAttribute('aria-label',config.freeCameraLabel || 'Free view');
+      } else {
+        canvas.removeAttribute('tabindex');
+        canvas.setAttribute('aria-hidden','true');
+        canvas.removeAttribute('aria-label');
+      }
       host.prepend(renderer.domElement);
       const key=JSON.stringify([config.theme,config.coastalBattle,config.roomCode,config.portraitIndex,config.viewerId,config.players.map(p=>[p.id,p.leader])]);
       if (key!==geometryKey) {
@@ -1614,7 +1752,14 @@ export function createBattlefield() {
       mountDraftModels();
       updateModels();
       battleEffects?.preload(config.eventTypes);
-      battleEffects?.enqueue(config.cues || [],performance.now(),config.activeCardEvent);
+      const now = performance.now();
+      const cues = config.cues || [];
+      if (!config.reducedMotion) {
+        for (const cue of cues) {
+          if (cue.kind==='identity-reveal') identityReveals.push({playerId:cue.targetIds[0],queuedAt:now});
+        }
+      }
+      battleEffects?.enqueue(cues.filter(cue=>cue.kind!=='identity-reveal'),now,config.activeCardEvent);
       resize();
     },
     refresh() { draw(performance.now()); },
@@ -1645,8 +1790,8 @@ export function createBattlefield() {
         materials.forEach(material=>material.dispose());
       }).catch(()=>{});
       models.clear();
-      for (const material of mutedMaterials.values()) material.dispose();
-      mutedMaterials.clear();
+      for (const variants of materialVariants.values()) for (const material of variants.values()) material.dispose();
+      materialVariants.clear();
       renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove();
     },
   };

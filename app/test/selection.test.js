@@ -51,6 +51,28 @@ test('host and guests can claim open seats, retain ownership, and start in clock
   assert.equal(f.room().scenario.deckCardCount,108);
 });
 
+test('simultaneous ready requests from different seats all apply without overwriting newer choices', t => {
+  const f = game(t, 5);
+  for (const seat of f.seats) f.act(seat, 'ready', { ready: false });
+  const revision = f.view(f.owner).revision;
+  const setReady = (seat, id, ready = true) => f.store.action(f.owner.code, seat.token, { id, revision, type: 'ready', ready });
+
+  for (const [index, seat] of f.seats.entries()) setReady(seat, `concurrent-ready-${index}`);
+  assert.ok(f.view(f.observer).players.filter(player => !player.spectator).every(player => player.ready));
+  rejects(() => setReady(f.owner, 'old-unready', false), 'STALE_REVISION');
+  rejects(() => setReady(f.observer, 'observer-ready'), 'SPECTATOR_ONLY_VIEW');
+  assert.equal(f.start().status, 'identity');
+  rejects(() => setReady(f.seats[1], 'ready-after-start'), 'STALE_REVISION');
+});
+
+test('a ready request from before a seat change cannot restore readiness', t => {
+  const f = game(t, 3);
+  const revision = f.view(f.owner).revision;
+  f.act(f.owner, 'chooseSeat', { seatNumber: 6 });
+  rejects(() => f.store.action(f.owner.code, f.owner.token, { id: 'old-seat-ready', revision, type: 'ready', ready: true }), 'STALE_REVISION');
+  assert.equal(f.view(f.owner).players.find(player => player.id === f.owner.playerId).ready, false);
+});
+
 test('identities are assigned and acknowledged before any Pokémon candidate is dealt or drawn',t=>{
   const f=game(t);const first=f.start();
   assert.equal(first.status,'identity');assert.ok(first.self.role);assert.deepEqual(first.self.candidates,[]);
@@ -81,6 +103,42 @@ test('identities are assigned and acknowledged before any Pokémon candidate is 
   assert.deepEqual(new Map(f.room().players.filter(p=>!p.spectator).map(p=>[p.id,p.role])),roles);
   assert.ok(f.seats.every(s=>f.view(s).self.pokemonDrawRemaining===5));
   assert.equal(f.view(f.observer).self.candidateTypeHints,undefined);
+});
+
+test('different players can confirm identities and open or select partners from the same room revision', t => {
+  const f = game(t, 3);
+  const [host, guest, third] = f.seats;
+  const at = (who, revision, type, payload = {}) => f.act(who, type, { revision, ...payload });
+  const identity = f.start().revision;
+  for (const who of f.seats) at(who, identity, 'acknowledgeIdentity');
+  assert.equal(f.view(f.observer).status, 'setup');
+
+  for (let count = 0; count < 4; count++) f.act(host, 'drawPokemon');
+  const shared = f.view(host).revision;
+  at(host, shared, 'drawPokemon');
+  at(guest, shared, 'drawPokemon');
+  rejects(() => at(guest, shared, 'drawPokemon'), 'STALE_REVISION');
+  assert.equal(f.view(guest).self.candidates.length, 1);
+
+  const picks = who => {
+    const [activeId, reserveId] = f.view(who).self.candidates;
+    return { activeId, reserveId };
+  };
+  const beforeConfirm = f.view(host).revision;
+  at(host, beforeConfirm, 'selectPokemon', picks(host));
+  at(guest, beforeConfirm, 'drawPokemon');
+  assert.equal(f.view(guest).self.candidates.length, 2);
+  assert.ok(f.view(f.observer).players.every(player => !player.active && !player.reserve));
+
+  for (const [who, remaining] of [[guest, 3], [third, 5]]) {
+    for (let count = 0; count < remaining; count++) f.act(who, 'drawPokemon');
+  }
+  const confirmation = f.view(guest).revision;
+  at(guest, confirmation, 'selectPokemon', picks(guest));
+  const result = at(third, confirmation, 'selectPokemon', picks(third));
+  assert.equal(result.status, 'playing');
+  assert.ok(result.players.filter(player => !player.spectator).every(player => player.handCount === 4));
+  rejects(() => at(third, confirmation, 'drawPokemon'), 'STALE_REVISION');
 });
 
 test('six players draw 30 globally unique candidates; choose exactly two from their own five',t=>{

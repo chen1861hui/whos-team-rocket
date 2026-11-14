@@ -44,6 +44,10 @@ function visualEvent(room, kind, details) {
   room.visualEvents = [...(room.visualEvents || []), {id:randomUUID(),kind,
     ...(eventId ? {eventId} : {}),...details}].slice(-32);
 }
+export function revealBattleIdentity(room, player) {
+  player.identityPublic = true;
+  visualEvent(room,'identity-reveal',{targetIds:[player.id]});
+}
 function moveVisual(room, targetId, telegraph = false) {
   const resolution = room.resolution;
   visualEvent(room,'attack',{
@@ -113,8 +117,15 @@ export function selectBattlePartners(room, player, activeId, reserveId, catalogu
   room.initialBattleEntries=live(room).map(player=>player.id);
   return true;
 }
+function refillDrawPile(room, required) {
+  if(room.drawPile.length>=required||!room.discardPile.length)return;
+  const remaining=room.drawPile.length, recycled=room.discardPile.length;
+  room.drawPile=[...shuffled(room.discardPile),...room.drawPile];
+  room.discardPile=[];
+  note(room,`牌堆剩${remaining}张，本次操作需要${required}张。已洗混${recycled}张弃牌并放到牌堆底。`,`The deck had ${remaining} card(s) and this action needed ${required}. Shuffled ${recycled} discard(s) under the deck.`);
+}
 function topCard(room) {
-  if (!room.drawPile.length && room.discardPile.length) { room.drawPile = shuffled(room.discardPile); room.discardPile = []; }
+  refillDrawPile(room,1);
   requireRule(room.drawPile.length > 0, 'DECK_EMPTY', 'No card can currently be drawn.');
   return room.drawPile.pop();
 }
@@ -147,6 +158,7 @@ function gainBatches(room,batches,reason) {
 export function drawBattleCards(room, player, count = 1,reason='effect') {
   requireRule(Number.isSafeInteger(count)&&count>=0,'INVALID_DRAW','Choose a nonnegative draw count.');
   requireRule(room.drawPile.length+room.discardPile.length>=count,'DECK_EMPTY','No card can currently be drawn.');
+  refillDrawPile(room,count);
   const cards=[];for(let i=0;i<count;i++)cards.push(topCard(room));gainBattleCards(room,player,cards,{reason});
 }
 function publicJudgmentFace({name,weather,kind,toolType,eventType,itemType}) {
@@ -522,13 +534,18 @@ export function requestBattleSwitch(room,player,kind,ctx) {
   advanceBattleSwitch(room,ctx);
 }
 const isArticunoCard=card=>card?.kind==='event'&&card.eventType==='articuno-protection';
-// Public deck capability: offer the same windows even when every hand is empty.
-// The default command/Dodge fixture has no reaction cards.
+function protectionActorIds(room, excludedId) {
+  const seats=live(room);
+  const start=Math.max(0,seats.findIndex(player=>player.id===room.turn.playerId));
+  return [...seats.slice(start),...seats.slice(0,start)]
+    .filter(player=>player.id!==excludedId&&player.hand.some(isArticunoCard)).map(player=>player.id);
+}
 function startProtectionWindow(room,ctx,window) {
   if(room.scenario?.articunoReactions!==true)return false;
+  const actorIds=protectionActorIds(room);
+  if(!actorIds.length)return false;
   requireRule(!room.protectionWindow,'REACTION_PENDING','Finish the current protection window first.');
-  const seats=live(room),start=Math.max(0,seats.findIndex(player=>player.id===room.turn.playerId));
-  room.protectionWindow={...window,actorIds:[...seats.slice(start),...seats.slice(0,start)].map(player=>player.id),index:0};
+  room.protectionWindow={...window,actorIds,index:0};
   advanceProtectionWindow(room,ctx);return true;
 }
 function protectionTarget(room,ctx,window) {
@@ -550,14 +567,19 @@ function advanceProtectionWindow(room,ctx) {
   if(protectionTarget(room,ctx,window)) {
     while(window.index<window.actorIds.length) {
       const actor=trainer(room,window.actorIds[window.index]);
-      if(actor&&!actor.eliminated&&!actor.spectator) {
+      if(actor&&!actor.eliminated&&!actor.spectator&&actor.hand.some(isArticunoCard)) {
         decision(room,'articuno',actor.id,window.targetId,ctx);
-        Object.assign(room.pendingBattle,{mode:window.mode,...(window.mode==='cancel-event'?{eventName:window.eventName}:{status:window.status})});return;
+        Object.assign(room.pendingBattle,{mode:window.mode,...(window.mode==='cancel-event'?{eventName:window.eventName}:{status:window.status}),...(window.berryProtectionCount?{counterProtection:true}:{})});return;
       }
       window.index++;
     }
   }
-  return finishProtectionWindow(room,ctx);
+  const protectedTarget=Boolean(window.berryProtectionCount%2);
+  if(protectedTarget) {
+    visualEvent(room,'event-action',{sourceId:window.berryProtectorId,targetIds:[window.targetId],name:{zh:'急冻鸟的庇护',en:'Articuno’s Protection'},effect:'articuno-protection',action:'shield'});
+    note(room,'急冻鸟的庇护抵消了树果大丰收对此目标的效果。','Articuno’s Protection canceled Berry Harvest for this target.');
+  }
+  return finishProtectionWindow(room,ctx,protectedTarget);
 }
 function resumeStatusContinuation(room,ctx,next) {
   if(next==='light-ball')return finishResolution(room,ctx);
@@ -638,6 +660,7 @@ export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
   delete pending.targetCreatureId;
+  if(pending.kind==='defense'&&room.resolution?.effectKind==='swords-dance')pending.moveEffect='swords-dance';
   const resolution = [room.resolution, ...(room.resolutionStack || []).toReversed()]
     .find(item => item?.targetIds?.length);
   if (resolution) pending.camera = effectCamera(room, resolution);
@@ -645,6 +668,10 @@ export function publicBattleDecision(room,self) {
     pending.berryCards=room.resolution.berryCards.map(({name,weather,kind},index)=>({index,name,weather,kind}));
   }
   if(pending.kind==='articuno'&&pending.actorId===self.id)pending.protectionCards=self.hand.filter(isArticunoCard).map(({id,name,kind,weather})=>({id,name,kind,weather}));
+  if(pending.kind==='mew-blessing') {
+    const target=trainer(room,pending.targetId)?.active;
+    if(target)pending.choices=mewBlessingChoices(target);
+  }
   if(pending.kind==='quick-claw') {
     if(pending.actorId===self.id)pending.commandCards=self.hand.filter(sunnyCommand).map(({id,name,weather})=>({id,name,weather}));
     else delete pending.moves;
@@ -790,7 +817,7 @@ function openMoveUse(room, ctx) {
     resolution.originalTargetId=trainer(room,resolution.targetIds[0]).active.instanceId;
   }
   if(resolution.effectKind==='fury-attack'&&resolution.settlementCount===undefined) {
-    if(room.drawPile.length<4&&room.discardPile.length){room.drawPile=[...shuffled(room.discardPile),...room.drawPile];room.discardPile=[];}
+    refillDrawPile(room,4);
     const count=Math.min(4,room.drawPile.length);
     resolution.revealedCards=count?room.drawPile.splice(-count,count).reverse():[];
     resolution.settlementIndex=0;resolution.settlementCount=1+resolution.revealedCards.filter(card=>['intense-sun','clear'].includes(card.weather)).length;
@@ -908,7 +935,7 @@ function toolActions(room,player,catalogue,own) {
 }
 // Ordinary Play events from the reviewed card faces. Articuno uses its own reaction window.
 const reviewedEvents={
-  'rival-challenge':{targeting:'single',name:{zh:'劲敌的挑战',en:'Rival’s Challenge'},description:{zh:'选择另一名训练家。目标先打出接招吧！，双方交替响应。最后打出牌的一方对另一方的出战宝可梦造成2点基础伤害。',en:'Choose another trainer. Starting with the target, alternate playing command cards. The last trainer to play one deals 2 base damage with their active Pokémon to the other active.'}},
+  'rival-challenge':{targeting:'single',name:{zh:'劲敌的挑战',en:'Rival’s Challenge'},description:{zh:'选择另一名训练家，从目标开始轮流打出「接招吧！」。最后打出的一方由出战宝可梦对另一方造成2点基础伤害。若目标一开始就放弃，则由发起者的出战宝可梦造成这次伤害。',en:'Choose another trainer and alternate playing Take this!, starting with the target. The last player’s active Pokémon deals 2 base damage to the other active Pokémon. If the target passes immediately, the challenger’s active Pokémon deals the damage.'}},
   'berry-harvest':{name:{zh:'树果大丰收',en:'Berry Harvest'},description:{zh:'亮出与目标数相同的牌。从你开始，各训练家依次获得一张尚未被选走的牌。',en:'Reveal one card per target. Starting with you, each trainer chooses and gains one of the remaining cards.'}},
   'farfetchd-prank':{targeting:'single',name:{zh:'大葱鸭的恶作剧',en:'Farfetch’d’s Prank'},description:{zh:'弃置另一名训练家的一张手牌，或弃置一只出战宝可梦的持有物或一枚强化指示物。',en:'Discard another trainer’s hand card, or discard an active Pokémon’s held item or one of its reinforcement markers.'}},
   'moltres-trial':{name:{zh:'火焰鸟的试炼',en:"Moltres’s Trial"},description:{zh:'从下一位训练家起依次结算其他训练家的出战宝可梦；打出一张接招吧！，否则受到火焰鸟造成的2点伤害。',en:'Resolve other active Pokémon, starting with the next trainer. Play one actual command card response or receive 2 damage from Moltres.'}},
@@ -916,7 +943,7 @@ const reviewedEvents={
   'jigglypuff-performance':{targeting:'single',name:{zh:'胖丁的表演',en:"Jigglypuff’s Performance"},description:{zh:'选择一只出战宝可梦；其训练家进行判定，结果不为雷雨时，目标陷入睡眠。',en:'Choose one active Pokémon. Its trainer judges; any result other than thunderstorm puts the target to Sleep.'}},
   'mr-mime-trick':{targeting:'single',name:{zh:'魔墙人偶的戏法',en:"Mr. Mime’s Trick"},description:{zh:'选择距离范围内的其他出战宝可梦，获得其训练家的一张手牌或其携带的持有物。',en:'Choose another active Pokémon within range and take one card from its trainer’s hand or its held item.'}},
   'mewtwo-threat':{name:{zh:'超梦的威压',en:"Mewtwo's Threat"},description:{zh:'从下一位训练家起依次结算所有其他训练家的出战宝可梦；打出一张快躲开！，否则受到超梦造成的2点伤害。',en:'Resolve every other active Pokémon, starting with the next trainer. Play one actual Dodge response or receive 2 damage from Mewtwo.'}},
-  'mew-blessing':{name:{zh:'梦幻的祝福',en:"Mew’s Blessing"},description:{zh:'从你开始依次结算所有训练家的出战宝可梦；各目标的训练家选择回复2点体力或升1级（最高3级）。',en:'Resolve all active Pokémon, starting with you. Each target trainer chooses heal 2 HP or raise one level (up to level 3).'}}
+  'mew-blessing':{name:{zh:'梦幻的祝福',en:"Mew’s Blessing"},description:{zh:'从你开始依次结算出战宝可梦。未满级且受伤可选回复2点体力或升1级，满体力只能升级，Lv.3只能回复。满体力的Lv.3跳过。',en:'Resolve active Pokémon starting with you. An injured Pokémon below Lv. 3 can heal 2 HP or gain one level. A healthy Pokémon can only level up, and an injured Lv. 3 Pokémon must heal. Skip full-HP Lv. 3 Pokémon.'}}
 };
 function eventTargets(room,player,eventType) {
   const seats=live(room),index=seats.findIndex(seat=>seat.id===player.id);
@@ -967,6 +994,7 @@ export function useBattleEvent(room,player,input,ctx) {
   note(room,`使用${reviewedEvents[selected.eventType].name.zh}。`,`Used ${reviewedEvents[selected.eventType].name.en}.`,{camera:effectCamera(room,room.resolution)});
   if(selected.eventType==='berry-harvest') {
     const count=Math.min(targets.length,room.drawPile.length+room.discardPile.length);
+    refillDrawPile(room,count);
     room.resolution.berryCards=Array.from({length:count},()=>topCard(room));
     note(room,`树果大丰收亮出${count}张牌。`,`Berry Harvest revealed ${count} card(s).`);
   }
@@ -980,6 +1008,9 @@ function showEventTransfer(room,resolution,targetId,object,itemType) {
     ...(itemType?{itemType}:{}),
   });
 }
+function mewBlessingChoices(target) {
+  return [...((target.damage||0)>0||target.level>=3?['heal']:[]),...(target.level<3?['evolve']:[])];
+}
 function openEventTarget(room,ctx) {
   const resolution=room.resolution;
   while(resolution.index<resolution.targetIds.length) {
@@ -989,6 +1020,7 @@ function openEventTarget(room,ctx) {
       delete resolution.incomingDamage;delete resolution.modifierState;delete resolution.receivingEffects;delete resolution.helmetCardId;
       resolution.actualDamage=0;resolution.sourceAfterDone=false;resolution.sourceItemAfterDone=false;resolution.staticDone=false;delete resolution.lifeOrbRecoil;
       if(!battleEventTargetAllowed(room,target,resolution.eventName.zh)){resolution.index++;continue;}
+      if(resolution.eventType==='mew-blessing'&&target.level>=3&&!(target.damage>0)){resolution.index++;continue;}
       if(resolution.eventType==='berry-harvest'&&!resolution.berryCards.length)break;
       if(room.scenario?.articunoReactions===true&&resolution.protectionCheckedIndex!==resolution.index) {
         resolution.protectionCheckedIndex=resolution.index;
@@ -1040,7 +1072,7 @@ function openEventTarget(room,ctx) {
         return nextSettlement(room,ctx);
       }
       decision(room,resolution.eventType==='moltres-trial'?'event-command':resolution.eventType==='mewtwo-threat'?'event-dodge':'mew-blessing',owner.id,owner.id,ctx);
-      Object.assign(room.pendingBattle,{eventType:resolution.eventType,eventName:resolution.eventName,targetCreatureId:target.instanceId,...(resolution.externalSource?{damage:2,source:resolution.externalSource}:{choices:['heal',...(target.level<3?['evolve']:[])]})});
+      Object.assign(room.pendingBattle,{eventType:resolution.eventType,eventName:resolution.eventName,targetCreatureId:target.instanceId,...(resolution.externalSource?{damage:2,source:resolution.externalSource}:{choices:mewBlessingChoices(target)})});
       return;
     }
     resolution.index++;
@@ -1075,17 +1107,13 @@ function respondRivalChallenge(room,player,input,ctx) {
     const index=player.hand.findIndex(card=>card.id===input.cardId&&card.kind==='command');
     requireRule(typeof input.cardId==='string'&&index>=0,'INVALID_CARD','Choose an actual command card from your hand.');
     room.discardPile.push(...player.hand.splice(index,1));
-    resolution.lastRivalResponderId=player.id;
     visualEvent(room,'event-action',{sourceId:player.id,targetIds:[other.id],
       name:resolution.eventName,effect:resolution.eventType,action:'challenge'});
     note(room,'一名训练家打出接招吧！，由另一方继续响应。','A trainer played a command. The other trainer responds next.');
     decision(room,'rival-command',other.id,player.id,ctx);
     return;
   }
-  if(resolution.lastRivalResponderId!==other.id) {
-    note(room,'双方均未打出接招吧！，不造成伤害。','The duel ended before either trainer played a command.');
-    return nextSettlement(room,ctx);
-  }
+  // After a pass, the other trainer is either the challenger on the opening response or the last to play a command.
   resolution.sourceId=other.active.instanceId;
   resolution.sourcePlayerId=other.id;
   resolution.targetCreatureId=player.active.instanceId;
@@ -1372,11 +1400,9 @@ function resolveDealtDamage(room,ctx,amount) {
   const resolution=room.resolution;
   const target=creature(room,resolution.targetCreatureId),source=creature(room,resolution.sourceId);
   const reduction=resolution.dodgeReductions?.[target.instanceId]||0;
+  // Older saved Fury Cutter modifiers may already have awarded Power.
+  if(resolution.effectKind==='fury-cutter')resolution.grantFuryCutterPower=true;
   if(resolution.kind==='move'&&(reduction>0||hasShedSkin(room,target)||resolution.effectKind==='fury-cutter')) {
-    if(resolution.effectKind==='fury-cutter'&&amount>0&&activeOwner(room,source.instanceId)) {
-      source.reinforcements=source.reinforcements.concat(Array(amount).fill('power'));
-      note(room,`连斩在造成伤害时无视上限获得${amount}枚力量强化。`,`Fury Cutter gained ${amount} Power marker(s) at the dealing-damage stage, ignoring the duplicate limit.`);
-    }
     resolution.modifierState={targetId:target.instanceId,amount,reduction,remaining:['dodge','defense','multiscale','marvel-scale','shed-skin']};
     return continueDamageModifiers(room,ctx);
   }
@@ -1451,6 +1477,13 @@ function commitDamage(room,ctx,amount) {
     hpBefore:result.hp+amount,targetCatalogueId:target.catalogueId,
     ...(resolution.kind==='move' ? {name:resolution.moveName} : {})});
   note(room, `${labels[0]}造成${amount}点伤害。`, `${labels[1]} dealt ${amount} damage.`);
+  if(resolution.grantFuryCutterPower&&result.damage>0) {
+    const source=activeOwner(room,resolution.sourceId)?.active;
+    if(source) {
+      source.reinforcements.push(...Array(result.damage).fill('power'));
+      note(room,`连斩按实际扣减的体力获得${result.damage}枚力量强化。`,`Fury Cutter gained ${result.damage} Power marker(s) from the damage actually dealt.`);
+    }
+  }
   if (result.fainting) beginRescue(room, room.players.find(p=>p.active?.instanceId===target.instanceId).id, ctx);
   else afterDamage(room, ctx);
 }
@@ -1642,6 +1675,7 @@ function defeat(room, targetPlayerId, ctx) {
     note(room, '备战宝可梦强制登场；不消耗普通交替。', 'The reserve was deployed; this does not consume ordinary switching.');
   } else {
     player.eliminated = true; room.discardPile.push(...player.hand); player.hand = [];
+    if(player.role!=='leader'&&!player.identityPublic)revealBattleIdentity(room,player);
     note(room, '一名训练家退场并公开身份。', 'A trainer was eliminated and revealed their identity.');
   }
   const result = evaluateVictory(room.players);
@@ -1730,8 +1764,16 @@ export function respondBattle(room,player,input,ctx) {
     const index=player.hand.findIndex(card=>card.id===input.cardId&&isArticunoCard(card));
     requireRule(typeof input.cardId==='string'&&index>=0,'INVALID_CARD','Choose an actual Articuno’s Protection card from your hand.');
     const [card]=player.hand.splice(index,1);
-    if(window.mode==='cure-status')target.status=null;
     room.discardPile.push(card);
+    if(window.mode==='cancel-event'&&room.resolution?.eventType==='berry-harvest') {
+      window.berryProtectionCount=(window.berryProtectionCount||0)+1;
+      window.berryProtectorId=player.id;
+      note(room,window.berryProtectionCount===1?'打出急冻鸟的庇护，尝试抵消树果大丰收对这一席的效果。':'打出另一张急冻鸟的庇护，反制上一张。',window.berryProtectionCount===1?'Articuno’s Protection was played against Berry Harvest for this target.':'Another Articuno’s Protection countered the previous one.');
+      window.actorIds=protectionActorIds(room,player.id);
+      window.index=0;
+      return advanceProtectionWindow(room,ctx);
+    }
+    if(window.mode==='cure-status')target.status=null;
     visualEvent(room,'event-action',{sourceId:player.id,targetIds:[window.targetId],
       name:card.name,effect:'articuno-protection',action:'shield'});
     note(room,window.mode==='cancel-event'?'急冻鸟的庇护抵消了事件对此目标的效果。':'急冻鸟的庇护恢复了目标刚获得的特殊状态。',window.mode==='cancel-event'?'Articuno’s Protection canceled the event for this target.':'Articuno’s Protection cured the target’s newly applied status.');
@@ -1778,7 +1820,7 @@ export function respondBattle(room,player,input,ctx) {
     requireRule(resolution?.kind==='event'&&resolution.targetIds[resolution.index]===player.id&&target&&!target.defeated&&currentHp(target,ctx.catalogue)>0&&target.instanceId===resolution.targetInstances[player.id]&&target.instanceId===pending.targetCreatureId,'STALE_DECISION','The event target changed.');
     requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice',...(['event-dodge','event-command'].includes(pending.kind)?['cardId']:[])].includes(key)),'INVALID_RESPONSE','This event does not accept extra response fields.');
     if(pending.kind==='mew-blessing') {
-      requireRule(['heal','evolve'].includes(input.choice)&&(input.choice!=='evolve'||target.level<3),'INVALID_RESPONSE','Choose healing or an available level increase.');
+      requireRule(mewBlessingChoices(target).includes(input.choice),'INVALID_RESPONSE','Choose an available Mew’s Blessing effect.');
       if(input.choice==='heal')heal(target,2,ctx.catalogue);else target.level++;
       visualEvent(room,'event-action',{sourceId:resolution.actorPlayerId,targetIds:[player.id],
         name:resolution.eventName,effect:resolution.eventType,action:'bless'});
@@ -1843,6 +1885,7 @@ export function respondBattle(room,player,input,ctx) {
     requireRule(input.cardId===undefined&&input.order===undefined&&input.reinforcement===undefined&&input.effect===undefined,'INVALID_RESPONSE','Use the Download controls only.');
     if(pending.kind==='download') {
       const ids=input.targetIds;
+      requireRule(!pending.legalTargetIds.length || ids?.length>0,'INVALID_RESPONSE','Choose at least one trainer before confirming Download.');
       requireRule(input.choice==='targets'&&input.handIndex===undefined&&Array.isArray(ids)&&ids.length<=pending.maxTargets&&new Set(ids).size===ids.length&&ids.every(id=>pending.legalTargetIds.includes(id)&&live(room).some(target=>target.id===id&&target.id!==player.id&&target.hand.length)),'INVALID_RESPONSE','Choose up to two distinct other trainers with hand cards.');
       Object.assign(choice,{targetIds:[...ids],index:0,cards:[]});return advanceDownload(room,player,ctx);
     }
@@ -1891,7 +1934,7 @@ export function respondBattle(room,player,input,ctx) {
     if(pending.kind==='forewarn') {
       requireRule(['trait','pass'].includes(input.choice),'INVALID_RESPONSE','View with Forewarn or pass.');
       if(input.choice==='trait') {
-        if(room.drawPile.length<4&&room.discardPile.length){room.drawPile=[...shuffled(room.discardPile),...room.drawPile];room.discardPile=[];}
+        refillDrawPile(room,4);
         const ids=room.drawPile.slice(-4).reverse().map(card=>card.id);
         if(ids.length){start.forewarnCardIds=ids;decision(room,'forewarn-order',player.id,player.id,ctx);room.pendingBattle.choiceCount=ids.length;return;}
       }
@@ -2039,7 +2082,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='pay-day') {
     requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Inspect Pay Day cards or pass.');
     if(input.choice==='trait') {
-      if(room.drawPile.length<2&&room.discardPile.length){room.drawPile=[...shuffled(room.discardPile),...room.drawPile];room.discardPile=[];}
+      refillDrawPile(room,2);
       const count=Math.min(2,room.drawPile.length);
       if(count) {
         room.resolution.distributionCards=room.drawPile.splice(-count,count).reverse();
@@ -2188,9 +2231,7 @@ export function respondBattle(room,player,input,ctx) {
   if(pending.kind==='foresee') {
     requireRule(input.choice==='pass'||input.choice==='trait','INVALID_RESPONSE','Use Future Sight or pass.');
     if(input.choice==='trait') {
-      if(room.drawPile.length<3 && room.discardPile.length) {
-        room.drawPile=[...shuffled(room.discardPile),...room.drawPile];room.discardPile=[];
-      }
+      refillDrawPile(room,3);
       const ids=room.drawPile.slice(-3).reverse().map(card=>card.id);
       if(ids.length) {
         room.resolution.scryCardIds=ids;decision(room,'reorder',player.id,player.id,ctx);
@@ -2206,7 +2247,9 @@ export function respondBattle(room,player,input,ctx) {
       requireRule(resolution.card && !resolution.cardClaimedBy && ['command','event'].includes(resolution.card.kind),'TRAIT_UNAVAILABLE','The damage-causing card is unavailable.');
       resolution.cardClaimedBy=player.id;gainBattleCards(room,player,[resolution.card],{reason:'synchronize'});
       abilityVisual(room,player,ctx.catalogue);
-      note(room,'同步获得了造成此次伤害的牌。','Synchronize obtained the card that caused this damage.');
+      const eventName=resolution.eventName;
+      if(eventName)note(room,`${player.nickname}发动同步，将刚使用的「${eventName.zh}」收入手牌。`,`${player.nickname} used Synchronize to take the played ${eventName.en} into their hand.`);
+      else note(room,'同步获得了造成此次伤害的牌。','Synchronize obtained the card that caused this damage.');
     }
     room.pendingBattle=null;afterDamage(room,ctx);return;
   }
@@ -2296,14 +2339,17 @@ export function useBattleTrait(room, player, ctx,input={}) {
   }
   if(player.active.catalogueId==='electabuzz') {
     room.turn.drawStarted=true;
-    if(room.drawPile.length<3&&room.discardPile.length){room.drawPile=[...shuffled(room.discardPile),...room.drawPile];room.discardPile=[];}
+    refillDrawPile(room,3);
     const ids=room.drawPile.slice(-3).reverse().map(card=>card.id);
     if(!ids.length){room.turn.drawRemaining=0;room.turn.phase='play';return;}
     room.drawChoice={playerId:player.id,pokemonId:player.active.instanceId,cardIds:ids};
     decision(room,'vital-spirit',player.id,player.id,ctx);room.pendingBattle.requiredCards=Math.min(2,ids.length);return;
   }
   if(player.active.catalogueId==='staryu') {
-    if(room.drawPile.length+room.discardPile.length)drawBattleCards(room,player,1,'illuminate');
+    if(room.drawPile.length+room.discardPile.length) {
+      drawBattleCards(room,player,1,'illuminate');
+      note(room,'发光额外摸取了1张牌。','Illuminate drew one extra card.');
+    }
     else note(room,'发光已发动，但当前没有可摸取的牌。','Illuminate was used, but no card is currently available to draw.');
     return;
   }
@@ -2358,7 +2404,7 @@ function offerQuickClaw(room,ctx,start) {
   if(turnOwner.active.instanceId!==start.quickClawTarget)return false;
   while(start.quickClawIndex<start.quickClawHolders.length) {
     const holder=quickClawHolder(room,ctx,start.quickClawHolders[start.quickClawIndex]);
-    if(holder) {
+    if(holder?.hand.some(sunnyCommand)) {
       const moves=moveOptions(room,holder,ctx.catalogue,true,turnOwner.id).filter(move=>move.canUse);
       if(moves.length) {
         decision(room,'quick-claw',holder.id,turnOwner.id,ctx);

@@ -1,7 +1,7 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective } from './combat.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective, revealBattleIdentity } from './combat.js';
 import { civilianProfiles, gymLeaderProfiles, roleProfiles } from '../public/trainer-profiles.js';
 import { pokemonTypes } from '../public/pokemon-types.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
@@ -342,7 +342,15 @@ export class RoomStore {
     if (current.status === 'closed') fail(410, 'ROOM_CLOSED', 'This room is closed.');
     // Seat claims are checked against current occupancy below, even if another seat just changed.
     const lateSeatClaim = input.type === 'chooseSeat' && input.revision < current.revision;
-    if (current.revision !== input.revision && !lateSeatClaim) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
+    // Other trainers' lobby actions do not invalidate this trainer's ready choice.
+    const concurrentReady = input.type === 'ready' && current.status === 'lobby' &&
+      input.revision < current.revision && input.revision >= (currentPlayer.readyRevision ?? 0);
+    // Private setup actions can run concurrently until this player's own setup state changes.
+    const privateSetupAction = (current.status === 'identity' && input.type === 'acknowledgeIdentity') ||
+      (current.status === 'setup' && ['drawPokemon', 'selectPokemon'].includes(input.type));
+    const concurrentSetup = privateSetupAction && input.revision < current.revision &&
+      input.revision >= (currentPlayer.setupRevision ?? current.revision);
+    if (current.revision !== input.revision && !lateSeatClaim && !concurrentReady && !concurrentSetup) fail(409, 'STALE_REVISION', 'Room changed. Refresh and try again.');
     if (Object.keys(currentPlayer.actions).length >= 20000) fail(429, 'ACTION_LIMIT', 'This credential has reached the development action limit.');
     const room = structuredClone(current);
     const player = room.players.find(entry => entry.id === currentPlayer.id);
@@ -363,12 +371,14 @@ export class RoomStore {
         if (player.seatNumber !== input.seatNumber) {
           player.seatNumber = input.seatNumber;
           player.ready = false;
+          player.readyRevision = room.revision + 1;
         }
         break;
       case 'ready':
         check(['ready']); seat(); status('lobby');
         if (typeof input.ready !== 'boolean') fail(400, 'INVALID_INPUT', 'Ready must be a boolean.');
         player.ready = input.ready;
+        player.readyRevision = room.revision + 1;
         break;
       case 'settings': {
         check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile', 'autoDraw', 'autoJudgment']); owner(); status('lobby');
@@ -386,15 +396,20 @@ export class RoomStore {
       case 'startBattlePreview':
         check([]); owner(); status('lobby');
         this.battleCall(() => setupBattle(room, this.catalogue));
+        for (const entry of seated) entry.setupRevision = room.revision + 1;
         break;
       case 'acknowledgeIdentity':
         check([]); seat(); status('identity');
         this.battleCall(() => acknowledgeBattleIdentity(room, player, this.catalogue));
+        if (room.status === 'setup') {
+          for (const entry of seated) entry.setupRevision = room.revision + 1;
+        } else player.setupRevision = room.revision + 1;
         break;
       case 'drawPokemon':
         check([]); seat(); status('setup');
         if (player.setupComplete || !player.candidateDeal?.length) fail(409, 'POKEMON_DRAW_EXHAUSTED', 'All five Pokémon candidates have been drawn.');
         player.candidates.push(player.candidateDeal.shift());
+        player.setupRevision = room.revision + 1;
         log(room, '一名训练家摸取了一张私密宝可梦候选。', 'A trainer drew one private Pokémon candidate.');
         break;
       case 'start':
@@ -403,12 +418,14 @@ export class RoomStore {
         if (this.catalogueIds.length < seated.length * 5) fail(503, 'CONTENT_UNAVAILABLE', 'The shared deck needs five unique Pokémon per player.');
         room.pokemonDeck = dealPokemon(seated, this.catalogueIds, { revealImmediately: true });
         room.status = 'setup';
+        for (const entry of seated) entry.setupRevision = room.revision + 1;
         log(room, '每位训练家从共享洗匀牌库获得五个不重复候选，并选两只搭档。', 'Each trainer receives five distinct candidates from one shuffled shared deck and selects two partners.');
         break;
       case 'selectPokemon':
         check(['activeId', 'reserveId']); seat(); status('setup');
         if (player.setupComplete) fail(409, 'ALREADY_SELECTED', 'Your setup selection is already locked.');
         if (input.activeId === input.reserveId || !player.candidates.includes(input.activeId) || !player.candidates.includes(input.reserveId)) fail(400, 'INVALID_SELECTION', 'Choose two distinct candidates from your private selection.');
+        player.setupRevision = room.revision + 1;
         if (isBattle(room)) {
           const complete = this.battleCall(() => selectBattlePartners(room, player, input.activeId, input.reserveId, this.catalogue));
           if (complete) this.startTurn(room, room.players.find(p => !p.spectator).id, 1);
@@ -465,7 +482,7 @@ export class RoomStore {
         check([]); ownTurn();
         if (!isBattle(room) || room.turn.phase!=='play' || player.eliminated) fail(409, 'WRONG_PHASE', 'Reveal your identity during your play phase.');
         if (!player.role || player.role==='leader' || player.identityPublic) fail(409, 'IDENTITY_ALREADY_PUBLIC', 'Your identity is already public.');
-        player.identityPublic = true;
+        revealBattleIdentity(room,player);
         log(room, `${player.nickname}主动公开了身份。`, `${player.nickname} revealed their identity.`);
         break;
       case 'useTrait':
@@ -514,9 +531,10 @@ export class RoomStore {
         const index = player.hand.findIndex(card => card.id === input.cardId);
         if (typeof input.cardId !== 'string' || index < 0) fail(400, 'INVALID_CARD', 'Choose a card from your own hand.');
         const discarded = player.hand.splice(index, 1)[0];
-        if (isBattle(room)) room.discardPile.push(discarded);
+        const battle = isBattle(room);
+        if (battle) room.discardPile.push(discarded);
         if (player.hand.length <= handLimit(room,player)){room.turn.phase = 'end';room.turn.discardComplete=true;}
-        log(room, '当前玩家弃置一张测试手牌。', 'The current player discarded one fixture card.');
+        log(room, battle ? '当前玩家弃置一张手牌。' : '当前玩家弃置一张测试手牌。', battle ? 'The current player discarded one card.' : 'The current player discarded one fixture card.');
         break;
       }
       case 'endTurn': {
@@ -575,6 +593,7 @@ export class RoomStore {
       delete player.role; delete player.eliminated; delete player.identityAcknowledged; delete player.identityPublic; delete player.candidateDeal;
       delete player.exiledCards;
       player.ready = false; player.hand = []; player.candidates = []; player.active = null; player.reserve = null; player.setupComplete = false;
+      player.readyRevision = room.revision + 1;
     }
     log(room, vote.kind === 'endRoom' ? '全员同意，房间已关闭。' : completedResult ? '房主已在结果后返回大厅，可准备下一局。' : '全员同意，游戏已结束并返回大厅。', vote.kind === 'endRoom' ? 'Unanimous vote closed the room.' : completedResult ? 'The host returned to the lobby after the result; ready for a rematch.' : 'Unanimous vote ended the game and returned to the lobby.');
   }
