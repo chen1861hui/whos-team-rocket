@@ -1328,7 +1328,6 @@ function arenaTraitButton() {
         },'button primary',false,{id:'confirm-arena-trait'}))));
   }},partnerImage(active),el('span',{},el('small',{},t('traitLabel')),el('strong',{},label)));
 }
-let fireHandExpanded = false;
 const handTrayObserver = new ResizeObserver(entries => {
   const stage = entries[0]?.target.closest('.match-stage');
   const tray = stage && $('.match-tray',stage);
@@ -1398,9 +1397,8 @@ function renderBattleRoom() {
       arenaTraitButton(),
       view.self.battle?.canGive ? button('giveCards',()=>giftCardsDialog(combatKit()),'button secondary trait-control') : null,
     ].filter(Boolean) : [];
-    const compactHand = theme==='fire';
-    const tray = el('div',{class:compactHand && fireHandExpanded ? 'match-tray hand-expanded' : 'match-tray'},
-      traits.length ? el('div',{class:'hand-traits'},traits) : null,handPanel(compactHand),deck);
+    const tray = el('div',{class:'match-tray'},
+      traits.length ? el('div',{class:'hand-traits'},traits) : null,handPanel(),deck);
     stage.append(tray);
     handTrayObserver.observe(stage);
     handTrayObserver.observe(tray);
@@ -1468,7 +1466,7 @@ function trainerTray() {
       },'button subtle small',busy) : null),
     privateReserve());
 }
-function handPanel(compact = false) {
+function handPanel() {
   const canDiscard = myTurn() && turnPhase() === 'discard' && view.self.hand.length > ownHandLimit();
   const cards = el('div', { class: 'hand-cards' });
   for (const [index, card] of view.self.hand.entries()) {
@@ -1504,17 +1502,9 @@ function handPanel(compact = false) {
     handCard.style.setProperty('--hand-drop',`${Math.abs(tilt)*1.1}px`);
     cards.append(handCard);
   }
-  const details = compact ? el('button',{
-    type:'button',id:'coastal-hand-toggle',class:'coastal-hand-toggle','aria-expanded':String(fireHandExpanded),
-    onclick:event=>{
-      fireHandExpanded = !fireHandExpanded;
-      event.currentTarget.setAttribute('aria-expanded',String(fireHandExpanded));
-      event.currentTarget.closest('.match-tray').classList.toggle('hand-expanded',fireHandExpanded);
-    },
-  },language==='zh'?'牌面详情':'Card details') : null;
   return el('section',{class:'hand-panel','aria-label':t('handTitle')},
-    details || view.self.exiledCount ? el('div',{class:'section-heading'},details,
-      view.self.exiledCount ? el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`) : null) : null,
+    view.self.exiledCount ? el('div',{class:'section-heading'},
+      el('small',{class:'exiled-count'},`${language==='zh'?'暂时移出':'Removed'}: ${view.self.exiledCount}`)) : null,
     cards);
 }
 function logPanel() {

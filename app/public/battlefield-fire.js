@@ -491,7 +491,7 @@ export function createFireGym(scene, sceneryAngle, refresh) {
   cascadeMap.anisotropy = 4;
   const cascadeMaterial = new THREE.ShaderMaterial({
     transparent:true,depthWrite:false,toneMapped:false,
-    uniforms:{image:{value:cascadeMap},time:{value:0}},
+    uniforms:{image:{value:cascadeMap},time:{value:0},motion:{value:0}},
     vertexShader:`
       varying vec2 surface;
       void main() {
@@ -503,19 +503,38 @@ export function createFireGym(scene, sceneryAngle, refresh) {
       varying vec2 surface;
       uniform sampler2D image;
       uniform float time;
+      uniform float motion;
+
+      float heatMask(vec3 color) {
+        return smoothstep(.19,.57,color.r-color.b*1.4);
+      }
+
+      vec3 moltenFrame(vec2 p, float travel, float heat) {
+        vec2 flow = vec2(sin(p.y*15.0+p.x*22.0)*.005, .058);
+        vec3 sampleColor = texture2D(image,p+flow*travel).rgb;
+        // A moving sample from the bank must not drag dark rock into the flow.
+        return sampleColor * heatMask(sampleColor) * heat;
+      }
+
       void main() {
         vec2 p = surface;
         vec3 base = texture2D(image,p).rgb;
-        float heat = smoothstep(.13,.64,base.r-base.b*1.25);
-        float shimmer = sin(p.y*95.0+p.x*34.0+time*3.6)*.023;
-        shimmer += sin(p.y*49.0-p.x*73.0+time*2.4)*.019;
+        float heat = heatMask(base);
+        float flowArea = smoothstep(.11,.22,p.x)*(1.0-smoothstep(.44,.55,p.x));
+        flowArea *= smoothstep(.13,.26,p.y)*(1.0-smoothstep(.78,.86,p.y));
+        float phase = fract(time*.82);
+        float second = fract(phase+.5);
+        vec3 streak = moltenFrame(p,phase,heat)*sin(phase*3.14159265);
+        streak += moltenFrame(p,second,heat)*sin(second*3.14159265);
+        vec3 flowing = base*(.72+.17*sin(p.y*120.0+p.x*51.0+time*9.5)) + streak*.35;
+        vec3 color = mix(base,flowing,flowArea*heat*motion);
         vec2 edge = min(p,1.0-p);
         float sideFade = smoothstep(.015,.19,edge.x);
         float roofFade = smoothstep(.015,.22,1.0-p.y);
         float floorFade = smoothstep(.0,.095,p.y);
         float rockMask = mix(smoothstep(.001,.043,max(base.r,base.b)),1.0,heat);
         float alpha = sideFade*roofFade*floorFade*rockMask;
-        gl_FragColor = vec4(base*(.90+heat*(.10+shimmer)),alpha);
+        gl_FragColor = vec4(color*(.90+heat*.10),alpha);
         #include <colorspace_fragment>
       }
     `,
@@ -818,6 +837,7 @@ export function createFireGym(scene, sceneryAngle, refresh) {
       lava.uniforms.time.value = t;
       lavaPool.uniforms.time.value = t;
       cascadeMaterial.uniforms.time.value = t;
+      cascadeMaterial.uniforms.motion.value = reducedMotion ? 0 : 1;
       ceiling.visible = !wide;
       viewPosition.copy(cameraPosition).applyAxisAngle(scene.up,-sceneryAngle);
       // The camera can be behind the portal when looking from the leader's seat.
