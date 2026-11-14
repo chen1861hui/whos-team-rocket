@@ -432,6 +432,7 @@ function preserveFocus(work) {
   if (id) { const target = document.getElementById(id); if (target && !target.disabled) { target.focus({ preventScroll: true }); if (typeof start === 'number' && target.setSelectionRange) { try { target.setSelectionRange(start, end); } catch {} } } }
 }
 function render() {
+  handTrayObserver.disconnect();
   const previousDialog = $('#info-dialog');
   const activeDialog = previousDialog?.open ? dialogKind : null;
   const dialogScroll = activeDialog ? previousDialog.scrollTop : 0;
@@ -1318,6 +1319,13 @@ function arenaTraitButton() {
         },'button primary',false,{id:'confirm-arena-trait'}))));
   }},partnerImage(active),el('span',{},el('small',{},t('traitLabel')),el('strong',{},label)));
 }
+const handTrayObserver = new ResizeObserver(entries => {
+  const stage = entries[0]?.target.closest('.match-stage');
+  const tray = stage && $('.match-tray',stage);
+  if (!tray) return;
+  const inset = stage.getBoundingClientRect().bottom - tray.getBoundingClientRect().top;
+  stage.style.setProperty('--hand-tray-inset',`${Math.max(0,inset)}px`);
+});
 function renderBattleRoom() {
   const current=view.players.find(p=>p.id===view.turn?.playerId);
   const main=$('#main');
@@ -1369,7 +1377,10 @@ function renderBattleRoom() {
   if(view.self.spectator) {
     if (!pending) rail.append(el('p',{class:'rail-waiting'},t('watchCopy')));
   } else {
-    stage.append(el('div',{class:'match-tray'},handPanel(),deck));
+    const tray = el('div',{class:'match-tray'},handPanel(),deck);
+    stage.append(tray);
+    handTrayObserver.observe(stage);
+    handTrayObserver.observe(tray);
     if (!pending && myTurn() && ['play','end'].includes(turnPhase())) {
       const switchLabel = t(view.turn.switchUsed?'switchUsed':'switchPokemon');
       const tier = view.self.reserve?.level ?? 1;

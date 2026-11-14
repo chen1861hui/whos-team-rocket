@@ -1955,6 +1955,9 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
   width:clamp(86px,8.2vw,106px); border-radius:7px; transform:translate(-50%,calc(-100% - 5px));
   color:#fff6e3; background:#221e2ef2; box-shadow:0 2px 7px #1513216b;
 }
+.match-table .world-host[data-mode='flat'] .world-seat-compact.world-self {
+  top:min(var(--flat-top),calc(100% - var(--hand-tray-inset,0px) - 8px));
+}
 .match-table .world-seat-compact.world-active { border-color:#ffda7a; box-shadow:0 0 0 1px #ffda7a,0 2px 7px #1513216b; }
 .match-table .world-seat-compact.world-responding { border-color:#ffb093; box-shadow:0 0 0 1px #ffb093,0 2px 7px #1513216b; }
 .match-table .world-crowded[data-mode="3d"] .world-seat.world-seat-compact { translate:none; }

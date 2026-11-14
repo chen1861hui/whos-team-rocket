@@ -108,7 +108,8 @@ export function createBattlefield() {
   }
   function modelForDex(dex) {
     if (!dex) return null;
-    if (!models.has(dex)) models.set(dex, loader.loadAsync(`/pokemon-models/${dex}.glb?v=11`).then(({scene: asset, animations}) => {
+    const version = dex === 26 ? 12 : 11;
+    if (!models.has(dex)) models.set(dex, loader.loadAsync(`/pokemon-models/${dex}.glb?v=${version}`).then(({scene: asset, animations}) => {
       const idle = animations.find(clip=>clip.name==='idle');
       const faint = animations.find(clip=>clip.name==='faint');
       const special = animations.find(clip=>clip.name==='special');
@@ -149,7 +150,8 @@ export function createBattlefield() {
         }
       });
       mount.add(asset);
-      mount.rotation.y = Math.PI;
+      // Gastly keeps its original mesh, whose forward axis already faces the arena.
+      mount.rotation.y = dex === 92 ? 0 : Math.PI;
       return {dex,mount,idle,faint,special,physical,arenaScaleRatio:arenaScale/scale,
         footprint:{halfWidth:size.x*arenaScale/2,halfDepth:size.z*arenaScale/2,
           bottom:(bounds.min.y-ground)*arenaScale,top:(bounds.max.y-ground)*arenaScale},
