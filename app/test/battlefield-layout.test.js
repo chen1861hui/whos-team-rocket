@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {coastalSeatLayout,coastalStationLayout,seatLayout} from '../public/battlefield-layout.js';
+import {coastalSeatLayout,coastalStationLayout,fireGymLayout,seatLayout} from '../public/battlefield-layout.js';
 
 test('two to six seats stay unique, evenly spaced and within the stage radius', () => {
   for(let count=2;count<=6;count++) {
@@ -67,4 +67,22 @@ test('the leader and trainer stations stay attached to the arcade as Pokémon se
   const sideView=coastalStationLayout(players,'p1');
   const reflowedLeader=coastalSeatLayout(players,'p1').find(seat=>seat.id==='p3');
   assert.ok(Math.abs(reflowedLeader.angle-sideView.stations.get('p3').angle)>.1);
+});
+
+test('fire gym rotates its fixed seats and the cave together for every viewer', () => {
+  for (let count=3;count<=6;count++) {
+    const players = Array.from({length:count},(_,index)=>({id:`p${index}`,leader:index===1}));
+    const fixed = fireGymLayout(players);
+    assert.equal(fixed.seats[1].angle,Math.PI);
+    for (const player of players) {
+      const view = fireGymLayout(players,player.id);
+      const own = view.seats.find(seat=>seat.id===player.id);
+      assert.equal(own.x,0);
+      assert.ok(own.z>0);
+      for (const [index,seat] of view.seats.entries()) {
+        assert.equal(seat.id,fixed.seats[index].id);
+        assert.ok(Math.abs(seat.angle-view.sceneryAngle-fixed.seats[index].angle)<1e-9);
+      }
+    }
+  }
 });

@@ -1,11 +1,11 @@
 import * as THREE from '/vendor/three.module.js';
 import {createCoastalScenery} from './battlefield-coast.js';
+import {createFireGym} from './battlefield-fire.js';
 
 const fullTurn = Math.PI * 2;
 const floorRadius = 11.2;
 const surfaceHeight = .22;
 const design = {
-  fire: {seed:53, tiles:['#553335','#603b38','#4d3034','#69413b','#513439'], seam:'#32242d', inlay:'#d19461', base:0x301f27, edge:0x583534},
   water:{seed:71, tiles:['#bcb09a','#c4bba8','#b6aa95','#cfc1a9','#c5b59f'], seam:'#82796a', inlay:'#507b83', base:0x62594c, edge:0xb7a48a},
   grass:{seed:31, tiles:['#537448','#617d49','#69854e','#71894f','#5d7849'], seam:'#4b6941', inlay:'#c8b476', base:0x3e5038, edge:0x7a804f},
 };
@@ -61,17 +61,7 @@ function inlay(context, theme, palette) {
   context.setLineDash([]);
   context.lineWidth = 3.5;
   context.beginPath();
-  if (theme === 'fire') {
-    context.moveTo(3,-71);
-    context.bezierCurveTo(12,-30,53,-18,51,20);
-    context.bezierCurveTo(47,70,-41,70,-49,24);
-    context.bezierCurveTo(-55,-4,-31,-20,-27,-39);
-    context.bezierCurveTo(-24,-21,-14,-16,-10,-10);
-    context.bezierCurveTo(-16,-41,6,-50,3,-71);
-    context.moveTo(2,1);
-    context.bezierCurveTo(-29,38,-9,51,5,51);
-    context.bezierCurveTo(30,45,23,21,2,1);
-  } else if (theme === 'water') {
+  if (theme === 'water') {
     context.moveTo(0,-70);
     context.bezierCurveTo(15,-45,51,-13,51,14);
     context.bezierCurveTo(51,75,-51,75,-51,14);
@@ -127,16 +117,16 @@ function floorMap(theme, palette) {
         context.stroke();
       }
     } else {
-      const step = theme === 'fire' ? 64 : 62;
+      const step = 62;
       for (let row=0;row<16;row++) {
         for (let col=0;col<16;col++) {
           const x = col*step-(row%2)*step*.5, y = row*step;
-          const bevel = theme === 'fire' ? 5+random()*12 : 3;
+          const bevel = 3;
           polygon(context,[[x+bevel,y+2],[x+step-5,y+2],[x+step-2,y+bevel],
             [x+step-2,y+step-bevel],[x+step-bevel,y+step-2],[x+3,y+step-2],[x+2,y+bevel]]);
           context.fillStyle = palette.tiles[Math.floor(random()*5)];
           context.fill();
-          context.strokeStyle = theme === 'fire' ? '#ae766236' : '#f2f1cb50';
+          context.strokeStyle = '#f2f1cb50';
           context.lineWidth = 1.5;
           context.stroke();
           if (theme==='water') {
@@ -152,40 +142,14 @@ function floorMap(theme, palette) {
           }
         }
       }
-      if (theme === 'fire') {
-        // Glowing fractures branch into the arena from the rim.
-        for (let i=0;i<12;i++) {
-          const a = i*fullTurn/12+random()*.2;
-          context.save();
-          context.translate(384,384);
-          context.rotate(a);
+      context.strokeStyle = '#2c697d80';
+      context.lineWidth = 2;
+      for (let i=0;i<12;i++) {
+        const a = i*fullTurn/12;
+        for (let j=0;j<4;j++) {
           context.beginPath();
-          context.moveTo(419,0);
-          context.lineTo(371,-16);
-          context.lineTo(343,9);
-          context.lineTo(311,-4);
-          context.lineTo(289,15+random()*24);
-          context.moveTo(343,9);
-          context.lineTo(331,30);
-          context.lineTo(308,43);
-          context.strokeStyle = '#321f27';
-          context.lineWidth = 8;
+          context.arc(384+Math.cos(a)*294,384+Math.sin(a)*294,11+j*6,a+.35,a+fullTurn-.35);
           context.stroke();
-          context.strokeStyle = '#b95b39';
-          context.lineWidth = 2.4;
-          context.stroke();
-          context.restore();
-        }
-      } else {
-        context.strokeStyle = '#2c697d80';
-        context.lineWidth = 2;
-        for (let i=0;i<12;i++) {
-          const a = i*fullTurn/12;
-          for (let j=0;j<4;j++) {
-            context.beginPath();
-            context.arc(384+Math.cos(a)*294,384+Math.sin(a)*294,11+j*6,a+.35,a+fullTurn-.35);
-            context.stroke();
-          }
         }
       }
     }
@@ -198,28 +162,7 @@ function floorMap(theme, palette) {
   });
 }
 
-function lavaMap() {
-  const random = randomFor(259);
-  const texture = canvasMap(256, context => {
-    context.fillStyle = '#a43a25';
-    context.fillRect(0,0,256,256);
-    for (let i=0;i<100;i++) {
-      const x = random()*256, y = random()*256, length = 6+random()*45;
-      context.strokeStyle = i%3 ? '#ee6a34' : '#ffb14e';
-      context.globalAlpha = .18 + random()*.37;
-      context.lineWidth = 1+random()*2;
-      context.beginPath();
-      context.moveTo(x,y);
-      context.bezierCurveTo(x+length*.3,y-8,x+length*.7,y+7,x+length,y);
-      context.stroke();
-    }
-  });
-  texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
-  texture.repeat.set(9,9);
-  return texture;
-}
-
-function landscape(scene, theme, terrainMaterial, random) {
+function grassLandscape(scene, terrainMaterial, random) {
   const shapes = {};
   const rock = shapes.rock = {geometry:new THREE.DodecahedronGeometry(1), instances:[]};
   const column = shapes.column = {geometry:new THREE.CylinderGeometry(.84,1,1,6), instances:[]};
@@ -227,25 +170,17 @@ function landscape(scene, theme, terrainMaterial, random) {
   const blade = shapes.blade = {geometry:new THREE.ConeGeometry(.32,1,3), instances:[]};
   const plant = (shape,x,y,z,sx,sy,sz,color,lean=0) =>
     shape.instances.push({x,y,z,sx,sy,sz,color,lean,angle:random()*fullTurn});
-  const shades = {
-    fire:[0x492e35,0x623b3c,0x342631],
-    grass:[0x58634e,0x738063,0x414f43],
-  }[theme];
+  const shades = [0x58634e,0x738063,0x414f43];
 
   // Layered silhouettes frame the rear. The near edge stays open for trainer view.
   for (let i=0;i<31;i++) {
     const a = (i-15)*.09, r = 18+random()*10;
     const x = Math.sin(a)*r, z = -Math.cos(a)*r;
     const height = 1.5+random()*4.6;
-    if (theme === 'fire') {
-      plant(column,x,height/2-1.2,z,1.15+random()*1.6,height,1.6,shades[i%3],(random()-.5)*.19);
-      plant(rock,x,height-1.32,z,1.3,.49,1.35,shades[(i+1)%3]);
-    } else {
-      plant(column,x,height*.55-1.1,z,.46,height*1.25,.49,0x635641,.14);
-      plant(crown,x,height*1.06,z,1.9,1.15,1.7,0x477d50);
-      plant(crown,x+.85,height*.92,z+.62,1.52,.93,1.2,0x5e9452);
-      plant(crown,x-.94,height*1.08,z-.34,1.23,1.13,1.4,0x366f54);
-    }
+    plant(column,x,height*.55-1.1,z,.46,height*1.25,.49,0x635641,.14);
+    plant(crown,x,height*1.06,z,1.9,1.15,1.7,0x477d50);
+    plant(crown,x+.85,height*.92,z+.62,1.52,.93,1.2,0x5e9452);
+    plant(crown,x-.94,height*1.08,z-.34,1.23,1.13,1.4,0x366f54);
   }
 
   for (let i=0;i<52;i++) {
@@ -253,31 +188,24 @@ function landscape(scene, theme, terrainMaterial, random) {
     const x = Math.sin(a)*r, z = Math.cos(a)*r;
     const h = .14+random()*.44;
     plant(rock,x,-.74+h*.25,z,.28+random()*.62,h,.3+random()*.44,shades[i%3]);
-    if (theme === 'fire' && i%4===0) {
-      plant(column,x,-.42,z,.35,.9,.33,0x3f2930,.13);
-      plant(blade,x,-.02,z,.34,.49,.32,0xfc913b,.22);
-    } else if (theme === 'grass') {
-      for (let j=0;j<4;j++) {
-        const flower = j===3 && i%2===0;
-        plant(flower?crown:blade,x+(random()-.5)*.92,-.57+random()*.26,z+(random()-.5)*.92,
-          flower?.09:.45,flower?.12:.47+random()*.42,flower?.1:.45,
-          flower ? (i%4===0?0xe0a1ae:0xf4ce7d) : (j%2?0x639d50:0x426d3e),(j-1)*.18);
-      }
+    for (let j=0;j<4;j++) {
+      const flower = j===3 && i%2===0;
+      plant(flower?crown:blade,x+(random()-.5)*.92,-.57+random()*.26,z+(random()-.5)*.92,
+        flower?.09:.45,flower?.12:.47+random()*.42,flower?.1:.45,
+        flower ? (i%4===0?0xe0a1ae:0xf4ce7d) : (j%2?0x639d50:0x426d3e),(j-1)*.18);
     }
   }
-  if (theme === 'grass') {
-    for (const x of [-9.7,9.7]) {
-      plant(rock,x,-.17,-7.5,1.7,.75,1.13,0x827c60);
-      for (let i=0;i<8;i++) {
-        plant(crown,x+(random()-.5)*1.55,.22,-7.5+(random()-.5)*1.5,.35,.15,.31,0x598746);
-      }
+  for (const x of [-9.7,9.7]) {
+    plant(rock,x,-.17,-7.5,1.7,.75,1.13,0x827c60);
+    for (let i=0;i<8;i++) {
+      plant(crown,x+(random()-.5)*1.55,.22,-7.5+(random()-.5)*1.5,.35,.15,.31,0x598746);
     }
-    for (const sign of [-1,1]) {
-      for (let i=0;i<8;i++) {
-        const x = sign*(12.1+i*.46), z = 4.8-i*.62;
-        plant(crown,x,-.59,z,.76,.36,.63,i%2 ? 0x6c8d49 : 0x53784a);
-        plant(crown,x-sign*.24,-.35,z-.12,.15,.17,.17,i%2 ? 0xe5b0bc : 0xf6d58c);
-      }
+  }
+  for (const sign of [-1,1]) {
+    for (let i=0;i<8;i++) {
+      const x = sign*(12.1+i*.46), z = 4.8-i*.62;
+      plant(crown,x,-.59,z,.76,.36,.63,i%2 ? 0x6c8d49 : 0x53784a);
+      plant(crown,x-sign*.24,-.35,z-.12,.15,.17,.17,i%2 ? 0xe5b0bc : 0xf6d58c);
     }
   }
 
@@ -365,6 +293,7 @@ function wetLimestone(map) {
 }
 
 export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
+  if (theme==='fire') return createFireGym(scene,sceneryAngle,refresh);
   const palette = design[theme];
   const random = randomFor(palette.seed+24);
   const add = (geometry,material,x,y,z,shadow=true) => {
@@ -394,7 +323,7 @@ export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
     coastalStone.colorSpace = THREE.SRGBColorSpace;
     coastalStone.anisotropy = 8;
   }
-  const sides = theme==='water' ? 128 : theme==='grass' ? 20 : 12;
+  const sides = theme==='water' ? 128 : 20;
   const outline = new THREE.Shape();
   for (let i=0;i<sides;i++) {
     const a = (i+.5)*fullTurn/sides;
@@ -453,16 +382,11 @@ export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
     scene.add(platform);
   }
 
-  const basin = theme === 'fire' ? lavaMap() : null;
   const coast = theme==='water' ? createCoastalScenery(scene,{add,canvasMap,random,refresh,sceneryAngle}) : null;
   if (!coast) {
-    const surround = new THREE.MeshStandardMaterial({
-      color:theme==='grass' ? 0x445943 : 0x926e68,map:basin,
-      emissive:theme==='fire'?0x6b2719:0x000000,emissiveMap:basin,
-      emissiveIntensity:.55,roughness:.72,
-    });
+    const surround = new THREE.MeshStandardMaterial({color:0x445943,roughness:.72});
     add(new THREE.PlaneGeometry(172,172),surround,0,-1.16,0,false).rotation.x = -Math.PI/2;
-    landscape(scene,theme,new THREE.MeshStandardMaterial({roughness:.94}),random);
+    grassLandscape(scene,new THREE.MeshStandardMaterial({roughness:.94}),random);
   }
 
   const motes = Array.from({length:48},() => ({
@@ -473,21 +397,20 @@ export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
   const geometry = new THREE.BufferGeometry();
   geometry.setAttribute('position',drift);
   const particles = new THREE.Points(geometry,new THREE.PointsMaterial({
-    color:theme==='fire'?0xffac56:theme==='water'?0xd3f7fc:0xf6e49b,
-    size:theme==='fire'?.135:.10, transparent:true, opacity:.64,depthWrite:false,toneMapped:false,
+    color:theme==='water'?0xd3f7fc:0xf6e49b,
+    size:.10, transparent:true, opacity:.64,depthWrite:false,toneMapped:false,
   }));
   particles.frustumCulled = false;
   scene.add(particles);
 
   function update(time, reducedMotion, hideRearStation, waterMotion) {
     const t = reducedMotion ? 0 : time*.001;
-    if (basin) basin.offset.set((t*.017)%1,(t*.01)%1);
     coast?.update(t,hideRearStation,waterMotion ? time*.001 : t);
     particles.visible = !reducedMotion;
     if (reducedMotion) return;
     motes.forEach(({angle,radius,height,phase},index) => {
       const a = angle+t*.053;
-      const y = theme==='fire' ? (height+t*(.46+phase*.26))%3.6-.5 : height+.25*Math.sin(t+phase*fullTurn)-.36;
+      const y = height+.25*Math.sin(t+phase*fullTurn)-.36;
       drift.setXYZ(index,Math.sin(a)*radius,y,Math.cos(a)*radius);
     });
     drift.needsUpdate = true;
@@ -496,7 +419,6 @@ export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
     disposed = true;
     map.dispose();
     coastalStone?.dispose();
-    basin?.dispose();
     coast?.dispose();
   }};
 }

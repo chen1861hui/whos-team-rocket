@@ -1,4 +1,4 @@
-import {coastalSeatLayout, pokemonLevelScale, seatLayout} from './battlefield-layout.js';
+import {coastalSeatLayout, fireGymLayout, pokemonLevelScale, seatLayout} from './battlefield-layout.js';
 import {playCardFace} from './play-card-face.js';
 import {pokemonTypes, typeIconPath} from './pokemon-types.js';
 import {civilianProfiles} from './trainer-profiles.js';
@@ -1167,9 +1167,10 @@ function worldPanel(players, viewerId, turnId, theme) {
   const targetLayer=el('div',{class:'world-targets'});
   const showLeader = player => player.role==='leader' && (view?.status!=='identity' || player.identityAcknowledged);
   const coastalBattle = theme==='water' && ['playing','finished'].includes(view?.status);
+  const seats = players.map(player=>({id:player.id,leader:showLeader(player)}));
   const layout = coastalBattle
-    ? coastalSeatLayout(players.map(player=>({id:player.id,leader:showLeader(player)})),viewerId)
-    : seatLayout(players,viewerId);
+    ? coastalSeatLayout(seats,viewerId)
+    : theme==='fire' ? fireGymLayout(seats,viewerId).seats : seatLayout(players,viewerId);
   for(const [index,player] of players.entries()) {
     const position=layout[index], own=player.id===viewerId;
     const side = Math.sin(position.angle), depth = Math.cos(position.angle);
@@ -1348,7 +1349,7 @@ function renderBattleRoom() {
   if(view.self.spectator) {
     if (!pending) rail.append(el('p',{class:'rail-waiting'},t('watchCopy')));
   } else {
-    stage.append(el('div',{class:`match-tray${theme==='water' && coastalHandExpanded?' hand-expanded':''}`},handPanel(theme==='water'),deck));
+    stage.append(el('div',{class:`match-tray${(theme==='water' || theme==='fire') && coastalHandExpanded?' hand-expanded':''}`},handPanel(theme==='water' || theme==='fire'),deck));
     if (!pending && myTurn() && ['play','end'].includes(turnPhase())) {
       const switchLabel = t(view.turn.switchUsed?'switchUsed':'switchPokemon');
       const tier = view.self.reserve?.level ?? 1;
@@ -1376,7 +1377,8 @@ function renderBattleRoom() {
 }
 function renderBattlePreview() {
   const ids=['pikachu','charmander','squirtle','bulbasaur','vulpix','mankey'];
-  const players=ids.map((id,i)=>({id:`preview-${i}`,nickname:i===0?t('you'):`${t('previewPlayer')} ${i+1}`,role:i===0?'leader':null,handCount:4,active:{catalogueId:id,level:1}}));
+  const leaderIndex = previewTheme==='fire' ? 3 : 0;
+  const players=ids.map((id,i)=>({id:`preview-${i}`,nickname:i===0?t('you'):`${t('previewPlayer')} ${i+1}`,role:i===leaderIndex?'leader':null,handCount:4,active:{catalogueId:id,level:1}}));
   $('#main').append(worldPanel(players,'preview-0','preview-0',previewTheme),
     el('div',{class:'battle-hud'},el('div',{},el('span',{class:'hud-kicker'},t('visualPreview')),el('h1',{},t(previewTheme))),button('newAdventure',()=>{scenePreview=false;render();},'button secondary')),
     cameraControls(),el('div',{class:'preview-themes'},...gymThemes.map(theme=>button(theme,()=>{previewTheme=theme;render();},`button ${previewTheme===theme?'selected':''}`))),

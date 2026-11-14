@@ -43,6 +43,21 @@ export function coastalStationLayout(players, viewerId) {
   };
 }
 
+export function fireGymLayout(players, viewerId) {
+  const fixedSeats = coastalSeatLayout(players);
+  const viewer = fixedSeats.find(seat => seat.id===viewerId);
+  const sceneryAngle = -(viewer?.angle ?? 0);
+  return {
+    sceneryAngle,
+    seated: Boolean(viewer),
+    seats:fixedSeats.map(seat => {
+      const angle = seat.angle + sceneryAngle;
+      const radius = Math.hypot(seat.x,seat.z);
+      return {...seat,angle,x:Math.sin(angle)*radius,z:Math.cos(angle)*radius};
+    }),
+  };
+}
+
 export function pokemonLevelScale(level) {
   return [0.92, 1.10, 1.30][level - 1] ?? 1;
 }

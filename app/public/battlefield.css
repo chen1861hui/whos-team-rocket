@@ -2477,3 +2477,37 @@ button.checkin-seat .checkin-seat-copy { color:#5d3918; }
   .system-dialog { width:100%; max-width:none; margin:auto 0 0; max-height:calc(100dvh - 20px); border-radius:16px 16px 0 0; padding:18px 16px max(18px,env(safe-area-inset-bottom)); }
   .site-header .header-actions .settings-trigger { width:32px; height:32px; }
 }
+
+
+/* Fire Gym keeps the lower edge clear for the foreground partner. */
+@media (min-width:900px) and (min-aspect-ratio:7/5) {
+  .match-table.theme-fire .match-tray { left:clamp(33%,calc(43% - 70px),39%); right:clamp(125px,12%,154px); bottom:4px; gap:5px; }
+  .match-table.theme-fire .screen-deck { width:67px; height:106px; margin-bottom:4px; }
+  .match-table.theme-fire .screen-deck .table-deck-back { width:57px; height:70px; }
+  .battle-view .match-table.theme-fire .hand-cards { padding:7px 9px 9px; gap:5px; }
+  .battle-view .match-table.theme-fire .hand-card {
+    flex:0 0 clamp(83px,8.1vw,118px); min-height:102px; padding:4px; gap:2px;
+    transform:translateY(calc(var(--hand-drop,0px)*.5)) rotate(clamp(-4deg,var(--hand-tilt,0deg),4deg));
+  }
+  .battle-view .match-table.theme-fire .hand-card>strong { font-size:11px; line-height:1.15; }
+  .match-table.theme-fire .hand-card-art { height:34px; }
+  .match-table.theme-fire .hand-card-art img { width:38px; height:38px; }
+  .match-table.theme-fire .coastal-hand-toggle {
+    display:inline-flex; align-items:center; gap:4px; padding:2px 8px;
+    border:1px solid #ae8d60; border-radius:10px; background:#27202e;
+    color:#fff3da; font:inherit; font-size:10px; pointer-events:auto; cursor:pointer;
+  }
+  .match-table.theme-fire .hand-card-brief { display:none; }
+  .match-table.theme-fire .hand-expanded .hand-card-brief { display:block; }
+  .match-table.theme-fire .hand-card-weather { margin:0; }
+  .battle-view .match-table.theme-fire .hand-card .button { min-height:20px; margin:0; padding:2px 4px; font-size:9px; }
+  .match-table.theme-fire .match-progress { top:100px; bottom:auto; left:16px; width:clamp(126px,11.5vw,158px); }
+  .match-table.theme-fire .match-progress .phase-strip { grid-template-columns:1fr; gap:3px; }
+  .match-table.theme-fire .match-progress .phase-strip li { justify-content:flex-start; }
+  .match-table.theme-fire .match-progress .battle-actions:not(:has(button)) { display:none; }
+  .match-table.theme-fire .rail-activity,.match-table.theme-fire .arena-event-banner { left:calc(28px + clamp(126px,11.5vw,158px)); }
+}
+@media (min-width:900px) and (max-width:1060px) and (min-aspect-ratio:7/5) {
+  .match-table.theme-fire .match-progress { top:100px; left:10px; width:119px; }
+  .match-table.theme-fire .rail-activity,.match-table.theme-fire .arena-event-banner { left:144px; }
+}
