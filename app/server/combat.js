@@ -4,6 +4,7 @@ import { randomUUID, randomInt } from 'node:crypto';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
 import { BASIC_DECK, playtestDeckPlan, makePlaytestCards } from './playtest-deck.js';
 import { partnerProfiles } from '../public/trainer-profiles.js';
+import { teamRoles, validTeamSize } from '../public/match-mode.js';
 import { roleDeck, maxHp, currentHp, heal, applyDamage, beginCommand, blazeBonus, computeDamage, capReceivingDamage, reinforcementEffective, eligibleTargetIds, evaluateVictory, ordinarySwitch } from './battle-rules.js';
 
 export class BattleError extends Error {
@@ -75,32 +76,47 @@ function shuffled(values) {
 }
 export function setupBattle(room, catalogue) {
   const seats = room.players.filter(p => !p.spectator).toSorted((a,b)=>(a.seatNumber ?? 0)-(b.seatNumber ?? 0));
-  const practiceDuel = seats.length === 2 && seats.filter(player => player.ai).length === 1;
-  requireRule((practiceDuel || (seats.length >= 3 && seats.length <= 6)) && seats.every(p => p.ready),
-    'NOT_READY', 'Start with 3–6 ready trainers, or one human and one AI for a practice duel.');
-  requireRule(battleSelectionIds(catalogue).length >= seats.length * 5, 'CONTENT_UNAVAILABLE', 'The shared Pokémon deck needs five unique groups per player.');
+  const teams = room.settings.matchMode === 'teams';
+  const practiceDuel = !teams && seats.length === 2 && seats.filter(player => player.ai).length === 1;
+  if (teams) requireRule(validTeamSize(seats.length), 'INVALID_TEAM_SIZE', 'Team battles require an even number of trainers.');
+  requireRule((teams || practiceDuel || (seats.length >= 3 && seats.length <= 6)) && seats.every(p => p.ready),
+    'NOT_READY', teams ? 'All trainers must be ready.' : 'Start with 3–6 ready trainers, or one human and one AI for a practice duel.');
+  const pokemonPoolCount = battleSelectionIds(catalogue).length;
+  requireRule(pokemonPoolCount >= (teams ? 5 : seats.length * 5), 'CONTENT_UNAVAILABLE', 'The Pokémon deck needs five unique groups per player.');
   const deck = playtestDeckPlan(room.settings.deckProfile ?? BASIC_DECK, seats.length, catalogue);
   requireRule(deck, 'CONTENT_UNAVAILABLE', 'The selected playtest deck requires all of its reviewed cards.');
-  const roles = shuffled(practiceDuel ? ['leader', 'rocket'] : roleDeck(seats.length));
+  const seatedTeams = teams ? seats.map((_, index) => teamRoles[index % teamRoles.length]) : null;
+  const roles = teams && room.settings.teamAssignment !== 'random' ? seatedTeams
+    : shuffled(seatedTeams ?? (practiceDuel ? ['leader', 'rocket'] : roleDeck(seats.length)));
   seats.forEach((p, index) => { p.role = roles[index]; p.eliminated = false; p.candidates = []; p.candidateDeal = []; p.identityAcknowledged = false; p.setupComplete = false; p.active = null; p.reserve = null; p.hand = []; p.exiledCards=[]; delete p.trainerAvatar; });
-  for (const player of seats) delete player.identityPublic;
+  for (const player of seats) {
+    if (teams) player.identityPublic = true;
+    else delete player.identityPublic;
+  }
   room.trainerPoolSeed = randomInt(0x100000000);
-  const leaderIndex = seats.findIndex(p => p.role === 'leader');
-  room.players = [...seats.slice(leaderIndex), ...seats.slice(0, leaderIndex), ...room.players.filter(p => p.spectator)];
+  const first = teams ? randomInt(seats.length) : seats.findIndex(p => p.role === 'leader');
+  room.players = [...seats.slice(first), ...seats.slice(0, first), ...room.players.filter(p => p.spectator)];
   delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries;
   delete room.visualEvents;
   room.gameMode = 'combat-preview'; room.result = null; room.pendingBattle = null; room.resolution = null; room.status = 'identity';
-  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount: battleSelectionIds(catalogue).length, potionSupported: true, ...(practiceDuel ? { practiceDuel } : {}), ...deck.summary };
-  note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
+  const deckCopies = teams ? Math.ceil(seats.length * 5 / deck.cards.length) : 1;
+  room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount, potionSupported: true,
+    ...(practiceDuel ? { practiceDuel } : {}), ...deck.summary };
+  if (deckCopies > 1) Object.assign(room.scenario, { deckCopies, deckCardCount: deck.cards.length * deckCopies, extraCardCount: deck.summary.extraCardCount * deckCopies });
+  if (teams) note(room, '两队名单已公开；所有人确认后摸取宝可梦候选。', 'Teams are public. Confirm the lineup before drawing Pokémon candidates.');
+  else note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
 }
 export function acknowledgeBattleIdentity(room, player, catalogue) {
   requireRule(!player.identityAcknowledged, 'IDENTITY_ALREADY_SEEN', 'Your identity is already acknowledged.');
   player.identityAcknowledged = true;
   const seats = room.players.filter(p => !p.spectator);
   if (!seats.every(p => p.identityAcknowledged)) return;
-  room.pokemonDeck = dealPokemon(seats, battleSelectionIds(catalogue));
+  const ids = battleSelectionIds(catalogue);
+  const refill = room.settings.matchMode === 'teams' && ids.length < seats.length * 5;
+  room.pokemonDeck = dealPokemon(seats, ids, { refill });
   room.status = 'setup';
-  note(room, '从共享洗匀的宝可梦牌库为每位训练家预留五张，所有玩家之间不重复。', 'Five candidates per trainer reserved from one shuffled shared Pokémon deck, without repeats between trainers.');
+  if (refill) note(room, '每人有五个不同候选；大型对局的不同训练家可能拿到相同候选。', 'Each trainer gets five distinct candidates. Trainers in large matches may draw the same Pokémon.');
+  else note(room, '从共享洗匀的宝可梦牌库为每位训练家预留五张，所有玩家之间不重复。', 'Five candidates per trainer reserved from one shuffled shared Pokémon deck, without repeats between trainers.');
 }
 export function selectBattlePartners(room, player, activeId, reserveId, catalogue) {
   requireRule(!player.setupComplete && activeId !== reserveId && player.candidates.includes(activeId) && player.candidates.includes(reserveId), 'INVALID_SELECTION', 'Choose two different candidates.');
@@ -113,7 +129,8 @@ export function selectBattlePartners(room, player, activeId, reserveId, catalogu
   if (!room.players.filter(p => !p.spectator).every(p => p.setupComplete)) return false;
   const deck = playtestDeckPlan(room.scenario?.deckProfile ?? BASIC_DECK, count, catalogue);
   requireRule(deck, 'CONTENT_UNAVAILABLE', 'The selected playtest deck requires all of its reviewed cards.');
-  room.drawPile = shuffled(makePlaytestCards(deck));
+  const deckCopies = room.scenario?.deckCopies ?? 1;
+  room.drawPile = shuffled(Array.from({ length: deckCopies }, () => makePlaytestCards(deck)).flat());
   room.discardPile = []; room.pokemonDeck = shufflePokemon(room.pokemonDeck); room.status = 'playing';
   for (const p of room.players.filter(p => !p.spectator)) { p.candidates = []; drawBattleCards(room, p, 4,'setup'); maxHp(p.active, catalogue); }
   room.initialBattleEntries=live(room).map(player=>player.id);
@@ -1697,9 +1714,10 @@ function defeat(room, targetPlayerId, ctx) {
   } else {
     player.eliminated = true; room.discardPile.push(...player.hand); player.hand = [];
     if(player.role!=='leader'&&!player.identityPublic)revealBattleIdentity(room,player);
-    note(room, '一名训练家退场并公开身份。', 'A trainer was eliminated and revealed their identity.');
+    if (room.settings.matchMode === 'teams') note(room, '一名训练家退场。', 'A trainer was eliminated.');
+    else note(room, '一名训练家退场并公开身份。', 'A trainer was eliminated and revealed their identity.');
   }
-  const result = evaluateVictory(room.players);
+  const result = evaluateVictory(room.players, room.settings.matchMode);
   if (result) {
     for(const pending of [room.resolution,...(room.resolutionStack||[])])cleanResolution(room,pending);room.resolution=null;room.pendingBattle=null;delete room.resolutionStack;delete room.judgment;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; room.result = { ...result, completedAt: ctx.now(), developmentFixture: true };
     room.status = 'finished'; room.turn = null;

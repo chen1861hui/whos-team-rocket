@@ -18,6 +18,8 @@
  * Reserve statuses/traits are inactive; callers must not use reserves as sources.
  */
 
+import { isTeamRole, teamRoles } from '../public/match-mode.js';
+
 function integer(value, label, minimum = 0) {
   if (!Number.isSafeInteger(value) || value < minimum) throw new RangeError(`${label} must be an integer >= ${minimum}.`);
   return value;
@@ -130,8 +132,15 @@ export function eligibleTargetIds(players, actorId, { ignoreDistance = false } =
   return [...new Set(allowed.filter(player => player.active && !player.active.defeated).map(player => player.id))];
 }
 
-export function evaluateVictory(players) {
+export function evaluateVictory(players, matchMode) {
   const trainers = players.filter(player => !player.spectator);
+  if (matchMode === 'teams') {
+    if (!trainers.every(player => isTeamRole(player.role)) || !teamRoles.every(role => trainers.some(player => player.role === role))) return null;
+    const livingRoles = new Set(trainers.filter(player => !player.eliminated).map(player => player.role));
+    if (livingRoles.size !== 1) return null;
+    const [winner] = livingRoles;
+    return { winner, winnerIds: trainers.filter(player => player.role === winner).map(player => player.id) };
+  }
   // Unassigned/setup and old foundation rooms have no source-backed role game.
   if (trainers.some(player => !['leader', 'gym', 'challenger', 'rocket'].includes(player.role))) return null;
   const leader = trainers.find(player => player.role === 'leader');

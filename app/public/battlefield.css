@@ -2541,3 +2541,35 @@ button.checkin-seat .checkin-seat-copy { color:#5d3918; }
   .match-table.theme-grass .match-progress .battle-actions:not(:has(button)) { display:none; }
   .match-table.theme-grass .rail-activity,.match-table.theme-grass .arena-event-banner { left:160px; }
 }
+
+/* Team battles use text labels as well as color to identify each side. */
+[data-team='team-a'] { --team-ink:#a5ecff; --team-edge:#5697b5; }
+[data-team='team-b'] { --team-ink:#ffd2a6; --team-edge:#be895f; }
+.match-mode-settings { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:10px; margin-bottom:16px; }
+.match-mode-setting { display:grid; gap:4px; }
+.checkin-team-seats { max-height:340px; overflow:auto; padding:4px; }
+.match-prep .arena-identity.team-lineup { gap:12px; align-content:start; }
+.team-lineup h1,.team-lineup p,.team-lineup h2 { margin:0; }
+.team-lineup-columns { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
+.team-lineup-columns section { min-width:0; padding:8px 12px; border:1px solid var(--team-edge); border-radius:6px; }
+.team-lineup-columns h2 { color:var(--team-ink); font-size:1rem; }
+.team-lineup-columns ol { max-height:26dvh; overflow:auto; padding-inline-start:22px; margin:6px 0 0; }
+.team-lineup-columns li { overflow-wrap:anywhere; }
+.world-compact-role [data-team] { color:var(--team-ink); white-space:nowrap; }
+.match-table .world-seat[data-team] { border-inline-start:3px solid var(--team-edge); }
+.victory-scene[data-winner='team-a'] { --victory-accent:#a5ecff; --victory-ink:#193c52; }
+.victory-scene[data-winner='team-b'] { --victory-accent:#ffd2a6; --victory-ink:#4e321e; }
+.match-table .world-roster .world-labels {
+  inset:58px 12px max(78px,var(--hand-tray-inset,0px)) 12px; display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(112px,1fr)); gap:8px;
+  align-content:start; align-items:start; overflow:auto; padding:6px; pointer-events:auto;
+}
+.match-table .world-roster[data-mode='flat'] .world-seat.world-seat-compact {
+  position:relative; inset:auto; width:100%; transform:none; translate:none; pointer-events:auto;
+}
+.world-roster .world-seat[data-eliminated='true'] { opacity:.62; }
+.world-roster .world-target:not([hidden]) {
+  position:relative; inset:auto; translate:none; width:calc(100% - 8px); margin:4px;
+  aspect-ratio:auto; padding:3px 4px; place-items:center; border-radius:6px; font-size:12px;
+}
+.world-roster .world-status-tokens { position:static; transform:none; }

@@ -1,5 +1,7 @@
+import { isTeamRole } from './match-mode.js';
+
 const disabled = active => ['sleep', 'flinch'].includes(active.status);
-const allies = (a, b) => (['leader', 'gym'].includes(a.role) && ['leader', 'gym'].includes(b.role)) ||
+const allies = (a, b) => isTeamRole(a.role) ? a.role === b.role : (['leader', 'gym'].includes(a.role) && ['leader', 'gym'].includes(b.role)) ||
   (a.role === 'challenger' && b.role === 'challenger');
 
 function attackValue(active) {
@@ -44,7 +46,7 @@ export function choosePublicStrategy({ actorId, players, difficulty }) {
   const seats = players.filter(player => !player.eliminated && player.active);
   const actor = seats.find(player => player.id === actorId);
   if (!actor) return { targetIds: [], focus: 'attack' };
-  const opponents = seats.filter(player => player !== actor);
+  const opponents = seats.filter(player => player !== actor && (!isTeamRole(actor.role) || !allies(actor, player)));
   const immediateRisk = replyRisk(seats, actor);
   const focus = actor.active.hp <= 2 || ['sleep', 'burn', 'poison'].includes(actor.active.status) ||
     (difficulty === 'hard' && immediateRisk >= 4) ? 'recover' : 'attack';

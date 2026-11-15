@@ -3,6 +3,7 @@ import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlink
 import { join } from 'node:path';
 import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective, revealBattleIdentity } from './combat.js';
 import { civilianProfiles, gymLeaderProfiles, roleProfiles } from '../public/trainer-profiles.js';
+import { ROOM_CAPACITY, seatCapacity } from '../public/match-mode.js';
 import { pokemonTypes } from '../public/pokemon-types.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
 import { aiActor, aiActions, aiDifficulty, aiDifficulties, needsAiStrategy, publicAiTable } from './ai-players.js';
@@ -45,8 +46,9 @@ const publicAiActions = {
   switchPokemon: ['发起了搭档交替。', ' initiated a partner switch.'],
 };
 
-const seatNumbers = [1, 2, 3, 4, 5, 6];
-const openSeatNumber = players => seatNumbers.find(number => !players.some(player => player.seatNumber === number));
+const openSeatNumber = room => Array.from({ length: seatCapacity(room.settings ?? {}) }, (_, index) => index + 1)
+  .find(number => !room.players.some(player => player.seatNumber === number));
+const validSeat = (room, number) => Number.isInteger(number) && number >= 1 && number <= seatCapacity(room.settings);
 const hash = token => createHash('sha256').update(token).digest('hex');
 const fail = (status, code, message) => { throw new ApiError(status, code, message); };
 export class ApiError extends Error {
@@ -105,7 +107,7 @@ export class RoomStore {
         const room = JSON.parse(readFileSync(join(dataDir, file), 'utf8'));
         if (room.schemaVersion !== 1 || `${room.code}.json` !== file || !Array.isArray(room.players)) throw new Error('Invalid persisted room');
         for (const player of room.players.filter(player => !player.spectator && player.seatNumber === undefined)) {
-          player.seatNumber = openSeatNumber(room.players);
+          player.seatNumber = openSeatNumber(room);
         }
         if (room.status === 'lobby' && !this.allowTestDecks) room.settings.deckProfile = RETAIL_DECK;
         if (room.turn) {
@@ -295,7 +297,7 @@ export class RoomStore {
   addPlayer(room, name, spectator) {
     const token = randomBytes(32).toString('base64url');
     const player = { id: randomUUID(), nickname: name, spectator, tokenHash: hash(token), ready: false, lastSeenAt: this.now(), hand: [], candidates: [], active: null, reserve: null, setupComplete: false, actions: {} };
-    if (!spectator) player.seatNumber = openSeatNumber(room.players);
+    if (!spectator) player.seatNumber = openSeatNumber(room);
     room.players.push(player);
     return { token, player };
   }
@@ -321,7 +323,7 @@ export class RoomStore {
     const room = structuredClone(this.get(code));
     const spectator = input.spectator === true;
     if (!spectator && room.status !== 'lobby') fail(409, 'GAME_STARTED', 'Only spectators can join a game in progress.');
-    if (room.players.length >= 30 || (!spectator && room.players.filter(player => !player.spectator).length >= 6)) fail(409, 'ROOM_FULL', 'This development room is full.');
+    if (room.players.length >= ROOM_CAPACITY || (!spectator && !openSeatNumber(room))) fail(409, 'ROOM_FULL', 'This development room is full.');
     const { token, player } = this.addPlayer(room, name, spectator);
     room.revision++;
     room.lastActionAt = this.now();
@@ -342,7 +344,7 @@ export class RoomStore {
   }
   project(room, self) {
     const battle = isBattle(room), disclosed = battle && room.status === 'finished';
-    const leaderConcealed = room.status==='identity' && !room.players.some(player=>player.role==='leader' && player.identityAcknowledged);
+    const leaderConcealed = room.settings.matchMode !== 'teams' && room.status==='identity' && !room.players.some(player=>player.role==='leader' && player.identityAcknowledged);
     // Match order starts at the leader, so withhold that ordering until the public flip.
     const players = leaderConcealed ? room.players.toSorted((a,b)=>Number(a.spectator)-Number(b.spectator) || a.id.localeCompare(b.id)) : room.players;
     const visiblePokemon = pokemon => battle ? publicBattlePokemon(pokemon, this.catalogue, room) : publicPokemon(pokemon);
@@ -435,9 +437,9 @@ export class RoomStore {
       case 'addAi': {
         check(['seatNumber']); owner(); status('lobby');
         const { seatNumber } = input;
-        if (!seatNumbers.includes(seatNumber)) fail(400, 'INVALID_SEAT', 'Choose a seat from 1 through 6.');
+        if (!validSeat(room, seatNumber)) fail(400, 'INVALID_SEAT', 'Choose a seat available in this match mode.');
         if (seated.some(entry => entry.seatNumber === seatNumber)) fail(409, 'SEAT_TAKEN', 'That seat is occupied.');
-        if (room.players.length >= 30) fail(409, 'ROOM_FULL', 'This development room is full.');
+        if (room.players.length >= ROOM_CAPACITY) fail(409, 'ROOM_FULL', 'This development room is full.');
         const nickname = availableAiName(room.players);
         room.players.push({ id: randomUUID(), nickname, seatNumber, ai: true, aiDifficulty: 'normal', spectator: false,
           ready: true, lastSeenAt: 0, hand: [], candidates: [], active: null, reserve: null, setupComplete: false, actions: {} });
@@ -462,7 +464,7 @@ export class RoomStore {
       }
       case 'chooseSeat':
         check(['seatNumber']); seat(); status('lobby');
-        if (!seatNumbers.includes(input.seatNumber)) fail(400, 'INVALID_SEAT', 'Choose a seat from 1 through 6.');
+        if (!validSeat(room, input.seatNumber)) fail(400, 'INVALID_SEAT', 'Choose a seat available in this match mode.');
         if (seated.some(entry => entry.id !== player.id && entry.seatNumber === input.seatNumber)) fail(409, 'SEAT_TAKEN', 'That seat is occupied.');
         if (player.seatNumber !== input.seatNumber) {
           player.seatNumber = input.seatNumber;
@@ -477,11 +479,24 @@ export class RoomStore {
         player.readyRevision = room.revision + 1;
         break;
       case 'settings': {
-        check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile', 'autoDraw', 'autoJudgment']); owner(); status('lobby');
+        check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile', 'autoDraw', 'autoJudgment', 'matchMode', 'teamAssignment']); owner(); status('lobby');
         if (!['fire', 'water', 'grass', 'stadium', 'gym', 'floating'].includes(input.arena) || ![input.turnSeconds, input.responseSeconds].every(value => Number.isInteger(value) && (value === 0 || (value >= 5 && value <= 600)))) fail(400, 'INVALID_SETTINGS', 'Choose a supported arena and timers of 0 or 5–600 seconds.');
         if (input.deckProfile !== undefined && !(this.allowTestDecks ? isDeckProfile(input.deckProfile) : input.deckProfile === RETAIL_DECK)) fail(400, 'INVALID_SETTINGS', 'Choose a supported deck.');
         const deckProfile = input.deckProfile ?? room.settings.deckProfile;
+        const matchMode = input.matchMode === undefined ? current.settings.matchMode ?? 'identity' : input.matchMode;
+        const teamAssignment = input.teamAssignment === undefined ? current.settings.teamAssignment ?? 'seat' : input.teamAssignment;
+        if (!['identity', 'teams'].includes(matchMode) || !['seat', 'random'].includes(teamAssignment)) fail(400, 'INVALID_SETTINGS', 'Choose a supported match mode and team assignment.');
+        if (seated.length > seatCapacity({ matchMode })) fail(409, 'TOO_MANY_TRAINERS', 'There are too many trainers for the selected mode.');
         room.settings = { arena: input.arena, turnSeconds: input.turnSeconds, responseSeconds: input.responseSeconds, ...(deckProfile ? { deckProfile } : {}) };
+        if (matchMode === 'teams') Object.assign(room.settings, { matchMode, teamAssignment });
+        // When returning to the smaller lobby, keep the relative seating order.
+        if (seated.some(entry => !validSeat(room, entry.seatNumber))) {
+          seated.toSorted((a, b) => a.seatNumber - b.seatNumber).forEach((entry, index) => {
+            entry.seatNumber = index + 1;
+            entry.ready = Boolean(entry.ai);
+            entry.readyRevision = room.revision + 1;
+          });
+        }
         for (const key of ['autoDraw', 'autoJudgment']) {
           if (input[key] !== undefined && typeof input[key] !== 'boolean') fail(400, 'INVALID_SETTINGS', 'Automation settings must be on or off.');
           const value = input[key] ?? current.settings[key];
@@ -787,7 +802,7 @@ export class RoomStore {
     if (actor?.id !== task.actorId || task.ownerId !== owner.id || task.revision !== room.revision)
       fail(409, 'STALE_AI_TASK', 'The AI task changed.');
     const { targetIds, focus } = input;
-    if (!Array.isArray(targetIds) || targetIds.length > 5 || new Set(targetIds).size !== targetIds.length ||
+    if (!Array.isArray(targetIds) || targetIds.length >= seatCapacity(room.settings) || new Set(targetIds).size !== targetIds.length ||
         targetIds.some(id => id === actor.id || !room.players.some(player => player.id === id && !player.spectator && !player.eliminated)) ||
         !['attack', 'recover'].includes(focus)) fail(400, 'INVALID_AI_STRATEGY', 'Submit public target preferences only.');
     if (task.preferences) return { accepted: true };

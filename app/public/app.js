@@ -1,3 +1,4 @@
+import { isTeamRole, ROOM_CAPACITY, seatCapacity, teamRoles, validTeamSize } from './match-mode.js';
 import {coastalSeatLayout, fireGymLayout, pokemonLevelScale, seatLayout} from './battlefield-layout.js';
 import {playCardFace} from './play-card-face.js';
 import {pokemonTypes, typeIconPath} from './pokemon-types.js';
@@ -32,6 +33,14 @@ const strings = {
   homeWatchHelp:['Enter a room code to watch the match as a spectator.','输入房间代码，以观众身份旁观。'],
   homeWatchAction:['Watch match','开始观战'],
   lobbySettings:['Match settings','对局设置'],
+  matchMode:['Game mode','玩法'], identityMode:['Classic identity','原版身份局'], teamMode:['Team battle','组队对战'],
+  teamAssignment:['Team assignment','分队方式'], teamSeat:['Alternate by seat','按座位交替'], teamRandom:['Random teams','随机分队'],
+  teamStartHelp:[`Start with an even number of ready trainers (2–${ROOM_CAPACITY}). The room limit includes spectators.`,`2–${ROOM_CAPACITY} 位训练家且人数为偶数，全部准备后可开局。观众也计入房间总容量。`],
+  teamLaunch:['Two equal teams will be public at the start. A trainer is chosen at random to go first, then play follows seat order. Eliminate all opposing trainers to win.','开局公开人数相等的两队。随机决定先手，随后按座位顺序行动。让对方所有训练家出局的一队获胜。'],
+  teamStep:['Team lineup','队伍名单'], teamConfirm:['Confirm lineup','确认队伍'],
+  teamWaiting:['Waiting for trainers to confirm the lineup.','等待训练家确认队伍。'],
+  teamTooMany:['The identity mode supports at most six trainers.','原版身份局最多支持 6 位训练家。'],
+  targetPokemon:['Target active','选为目标'],
   gymLabel:['Gym','道馆'],
   copyShort:['Copy','复制'],
   leaveTab:['Leave session','退出会话'],
@@ -639,10 +648,10 @@ function gymTypeIcon(theme) {
 }
 function victoryScene(result, theme) {
   const winners = seated().filter(player=>result.winnerIds.includes(player.id));
-  const title = result.winner==='rocket' ? (language==='zh'?'火箭队胜利':'Team Rocket wins') : result.winner==='challengers'
+  const title = isTeamRole(result.winner) ? `${roleName(result.winner,language)}${language==='zh'?'胜利':' wins'}` : result.winner==='rocket' ? (language==='zh'?'火箭队胜利':'Team Rocket wins') : result.winner==='challengers'
     ? (language==='zh'?'挑战者胜利':'Challengers win') : (language==='zh'?'道馆阵营胜利':'Gym team wins');
   const mark = result.winner==='rocket' ? el('img',{src:'/system-art/rocket-mark.svg',alt:''}) :
-    result.winner==='challengers' ? '✦' : gymTypeIcon(theme);
+    isTeamRole(result.winner) ? '◆' : result.winner==='challengers' ? '✦' : gymTypeIcon(theme);
   const overlay = el('div',{class:'victory-scene','data-winner':result.winner},
     el('div',{class:'victory-rays','aria-hidden':'true'}),
     el('div',{class:'victory-sparks','aria-hidden':'true'},Array.from({length:18},(_,index)=>{
@@ -704,8 +713,9 @@ function renderLobby() {
   const players = seated();
   const watchers = view.players.filter(player=>player.spectator);
   const ready = players.filter(player=>player.connected && player.ready).length;
-  const seats = el('ul',{class:'checkin-seats'});
-  for (let number=1; number<=6; number++) {
+  const teams = view.settings.matchMode === 'teams';
+  const seats = el('ul',{class:`checkin-seats${teams?' checkin-team-seats':''}`});
+  for (let number=1; number<=seatCapacity(view.settings); number++) {
     const player = players.find(entry=>entry.seatNumber===number);
     const state = player ? !player.connected ? 'offline' : player.ready ? 'ready' : 'notReady' : 'openSeat';
     const initial = Array.from(player?.nickname.trim() || '')[0];
@@ -747,10 +757,12 @@ function renderLobby() {
       seats,view.self.spectator ? null : el('p',{class:'checkin-seat-hint'},t('seatChangeHelp'))),
     el('div',{class:'checkin-controls'},
       el('div',{class:'checkin-config'},el('div',{},el('span',{},t('gymLabel')),el('strong',{},gymThemes.includes(view.settings.arena)?gymTypeIcon(view.settings.arena):null,t(view.settings.arena))),
-        el('div',{},el('span',{},t('deckProfile')),el('strong',{},t('deckRetail'))),
+        el('div',{},el('span',{},t('matchMode')),el('strong',{},t(teams?'teamMode':'identityMode'),
+          teams ? ` · ${t(view.settings.teamAssignment==='random'?'teamRandom':'teamSeat')}` : null)),
+        el('div',{},el('span',{},t('deckProfile')),el('strong',{},lobbyDeckLabel(players.length))),
         button('lobbySettings',()=>openSystemDialog('lobby-settings','open-lobby-settings'),'button secondary',false,{id:'open-lobby-settings'})),
       view.self.spectator ? null : lobbyLaunch()),
-    el('p',{class:'checkin-hint'},t(view.self.spectator?'watchCopy':'startHelp')),
+    el('p',{class:'checkin-hint'},t(view.self.spectator?'watchCopy':teams?'teamStartHelp':'startHelp')),
     el('footer',{class:'checkin-footer'},el('span',{},`${t('spectators')} · ${watchers.length}`,watchers.length?` · ${watchers.map(player=>player.nickname).join(' · ')}`:null),leave)),
     el('details',{id:'lobby-utilities',class:'checkin-utilities'},el('summary',{},t('control')),
       el('div',{class:'room-sidebar'},logPanel(),recoveryPanel(),isOwner()?controlPanel():null)));
@@ -761,7 +773,7 @@ function crewPanel() {
   for (const player of players) {
     const state = view.status === 'setup' ? (player.setupComplete ? 'chosen' : 'choosing') : (view.turn?.playerId === player.id ? 'theirTurn' : null);
     const role = view.status==='identity'
-      ? (player.role==='leader' && player.identityAcknowledged ? 'leader' : null)
+      ? (isTeamRole(player.role) || (player.role==='leader' && player.identityAcknowledged) ? player.role : null)
       : (player.id===view.selfId?view.self.role:player.role);
     list.append(el('div', { class: `crew-row ${player.id === view.selfId ? 'self' : ''}` }, el('div', { class: 'avatar', 'aria-hidden': true }, Array.from(player.nickname || '?')[0]),
       el('div', { class: 'crew-person' }, el('strong', {}, player.nickname, player.id === view.selfId ? ` · ${t('you')}` : ''), el('span', { class: player.connected ? 'muted' : 'offline-label' }, !player.connected ? t('offline') : state ? t(state) : `${player.handCount} ${t('cards')}`), view.gameMode === 'combat-preview' ? el('span',{},roleName(role,language),player.eliminated?` · ${t('eliminated')}`:'') : null, player.reserve ? el('span', {class:'revealed-reserve'}, `${t('publicReserve')}: ${partnerName(player.reserve.catalogueId,player.reserve.level)} · ${player.reserve.level}`) : null), player.id === view.ownerId ? tag(t('owner'), 'owner-tag') : null));
@@ -777,6 +789,12 @@ function lobbyPanel() {
   const arenas = el('div', { class: 'checkin-gyms', role:'group', 'aria-label':t('arenaTitle') });
   const options = gymThemes.includes(view.settings.arena) ? gymThemes : [...gymThemes, view.settings.arena];
   for (const arena of options) arenas.append(el('button', { id: `arena-${arena}`, type: 'button', class: 'checkin-gym', disabled: busy || !isOwner(), 'aria-pressed': settings.arena === arena, onclick: () => { settingsDraft.arena = arena; render(); } }, el('span', {'aria-hidden':true},gymTypeIcon(arena)),el('strong',{},t(arena))));
+  const selectSetting = (key, label, choices, fallback) => el('label',{class:'match-mode-setting'},t(label),
+    el('select',{id:key,disabled:busy||!isOwner(),onchange:event=>{settingsDraft[key]=event.target.value; render();}},
+      Object.entries(choices).map(([value,name])=>el('option',{value,selected:value===(settings[key]??fallback)},t(name)))));
+  panel.prepend(el('div',{class:'match-mode-settings'},
+    selectSetting('matchMode','matchMode',{identity:'identityMode',teams:'teamMode'},'identity'),
+    settings.matchMode==='teams' ? selectSetting('teamAssignment','teamAssignment',{seat:'teamSeat',random:'teamRandom'},'seat') : null));
   panel.append(arenas);
   const timers = el('div', { class: 'timer-grid' });
   const turnEnabled = Number(settings.turnSeconds) > 0;
@@ -805,22 +823,32 @@ function lobbyPanel() {
   if (isOwner()) panel.append(button('saveSettings', saveSettings, 'button primary checkin-save',false,{id:'save-lobby-settings'}));
   return panel;
 }
+function lobbyDeckLabel(count) {
+  if (view.settings.matchMode==='teams' && count * 5 > 108) {
+    return language==='zh' ? '原版大师版 × 2 · 216 张' : 'Master Edition × 2 · 216 cards';
+  }
+  return t('deckRetail');
+}
 function lobbyLaunch() {
   const settings = (isOwner() && settingsDraft) || view.settings;
   const automationChanged = (settings.autoDraw ?? false) !== (view.settings.autoDraw ?? false) ||
     (settings.autoJudgment ?? true) !== (view.settings.autoJudgment ?? true);
   const players = seated();
-  const practiceDuel = players.length === 2 && players.filter(player=>player.ai).length === 1;
-  const allReady = (practiceDuel || (players.length >= 3 && players.length <= 6)) && players.every(p => p.ready && p.connected);
+  const teams = view.settings.matchMode === 'teams';
+  const modeChanged = (settings.matchMode ?? 'identity') !== (view.settings.matchMode ?? 'identity') ||
+    (settings.matchMode === 'teams' && (settings.teamAssignment ?? 'seat') !== view.settings.teamAssignment);
+  const practiceDuel = !teams && players.length === 2 && players.filter(player=>player.ai).length === 1;
+  const validCount = teams ? validTeamSize(players.length) : practiceDuel || (players.length >= 3 && players.length <= seatCapacity(view.settings));
+  const allReady = validCount && players.every(p => p.ready && p.connected);
   const launch = el('div', { class: 'launch-row' });
   if (!view.self.spectator) launch.append(button(ownPlayer()?.ready ? 'unready' : 'readyButton', () => action('ready', { ready: !ownPlayer()?.ready }), ownPlayer()?.ready ? 'button secondary' : 'button primary'));
   // The player-facing start follows identity → five private draws → partner choice.
   if (isOwner()) launch.append(button(practiceDuel?'startPracticeDuel':'startBattlePreview',()=>{
     const code = view.code, arena = view.settings.arena;
-    askConfirmation(practiceDuel?'practiceDuel':'combatFixture',()=>{
+    askConfirmation(teams?'teamLaunch':practiceDuel?'practiceDuel':'combatFixture',()=>{
       if(view?.code===code&&view.status==='lobby'&&view.settings.arena===arena)action('startBattlePreview');
-    }, t('deckRetail'));
-  },'button primary',!allReady||settings.arena!==view.settings.arena||automationChanged));
+    }, lobbyDeckLabel(players.length));
+  },'button primary',!allReady||settings.arena!==view.settings.arena||automationChanged||modeChanged));
   return launch;
 }
 function renderArenaSetup() {
@@ -829,13 +857,25 @@ function renderArenaSetup() {
   main.classList.add('match-prep',`theme-${view.settings.arena}`,identity?'prep-identity':'prep-selection');
   main.append(el('div',{class:'prep-toolbar'},
     el('span',{class:'prep-room'},`${t('room')} ${view.code}`),
-    el('span',{class:'prep-step'},t(identity?'identityStep':'pokemonStep')),
+    el('span',{class:'prep-step'},t(identity?(view.settings.matchMode==='teams'?'teamStep':'identityStep'):'pokemonStep')),
     el('details',{id:'prep-menu',class:'battle-menu prep-menu'},el('summary',{},t('arenaMenu')),el('div',{class:'battle-menu-body'},crewPanel(),logPanel(),recoveryPanel(),isOwner()?controlPanel():null))));
   const arena = el('div',{class:'prep-battlefield','aria-hidden':'true'},
     worldPanel([],view.selfId,null,view.settings.arena));
   main.prepend(arena);
-  main.append(identity ? identityReveal(count) : selectionPanel(count));
+  main.append(identity ? (view.settings.matchMode==='teams' ? teamLineup(count) : identityReveal(count)) : selectionPanel(count));
   if(view.pendingVote) main.append(el('div',{class:'world-vote'},votePanel()));
+}
+function teamLineup(count) {
+  const players = seated().toSorted((a,b)=>a.seatNumber-b.seatNumber);
+  return el('section',{class:'arena-identity team-lineup'},
+    el('h1',{},t('teamStep')),
+    el('p',{},t('teamLaunch')),
+    el('div',{class:'team-lineup-columns'},teamRoles.map(role=>el('section',{'data-team':role},
+      el('h2',{},roleName(role,language)),
+      el('ol',{},players.filter(player=>player.role===role).map(player=>el('li',{},player.nickname,player.id===view.selfId?` · ${t('you')}`:null)))))),
+    el('div',{class:'reveal-progress',role:'status'},`${count} / ${players.length} · ${t('teamWaiting')}`),
+    view.self.spectator || view.self.identityAcknowledged ? null
+      : button('teamConfirm',()=>action('acknowledgeIdentity'),'button primary',Boolean(view.pendingVote),{id:'acknowledge-identity'}));
 }
 function gymLeaderPortrait(theme, index) {
   const model=el('span',{class:'leader-model','data-mode':'flat','aria-hidden':'true'},el('span',{class:'leader-model-fallback'},gymTypeIcon(theme)));
@@ -1181,11 +1221,13 @@ function compactBattleSeat(player,leader,theme) {
       el('span',{class:`world-compact-hp${low?' hp-low':''}`},el('span',{'aria-hidden':'true'},'♥'),el('b',{class:'world-hp-value'},health)),
       el('span',{class:'world-compact-trainer'},player.nickname),
       player.role?el('span',{class:'world-compact-role','aria-hidden':'true'},
-        leader ? gymTypeIcon(theme) : {gym:'◆',rocket:'R',challenger:'✦'}[player.role]):null),
+        leader ? gymTypeIcon(theme) : isTeamRole(player.role) ? el('span',{'data-team':player.role},roleName(player.role,language))
+          : {gym:'◆',rocket:'R',challenger:'✦'}[player.role]):null),
     el('span',{class:`world-hp-track${low?' hp-low':''}`,'aria-hidden':'true'},healthFill));
 }
 function worldPanel(players, viewerId, turnId, theme) {
-  const host=el('section', {class:`world-host world-${theme}${players.length>=5?' world-crowded':''}`, 'data-mode':'flat', 'aria-label':t(theme)});
+  const largeTable = players.length > 6;
+  const host=el('section', {class:`world-host world-${theme}${players.length>=5?' world-crowded':''}${largeTable?' world-roster':''}`,  'data-mode':'flat', 'aria-label':t(theme)});
   const labels=el('div',{class:'world-labels'});
   const sprites=el('div',{class:'world-sprites','aria-hidden':'true'});
   const targetLayer=el('div',{class:'world-targets'});
@@ -1200,7 +1242,7 @@ function worldPanel(players, viewerId, turnId, theme) {
     const side = Math.sin(position.angle), depth = Math.cos(position.angle);
     const compact=Number.isFinite(player.active?.hp), leader=showLeader(player);
     const responding=view?.status==='playing' && player.id===view.pendingBattle?.actorId;
-    const label=el('article',{class:`world-seat ${compact?'world-seat-compact':''} ${player.id===turnId?'world-active':''} ${own?'world-self':''} ${leader?'world-leader':''} ${responding?'world-responding':''}`, 'data-seat-id':player.id, 'data-near-side':depth>.2 && Math.abs(side)>.1?'true':null},
+    const label=el('article',{class:`world-seat ${compact?'world-seat-compact':''} ${player.id===turnId?'world-active':''} ${own?'world-self':''} ${leader?'world-leader':''} ${responding?'world-responding':''}`, 'data-seat-id':player.id, 'data-team':isTeamRole(player.role)?player.role:null, 'data-eliminated':player.eliminated?'true':null, 'data-near-side':depth>.2 && Math.abs(side)>.1?'true':null},
       compact?compactBattleSeat(player,leader,theme):[
       el('div',{class:'world-seat-top'},el('strong',{},player.nickname),el('span',{},showLeader(player)?el('abbr',{title:roleName('leader',language),'aria-label':roleName('leader',language)},gymTypeIcon(theme)):own?t('you'):`${String(index+1).padStart(2,'0')}`)),
       el('div',{class:'world-seat-bottom'},el('span',{title:player.reserve?`${t('publicReserve')}: ${partnerName(player.reserve.catalogueId,player.reserve.level)} · ${player.reserve.level}`:player.active?`${t('level')} ${player.active.level}`:null},player.active?el('button',{type:'button',class:'pokemon-name-button',id:`active-details-${player.id}`,title:t('inspectPokemon'),onclick:()=>openPokemonDetails(player.active.catalogueId,player.active.level,`active-details-${player.id}`)},`${partnerName(player.active.catalogueId,player.active.level)} · ${player.active.level}`):view?.status==='identity'?roleName(leader?'leader':null,language):view?.status==='setup'?t(player.setupComplete?'chosen':'choosing'):t('noActive')),el('small',{},view?.status==='setup'?`${player.candidateDrawCount ?? 0} / 5`:view?.status==='identity'?(player.identityAcknowledged?'✓':'—'):`${player.handCount} ${t('cards')}`))]);
@@ -1213,7 +1255,7 @@ function worldPanel(players, viewerId, turnId, theme) {
     if (tokens.length) label.append(el('div',{class:'world-status-tokens'},tokens));
     const entry=player.active && catalogueEntry(player.active.catalogueId);
     const art=entry?.levels?.find(face=>face.level===player.active.level)?.portraitImage?.url || entry?.portraitImage?.url;
-    if(art && !player.eliminated && !player.active?.defeated) {
+    if(!largeTable && art && !player.eliminated && !player.active?.defeated) {
       const sprite=el('img',{class:'world-sprite','data-sprite-id':player.id,src:art,alt:'',draggable:false});
       sprite.style.setProperty('--flat-left', flatLeft);
       sprite.style.setProperty('--flat-top', flatTop);
@@ -1238,17 +1280,17 @@ function worldPanel(players, viewerId, turnId, theme) {
         target.style.setProperty('--flat-left',flatLeft);
         target.style.setProperty('--flat-top',flatTop);
         if (slot) target.style.setProperty('--reserve-direction',side>.1?-1:1);
-        targetLayer.append(target);
+        (largeTable ? label : targetLayer).append(target);
       };
-      addTarget(null,targetLabel,el('span',{'aria-hidden':'true',class:'aim-marker'},'✦'));
+      addTarget(null,targetLabel,largeTable?t('targetPokemon'):el('span',{'aria-hidden':'true',class:'aim-marker'},'✦'));
       const reserve = own ? view.self.reserve : player.reserve;
       if (reserve) addTarget('reserve',`${player.nickname} · ${t('reserve')} · ${partnerName(reserve.catalogueId,reserve.level)}`,
         [partnerImage(reserve),el('small',{},language==='zh'?'备战':'Reserve')]);
     }
   }
   host.append(el('div',{class:'flat-field','aria-hidden':'true'},el('div',{class:'field-centre'})),sprites,labels,targetLayer,
-    el('span',{class:'renderer-status'},t('fallbackView')));
-  if(richGraphics) queueMicrotask(async()=>{
+    largeTable ? null : el('span',{class:'renderer-status'},t('fallbackView')));
+  if(richGraphics && !largeTable) queueMicrotask(async()=>{
     try {
       if(!host.isConnected || !richGraphics)return;
       if (!battlefield) {
@@ -1294,6 +1336,7 @@ function worldPanel(players, viewerId, turnId, theme) {
   return host;
 }
 function cameraControls() {
+  if (seated().length > 6) return null;
   const options = [['table','trainerCamera'],['overhead','overheadCamera'],...(richGraphics?[['free','freeCamera']]:[])];
   const selected = !richGraphics && cameraMode==='free' ? 'table' : cameraMode;
   return el('div',{class:'camera-controls'},options.map(([mode,label])=>button(label,()=>{
@@ -1655,7 +1698,13 @@ const flowStages = [
 
 function gameFlow() {
   const copy = pair=>pair[language==='zh'?1:0];
-  return el('ol',{class:'game-flow'},flowStages.map((stage,index)=>el('li',{'data-stage':stage.id},
+  const stages = view?.settings.matchMode==='teams' ? [
+    {id:'identity',title:strings.teamStep,copy:strings.teamLaunch},
+    {id:'partners',title:flowStages[1].title,copy:['Draw five different Pokémon and select one active partner and one private reserve. Both start at level 1. Each trainer draws four starting cards.','摸取五个不同的宝可梦候选，选择一只出战搭档和一只私密后备。两只都从 1 级开始。每位训练家摸四张起始手牌。']},
+    ...flowStages.slice(2,4),
+    {id:'victory',title:flowStages[4].title,copy:['A team wins once every opposing trainer has been eliminated.','对方所有训练家出局后，本队获胜。']},
+  ] : flowStages;
+  return el('ol',{class:'game-flow'},stages.map((stage,index)=>el('li',{'data-stage':stage.id},
     el('span',{class:'flow-index','aria-hidden':'true'},String(index+1)),
     el('section',{class:'flow-stage'},el('h3',{},copy(stage.title)),stage.copy?el('p',{},copy(stage.copy)):null,
       stage.steps?el('ul',{class:'flow-steps'},stage.steps.map(([title,description])=>el('li',{},el('strong',{},copy(title)),el('p',{},copy(description))))):null))));
@@ -1946,7 +1995,7 @@ function setView(next, force = false) {
   else updateTurnClock();
 }
 function showError(error) {
-  const mapped = { POKEMON_DRAW_EXHAUSTED:'drawPokemonFirst', CANDIDATE_DRAW_INCOMPLETE:'drawPokemonFirst', IDENTITY_ALREADY_SEEN:'identityWaiting', CONTENT_UNAVAILABLE:'genericError', RESPONSE_PENDING:'responsePending', STALE_DECISION:'stale', NOT_YOUR_DECISION:'wrongTurn', MOVE_UNAVAILABLE:'wrongPhase', INVALID_TARGET:'invalidSelection', TRAIT_UNAVAILABLE:'wrongPhase', WRONG_MODE:'wrongPhase', INVALID_RESPONSE:'invalidInput', INVALID_CARD:'invalidInput', SWITCH_USED:'switchUsedHelp', SWITCH_UNAVAILABLE:'switchUnavailable', STALE_REVISION: 'stale', UNAUTHORIZED: 'unauthorized', ROOM_NOT_FOUND: 'roomMissing', ROOM_CLOSED: 'closedCopy', ROOM_FULL: 'roomFull', GAME_STARTED: 'gameStarted', NOT_READY: 'notReadyError', DRAW_EXHAUSTED: 'drawExhausted', NOT_YOUR_TURN: 'wrongTurn', WRONG_PHASE:'wrongPhase', INVALID_PHASE:'wrongPhase', TURN_INCOMPLETE: 'turnIncomplete', VOTE_PENDING: 'votePending', INVALID_SELECTION: 'invalidSelection', OWNER_ONLY: 'ownerOnly', INVALID_SETTINGS: 'timerInvalid', INVALID_NICKNAME: 'invalidInput' };
+  const mapped = { INVALID_TEAM_SIZE:'teamStartHelp', TOO_MANY_TRAINERS:'teamTooMany', POKEMON_DRAW_EXHAUSTED:'drawPokemonFirst', CANDIDATE_DRAW_INCOMPLETE:'drawPokemonFirst', IDENTITY_ALREADY_SEEN:'identityWaiting', CONTENT_UNAVAILABLE:'genericError', RESPONSE_PENDING:'responsePending', STALE_DECISION:'stale', NOT_YOUR_DECISION:'wrongTurn', MOVE_UNAVAILABLE:'wrongPhase', INVALID_TARGET:'invalidSelection', TRAIT_UNAVAILABLE:'wrongPhase', WRONG_MODE:'wrongPhase', INVALID_RESPONSE:'invalidInput', INVALID_CARD:'invalidInput', SWITCH_USED:'switchUsedHelp', SWITCH_UNAVAILABLE:'switchUnavailable', STALE_REVISION: 'stale', UNAUTHORIZED: 'unauthorized', ROOM_NOT_FOUND: 'roomMissing', ROOM_CLOSED: 'closedCopy', ROOM_FULL: 'roomFull', GAME_STARTED: 'gameStarted', NOT_READY: 'notReadyError', DRAW_EXHAUSTED: 'drawExhausted', NOT_YOUR_TURN: 'wrongTurn', WRONG_PHASE:'wrongPhase', INVALID_PHASE:'wrongPhase', TURN_INCOMPLETE: 'turnIncomplete', VOTE_PENDING: 'votePending', INVALID_SELECTION: 'invalidSelection', OWNER_ONLY: 'ownerOnly', INVALID_SETTINGS: 'timerInvalid', INVALID_NICKNAME: 'invalidInput' };
   errorKey = error.network ? 'networkError' : error.code === 'SEAT_TAKEN' ? 'seatTaken' : mapped[error.code] || 'genericError';
   errorCode = error.code && /^[A-Z0-9_]{1,60}$/i.test(error.code) ? error.code : '';
   noticeKey = ''; renderMessages();
@@ -2057,7 +2106,7 @@ async function poll(force = false) {
   } finally { pollRunning = false; }
 }
 async function saveSettings() {
-  const next = { arena: settingsDraft.arena, turnSeconds: Number(settingsDraft.turnSeconds), responseSeconds: Number(settingsDraft.responseSeconds), autoDraw: settingsDraft.autoDraw ?? false, autoJudgment: settingsDraft.autoJudgment ?? true };
+  const next = { arena: settingsDraft.arena, turnSeconds: Number(settingsDraft.turnSeconds), responseSeconds: Number(settingsDraft.responseSeconds), autoDraw: settingsDraft.autoDraw ?? false, autoJudgment: settingsDraft.autoJudgment ?? true, matchMode: settingsDraft.matchMode ?? 'identity', teamAssignment: settingsDraft.teamAssignment ?? 'seat' };
   if ([next.turnSeconds, next.responseSeconds].some(value => !Number.isInteger(value) || (value !== 0 && (value < 5 || value > 600)))) { errorKey = 'timerInvalid'; renderMessages(); return; }
   if (await action('settings', next)) $('#info-dialog')?.close();
 }

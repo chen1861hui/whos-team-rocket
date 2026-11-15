@@ -1,4 +1,5 @@
 import { publicBattleDecision, publicBattlePokemon, previewActions, battleTraitsEffective, battleReinforcementEffective, estimateCommandDamage } from './combat.js';
+import { isTeamRole } from '../public/match-mode.js';
 import { currentHp } from './battle-rules.js';
 
 export const aiDifficulties = ['easy', 'normal', 'hard'];
@@ -67,6 +68,7 @@ export function publicAiTable(room, catalogue) {
 
 // Use only our own role and already-revealed roles to refine public preferences.
 function ally(player, target) {
+  if (isTeamRole(player.role)) return player.role === target?.role;
   return player.id === target?.id || (['leader', 'gym'].includes(player.role) && ['leader', 'gym'].includes(target?.role))
     || (player.role === 'challenger' && target?.role === 'challenger');
 }

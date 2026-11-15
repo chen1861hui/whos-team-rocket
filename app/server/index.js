@@ -13,6 +13,7 @@ const staticFiles = new Map([
   ['/', ['index.html', 'text/html; charset=utf-8']],
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/ai-worker.js', ['ai-worker.js', 'text/javascript; charset=utf-8']],
+  ['/match-mode.js', ['match-mode.js', 'text/javascript; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/catalogue.json', ['catalogue.json', 'application/json; charset=utf-8']],

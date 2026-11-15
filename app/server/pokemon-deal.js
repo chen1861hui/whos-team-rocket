@@ -9,10 +9,11 @@ export function shufflePokemon(ids) {
   }
   return pool;
 }
-export function dealPokemon(players, ids, { revealImmediately = false } = {}) {
-  const pool = shufflePokemon(ids);
-  if (pool.length < players.length * 5) throw new RangeError('Five unique Pokémon per player require a sufficiently large shared deck.');
+export function dealPokemon(players, ids, { revealImmediately = false, refill = false } = {}) {
+  let pool = shufflePokemon(ids);
+  if (pool.length < (refill ? 5 : players.length * 5)) throw new RangeError('Five unique Pokémon per player require a sufficiently large shared deck.');
   for (const player of players) {
+    if (pool.length < 5) pool = shufflePokemon(ids);
     const deal = pool.splice(0, 5);
     player.candidates = revealImmediately ? deal : [];
     player.candidateDeal = revealImmediately ? [] : deal;

@@ -1,6 +1,8 @@
+import { isTeamRole } from './match-mode.js';
 import {playCardFace} from './play-card-face.js';
 
 const words = {
+  'team-a':['Team A','A 队'], 'team-b':['Team B','B 队'],
   leader:['Gym Leader','道馆馆主'], gym:['Gym Trainer','道馆训练家'], challenger:['Challenger','挑战者'], rocket:['Rocket Grunt','火箭队手下'], hidden:['Hidden identity','隐藏身份'],
   burn:['Burn','灼伤'], flinch:['Flinch','畏缩'], sleep:['Sleep','睡眠'], confusion:['Confusion','混乱'], paralysis:['Paralysis','麻痹'], poison:['Poison','中毒'],
 };
@@ -1170,9 +1172,9 @@ export function decisionPanel(view,kit) {
 }
 export function resultPanel(view, kit) {
   const language=kit.language;
-  const title = view.result?.winner==='rocket'?roleName('rocket',language):view.result?.winner==='challengers'?roleName('challenger',language):say(language,'Gym Leader and Gym Trainers','道馆馆主与道馆训练家');
+  const title = isTeamRole(view.result?.winner) ? roleName(view.result.winner,language) : view.result?.winner==='rocket'?roleName('rocket',language):view.result?.winner==='challengers'?roleName('challenger',language):say(language,'Gym Leader and Gym Trainers','道馆馆主与道馆训练家');
   const deckLabel = view.scenario?.deckProfile === 'retail'
-    ? say(language, 'Master Edition (108 cards).', '大师版（108张）。')
+    ? say(language, `Master Edition (${view.scenario.deckCardCount ?? 108} cards).`, `大师版（${view.scenario.deckCardCount ?? 108} 张）。`)
     : say(language, 'Playtest deck.', '测试牌库。');
   const revealSummary = say(language, 'All identities, hands and reserve partners are now public.', '所有身份、手牌与备战搭档现已公开。');
   const panel=node('section',{class:'combat-result'},node('h1',{},`${title} · ${say(language,'Victory','胜利')}`),node('p',{},`${deckLabel} ${revealSummary}`));
