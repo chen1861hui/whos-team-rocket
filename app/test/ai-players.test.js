@@ -196,9 +196,10 @@ const command = { id: 'command', kind: 'command', weather: 'clear' };
 
 test('AI uses real damage to finish an exposed enemy instead of wasting Power on Defense or immunity', () => {
   const { room, actor, next } = tacticalRoom({ family: 'pikachu', level: 2, reinforcements: ['power'] }, [
-    { family: 'snorlax', level: 1, damage: 2, reinforcements: ['defense'], role: 'leader' },
+    { family: 'snorlax', level: 1, damage: 2, reinforcements: ['defense'], role: 'leader', reserve: { family: 'snorlax' } },
     { family: 'snorlax', level: 1, damage: 1, role: 'rocket' },
   ], [command]);
+  actor.role = 'rocket';
   assert.deepEqual(next(), { type: 'attack', moveIndex: 0, targetIds: ['enemy-1'], cardId: 'command' });
   room.turn.damageImmunityIds = ['target-1'];
   assert.deepEqual(next().targetIds, ['enemy-0']);
@@ -396,4 +397,112 @@ test('AI fallback leaves time to see a move, while manual draws advance at the s
   f.tick();
   assert.equal(f.get().turn.drawRemaining, 1);
   assert.equal(f.nextAiDelay, 650);
+});
+
+test('challenger AI prioritizes the Gym Leader over an easy knockout at every difficulty', () => {
+  const { room, actor } = tacticalRoom({ family: 'pikachu', level: 2 }, [
+    { family: 'snorlax', level: 2, reinforcements: ['defense'], role: 'leader' },
+    { family: 'snorlax', damage: 3, role: 'challenger' },
+  ], [command]);
+  for (const difficulty of ['easy', 'normal', 'hard']) {
+    actor.aiDifficulty = difficulty;
+    const [action] = aiActions(room, actor, catalogue, { targetIds: ['enemy-1', 'enemy-0'], focus: 'attack' });
+    assert.deepEqual(action.targetIds, ['enemy-0']);
+  }
+});
+
+test('when the leader is out of range, challenger AI weighs public hits without consulting hidden roles', () => {
+  const { room, actor, next } = tacticalRoom({ family: 'pikachu', level: 2 }, [
+    { family: 'snorlax', damage: 3, role: 'challenger' },
+    { family: 'snorlax', role: 'leader' },
+    { family: 'snorlax', role: 'gym' },
+    { family: 'snorlax', role: 'rocket' },
+  ], [command]);
+  assert.equal(next().type, 'finishPlay');
+  room.visualEvents = [{ kind: 'hit', sourceId: 'enemy-0', targetIds: ['actor'], amount: 1 }];
+  assert.deepEqual(next().targetIds, ['enemy-0']);
+  [room.players[1].role, room.players[4].role] = [room.players[4].role, room.players[1].role];
+  assert.deepEqual(next().targetIds, ['enemy-0']);
+  room.visualEvents.push({ kind: 'hit', sourceId: 'enemy-0', targetIds: ['enemy-1'], amount: 1 });
+  assert.equal(next().type, 'finishPlay');
+
+  room.players[4].role = 'gym';
+  room.players[4].identityPublic = true;
+  assert.deepEqual(next().targetIds, ['enemy-3']);
+  room.players[4].role = 'challenger';
+  assert.equal(next().type, 'finishPlay');
+});
+
+test('challenger AI directs a single-target event at the Gym Leader even with an easy alternate target', () => {
+  const event = { id: 'rival', kind: 'event', eventType: 'rival-challenge', weather: 'rain' };
+  const { room, next } = tacticalRoom({ family: 'pikachu', level: 2 }, [
+    { family: 'snorlax', level: 2, role: 'leader' },
+    { family: 'snorlax', damage: 3, role: 'rocket' },
+  ], [event]);
+  room.players[2].identityPublic = true;
+  assert.deepEqual(next(), { type: 'useEvent', cardId: event.id, targetId: 'enemy-0' });
+  room.turn.damageImmunityIds = ['target-0'];
+  assert.deepEqual(next(), { type: 'useEvent', cardId: event.id, targetId: 'enemy-1' });
+});
+
+test('Gym Leader treats public hits as clues and never uses hidden roles to choose a target', () => {
+  const { room, actor, next } = tacticalRoom({ family: 'pikachu', level: 2 }, [
+    { family: 'snorlax', damage: 3, role: 'gym' },
+    { family: 'snorlax', role: 'challenger' },
+    { family: 'snorlax', role: 'rocket' },
+  ], [command]);
+  actor.role = 'leader';
+  actor.identityAcknowledged = true;
+  room.players[2].identityPublic = true;
+  const hit = (sourceId, id) => ({ kind: 'hit', sourceId, targetIds: [id], amount: 1 });
+  room.visualEvents = [hit('enemy-0', 'enemy-1'), hit('enemy-2', 'actor')];
+  assert.deepEqual(next().targetIds, ['enemy-2']);
+  [room.players[1].role, room.players[3].role] = [room.players[3].role, room.players[1].role];
+  assert.deepEqual(next().targetIds, ['enemy-2']);
+  room.players[3].identityPublic = true;
+  assert.deepEqual(next().targetIds, ['enemy-0']);
+});
+
+test('Gym Trainer uses public hits to prioritize the trainer pressuring their Leader', () => {
+  const { room, actor, next } = tacticalRoom({ family: 'pikachu', level: 2 }, [
+    { family: 'snorlax', role: 'challenger' },
+    { family: 'snorlax', role: 'leader' },
+    { family: 'snorlax', role: 'rocket' },
+  ], [command]);
+  actor.role = 'gym';
+  room.visualEvents = [{ kind: 'hit', sourceId: 'enemy-2', targetIds: ['enemy-1'], amount: 1 }];
+  assert.deepEqual(next().targetIds, ['enemy-2']);
+});
+
+test('Rocket prioritizes trainers threatening the Leader and saves the final Gym knockout for the duel', () => {
+  const { room, actor, next } = tacticalRoom({ family: 'pikachu', level: 2 }, [
+    { family: 'snorlax', damage: 3, role: 'leader' },
+    { family: 'snorlax', role: 'challenger' },
+    { family: 'snorlax', role: 'gym' },
+  ], [command]);
+  actor.role = 'rocket';
+  room.visualEvents = [{ kind: 'hit', sourceId: 'enemy-2', targetIds: ['enemy-0'], amount: 1 }];
+  assert.deepEqual(next().targetIds, ['enemy-2']);
+  [room.players[2].role, room.players[3].role] = [room.players[3].role, room.players[2].role];
+  assert.deepEqual(next().targetIds, ['enemy-2']);
+
+  for (const other of room.players.slice(2)) other.eliminated = true;
+  assert.deepEqual(next().targetIds, ['enemy-0']);
+});
+
+test('Rocket spends rescue on the Leader only when it can prevent an early loss', () => {
+  const potion = { id: 'potion', kind: 'tool', toolType: 'potion-full-heal', weather: 'rain' };
+  const { room, actor, next } = tacticalRoom({ family: 'pikachu', level: 2 }, [
+    { family: 'snorlax', damage: 4, role: 'leader' },
+    { family: 'snorlax', role: 'challenger' },
+  ], [potion]);
+  actor.role = 'rocket';
+  room.resolution = {};
+  room.pendingBattle = { kind: 'rescue', id: 'rescue', actorId: actor.id, targetId: 'enemy-0' };
+  assert.equal(next().choice, 'potion');
+  room.players[1].reserve = { catalogueId: 'snorlax', level: 1 };
+  assert.equal(next().choice, 'pass');
+  room.players[1].reserve = null;
+  room.players[2].eliminated = true;
+  assert.equal(next().choice, 'pass');
 });

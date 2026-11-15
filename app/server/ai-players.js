@@ -71,18 +71,58 @@ function ally(player, target) {
     || (player.role === 'challenger' && target?.role === 'challenger');
 }
 
-function rankTargets(ids, player, table, preferences) {
+// Use recent, attributed public hits as clues, with revealed roles taking precedence.
+function factionRead(room, player, table) {
+  const gymRoles = ['leader', 'gym'];
+  const gymSide = gymRoles.includes(player.role);
+  const gymIds = new Set(table.filter(seat => gymRoles.includes(seat.role)).map(seat => seat.id));
+  if (gymSide) gymIds.add(player.id);
+  const publicOpponents = new Set(table.filter(seat => ['challenger', 'rocket'].includes(seat.role)).map(seat => seat.id));
+  const hitGym = new Set();
+  const hitOpponents = new Set();
+  const hitSelf = new Set();
+  for (const cue of room.visualEvents ?? []) {
+    if (cue.kind !== 'hit' || !cue.sourceId || !cue.amount) continue;
+    const targets = cue.targetIds.filter(id => id !== cue.sourceId);
+    if (targets.some(id => gymIds.has(id))) hitGym.add(cue.sourceId);
+    if (targets.some(id => publicOpponents.has(id))) hitOpponents.add(cue.sourceId);
+    if (targets.includes(player.id)) hitSelf.add(cue.sourceId);
+  }
+
+  const hiddenGymTrainer = player.role === 'leader' && table.length >= 4 && !table.some(seat => seat.role === 'gym');
+  const leader = table.find(seat => seat.role === 'leader' && !seat.eliminated);
+  const rocketNeedsRivalsGone = player.role === 'rocket' && leader && table.filter(seat => !seat.eliminated).length > 2;
+  const protectLeader = rocketNeedsRivalsGone && !leader.hasReserve;
+  const friendly = target => ally(player, target) || Boolean(hiddenGymTrainer && target && !target.role &&
+    hitOpponents.has(target.id) && !hitGym.has(target.id));
+  const canTarget = target => {
+    if (!target || friendly(target) || (protectLeader && target.id === leader.id)) return false;
+    if (target.role) return true;
+    if (player.role === 'challenger') return hitSelf.has(target.id) && !hitGym.has(target.id);
+    return !hiddenGymTrainer || hitGym.has(target.id);
+  };
+  const pressure = target => {
+    if (!target) return 0;
+    if (gymSide && hitGym.has(target.id)) return 4;
+    if (rocketNeedsRivalsGone && target.id !== leader.id) return hitGym.has(target.id) ? 5 : 2;
+    return 0;
+  };
+  return { friendly, canTarget, pressure, protectedLeaderId: protectLeader ? leader.id : null };
+}
+
+function rankTargets(ids, player, table, preferences, read) {
   const ranked = preferences?.targetIds ?? [];
   const difficulty = aiDifficulty(player);
   const score = id => {
     const target = table.find(seat => seat.id === id);
-    if (ally(player, target)) return -100;
-    if (difficulty === 'easy') return ranked.includes(id) ? -ranked.indexOf(id) : -ranked.length;
+    if (read.friendly(target)) return -100;
+    const pressure = read.pressure(target);
+    if (difficulty === 'easy') return pressure + (ranked.includes(id) ? -ranked.indexOf(id) : -ranked.length);
     const faction = target?.role === 'leader' ? (player.role === 'challenger' ? 6 : -4) : 0;
     const rank = ranked.indexOf(id);
     const defense = difficulty === 'hard' ? (target?.active?.defense ?? 0) * 2 : 0;
     const protectedTarget = difficulty === 'hard' && target?.active?.damageProtected ? 12 : 0;
-    return faction + (rank < 0 ? 0 : (ranked.length - rank) * 2) - (target?.active?.hp ?? 0) - defense - protectedTarget;
+    return faction + pressure + (rank < 0 ? 0 : (ranked.length - rank) * 2) - (target?.active?.hp ?? 0) - defense - protectedTarget;
   };
   return ids.toSorted((a, b) => score(b) - score(a));
 }
@@ -94,14 +134,20 @@ function response(room, player, catalogue, table, preferences) {
   const pass = () => act('pass');
   const cards = cheapestFirst(player.hand);
   const target = table.find(seat => seat.id === pending.targetId);
-  const friendly = ally(player, target);
+  const read = factionRead(room, player, table);
+  const seat = id => table.find(entry => entry.id === id);
+  const friendly = read.friendly(target);
   const ownHp = currentHp(player.active, catalogue);
   const tactical = aiDifficulty(player) !== 'easy';
   const source = room.players.find(seat => seat.id === room.resolution?.sourcePlayerId);
   const recipient = room.players.find(seat => seat.id === pending.targetId);
   const incomingHit = () => source?.active && room.resolution?.kind === 'move'
     ? estimateCommandDamage(room, source.active, player.active, null, catalogue) : null;
-  const targets = () => rankTargets(pending.legalTargetIds, player, table, preferences);
+  const targets = () => {
+    const ranked = rankTargets(pending.legalTargetIds, player, table, preferences, read);
+    const opponents = ranked.filter(id => read.canTarget(seat(id)));
+    return opponents.length ? opponents : ranked;
+  };
   const usableDodge = card => !pending.blockedDodgeWeathers?.includes(card.weather) &&
     (card.kind === 'dodge' || (player.active.catalogueId === 'gastly' && player.active.level <= 2 &&
       battleTraitsEffective(room, player.active) && ['rain', 'thunderstorm'].includes(card.weather)));
@@ -141,8 +187,7 @@ function response(room, player, catalogue, table, preferences) {
     case 'effects':
     case 'source-effect-order': return act('effect', { effect: pending.effects[0] });
     case 'rescue': {
-      if (!friendly && !(player.role === 'rocket' && target?.role === 'leader' &&
-          table.filter(seat => !seat.eliminated).length > 2)) return pass();
+      if (!friendly && (!target || target.id !== read.protectedLeaderId)) return pass();
       const possibleHeals = pending.potionCards.length + pending.healerCards.filter(
         card => !pending.potionCards.some(potion => potion.id === card.id)).length;
       const lastRescuer = room.resolution?.rescueIndex === room.resolution?.rescueActors?.length - 1;
@@ -168,7 +213,7 @@ function response(room, player, catalogue, table, preferences) {
         .map(option => ({ option, damage: estimateCommandDamage(room, player.active, recipient.active, option, catalogue) }))
         .toSorted((a, b) => b.damage - a.damage)[0];
       if (move?.damage === 0) return pass();
-      if (!friendly && move && pending.commandCards.length) {
+      if (read.canTarget(target) && move && pending.commandCards.length) {
         return act('command', { cardId: pending.commandCards[0].id, moveIndex: move.option.index });
       }
       return pass();
@@ -224,11 +269,11 @@ function response(room, player, catalogue, table, preferences) {
       const opponent = room.players.find(seat => seat.id === room.turn.playerId);
       const disruptive = ['staryu', 'porygon', 'electabuzz', 'charmander', 'machop', 'jynx', 'scyther'];
       return tactical && cards[0] && cardValue(cards[0]) <= 2 && pending.legalTargetIds.includes(opponent?.id) &&
-        !ally(player, table.find(seat => seat.id === opponent.id)) && disruptive.includes(opponent.active?.catalogueId)
+        read.canTarget(seat(opponent.id)) && disruptive.includes(opponent.active?.catalogueId)
         ? act('suppress', { cardId: cards[0].id, targetId: opponent.id }) : pass();
     }
     case 'cute-charm': {
-      const redirect = targets().find(id => !ally(player, table.find(seat => seat.id === id)));
+      const redirect = targets().find(id => read.canTarget(seat(id)));
       return tactical && redirect && pending.paymentCards.length && incomingHit() >= 1
         ? act('redirect', { cardId: cheapestFirst(pending.paymentCards)[0].id, targetId: redirect }) : pass();
     }
@@ -275,11 +320,12 @@ function choosePartners(player, catalogue) {
 
 function play(room, player, catalogue, table, preferences, legal) {
   const candidates = [];
-  const add = (score, type, payload = {}) => {
-    if (score > 0) candidates.push({ score, action: { type, ...payload } });
+  const add = (score, type, payload = {}, hostileIds = []) => {
+    if (score > 0) candidates.push({ score, action: { type, ...payload }, hostileIds });
   };
   const cards = cheapestFirst(player.hand);
-  const targetOrder = ids => rankTargets(ids, player, table, preferences);
+  const read = factionRead(room, player, table);
+  const targetOrder = ids => rankTargets(ids, player, table, preferences, read);
   const seats = new Map(room.players.map(seat => [seat.id, seat]));
   const publicSeats = new Map(table.map(seat => [seat.id, seat]));
   const active = player.active;
@@ -289,11 +335,15 @@ function play(room, player, catalogue, table, preferences, legal) {
   const hard = difficulty === 'hard';
   const attackBonus = preferences?.focus === 'attack' ? 1 : 0;
   const recoveryBonus = preferences?.focus === 'recover' ? (hard ? 3 : 1) : 0;
-  const isAlly = id => ally(player, publicSeats.get(id));
+  const isAlly = id => read.friendly(publicSeats.get(id));
+  const isEnemy = id => read.canTarget(publicSeats.get(id));
+  const leaderId = player.role === 'challenger'
+    ? table.find(seat => seat.role === 'leader' && !seat.eliminated)?.id : null;
+  const hostile = ids => ids.filter(id => id !== player.id);
   const hasCommand = cards.some(card => card.kind === 'command' && (active.status !== 'paralysis' || sunny(card)));
   const freeCommand = !room.turn.commandCreatureId || room.turn.commandCreatureId === active.instanceId;
   const canAttack = hasCommand && freeCommand && legal.moves.some(move => move.canUse && move.condition.kind === 'command' &&
-    move.printedValue > 0 && move.legalTargetIds.some(id => !isAlly(id)));
+    move.printedValue > 0 && move.legalTargetIds.some(id => isEnemy(id) && (!leaderId || id === leaderId)));
   const validReserve = player.reserve && !player.reserve.defeated;
 
   for (const move of legal.moves.filter(move => move.canUse)) {
@@ -309,7 +359,7 @@ function play(room, player, catalogue, table, preferences, legal) {
     const effectScore = id => {
       const target = seats.get(id).active;
       if (recoverMove) return isAlly(id) ? Math.min(injuries(target), 2) * 4 : 0;
-      if (id !== player.id && isAlly(id)) return 0;
+      if (id !== player.id && !isEnemy(id)) return 0;
       if (id === player.id) {
         const teleport = active.catalogueId === 'abra' && active.level === 1;
         if (teleport) return betterReserve(player, catalogue) && room.drawPile?.length + room.discardPile?.length > 0 ? 6 : 0;
@@ -332,8 +382,11 @@ function play(room, player, catalogue, table, preferences, legal) {
     const options = available.map((id, rank) => {
       const target = seats.get(id).active;
       const targetHp = publicSeats.get(id).active.hp;
-      if (!damageMove) return { id, score: effectScore(id), boost: null };
-      if (isAlly(id)) return { id, score: 0 };
+      if (!damageMove) {
+        const score = effectScore(id);
+        return { id, score: score > 0 && !recoverMove ? score + read.pressure(publicSeats.get(id)) : score, boost: null };
+      }
+      if (!isEnemy(id)) return { id, score: 0 };
       const damage = estimateCommandDamage(room, active, target, move, catalogue);
       const boost = hard && move.effectKind === 'hyper-beam' && payment && damage < targetHp &&
         estimateCommandDamage(room, active, target, move, catalogue, 1) >= targetHp
@@ -346,10 +399,12 @@ function play(room, player, catalogue, table, preferences, legal) {
       const publicRank = preferences?.targetIds?.indexOf(id) ?? -1;
       const strategyBonus = hard && publicRank >= 0 ? 3 / (publicRank + 1) : (available.length - rank) * 0.2;
       const score = effective > 0 ? 5 + 2 * Math.min(effective, targetHp) +
-        (tactical && finish ? 6 + winPressure : 0) + attackBonus + strategyBonus : 0;
+        (tactical && finish ? 6 + winPressure : 0) + attackBonus + strategyBonus + read.pressure(publicSeats.get(id)) : 0;
       return { id, score, boost };
     }).filter(option => option.score > 0);
-    const targets = (tactical ? options.toSorted((a, b) => b.score - a.score) : options).slice(0, move.maxTargets);
+    const leaderOption = !recoverMove && leaderId && options.find(option => option.id === leaderId);
+    const targets = leaderOption ? [leaderOption]
+      : (tactical ? options.toSorted((a, b) => b.score - a.score) : options).slice(0, move.maxTargets);
     if (!targets.length) continue;
     const score = targets.reduce((sum, option, index) => sum + option.score * (index ? 0.45 : 1), 0);
     const primaryId = targets[0].id;
@@ -363,7 +418,7 @@ function play(room, player, catalogue, table, preferences, legal) {
       ...(targets[0].boost ? { boostCardId: targets[0].boost.id } : {}),
       ...(move.effectKind === 'moonlight' ? { effectChoice: 'heal' } : {}),
       ...(doubleDodge ? { effectChoice: 'double-dodge' } : {}),
-    });
+    }, recoverMove ? [] : hostile(targets.map(option => option.id)));
   }
 
   for (const tool of legal.tools) {
@@ -393,6 +448,10 @@ function play(room, player, catalogue, table, preferences, legal) {
   for (const event of legal.events.filter(event => event.canUse)) {
     const card = cards.find(card => card.kind === 'event' && card.eventType === event.eventType);
     if (event.targeting !== 'single') {
+      const offensive = !['berry-harvest', 'mew-blessing'].includes(event.eventType);
+      const affected = offensive ? event.targetIds.filter(id => !publicSeats.get(id).active.damageProtected) : [];
+      if (offensive && leaderId && !affected.includes(leaderId)) continue;
+      if (affected.includes(read.protectedLeaderId)) continue;
       const score = event.targetIds.reduce((sum, id) => {
         const target = publicSeats.get(id);
         const friendly = isAlly(id);
@@ -403,12 +462,14 @@ function play(room, player, catalogue, table, preferences, legal) {
         }
         if (target.active.damageProtected) return sum;
         const likelyDamage = event.eventType === 'zapdos-punishment' ? target.active.level * 0.25 : target.handCount ? 1.5 : 2;
-        return sum + (friendly ? -3 : 3) * likelyDamage + (!friendly && likelyDamage >= target.active.hp ? 5 : 0);
+        const opposed = isEnemy(id);
+        return sum + (opposed ? 3 : friendly ? -3 : -1) * likelyDamage +
+          (opposed && likelyDamage >= target.active.hp ? 5 : 0);
       }, 0);
-      add(score, 'useEvent', { cardId: card.id });
+      add(score, 'useEvent', { cardId: card.id }, hostile(affected));
       continue;
     }
-    for (const id of targetOrder(event.targetIds).filter(id => !isAlly(id))) {
+    for (const id of targetOrder(event.targetIds).filter(isEnemy)) {
       const target = publicSeats.get(id);
       const pokemon = seats.get(id).active;
       if (event.eventType === 'jigglypuff-performance' && target.active.status) continue;
@@ -419,7 +480,7 @@ function play(room, player, catalogue, table, preferences, legal) {
       })).toSorted((a, b) => b.value - a.value)[0];
       const score = bestEffect?.value ?? (event.eventType === 'rival-challenge'
         ? (target.handCount === 0 ? 10 : activeHP <= 2 ? 2 : 6) : 5);
-      add(score, 'useEvent', { cardId: card.id, targetId: id, ...(bestEffect ? { effect: bestEffect.effect } : {}) });
+      add(score + read.pressure(target), 'useEvent', { cardId: card.id, targetId: id, ...(bestEffect ? { effect: bestEffect.effect } : {}) }, [id]);
     }
   }
 
@@ -433,8 +494,9 @@ function play(room, player, catalogue, table, preferences, legal) {
       }
     }
   }
-  const ballTarget = targetOrder(legal.lightBallTargets).find(id => !isAlly(id) && !publicSeats.get(id).active.status);
-  if (ballTarget) add(6, 'useLightBall', { targetId: ballTarget });
+  const ballTargets = targetOrder(legal.lightBallTargets).filter(id => isEnemy(id) && !publicSeats.get(id).active.status);
+  const ballTarget = ballTargets.includes(leaderId) ? leaderId : ballTargets[0];
+  if (ballTarget) add(6, 'useLightBall', { targetId: ballTarget }, [ballTarget]);
 
   if (tactical && legal.canSwitch && validReserve) {
     const reserveOffersAttack = hasCommand && freeCommand && !canAttack && (moveFace(player.reserve, catalogue)?.moves ?? [])
@@ -461,7 +523,10 @@ function play(room, player, catalogue, table, preferences, legal) {
         if (!canAttack && hasCommand) add(4, 'useTrait');
     }
   }
-  return candidates.sort((a, b) => b.score - a.score).map(candidate => candidate.action).concat({ type: 'finishPlay' });
+  const canPressureLeader = leaderId && candidates.some(candidate => candidate.hostileIds.includes(leaderId));
+  return candidates
+    .filter(candidate => !canPressureLeader || !candidate.hostileIds.length || candidate.hostileIds.includes(leaderId))
+    .sort((a, b) => b.score - a.score).map(candidate => candidate.action).concat({ type: 'finishPlay' });
 }
 
 export function aiActions(room, player, catalogue, preferences) {
