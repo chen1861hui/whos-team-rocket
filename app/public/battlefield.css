@@ -87,7 +87,7 @@ body.battle-view { background:#d8e8e6; color:var(--stadium-ink); overflow:hidden
 .battle-menu>summary { list-style:none; color:#fff4df; background:#274447; border:1px solid #152f33; border-radius:3px; padding:9px 12px; font-size:12px; text-align:right; }
 .battle-menu>summary:after { content:' +'; margin-left:16px; }
 .battle-menu[open]>summary:after { content:' −'; }
-.battle-menu-body { width:300px; max-height:calc(100dvh - 168px); overflow:auto; margin-top:6px; background:#f1edde; border:1px solid #5b716e; box-shadow:0 8px 25px #122e3740; }
+.battle-menu-body { width:300px; max-height:calc(100dvh - 168px); overflow:auto; overscroll-behavior:contain; overflow-anchor:none; margin-top:6px; background:#f1edde; border:1px solid #5b716e; box-shadow:0 8px 25px #122e3740; }
 .battle-menu-body .panel { border:0; border-bottom:1px solid #b7c1b4; border-radius:0; box-shadow:none; padding:18px; background:none; color:#213a3d; }
 .battle-menu-body h2 { font-size:13px; margin-bottom:10px; }
 .battle-menu-body .muted,.battle-menu-body .crew-person>span,.battle-menu-body .activity-list,.battle-menu-body .spectator-list { color:#4f6866; }
@@ -1589,8 +1589,8 @@ body:has(.closed-state) .foundation-strip { display:none; }
 }
 .draft-portal i:nth-child(2) { width:85%; height:54%; border:1px dashed #ffe5b9c4; background:none; }
 .draft-portal i:nth-child(3) { width:71%; height:42%; border:1px solid #ffe5b980; background:none; }
-.draft-center[data-ceremony='charging'] .draft-portal { animation:draft-charge 1.28s ease-out both; }
-.draft-center[data-ceremony='charging']::before {
+.draft-center.draft-summoned .draft-portal { animation:draft-charge 1.28s ease-out both; }
+.draft-center.draft-summoned::before {
   content:""; position:absolute; inset:-19% 32% 28%; z-index:-1; border-radius:45%;
   background:linear-gradient(transparent,#fff7d67d 48%,#fff9e1 88%,transparent);
   filter:blur(12px); animation:draft-beam 1.28s ease-out both;
@@ -1660,10 +1660,6 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
 }
 .draft-model-canvas { position:absolute; z-index:2; inset:0; width:100%; height:100%; pointer-events:none; }
 .draft-slot-art[data-model-ready] img { visibility:hidden; }
-.draft-center[data-ceremony='charging'] .draft-slot {
-  animation:draft-deal .61s cubic-bezier(.2,.75,.22,1) both;
-  animation-delay:calc(.37s + var(--draw-index)*.105s);
-}
 .draft-arriving .draft-slot-art img { animation:draft-portrait .45s .25s both; }
 .draft-arriving .draft-slot-art::after {
   content:""; position:absolute; inset:12% -10% -24%; pointer-events:none;
@@ -1672,11 +1668,6 @@ button.draft-slot,.draft-wheel-option { pointer-events:auto; cursor:pointer; }
 }
 @keyframes draft-charge { 0% { opacity:.5; scale:.63; } 46% { opacity:1; scale:1.1; } 70% { opacity:1; scale:.92; } 100% { opacity:1; scale:1; } }
 @keyframes draft-beam { 0%,100% { opacity:0; scale:.45 1; } 45% { opacity:1; scale:1.15 1; } }
-@keyframes draft-deal {
-  from { opacity:0; transform:translateX(calc((2 - var(--draw-index))*104%)) translateY(clamp(-112px,-11vw,-58px)) scale(.23) rotate(-30deg); }
-  62% { opacity:1; transform:translateY(-22px) scale(1.04) rotate(5deg); }
-  to { opacity:1; transform:none; }
-}
 @keyframes draft-portrait { from { opacity:0; transform:translateY(12px) scale(.72); filter:brightness(2.6); } to { opacity:1; transform:none; filter:none; } }
 @keyframes draft-flash { 0%,100% { opacity:0; } 34% { opacity:1; } }
 .draft-wheel,.draft-details,.draft-waiting-message { pointer-events:auto; }

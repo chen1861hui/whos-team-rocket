@@ -138,14 +138,13 @@ export function createDraftModels(loadModel, refresh) {
         candidate.model?.removeFromParent();
         candidates.delete(id);
       }
-      const charging = center.dataset.ceremony==='charging';
       ballGroup.clear();
       balls = Array.from(center.querySelectorAll('.draft-ball'),(anchor,index)=>{
         const model = ballTemplate.clone(true);
         ballGroup.add(model);
         const tile = anchor.closest('.draft-slot');
         return {anchor,index,model,lid:model.getObjectByName('lid'),
-          candidate:candidates.get(tile?.dataset.candidate),flight:charging ? tile : null};
+          candidate:candidates.get(tile?.dataset.candidate)};
       });
     },
     draw(time,dt,reducedMotion) {
@@ -159,10 +158,10 @@ export function createDraftModels(loadModel, refresh) {
         camera.updateProjectionMatrix();
       }
       const origin = center.getBoundingClientRect();
-      for (const {anchor,index,model,lid,candidate,flight} of balls) {
+      for (const {anchor,index,model,lid,candidate} of balls) {
         const rect = anchor.getBoundingClientRect();
         const radius = Math.min(rect.width,rect.height)*.47;
-        model.visible = radius>0 && (!flight || Number(getComputedStyle(flight).opacity)>.06);
+        model.visible = radius>0;
         if (!model.visible) continue;
         const opening = candidate
           ? reducedMotion || candidate.openedAt==null ? 1 : THREE.MathUtils.smoothstep(time-candidate.openedAt,35,415)

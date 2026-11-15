@@ -209,14 +209,14 @@ let dexQuery = '', dexType = '', dexFocus = null;
 let session = null;
 try { const saved = JSON.parse(sessionStorage.getItem('rocket.session') || 'null'); if (saved?.code && saved?.token) session = saved; } catch { sessionStorage.removeItem('rocket.session'); }
 let identityFaceShown = false, revealedCandidate = null, arrivingHandCards = [], enteringArena = false, leaderPortrait = null;
-let drawCeremony = 'sealed', drawCeremonyTimer, inspectedCandidate = null, inspectedLevel = 1;
+let drawCeremony = 'sealed', inspectedCandidate = null, inspectedLevel = 1;
 let revealVictory = false, victorySoundTimer;
 let victoryRevealDelay = 0;
 const gymThemes = ['fire', 'water', 'grass'];
 let view = null, busy = false, pollRunning = false, connected = true, errorKey = '', errorCode = '', noticeKey = '', selected = [], settingsDraft = null, signature = '', dialogKind = null, terminalReason = '';
 let credentialVisible = false, dialogReturnFocus = null;
 const entryDraft = { nickname: '', code: '' };
-let clockSample = null, clockAnnouncement = '', phaseAnnouncement = '', turnTimerDefault = 60, turnLiveRegion = null;
+let clockSample = null, responseClockSample = null, clockAnnouncement = '', phaseAnnouncement = '', turnTimerDefault = 60, turnLiveRegion = null;
 const previewOptions = new URLSearchParams(location.search);
 const fullPreviewMotion = previewOptions.get('motion') === 'on';
 let scenePreview = previewOptions.has('preview'), previewTheme = 'fire', cameraMode = 'table', battlefield = null;
@@ -278,24 +278,29 @@ function phaseStrip() {
     ...turnPhases.map((item, index) => el('li', {class:item === phase ? 'current-phase' : index < turnPhases.indexOf(phase) ? 'completed-phase' : '', 'aria-current':item === phase ? 'step' : null}, el('span', {'aria-hidden':'true'}, String(index + 1)), t(`phase${item[0].toUpperCase()}${item.slice(1)}`)))),
     el('div', {class:'turn-clock', 'aria-label':t('clockLabel')}, el('span', {class:'clock-time', 'aria-live':'off'}), el('span', {class:'clock-state'})));
 }
-function sampleTurnClock(next) {
-  const clock = next.turn?.clock;
-  if (next.status !== 'playing' || !clock) { clockSample = null; return; }
+function sampleClock(clock, serverNow) {
+  if (!clock) return null;
   const running = Number.isFinite(clock.deadlineAt) && !clock.expired && !clock.pausedReason;
-  const remainingMs = running && Number.isFinite(next.serverNow) ? Math.max(0, clock.deadlineAt - next.serverNow) : Math.max(0, Number(clock.remainingMs) || 0);
-  clockSample = {at:performance.now(), remainingMs, running};
+  const remainingMs = running && Number.isFinite(serverNow) ? Math.max(0, clock.deadlineAt - serverNow) : Math.max(0, Number(clock.remainingMs) || 0);
+  return {at:performance.now(), remainingMs, running};
 }
+const clockSeconds = sample => sample ? Math.ceil(Math.max(0,sample.remainingMs-(sample.running?performance.now()-sample.at:0))/1000) : 0;
 function updateTurnClock() {
   if (scenePreview || view?.status !== 'playing') {
     if (turnLiveRegion) turnLiveRegion.textContent = '';
     clockAnnouncement = ''; phaseAnnouncement = '';
     return;
   }
+  if (responseClockSample?.running) {
+    const text = `${clockSeconds(responseClockSample)}s`;
+    for (const label of document.querySelectorAll('.response-clock')) {
+      if (label.textContent!==text) label.textContent=text;
+    }
+  }
   const node = $('.turn-clock');
   if (!node) return;
   const clock = view.turn?.clock;
-  const remainingMs = clockSample ? Math.max(0, clockSample.remainingMs - (clockSample.running ? performance.now() - clockSample.at : 0)) : 0;
-  const seconds = Math.ceil(remainingMs / 1000);
+  const seconds = clockSeconds(clockSample);
   let state = 'clockOff';
   if (clock) {
     if (clock.pausedReason === 'vote') state = 'clockVote';
@@ -450,7 +455,9 @@ function render() {
   const oldTable = $('.match-table');
   const tableScroll = oldTable?.scrollTop || 0;
   const handScroll = $('.match-table .hand-cards')?.scrollLeft || 0;
-  const openMenus = [...root.querySelectorAll('details[id][open]')].map(menu => menu.id);
+  const openMenus = [...root.querySelectorAll('details[id][open]')].map(menu => ({
+    id:menu.id, scrollTop:$('.battle-menu-body',menu)?.scrollTop || 0,
+  }));
   if (!scenePreview && !['identity','setup','playing','finished'].includes(view?.status)) { battlefield?.dispose(); battlefield = null; }
   preserveFocus(() => {
     root.classList.toggle('landing-page', !session && !scenePreview && view?.status !== 'closed');
@@ -478,7 +485,12 @@ function render() {
     dialogKind = null;
     dialogReturnFocus = null;
   }
-  for (const id of openMenus) document.getElementById(id)?.setAttribute('open', '');
+  for (const {id} of openMenus) document.getElementById(id)?.setAttribute('open', '');
+  for (const {id,scrollTop} of openMenus) {
+    const menu = document.getElementById(id);
+    const body = menu && $('.battle-menu-body',menu);
+    if (body) body.scrollTop=scrollTop;
+  }
   if (dialogFocus) document.getElementById(dialogFocus)?.focus({preventScroll:true});
   if (dialogScroll) $('#info-dialog').scrollTop = dialogScroll;
   gameAudio.setScene(scenePreview || view?.status==='playing' ? 'battle' : ['lobby','setup','identity','finished'].includes(view?.status) ? 'gym' : 'title');
@@ -912,17 +924,10 @@ function pokemonTypeIcon(active, preferredType) {
 
 function startDrawCeremony() {
   if (drawCeremony!=='sealed' || busy || view.pendingVote) return;
-  drawCeremony = motionAllowed() ? 'charging' : 'ready';
+  drawCeremony = 'ready';
   render();
-  if (drawCeremony==='ready') {
-    $('#draw-pokemon')?.focus({preventScroll:true});
-    return;
-  }
-  drawCeremonyTimer = setTimeout(()=>{
-    drawCeremony = 'ready';
-    render();
-    $('#draw-pokemon')?.focus({preventScroll:true});
-  },1350);
+  if (motionAllowed()) $('.draft-center')?.classList.add('draft-summoned');
+  $('#draw-pokemon')?.focus({preventScroll:true});
 }
 
 function draftBall(open = false) {
@@ -995,7 +1000,7 @@ function selectionPanel(count) {
       el('div',{class:'draft-detail-actions'},assign));
   }
 
-  const arena = el('div',{class:'draft-center','data-ceremony':ceremony},
+  const arena = el('div',{class:'draft-center'},
     el('div',{class:'draft-portal','aria-hidden':'true'},el('i'),el('i'),el('i')));
   if (ceremony==='sealed') {
     const summonLabel = language==='zh'?'召唤五颗精灵球':'Summon five Poké Balls';
@@ -1020,7 +1025,7 @@ function selectionPanel(count) {
           entry?.portraitImage?.url?el('img',{src:entry.portraitImage.url,alt:'',draggable:false}):null,
           el('span',{},el('strong',{},partnerName(id)),picked>=0?el('small',{},t(picked===0?'active':'reserve')):typeBadge(pokemonTypes(id)[0]))));
       } else {
-        const next = ceremony==='ready' && index===candidates.length && remaining>0;
+        const next = index===candidates.length && remaining>0;
         const type = view.self.candidateTypeHints?.[index-candidates.length];
         tile = el(next?'button':'div',{class:`draft-slot draft-unopened ${next?'draft-next':''}`,
           ...(next?{type:'button',id:'draw-pokemon',disabled:busy||Boolean(view.pendingVote),onclick:()=>action('drawPokemon'),
@@ -1028,12 +1033,10 @@ function selectionPanel(count) {
           'data-type':type},el('span',{class:'draft-slot-number'},number),draftBall(),typeBadge(type),
           next?el('small',{class:'draft-open-label'},t('revealPokemon')):null);
       }
-      tile.style.setProperty('--draw-index',index);
       tray.append(tile);
     }
     arena.append(tray,el('p',{class:'draft-draw-count','aria-live':'polite'},
-      ceremony==='charging'?(language==='zh'?'光阵正在聚能':'The ring is charging')
-        : remaining>0?`${candidates.length} / ${expected} · ${t('cardsDrawn')}`
+      remaining>0?`${candidates.length} / ${expected} · ${t('cardsDrawn')}`
         : (language==='zh'?'选择出场与后备搭档':'Choose an active Pokémon and a reserve')));
   }
   revealedCandidate = null;
@@ -1857,7 +1860,6 @@ function setView(next, force = false) {
   if (arenaPrompt && (!sameSeat || arenaPrompt.revision!==next.revision)) closeArenaPrompt(false);
   if (!sameSeat || view?.status !== next.status) {
     selected = []; settingsDraft = null; identityFaceShown = false; revealedCandidate = null;
-    clearTimeout(drawCeremonyTimer);
     drawCeremony = 'sealed'; inspectedCandidate = null; inspectedLevel = 1;
     arenaJudgment = arenaEffect = arenaEvent = arenaTraitEvent = null;
     arenaJudgmentQueue.length = 0;
@@ -1931,11 +1933,13 @@ function setView(next, force = false) {
     const face = active && catalogueEntry(active.catalogueId)?.levels.find(item=>item.level===active.level);
     return face?.moves?.map(move=>move.name.en) ?? [];
   }));
-  sampleTurnClock(next);
+  clockSample = sampleClock(next.turn?.clock,next.serverNow);
+  responseClockSample = sampleClock(next.pendingBattle?.clock,next.serverNow);
   const {serverNow, ...stableView} = view;
-  if (stableView.turn?.clock?.deadlineAt != null) {
-    const {remainingMs, ...stableClock} = stableView.turn.clock;
-    stableView.turn = {...stableView.turn, clock:stableClock};
+  for (const field of ['turn','pendingBattle']) {
+    if (stableView[field]?.clock?.deadlineAt == null) continue;
+    const {remainingMs, deadlineAt, ...stableClock} = stableView[field].clock;
+    stableView[field] = {...stableView[field], clock:{...stableClock,running:true}};
   }
   const nextSignature = JSON.stringify({ view:stableView, language, busy, connected });
   if (nextSignature !== signature || force) { signature = nextSignature; render(); }
