@@ -12,6 +12,7 @@ import {createDraftModels} from './battlefield-draft.js';
 import {createPokemonBattleMotion,preparePokemonIdle} from './pokemon-battle-motion.js';
 
 const colors = [0xec604a, 0x4599d5, 0xe4b643, 0x8b78c5, 0x3f9c85, 0xe289a0];
+const grassFogRange = {near:23,far:68};
 const palettes = {
   fire: {sky:0x161827, edge:0xa78355, trim:0x373740, accent:0xff9b49},
   water: {sky:0x81bddc, edge:0xd9c4a3, trim:0x807566, accent:0x80eaff},
@@ -62,6 +63,7 @@ export function createBattlefield() {
   const trainerSlots = [];
   const cameraBase = new THREE.Vector3(), cameraTarget = new THREE.Vector3();
   const turnTarget = new THREE.Vector3(), cameraRight = new THREE.Vector3();
+  const grassViewDirection = new THREE.Vector3(0,1,0);
   const desiredCamera = new THREE.Vector3(), desiredTarget = new THREE.Vector3();
   const flyingMotionBounds = new THREE.Box3();
   const faintCenter = new THREE.Vector3(), faintLanding = new THREE.Vector3();
@@ -840,14 +842,15 @@ export function createBattlefield() {
     const coast = config.theme==='water' && !Number.isInteger(config.portraitIndex);
     const fire = config.theme==='fire' && !Number.isInteger(config.portraitIndex);
     const grass = config.theme==='grass' && !Number.isInteger(config.portraitIndex);
-    if (grass) scene.fog = new THREE.Fog(0x98b4aa,23,68);
+    renderer.localClippingEnabled = grass;
+    if (grass) scene.fog = new THREE.Fog(0x98b4aa,grassFogRange.near,grassFogRange.far);
     if (coast) scene.fog = new THREE.Fog(0x9fc1d1,24,82);
     if (fire) scene.fog = new THREE.Fog(p.sky,26,65);
     renderer.toneMappingExposure = coast ? 1.03 : fire ? 1.12 : grass ? 1.00 : 1.35;
-    scene.add(new THREE.HemisphereLight(coast || fire ? 0xc5dcff : 0xeafaff,
-      coast ? 0x827b73 : fire ? 0x564b59 : grass ? 0x887761 : 0x58705b, coast ? 1.29 : fire ? 1.58 : grass ? 1.19 : 2.5));
-    const sun = new THREE.DirectionalLight(coast ? 0xffebd8 : fire ? 0xd7e3ff : 0xfff0d4,
-      coast ? 3.65 : fire ? 2.62 : grass ? 3.52 : 3.2);
+    scene.add(new THREE.HemisphereLight(coast || fire ? 0xc5dcff : grass ? 0xd9efff : 0xeafaff,
+      coast ? 0x827b73 : fire ? 0x564b59 : grass ? 0x887761 : 0x58705b, coast ? 1.29 : fire ? 1.58 : grass ? 1.25 : 2.5));
+    const sun = new THREE.DirectionalLight(coast ? 0xffebd8 : fire ? 0xd7e3ff : grass ? 0xffdfb3 : 0xfff0d4,
+      coast ? 3.65 : fire ? 2.62 : grass ? 3.44 : 3.2);
     sun.position.set(coast ? -16 : -12, coast ? 11.5 : 22, coast ? 9 : 8); sun.castShadow = true;
     sun.shadow.mapSize.setScalar((coast || grass) && window.innerWidth>=850 ? 2048 : 1024);
     Object.assign(sun.shadow.camera,{left:-17,right:17,top:17,bottom:-17,near:1,far:65});
@@ -887,16 +890,16 @@ export function createBattlefield() {
     seatedGrassViewer = grass && Boolean(fixedLayout?.seated);
     sceneryAngle = coastalStations?.sceneryAngle ?? fixedLayout?.sceneryAngle ?? 0;
     if (grass) {
-      sun.position.set(-23,18,3.5).applyAxisAngle(scene.up,sceneryAngle);
+      sun.position.set(-19,17,9).applyAxisAngle(scene.up,sceneryAngle);
       Object.assign(sun.shadow.camera,{left:-23,right:23,top:22,bottom:-22});
       sun.shadow.camera.updateProjectionMatrix();
       sun.shadow.normalBias = .030;
       sun.shadow.bias = -.00024;
       sun.shadow.radius = 3.05;
-      const forestFill = new THREE.DirectionalLight(0xc8dfed,.58);
+      const forestFill = new THREE.DirectionalLight(0xd2e7ff,.56);
       forestFill.position.set(8,7,12).applyAxisAngle(scene.up,sceneryAngle);
       scene.add(forestFill);
-      const canopyRim = new THREE.DirectionalLight(0xffedc6,.81);
+      const canopyRim = new THREE.DirectionalLight(0xfff1d9,.65);
       canopyRim.position.set(6,12,-19).applyAxisAngle(scene.up,sceneryAngle);
       scene.add(canopyRim);
     }
@@ -1412,6 +1415,19 @@ export function createBattlefield() {
     camera.position.copy(cameraBase);
     frameTurnFocus(time,mode,focus);
     camera.lookAt(turnTarget);
+    if (config.theme==='grass' && terrain) {
+      let vegetationClipDistance = 150;
+      if (narrow && (mode==='trainer' || mode==='target' || mode==='event')) {
+        // Clip foreground vegetation outside the playable cylinder as the narrow view backs away.
+        grassViewDirection.subVectors(turnTarget,camera.position).normalize();
+        vegetationClipDistance = 12.65*Math.hypot(grassViewDirection.x,grassViewDirection.z) -
+          Math.min(0,3.8*grassViewDirection.y);
+      }
+      terrain.setVegetationClip(grassViewDirection,vegetationClipDistance);
+      const fogOffset = narrow ? Math.max(0,camera.position.length()-19) : 0;
+      scene.fog.near = grassFogRange.near+fogOffset;
+      scene.fog.far = grassFogRange.far+fogOffset;
+    }
     camera.updateProjectionMatrix();
     camera.updateMatrixWorld();
     cameraReady = true;
