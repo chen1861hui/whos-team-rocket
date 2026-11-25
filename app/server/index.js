@@ -6,6 +6,7 @@ import { expansionPokemon, MIMIKYU_ID, mimikyuModelDexes } from '../public/expan
 import { ApiError, RoomStore } from './store.js';
 import { playCardArtFiles } from '../public/play-card-face.js';
 import { pokemonTypeIconPaths } from '../public/pokemon-types.js';
+import { pokedexArtworkDexes } from '../public/pokedex.js';
 import { musicTracks, recordedMoves } from '../public/game-audio.js';
 import { civilianProfiles, gymLeaderProfiles, partnerProfiles, roleProfiles } from '../public/trainer-profiles.js';
 
@@ -24,6 +25,7 @@ const staticFiles = new Map([
   ['/combat-ui.js', ['combat-ui.js', 'text/javascript; charset=utf-8']],
   ['/play-card-face.js', ['play-card-face.js', 'text/javascript; charset=utf-8']],
   ['/pokemon-types.js', ['pokemon-types.js', 'text/javascript; charset=utf-8']],
+  ['/pokedex.js', ['pokedex.js', 'text/javascript; charset=utf-8']],
   ['/battlefield-objectives.js', ['battlefield-objectives.js', 'text/javascript; charset=utf-8']],
   ['/battlefield.js', ['battlefield.js', 'text/javascript; charset=utf-8']],
   ['/trainer-profiles.js', ['trainer-profiles.js', 'text/javascript; charset=utf-8']],
@@ -70,6 +72,10 @@ for (const name of ['ice','flow','ring','leaf','laser','shock']) {
 for (const id of ["charmander", "bulbasaur", "squirtle", "grimer", "shellder", "gastly", "caterpie", "weedle", "pidgey", "sandshrew", "pikachu", "abra", "psyduck", "meowth", "machop", "slowpoke", "magikarp", "dratini", "mankey", "clefairy", "vulpix", "nidoran-m", "diglett", "growlithe", "magnemite", "exeggcute", "cubone", "koffing", "rhyhorn", "chansey", "kangaskhan", "staryu", "scyther", "jynx", "electabuzz", "tauros", "lapras", "porygon", "aerodactyl", "snorlax"]) staticFiles.set(`/pokemon-art/${id}.png`, [`pokemon-art/${id}.png`, 'image/png']);
 for (const dex of [2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18, 26, 28, 33, 34, 36, 38, 51, 53, 55, 57, 59, 64, 65, 67, 68, 80, 82, 89, 91, 93, 94, 103, 105, 110, 112, 121, 130, 148, 149]) staticFiles.set(`/pokemon-art/forms/${dex}.png`, [`pokemon-art/forms/${dex}.png`, 'image/png']);
 staticFiles.set('/play-card-art/sand-grains.png', ['play-card-art/sand-grains.png', 'image/png']);
+for (const dex of pokedexArtworkDexes) {
+  const path = `pokemon-art/pokedex/${dex}.png`;
+  staticFiles.set(`/${path}`, [path, 'image/png']);
+}
 for (const pokemon of expansionPokemon) for (const dex of pokemon.forms) staticFiles.set(`/pokemon-art/tour/${dex}.png`, [`pokemon-art/tour/${dex}.png`, 'image/png']);
 for (const form of ['351-sun','351-rain','351-hail',mimikyuModelDexes[1]]) staticFiles.set(`/pokemon-art/tour/${form}.png`, [`pokemon-art/tour/${form}.png`, 'image/png']);
 for (const trainer of [...civilianProfiles, ...Object.values(gymLeaderProfiles), ...Object.values(roleProfiles).flat(), ...Object.values(partnerProfiles), 'blue', 'mina', 'trace']) {

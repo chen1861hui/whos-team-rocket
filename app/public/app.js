@@ -7,6 +7,7 @@ import {civilianProfiles} from './trainer-profiles.js';
 import {createGameAudio, musicTracks} from './game-audio.js';
 import {roleName,statusName,weatherLabel,attackDialog,moveChoiceDialog,eventDialog,toolDialog,toolChoiceEnabled,vitalSpiritDialog,downloadDialog,giftCardsDialog,equipItemDialog,lightBallDialog,analyticDialog,recklessDialog,decisionPanel,resultPanel} from './combat-ui.js';
 import {buildRulebook} from './rulebook.js';
+import {pokedexForm} from './pokedex.js';
 import {trainerProfessions, trainerProfessionIds} from './trainer-professions.js';
 const $ = (selector, root = document) => root.querySelector(selector);
 const root = $('#app');
@@ -241,7 +242,8 @@ const t = key => strings[key]?.[language === 'zh' ? 1 : 0] ?? key;
 const localized = value => typeof value === 'string' ? value : (value?.[language] || value?.en || value?.zh || '—');
 let catalogue = [];
 let heldItemCatalogue = [];
-let dexQuery = '', dexType = '', dexFocus = null;
+let dexQuery = '', dexType = '', dexFocus = null, dexScrollTop = 0;
+let dexModelForms = {};
 let session = null;
 try { const saved = JSON.parse(sessionStorage.getItem('rocket.session') || 'null'); if (saved?.code && saved?.token) session = saved; } catch { sessionStorage.removeItem('rocket.session'); }
 let identityFaceShown = false, revealedCandidate = null, arrivingHandCards = [], enteringArena = false, leaderPortrait = null;
@@ -448,6 +450,11 @@ function shell() {
   root.append(el('div', { id: 'messages', 'aria-live': 'polite' }), el('main', { id: 'main' }));
   root.append(el('footer', { class: 'footer' }, el('span', {}, t(home ? 'brand' : 'edition')), el('span', {}, t(home ? 'homeEdition' : 'assetCopy'))));
   const dialog = el('dialog', { id: 'info-dialog', class: 'info-dialog' });
+  dialog.addEventListener('cancel',event=>{
+    if (!dialogKind?.startsWith('dex:')) return;
+    event.preventDefault();
+    returnToPokedex();
+  });
   dialog.addEventListener('close',event=>{
     if (event.currentTarget !== $('#info-dialog') || event.currentTarget.open) return;
     const wasSettings = dialogKind === 'lobby-settings';
@@ -1844,8 +1851,11 @@ function moveCostText(move) {
 const movesWithoutEffectParagraph = new Set([
   'none-printed', 'no-paragraph-printed', 'no-effect-paragraph-printed', 'no-additional-effect-paragraph-printed',
 ]);
-function pokemonDetails(entry, selectedLevel, {prefix='pokemon',compact=false,selectLevel}={}) {
+function pokemonDetails(entry, selectedLevel, {prefix='pokemon',compact=false,selectLevel,inDex=false}={}) {
   const face=entry.levels.find(item=>item.level===selectedLevel)||entry.levels[0];
+  const form=inDex ? pokedexForm(entry,face,dexModelForms) : null;
+  const name=localized(form?.name ?? face.name);
+  const printedName=localized(face.name);
   const showLevel = selectLevel || (level=>{
     openDialog(`pokemon:${entry.id}:${level}`);
     document.getElementById(`${prefix}-tab-${level}`)?.focus();
@@ -1856,13 +1866,14 @@ function pokemonDetails(entry, selectedLevel, {prefix='pokemon',compact=false,se
     event.preventDefault(); const levels=entry.levels.map(f=>f.level),index=levels.indexOf(item.level);
     const next=event.key==='Home'?levels[0]:event.key==='End'?levels.at(-1):levels[(index+(event.key==='ArrowRight'?1:-1)+levels.length)%levels.length];
     showLevel(next);
-  }},el('small',{},`${t('level')} ${item.level}`),el('strong',{},localized(item.name)),el('span',{},`${item.hp} ${t('hp')}`)));
-  const portrait=face.portraitImage?.url||(face.level===1?entry.portraitImage?.url:null);
+  }},el('small',{},`${t('level')} ${item.level}`),el('strong',{},localized(inDex ? pokedexForm(entry,item,dexModelForms).name : item.name)),el('span',{},`${item.hp} ${t('hp')}`)));
+  const portrait=form?.portrait ?? (face.portraitImage?.url||(face.level===1?entry.portraitImage?.url:null));
   const panel=el('section',{class:'pokemon-level-panel',id:`${prefix}-level-panel`,role:'tabpanel','aria-labelledby':`${prefix}-tab-${face.level}`},
-    el('div',{class:'pokemon-form-heading'},el('div',{},el('small',{},`${t('level')} ${face.level}`),el('h3',{},localized(face.name)),
-      compact?null:el('div',{class:'pokemon-detail-types'},pokemonTypes(entry.id,face.level).map(typeBadge))),
+    el('div',{class:'pokemon-form-heading'},el('div',{},el('small',{},`${t('level')} ${face.level}`),el('h3',{},name),
+      form && name!==printedName ? el('small',{class:'dex-card-name'},language==='zh'?`牌面 · ${printedName}`:`Game card · ${printedName}`) : null,
+      compact?null:el('div',{class:'pokemon-detail-types'},(form?.types ?? pokemonTypes(entry.id,face.level)).map(typeBadge))),
       el('strong',{class:'pokemon-hp-badge'},`${face.hp} ♥ ${t('hp')}`)),
-    portrait?el('div',{class:'pokemon-detail-portrait'},el('img',{src:portrait,alt:localized(face.name)})):null,
+    portrait?el('div',{class:'pokemon-detail-portrait'},el('img',{src:portrait,alt:name})):null,
     el('section',{class:'pokemon-ability-section'},el('small',{class:'pokemon-section-label'},t('traitLabel')),el('h4',{},face.traitName?localized(face.traitName):t('abilityPending')),face.abilityText?el('p',{},localized(face.abilityText)):null),
     el('section',{class:'pokemon-moves-section'},el('small',{class:'pokemon-section-label'},t('movesLabel')),
       ...(face.moves?.length?face.moves.map(move=>el('article',{class:'pokemon-move'},el('div',{class:'pokemon-move-heading'},el('h4',{},localized(move.name)),move.printedValue!=null?tag(`${t('printedValue')} ${move.printedValue}`):null),
@@ -1879,7 +1890,7 @@ function pokemonDetails(entry, selectedLevel, {prefix='pokemon',compact=false,se
 
 function pokedexList() {
   const search = el('input',{type:'search',id:'catalogue-search',placeholder:t('search'),'aria-label':t('search'),value:dexQuery});
-  const types = [...new Set(catalogue.flatMap(entry=>entry.levels.flatMap(face=>pokemonTypes(entry.id,face.level))))]
+  const types = [...new Set(catalogue.flatMap(entry=>entry.levels.flatMap(face=>pokedexForm(entry,face,dexModelForms).types)))]
     .sort((a,b)=>typeName(a).localeCompare(typeName(b),language));
   const filter = el('select',{id:'catalogue-type','aria-label':t('allTypes')},
     el('option',{value:''},t('allTypes')),types.map(type=>el('option',{value:type},typeName(type))));
@@ -1891,20 +1902,22 @@ function pokedexList() {
     dexType = filter.value;
     const query = dexQuery.trim().toLowerCase();
     const entries = catalogue.flatMap(entry=>{
-      const face = entry.levels.find(face=>
-        [entry.id,...Object.values(face.name)].some(name=>name.toLowerCase().includes(query)) &&
-        (!dexType || pokemonTypes(entry.id,face.level).includes(dexType)));
-      return face ? [{entry,face}] : [];
+      for (const face of entry.levels) {
+        const form = pokedexForm(entry,face,dexModelForms);
+        const matches = [entry.id,...Object.values(face.name),...Object.values(form.name)]
+          .some(name=>name.toLowerCase().includes(query));
+        if (matches && (!dexType || form.types.includes(dexType))) return [{entry,face,form}];
+      }
+      return [];
     });
     count.textContent = language==='zh' ? `${entries.length} / ${catalogue.length} 组` : `${entries.length} of ${catalogue.length} groups`;
-    grid.replaceChildren(...entries.map(({entry,face})=>{
-      const portrait = face.portraitImage?.url || entry.portraitImage?.url;
-      const badgeTypes = pokemonTypes(entry.id,face.level);
+    grid.replaceChildren(...entries.map(({entry,face,form:{name,portrait,types:badgeTypes}})=>{
       return el('button',{type:'button',id:`dex-card-${entry.id}`,class:'dex-card','data-type':badgeTypes[0],onclick:()=>{
         dexFocus = entry.id;
+        dexScrollTop = $('#info-dialog').scrollTop;
         openDialog(`dex:${entry.id}:${face.level}`);
       }},el('span',{class:'dex-card-art'},portrait?el('img',{src:portrait,alt:'',loading:'lazy'}):null),
-      el('span',{class:'dex-card-caption'},el('strong',{},localized(face.name)),
+      el('span',{class:'dex-card-caption'},el('strong',{},localized(name)),
         el('span',{class:'dex-types'},badgeTypes.map(typeBadge))));
     }));
     if (!entries.length) grid.append(el('p',{class:'dex-empty'},catalogue.length?t('noResults'):(language==='zh'?'正在加载图鉴…':'Loading Pokédex…')));
@@ -1913,6 +1926,12 @@ function pokedexList() {
   filter.addEventListener('change',update);
   update();
   return [el('div',{class:'dex-tools'},search,filter,count),grid];
+}
+
+function returnToPokedex() {
+  openDialog('catalogue');
+  $('#info-dialog').scrollTop = dexScrollTop;
+  document.getElementById(`dex-card-${dexFocus}`)?.focus({preventScroll:true});
 }
 
 function rulebookView() {
@@ -1975,10 +1994,7 @@ function openDialog(kind) {
   dialog.className = `info-dialog${detailEntry?' pokemon-dialog':''}${guideClass}`;
   dialog.setAttribute('aria-labelledby','info-dialog-title');
   const closeButton = button('close', () => dialog.close(), 'button subtle small',false,{id:'close-info-dialog'});
-  const back = inDex ? button('backToDex',()=>{
-    openDialog('catalogue');
-    document.getElementById(`dex-card-${dexFocus}`)?.focus();
-  },'button subtle small',false,{id:'dex-back'}) : null;
+  const back = inDex ? button('backToDex',returnToPokedex,'button subtle small',false,{id:'dex-back'}) : null;
   dialog.replaceChildren(el('div',{class:'dialog-heading'},
     el('h2',{id:'info-dialog-title'},detailEntry?localized(detailEntry.name):t(kind==='catalogue'?'catalogue':'rules')),
     el('div',{class:'info-dialog-actions'},back,closeButton)));
@@ -1992,7 +2008,7 @@ function openDialog(kind) {
     } else if (dialogReturnFocus==='reserve-details' && view?.self.reserve?.item) {
       dialog.append(el('div',{class:'pokemon-battle-stats'},battleConditionList([heldItemDetails(view.self.reserve,true)])));
     }
-    dialog.append(...pokemonDetails(detailEntry,Number(detailMatch[3]),inDex?{selectLevel:level=>{
+    dialog.append(...pokemonDetails(detailEntry,Number(detailMatch[3]),inDex?{inDex:true,selectLevel:level=>{
       openDialog(`dex:${detailEntry.id}:${level}`);
       document.getElementById(`pokemon-tab-${level}`)?.focus();
     }}:{}));
@@ -2351,7 +2367,16 @@ async function copyText(value) {
   renderMessages();
 }
 render();
-fetch('/catalogue.json', { cache: 'no-store' }).then(response => { if (!response.ok) throw new Error(); return response.json(); }).then(data => {
+const fetchCatalogueData = async path => {
+  const response = await fetch(path,{cache:'no-store'});
+  if (!response.ok) throw new Error(`Could not load ${path}`);
+  return response.json();
+};
+Promise.all([
+  fetchCatalogueData('/catalogue.json'),
+  fetchCatalogueData('/pokemon-models/forms.json').catch(()=>({})),
+]).then(([data,forms])=>{
+  dexModelForms = forms;
   catalogue = expansionCatalogue(data).entries;
   heldItemCatalogue = Array.isArray(data.heldItems) ? data.heldItems : [];
   if (scenePreview || view || dialogKind === 'catalogue') render();

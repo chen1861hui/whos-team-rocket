@@ -1240,6 +1240,7 @@ body:has(.closed-state) .foundation-strip { display:none; }
 .dex-types .draft-type { font-size:10px; min-height:18px; }
 .info-dialog.dex-detail { width:min(740px,calc(100vw - 32px)); }
 .dex-detail .pokemon-detail-help,.dex-detail .pokemon-effect-status { display:none; }
+.dex-detail .dex-card-name { display:block; margin-top:3px; color:#46586a; }
 .dex-detail .pokemon-level-tabs { margin:18px 24px 12px; }
 .info-dialog.dex-detail .pokemon-level-tabs button { color:#f4eada; background:#21364c; border-color:#607a92; border-radius:8px; }
 .info-dialog.dex-detail .pokemon-level-tabs button[aria-selected=true] { color:#211c15; background:var(--guide-gold); border-color:#f5daa3; box-shadow:none; }
@@ -1247,6 +1248,7 @@ body:has(.closed-state) .foundation-strip { display:none; }
 .dex-detail :is(.pokemon-form-heading h3,.pokemon-level-panel h4,.pokemon-level-panel p) { color:#22374b; }
 .dex-detail .pokemon-detail-portrait { width:clamp(85px,24vw,160px); height:auto; aspect-ratio:1; }
 .info-dialog.flow-dialog { width:min(820px,calc(100vw - 32px)); }
+.info-dialog.flow-dialog :is(.flow-stage p,.flow-book-context p,.flow-book-context span) { color:#e4edf7; }
 .game-flow { margin:0; padding:20px 24px 24px; list-style:none; display:grid; gap:12px; }
 .game-flow>li { position:relative; display:grid; grid-template-columns:36px minmax(0,1fr); gap:12px; }
 .game-flow>li:not(:last-child)::before { content:''; position:absolute; left:17px; top:36px; bottom:-13px; width:2px; background:#947745; }
