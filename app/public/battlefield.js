@@ -5,11 +5,14 @@ import {coastalSeatLayout, coastalStationLayout, fireGymLayout, pokemonArenaMode
 import {animateBattlePose, battleEffectLabel, createBattleEffects, createStatusEffect, createTrainerReveal, createTraitAura} from './battlefield-effects.js';
 import {civilianProfiles, gymLeaderProfiles} from './trainer-profiles.js';
 import {waterGymArcadeBounds,waterGymRearStation} from './battlefield-arcade.js';
+import {createObjectiveTerrain} from './battlefield-objectives.js';
 import {createGymTerrain} from './battlefield-terrain.js';
 import {fireGymLeaderStation} from './battlefield-fire.js';
 import {grassGymLeaderStation} from './battlefield-grass.js';
 import {createDraftModels} from './battlefield-draft.js';
 import {createPokemonBattleMotion,preparePokemonIdle} from './pokemon-battle-motion.js';
+import {expansionBattleFormDex} from './expansion-content.js';
+import {createPokemonModelEffects} from './pokemon-model-effects.js';
 
 const colors = [0xec604a, 0x4599d5, 0xe4b643, 0x8b78c5, 0x3f9c85, 0xe289a0];
 const grassFogRange = {near:23,far:68};
@@ -17,6 +20,8 @@ const palettes = {
   fire: {sky:0x161827, edge:0xa78355, trim:0x373740, accent:0xff9b49},
   water: {sky:0x81bddc, edge:0xd9c4a3, trim:0x807566, accent:0x80eaff},
   grass: {sky:0xa6c8ee, edge:0xa9a580, trim:0x536248, accent:0xd1ed79},
+  lake: {sky:0x9fb5ae,edge:0x8a9b86,trim:0x43585e},
+  silph: {sky:0x23354b,edge:0xa3b8c9,trim:0x354564},
   stadium: {sky:0xd8e8e6, ground:0x719a71, field:0x5d8e63, edge:0xe5e4cd, trim:0x213d42, seats:0xc65242},
   gym: {sky:0x162c41, ground:0x1b354a, field:0x32576b, edge:0x6e98ac, trim:0x112b3b, seats:0x497b95},
   floating: {sky:0xbcdbe7, ground:0x9ac2d3, field:0x83a784, edge:0xf1e6cc, trim:0x507886, seats:0xe6c396},
@@ -24,6 +29,7 @@ const palettes = {
 
 const trainerRevealColors = {leader:0x89e5ff,gym:0x93f1bf,rocket:0xff745c,challenger:0xffd58a,jenny:0x79baff,joy:0xffaad8};
 const pokemonPodiumTop = .26;
+const pokemonModelVersions = {16:28,17:28,18:28,88:28,92:19,94:25,122:18,143:18,146:23,'351-sun':27,'351-rain':26,172:29,212:29,238:29,239:29,242:29,440:29,446:29,464:29,466:29,158:30,159:30,160:30,173:30,176:30,179:30,180:30,181:30,202:30,233:30,252:30,253:30,254:30,290:30,291:30,292:30,359:30,360:30,462:30,468:30,474:30,570:30,571:30};
 function shorelineLeaves() {
   const positions = [], colors = [];
   for (let i=0;i<12;i++) {
@@ -47,7 +53,7 @@ function shorelineLeaves() {
 }
 
 export function createBattlefield() {
-  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, powerPreference:'low-power'});
+  const renderer = new THREE.WebGLRenderer({antialias:true, alpha:true, stencil:true, powerPreference:'low-power'});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 1.5));
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFShadowMap;
@@ -60,6 +66,7 @@ export function createBattlefield() {
   const loader = new GLTFLoader();
   const models = new Map();
   const materialVariants = new Map(), modelMaterials = new WeakMap();
+  const pokemonEffects = createPokemonModelEffects();
   const trainerSlots = [];
   const cameraBase = new THREE.Vector3(), cameraTarget = new THREE.Vector3();
   const turnTarget = new THREE.Vector3(), cameraRight = new THREE.Vector3();
@@ -85,7 +92,7 @@ export function createBattlefield() {
   const orbit = new THREE.Spherical(19,1.05,0);
   const canvas = renderer.domElement;
   let orbitDrag;
-  let scene, host, config, battleEffects, terrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
+  let scene, host, config, battleEffects, terrain, objectiveTerrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
 
   function shadeModel(model, muted, faded) {
     model?.traverse(part => {
@@ -105,6 +112,7 @@ export function createBattlefield() {
         const variants = materialVariants.get(material);
         if (!variants.has(flags)) {
           const copy = material.clone();
+          if (part.userData.pokemonEffect) copy.onBeforeCompile = material.onBeforeCompile;
           if (muted) {
             copy.color?.multiplyScalar(.59);
             copy.emissive?.multiplyScalar(.59);
@@ -157,6 +165,9 @@ export function createBattlefield() {
   });
 
   function modelFor(active) {
+    if (active.raidColor==='red') return modelForDex('130-red');
+    const form = expansionBattleFormDex(active);
+    if (form) return modelForDex(form);
     forms ??= fetch('/pokemon-models/forms.json').then(response => {
       if (!response.ok) throw Error('Pokémon model catalogue is unavailable');
       return response.json();
@@ -165,12 +176,13 @@ export function createBattlefield() {
   }
   function modelForDex(dex) {
     if (!dex) return null;
-    const version = [13,26,83].includes(dex) ? 12 : 11;
-    if (!models.has(dex)) models.set(dex, loader.loadAsync(`/pokemon-models/${dex}.glb?v=${version}`).then(({scene: asset, animations}) => {
+    if (!models.has(dex)) models.set(dex, loader.loadAsync(`/pokemon-models/${dex}.glb?v=${pokemonModelVersions[dex] ?? 16}`).then(({scene: asset, animations}) => {
       const idle = animations.find(clip=>clip.name==='idle');
       const faint = animations.find(clip=>clip.name==='faint');
       const special = animations.find(clip=>clip.name==='special');
       const physical = animations.find(clip=>clip.name==='physical');
+      const hit = animations.find(clip=>clip.name==='hit');
+      pokemonEffects.attach(asset,dex);
       const nativeIdle = asset.userData.nativeBattleIdle === true || dex===58 || dex===143;
       let pose;
       if (idle) {
@@ -193,7 +205,7 @@ export function createBattlefield() {
       const center = bounds.getCenter(new THREE.Vector3());
       if (!idle) preparePokemonIdle(asset,dex,bounds);
       const extent = Math.max(size.x,size.y,size.z,.01);
-      const arenaScale = pokemonArenaModelScale(dex,size);
+      const arenaScale = pokemonArenaModelScale(Number.parseInt(dex,10),size);
       const span = dex===142 ? 3.05 : 2.25;
       const scale = span/extent;
       const mount = new THREE.Group();
@@ -201,15 +213,13 @@ export function createBattlefield() {
       asset.position.set(-center.x * scale, -ground * scale, -center.z * scale);
       asset.traverse(part => {
         if (part.isMesh) {
-          part.castShadow = true;
-          part.receiveShadow = true;
+          part.castShadow = part.receiveShadow = !part.userData.pokemonEffect;
           if (part.isSkinnedMesh) part.frustumCulled = false;
         }
       });
       mount.add(asset);
-      // Gastly keeps its original mesh, whose forward axis already faces the arena.
-      mount.rotation.y = dex === 92 ? 0 : Math.PI;
-      return {dex,mount,idle,faint,special,physical,arenaScaleRatio:arenaScale/scale,
+      mount.rotation.y = Math.PI;
+      return {dex,mount,idle,faint,special,physical,hit,arenaScaleRatio:arenaScale/scale,
         footprint:{halfWidth:size.x*arenaScale/2,halfDepth:size.z*arenaScale/2,
           bottom:(bounds.min.y-ground)*arenaScale,top:(bounds.max.y-ground)*arenaScale},
         arenaLabelLift:Math.max(-.42,size.y*(arenaScale-scale))+(bounds.min.y-ground)*arenaScale};
@@ -250,7 +260,7 @@ export function createBattlefield() {
     slot.reveal = null;
     if (slot.modelProfile === profile) return;
     if (!models.has(profile)) {
-      const pending = loader.loadAsync(`/trainer-models/${profile}.glb?v=2`).then(({scene: mount, animations}) => {
+      const pending = loader.loadAsync(`/trainer-models/${profile}.glb?v=${["chase","elaine"].includes(profile)?3:2}`).then(({scene: mount, animations}) => {
         mount.traverse(part => {
           if (part.isMesh) {
             part.castShadow = true;
@@ -539,7 +549,7 @@ export function createBattlefield() {
       setTrainerModel(pod.trainerSlot, player?.trainerAvatar || pod.trainerSlot.defaultProfile);
       const active = player?.active;
       pod.activePokemon = active;
-      const key = active && !active.defeated ? `${active.catalogueId}:${active.level}` : '';
+      const key = active && !active.defeated ? `${active.catalogueId}:${active.level}:${active.fieldForm ?? active.raidColor ?? ''}` : '';
       const fainting = Boolean(key && active.hp <= 0);
       pod.passiveTrait = player?.passiveTrait;
       pod.passiveStyle = player?.passiveStyle;
@@ -591,15 +601,16 @@ export function createBattlefield() {
           body.scale.multiplyScalar(asset.arenaScaleRatio);
           body.position.multiplyScalar(asset.arenaScaleRatio);
         }
-        next.rig = sameForm ? previous.rig : createPokemonBattleMotion(next.model,asset.dex);
+        next.rig = sameForm ? previous.rig : createPokemonBattleMotion(next.model,asset.dex==='130-red'?130:asset.dex);
         if (sameForm) {
           next.mixer = previous.mixer;
           next.idleAction = previous.idleAction;
           next.faintAction = previous.faintAction;
           next.specialAction = previous.specialAction;
           next.physicalAction = previous.physicalAction;
+          next.hitAction = previous.hitAction;
           next.castAction = previous.castAction;
-        } else if (asset.idle || asset.faint || asset.special || asset.physical) {
+        } else if (asset.idle || asset.faint || asset.special || asset.physical || asset.hit) {
           next.mixer = new THREE.AnimationMixer(next.model.children[0]);
           if (asset.idle) next.idleAction = next.mixer.clipAction(asset.idle).play();
           if (asset.faint) {
@@ -607,7 +618,7 @@ export function createBattlefield() {
             next.faintAction.paused = true;
             next.faintAction.setEffectiveWeight(0).play();
           }
-          for (const name of ['special','physical']) {
+          for (const name of ['special','physical','hit']) {
             if (!asset[name]) continue;
             const action = next.mixer.clipAction(asset[name]).setLoop(THREE.LoopOnce,1);
             action.paused = true;
@@ -639,8 +650,12 @@ export function createBattlefield() {
             previous.model.visible = true;
             pod.modelSlot.add(previous.model);
           }
-          const kind = previous?.family === next.family ? 'evolution' : 'switch';
-          pod.change = {previous:previous?.model, startSize:previous?.size, kind, started};
+          const sameFamily = previous?.family === next.family;
+          const castformChange = sameFamily && active.catalogueId === 'hoenn-castform';
+          let kind = 'switch';
+          if (castformChange) kind = 'forecast';
+          else if (sameFamily) kind = active.fieldForm === 'busted' ? 'disguise' : 'evolution';
+          pod.change = {previous:previous?.model, startSize:previous?.size, startRoll:next.model.rotation.z, kind, started};
           next.model.visible = false;
         }
         pod.deployed = true;
@@ -721,7 +736,7 @@ export function createBattlefield() {
     const incoming = pod.visual.model;
     const size = pod.visual.size;
     const outgoing = transition.previous;
-    const duration = transition.kind === 'deploy' ? 1750 : transition.kind === 'switch' ? 1420 : 1220;
+    const duration = {deploy:1750,switch:1420,disguise:550,forecast:750}[transition.kind] ?? 1220;
     const retiring = transition.kind === 'knockout' || transition.kind === 'deploy';
     const fallenVisual = retiring ? transition.fallenVisual || pod.visual : null;
     const faintDuration = (fallenVisual?.faintAction?.getClip().duration ?? 0)*1000;
@@ -758,6 +773,13 @@ export function createBattlefield() {
       pod.flash.visible = t >= .81 && t < .98;
       pod.flash.scale.setScalar(.9);
       pod.flash.material.opacity = Math.max(0,1-(t-.81)/.17)*.8;
+    } else if (transition.kind === 'disguise' || transition.kind === 'forecast') {
+      outgoing.visible = t < .42;
+      incoming.visible = t >= .42;
+      incoming.rotation.z = transition.startRoll + Math.sin(Math.PI * t) * .12;
+      pod.flash.visible = t < .8;
+      pod.flash.scale.setScalar(.34 + .9 * t);
+      pod.flash.material.opacity = Math.sin(Math.PI * t) * .52;
     } else if (transition.kind === 'evolution') {
       const glow = Math.sin(Math.PI * t);
       pod.flash.visible = t < 1;
@@ -835,6 +857,7 @@ export function createBattlefield() {
   }
   function build(previousTrainers) {
     clearScene(); pods = []; cameraReady = false;
+    objectiveTerrain=null;
     const p = palettes[config.theme] || palettes.stadium;
     scene = new THREE.Scene(); scene.background = new THREE.Color(p.sky);
     scene.fog = new THREE.Fog(p.sky, 45, 90);
@@ -910,8 +933,10 @@ export function createBattlefield() {
     }
     const layout = config.coastalBattle
       ? coastalSeatLayout(config.players,config.viewerId)
-      : fixedLayout?.seats ?? seatLayout(config.players,config.viewerId);
-    if (themed) {
+      : fixedLayout?.seats ?? seatLayout(config.players,config.viewerId,config.theme==='silph' && config.players.length>8 ? 9.3 : 7.2);
+    if (['lake','silph'].includes(config.theme)) {
+      objectiveTerrain=createObjectiveTerrain(scene,config.theme);
+    } else if (themed) {
       const terrainScene = scene;
       terrain = createGymTerrain(scene,config.theme,()=>{
         if (scene===terrainScene) draw(performance.now());
@@ -1434,6 +1459,7 @@ export function createBattlefield() {
   }
   function draw(time) {
     if (!scene || !host?.isConnected || disposed || lost || document.hidden) return;
+    pokemonEffects.update(time*.001,config.reducedMotion);
     const motions = battleEffects?.update(time,config.reducedMotion,config.playCue);
     const nearFocus = eligible ? null : battleEffects?.nearFocus;
     const fallen = !config.reducedMotion && pods.find(pod=>['knockout','deploy'].includes(pod.change?.kind));
@@ -1457,7 +1483,7 @@ export function createBattlefield() {
     for (const pod of pods) {
       const hideOwnTrainer = config.coastalBattle || (['fire','grass'].includes(config.theme) && !pod.rearStation);
       const ownTrainerView = hideOwnTrainer && trainerCamera && pod.id===config.viewerId;
-      pod.trainerSlot.visible = !ownTrainerView;
+      pod.trainerSlot.visible = !ownTrainerView && !config.players.find(player=>player.id===pod.id)?.raidBoss;
       if (pod.commandDais) pod.commandDais.visible = !ownTrainerView || (!clipOwnStation && !['fire','grass'].includes(config.theme));
     }
     const targets = focus?.targetIds || [];
@@ -1607,6 +1633,7 @@ export function createBattlefield() {
       }
       const leveling = pod.change?.kind === 'level-up';
       const evolving = pod.change?.kind === 'evolution';
+      const changingWeatherForm = pod.change?.kind === 'forecast';
       const replacingKnockedOut = pod.change?.kind === 'deploy' && !pod.visual.model.visible;
       const knockedOut = pod.change?.kind === 'knockout' || replacingKnockedOut;
       const burst = battleEffects?.traitBurst(pod.id);
@@ -1633,11 +1660,12 @@ export function createBattlefield() {
         label.dataset.trainerMotion = pod.trainerSlot.motion || '';
         label.dataset.trainerModel = pod.trainerSlot.modelProfile || '';
         label.dataset.trainerReveal = pod.trainerSlot.reveal ? 'true' : '';
-        label.dataset.action = showingKnockout ? 'knockout' : showingFaint ? 'faint' : evolving ? 'evolution' : leveling ? 'level-up' : motion?.cue.kind || '';
+        label.dataset.action = showingKnockout ? 'knockout' : showingFaint ? 'faint' : evolving ? 'evolution' : changingWeatherForm ? 'forecast' : leveling ? 'level-up' : motion?.cue.kind || '';
         label.dataset.actionLabel = showingKnockout && replacingKnockedOut
           ? (config.language === 'zh' ? '上一只搭档失去战斗能力' : 'Previous partner knocked out')
           : showingKnockout ? (config.language === 'zh' ? '失去战斗能力' : 'Knocked out')
           : showingFaint ? (config.language === 'zh' ? '昏厥 · 等待救援' : 'Fainted · awaiting rescue')
+          : changingWeatherForm ? (config.language === 'zh' ? '阴晴不定 · 形态变化' : 'Forecast · Form change')
           : evolving
           ? (config.language === 'zh' ? `进化 · Lv.${pod.visual.level}` : `Evolution · Lv.${pod.visual.level}`)
           : leveling
@@ -1646,9 +1674,10 @@ export function createBattlefield() {
       }
       const acting = pod.change?.waitForHit ? pod.change.fallenVisual || pod.visual : pod.visual;
       const actingDown = pod.change?.kind==='deploy' && !pod.change.waitForHit ? 0 : pod.down;
-      const castAction = acting && motion && !actingDown && !config.reducedMotion &&
-        acting.family===motion.cue.family && acting.model.visible &&
-        (motion.specialCast ? acting.specialAction : motion.physicalCast ? acting.physicalAction : null);
+      const motionKind = motion?.cue.kind;
+      const castAction = acting && motion && !actingDown && !config.reducedMotion && acting.model.visible &&
+        (motionKind==='hit' ? acting.hitAction : acting.family===motion.cue.family &&
+          (motion.specialCast ? acting.specialAction : motion.physicalCast ? acting.physicalAction : null));
       if (acting?.castAction && acting.castAction!==castAction) {
         acting.castAction.setEffectiveWeight(0);
         acting.idleAction?.setEffectiveWeight(1);
@@ -1661,7 +1690,10 @@ export function createBattlefield() {
         acting.idleAction?.setEffectiveWeight(1-weight);
         acting.castAction = castAction;
       }
-      if (label) label.dataset.nativeCast = castAction ? 'true' : '';
+      if (label) {
+        label.dataset.nativeCast = castAction && motionKind==='attack' ? 'true' : '';
+        label.dataset.nativeHit = castAction && motionKind==='hit' ? 'true' : '';
+      }
       if (acting?.model.visible && (!knockedOut || pod.change?.waitForHit) && acting.faintAction && actingDown) {
         poseNativeFaint(pod,acting,actingDown);
       } else if (acting?.model.visible && (!knockedOut || pod.change?.waitForHit)) {
@@ -1787,6 +1819,7 @@ export function createBattlefield() {
         geometryKey=key;
         build(previousTrainers);
       }
+      objectiveTerrain?.(config.objective);
       host.dataset.mode = displayMode();
       observer?.disconnect(); observer=new ResizeObserver(resize); observer.observe(host);
       eligible = null;
@@ -1833,6 +1866,7 @@ export function createBattlefield() {
         materials.forEach(material=>material.dispose());
       }).catch(()=>{});
       models.clear();
+      pokemonEffects.dispose();
       for (const variants of materialVariants.values()) for (const material of variants.values()) material.dispose();
       materialVariants.clear();
       renderer.dispose(); renderer.forceContextLoss(); renderer.domElement.remove();

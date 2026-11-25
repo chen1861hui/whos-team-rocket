@@ -1,6 +1,9 @@
-import { publicBattleDecision, publicBattlePokemon, previewActions, battleTraitsEffective, battleReinforcementEffective, estimateCommandDamage } from './combat.js';
-import { isTeamRole } from '../public/match-mode.js';
-import { currentHp } from './battle-rules.js';
+import { publicBattleDecision, publicBattlePokemon, previewActions, battleTraitsEffective, battleReinforcementEffective, estimateCommandDamage, intactDisguise, activeFieldWeather } from './combat.js';
+import { hoennEvents, canCoordinateCommand, emergencyRetreat, showdownWeatherRank, MIMIKYU_ID } from '../public/expansion-content.js';
+import { isTeamRole, openingGymAce } from '../public/match-mode.js';
+import { trainerProfessionIds } from '../public/trainer-professions.js';
+import { sandstormAffects } from '../public/pokemon-types.js';
+import { currentHp, rocketPartnerFor } from './battle-rules.js';
 
 export const aiDifficulties = ['easy', 'normal', 'hard'];
 export const aiDifficulty = player => aiDifficulties.includes(player.aiDifficulty) ? player.aiDifficulty : 'normal';
@@ -16,7 +19,7 @@ const injuries = pokemon => pokemon.damage ?? 0;
 const statusCost = { sleep: 4, paralysis: 3, burn: 3, flinch: 2, poison: 2, confusion: 1 };
 const itemValue = { leftovers: 7, 'kings-rock': 7, 'rocky-helmet': 6, 'bright-powder': 6,
   'quick-claw': 6, 'muscle-band': 5, 'flame-orb': 5, 'poison-barb': 4, 'life-orb': 4,
-  'blunder-policy': 3, 'light-ball': 3 };
+  'blunder-policy': 3, 'light-ball':3, 'tour-protect':6,'tour-scarf':5,'tour-eject':4,'tour-red-card':4,'heat-rock':2,'damp-rock':2,'icy-rock':2,'smooth-rock':2,'light-clay':3,'power-herb':3 };
 const itemScore = pokemon => itemValue[pokemon.item?.itemType] ?? 0;
 const moveFace = (pokemon, catalogue) => catalogue.entries.find(entry => entry.id === pokemon.catalogueId)
   ?.levels.find(face => face.level === pokemon.level);
@@ -40,12 +43,14 @@ export function aiActor(room) {
 }
 
 export function publicAiTable(room, catalogue) {
-  const leaderPublic = room.players.some(player => player.role === 'leader' && player.identityAcknowledged);
+  const viridian = room.scenario?.viridian;
+  const leaderPublic = !viridian && room.players.some(player => player.role === 'leader' && player.identityAcknowledged);
   return room.players.filter(player => !player.spectator).map(player => {
     const pokemon = publicBattlePokemon(player.active, catalogue, room);
     return {
       id: player.id,
-      role: (player.role === 'leader' && leaderPublic) || player.identityPublic || player.eliminated ? player.role : null,
+      role: (player.role === 'leader' && leaderPublic) || player.identityPublic || player.eliminated ? player.role
+        : viridian?.clues[player.id] === true ? 'challenger' : null,
       eliminated: Boolean(player.eliminated),
       handCount: player.hand.length,
       hasReserve: Boolean(player.reserve && !(player.reserve.revealed && player.reserve.defeated)),
@@ -59,6 +64,8 @@ export function publicAiTable(room, catalogue) {
         speed: !pokemon.reinforcementsSuppressed && pokemon.status !== 'paralysis' && pokemon.reinforcements.includes('speed'),
         item: pokemon.itemSuppressed ? null : pokemon.item?.itemType ?? null,
         damageProtected: pokemon.damageProtected,
+        ...(pokemon.catalogueId === MIMIKYU_ID && !pokemon.traitsSuppressed && pokemon.fieldForm !== 'busted' ? { disguise: true } : {}),
+        ...(pokemon.fieldForm ? {fieldForm:pokemon.fieldForm} : {}),
         status: pokemon.status,
         defense: Number(!pokemon.reinforcementsSuppressed && pokemon.status !== 'paralysis' && pokemon.reinforcements.includes('defense')),
       },
@@ -70,7 +77,7 @@ export function publicAiTable(room, catalogue) {
 function ally(player, target) {
   if (isTeamRole(player.role)) return player.role === target?.role;
   return player.id === target?.id || (['leader', 'gym'].includes(player.role) && ['leader', 'gym'].includes(target?.role))
-    || (player.role === 'challenger' && target?.role === 'challenger');
+    || (player.role === 'challenger' && target?.role === 'challenger') || target?.rocketPartner === true;
 }
 
 // Use recent, attributed public hits as clues, with revealed roles taking precedence.
@@ -79,7 +86,7 @@ function factionRead(room, player, table) {
   const gymSide = gymRoles.includes(player.role);
   const gymIds = new Set(table.filter(seat => gymRoles.includes(seat.role)).map(seat => seat.id));
   if (gymSide) gymIds.add(player.id);
-  const publicOpponents = new Set(table.filter(seat => ['challenger', 'rocket'].includes(seat.role)).map(seat => seat.id));
+  const publicOpponents = new Set(table.filter(seat => ['challenger', 'rocket', 'infiltrator'].includes(seat.role)).map(seat => seat.id));
   const hitGym = new Set();
   const hitOpponents = new Set();
   const hitSelf = new Set();
@@ -93,8 +100,9 @@ function factionRead(room, player, table) {
 
   const hiddenGymTrainer = player.role === 'leader' && table.length >= 4 && !table.some(seat => seat.role === 'gym');
   const leader = table.find(seat => seat.role === 'leader' && !seat.eliminated);
-  const rocketNeedsRivalsGone = player.role === 'rocket' && leader && table.filter(seat => !seat.eliminated).length > 2;
-  const protectLeader = rocketNeedsRivalsGone && !leader.hasReserve;
+  const needsRivalsGone = ['rocket','infiltrator'].includes(player.role) && leader && table.some(seat=>
+    !seat.eliminated && seat.id!==player.id && seat.id!==leader.id && !seat.rocketPartner);
+  const protectLeader = needsRivalsGone && !leader.hasReserve;
   const friendly = target => ally(player, target) || Boolean(hiddenGymTrainer && target && !target.role &&
     hitOpponents.has(target.id) && !hitGym.has(target.id));
   const canTarget = target => {
@@ -106,7 +114,7 @@ function factionRead(room, player, table) {
   const pressure = target => {
     if (!target) return 0;
     if (gymSide && hitGym.has(target.id)) return 4;
-    if (rocketNeedsRivalsGone && target.id !== leader.id) return hitGym.has(target.id) ? 5 : 2;
+    if (needsRivalsGone && target.id !== leader.id) return hitGym.has(target.id) ? 5 : 2;
     return 0;
   };
   return { friendly, canTarget, pressure, protectedLeaderId: protectLeader ? leader.id : null };
@@ -155,6 +163,107 @@ function response(room, player, catalogue, table, preferences) {
       battleTraitsEffective(room, player.active) && ['rain', 'thunderstorm'].includes(card.weather)));
 
   switch (pending.kind) {
+    case 'expansion': {
+      const options = pending.options || [];
+      let best = options[0];
+      const continuation = room.pendingBattle.continuation;
+      if (continuation.kind === 'rocket-pledge') {
+        const rockets = (room.settings.rocketPartners ? 2 : 1) - table.filter(seat=>seat.role==='rocket'&&seat.eliminated).length;
+        const opponents = table.filter(seat=>seat.id!==player.id&&!seat.eliminated).length;
+        return act('choose',{effect:rockets>0 && opponents>1 ? 'rocket' : 'independent'});
+      }
+      if (continuation.kind === 'gym-guard') {
+        const hit = incomingHit() ?? 1;
+        const canAvoid = intactDisguise(room,player.active) ||
+          (!room.resolution.ignoresReinforcements && cards.some(usableDodge));
+        const protectsLeader = target?.role === 'leader' && target.active?.hp <= Math.max(1,hit);
+        return protectsLeader || (canAvoid && target?.active?.hp <= ownHp) ? act('choose',{effect:'guard'}) : pass();
+      }
+      if (continuation.kind === 'follow-me') {
+        const payment = cheapestFirst(options.map(option=>option.card))[0];
+        const hit = incomingHit() ?? 0;
+        const canAvoid = cards.some(card=>card.id!==payment?.id && card.kind==='dodge') ||
+          intactDisguise(room,player.active);
+        return payment && friendly && target?.active?.hp<=Math.max(hit,1) && (canAvoid || ownHp>hit)
+          ? act('choose',{effect:payment.id}) : pass();
+      }
+      if (continuation.kind === 'radio-first' || continuation.kind === 'radio-second') {
+        const lowestMatch = candidate => cards.find(card=>card.weather!==candidate.weather);
+        const fee = card => cardValue(card) + (continuation.kind==='radio-first' ? cardValue(lowestMatch(card)) : 0);
+        best = options.toSorted((a,b)=>fee(a.card)-fee(b.card))[0];
+      }
+      if (['dex','oak-order','bug-prize'].includes(continuation.kind)) best = options.toSorted((a,b)=>cardValue(b.card)-cardValue(a.card))[0];
+      if (continuation.kind === 'disguise-target') {
+        best = options.find(option=>read.friendly(seat(option.value))) ?? best;
+      }
+      if (continuation.kind==='objective-payment') {
+        best = options.toSorted((a,b)=>cardValue(player.hand.find(card=>card.id===a.value))-
+          cardValue(player.hand.find(card=>card.id===b.value)))[0];
+      }
+      if (continuation.kind === 'disguise-offer') {
+        best = options.find(option=>option.value===cards[0]?.id);
+      }
+      if (continuation.kind === 'disguise-reply') {
+        const match = cards.find(card=>options.some(option=>option.value===card.id));
+        best = match && cardValue(match)<=3 ? options.find(option=>option.value===match.id) :
+          options.find(option=>option.value==='decline');
+      }
+      if (continuation.kind === 'looker-target') {
+        best = options.find(option=>read.canTarget(seat(option.value))) ?? best;
+      }
+      if (continuation.kind === 'looker-reply' && player.reserve?.item && !player.reserve.revealed && cards.length) {
+        best = options.find(option=>option.value===cards[0].id);
+      }
+      if (continuation.kind === 'bird-recipient' && player.hand.length>=4) {
+        best = options.find(option=>option.value!==player.id && read.friendly(seat(option.value)) &&
+          seat(option.value).handCount<player.hand.length) ?? best;
+      }
+      if (continuation.kind === 'researcher-forecast') {
+        const weather=room.drawPile.at(-1)?.weather;
+        const judgment=room.judgment.continuation;
+        const hits=judgment.weathers ? judgment.weathers.includes(weather) :
+          (weather===judgment.weather)!==(judgment.comparison==='not');
+        const affected=room.players.find(seat=>seat.active?.instanceId===judgment.targetId);
+        const harmful=judgment.kind==='weather-lab' ? weather==='clear' :
+          judgment.kind==='status' && affected && read.friendly(seat(affected.id))===hits;
+        if (!harmful || !cards.length || cardValue(cards[0])>3) return pass();
+        best = options.find(option=>option.value===cards[0].id);
+      }
+      if (continuation.kind === 'showdown-target') {
+        const opponent = targetsForShowdown(options.map(option => option.value), table, read)[0];
+        return opponent ? act('choose', { effect: opponent.id }) : pass();
+      }
+      if (['showdown-commit','showdown-reveal'].includes(continuation.kind)) {
+        best = options.toSorted((a,b) => showdownWeatherRank[b.card.weather] - showdownWeatherRank[a.card.weather] ||
+          cardValue(a.card) - cardValue(b.card))[0];
+      }
+      if (continuation.kind === 'air-lock' && source?.active &&
+          estimateCommandDamage(room,source.active,player.active,null,catalogue) <= 1) return pass();
+      if (continuation.kind === 'wobbuffet-counter' && (!source || read.friendly(seat(source.id)))) return pass();
+      if (continuation.kind === 'light-clay' && room.turn.playerId === player.id) return pass();
+      if (continuation.kind === 'future-sight-event') {
+        const judgment = room.judgment?.continuation;
+        const weather = pending.judgmentCard?.weather;
+        let harmful;
+        if (judgment?.kind === 'zapdos') harmful = weather === 'thunderstorm';
+        if (judgment?.kind === 'hoenn-delayed') harmful = room.resolution?.eventType === 'hoenn-raikou' ? weather === 'thunderstorm' : weather !== 'clear';
+        if (judgment?.kind === 'status') harmful = judgment.weathers ? judgment.weathers.includes(weather)
+          : (weather === judgment.weather) !== (judgment.comparison === 'not');
+        const affected = judgment?.kind === 'status' && room.players.find(seat => seat.active?.instanceId === judgment.targetId);
+        const friendlyToAffected = affected ? read.friendly(table.find(seat => seat.id === affected.id)) : friendly;
+        if (harmful === undefined || friendlyToAffected !== harmful) return pass();
+      }
+      if (['gear','action','gift','roadblock-switch','future-sight-payment','wobbuffet-counter','illusion-decoy','viridian-investigate-payment'].includes(continuation.kind)) {
+        best = options.toSorted((a,b)=>cardValue(a.card||{})-cardValue(b.card||{}))[0];
+      }
+      if (continuation.kind === 'emergency-retreat' && !betterReserve(player,catalogue)) return pass();
+      if (continuation.kind === 'post-switch' && pending.allowPass) {
+        const event=room.tourAfterSwitches,entry=event.entries[event.index-1];
+        const switching=table.find(seat=>seat.id===entry.playerId);
+        if (entry.itemType==='tour-red-card' && read.friendly(switching)) return pass();
+      }
+      return best ? act('choose',{effect:best.value}) : pass();
+    }
     case 'reveal-judgment': return act('reveal');
     case 'hand':
     case 'event-hand':
@@ -193,8 +302,11 @@ function response(room, player, catalogue, table, preferences) {
       const possibleHeals = pending.potionCards.length + pending.healerCards.filter(
         card => !pending.potionCards.some(potion => potion.id === card.id)).length;
       const lastRescuer = room.resolution?.rescueIndex === room.resolution?.rescueActors?.length - 1;
-      if (lastRescuer && target?.active && target.active.hp + 2 * possibleHeals <= 0) return pass();
-      return pending.potionCards.length ? pay('potion', pending.potionCards[0]) : pay('healer', cheapestFirst(pending.healerCards)[0]);
+      const joy = pending.joyItems?.[0];
+      if (lastRescuer && target?.active && target.active.hp + 2 * possibleHeals + Number(Boolean(joy)) <= 0) return pass();
+      if (pending.potionCards.length) return pay('potion',pending.potionCards[0]);
+      if (pending.healerCards.length) return pay('healer',cheapestFirst(pending.healerCards)[0]);
+      return pay('joy',joy);
     }
     case 'event-dodge': return pay('dodge', cards.find(card => card.kind === 'dodge'));
     case 'event-command':
@@ -204,11 +316,14 @@ function response(room, player, catalogue, table, preferences) {
       const statusMove = room.resolution.statusMove || ['lock-on', 'sweet-kiss', 'temporary-hand-exile', 'discard-other-hand'].includes(room.resolution.effectKind);
       const damageLeft = Math.max(0, (incomingHit() ?? 1) - (pending.damageReduction ?? 0));
       if (tactical && !statusMove && damageLeft === 0) return pass();
+      if (pending.canTourProtect) return act('tour-protect');
       if (pending.canBrightPowder) return act('bright-powder');
       if (pending.canTrait && !pending.traitAttempted) return act('trait');
       const dodges = cards.filter(usableDodge);
       const needed = pending.dodgeReducesDamage ? 1 : (pending.dodgesRequired ?? 1) - (pending.dodgesPlayed ?? 0);
-      return dodges.length >= needed ? pay('dodge', dodges[0]) : pass();
+      const retreat = needed === 1 && !pending.dodgeReducesDamage && !player.emergencyRetreatDebt && betterReserve(player,catalogue);
+      return dodges.length >= needed ? pay('dodge',
+        dodges.find(card => (card.variant === emergencyRetreat.variant) === Boolean(retreat)) ?? dodges[0]) : pass();
     }
     case 'quick-claw': {
       const move = pending.moves.filter(option => option.canUse && option.printedValue > 0)
@@ -232,7 +347,7 @@ function response(room, player, catalogue, table, preferences) {
     case 'defiant': return act('trait');
     case 'cursed-body': return pending.choices.length ? act('trait', { handIndex: 0 }) : pass();
     case 'exile': return act('exile', { handIndices: pending.choices.slice(0, pending.maxCards).map(card => card.index) });
-    case 'battle-armor': return room.resolution?.kind === 'turn-start' && !player.active.reinforcements.includes('defense')
+    case 'battle-armor': return ['turn-start','turn-end'].includes(room.resolution?.kind) && !player.active.reinforcements.includes('defense')
       ? pay('armor', cards[0]) : pass();
     case 'bonemerang': return friendly ? pass() : pay('repeat', cards[0]);
     case 'switch-payment': return pay('discard', cards[0]);
@@ -249,12 +364,18 @@ function response(room, player, catalogue, table, preferences) {
     case 'articuno': {
       const eventType = room.resolution?.eventType;
       if (!pending.protectionCards.length) return pass();
+      if (hoennEvents[eventType]?.field) {
+        return !friendly && recipient?.active?.catalogueId === 'hoenn-castform' && !pending.counterProtection
+          ? pay('protect', pending.protectionCards[0]) : pass();
+      }
       const protects = pending.mode === 'cure-status' ||
         (eventType === 'berry-harvest' ? pending.counterProtection === true :
           !['mew-blessing', 'rival-challenge'].includes(eventType) || target?.active?.hp <= 2);
       return friendly === protects && (friendly || eventType === 'berry-harvest')
         ? pay('protect', pending.protectionCards[0]) : pass();
     }
+    case 'power-herb': return tactical && target && !friendly && target.active.hp===1 && cards.length>=2
+      ? act('discard',{cardIds:cards.slice(0,2).map(card=>card.id)}) : pass();
     case 'blunder-policy': {
       const damage = recipient?.active && estimateCommandDamage(room, player.active, recipient.active, null, catalogue);
       return tactical && !friendly && damage >= target?.active?.hp && cards.length >= 2
@@ -310,14 +431,21 @@ function response(room, player, catalogue, table, preferences) {
   }
 }
 
-function choosePartners(player, catalogue) {
+function choosePartners(room, player, catalogue) {
   const score = (id, level) => {
     const face = catalogue.entries.find(entry => entry.id === id)?.levels.find(entry => entry.level === level);
     const damage = Math.max(0, ...(face?.moves ?? []).map(move => move.printedValue ?? 0));
     return (face?.hp ?? 0) + damage * 2;
   };
-  const ordered = player.candidates.toSorted((a, b) => score(b, player.role === 'leader' ? 2 : 1) - score(a, player.role === 'leader' ? 2 : 1));
-  return { type: 'selectPokemon', activeId: ordered[0], reserveId: ordered[1] };
+  const level = openingGymAce(room,player) ? 2 : 1;
+  const ordered = player.candidates.toSorted((a, b) => score(b, level) - score(a, level));
+  const profession = room.settings?.trainerProfessions && trainerProfessionIds[((player.seatNumber ?? 1)-1)%trainerProfessionIds.length];
+  return { type:'selectPokemon',activeId:ordered[0],reserveId:ordered[1],...(profession?{profession}:{}) };
+}
+
+function targetsForShowdown(ids, table, read) {
+  return table.filter(seat => ids.includes(seat.id) && seat.handCount > 0 && read.canTarget(seat))
+    .toSorted((a,b) => a.handCount - b.handCount);
 }
 
 function play(room, player, catalogue, table, preferences, legal) {
@@ -328,8 +456,12 @@ function play(room, player, catalogue, table, preferences, legal) {
   const cards = cheapestFirst(player.hand);
   const read = factionRead(room, player, table);
   const targetOrder = ids => rankTargets(ids, player, table, preferences, read);
-  const seats = new Map(room.players.map(seat => [seat.id, seat]));
   const publicSeats = new Map(table.map(seat => [seat.id, seat]));
+  const seats = new Map(room.players.map(seat => {
+    const visible = publicSeats.get(seat.id)?.active;
+    if (seat.id===player.id || !visible || visible.catalogueId===seat.active?.catalogueId) return [seat.id,seat];
+    return [seat.id,{...seat,active:{...seat.active,catalogueId:visible.catalogueId,level:visible.level}}];
+  }));
   const active = player.active;
   const activeHP = currentHp(active, catalogue);
   const difficulty = aiDifficulty(player);
@@ -350,7 +482,7 @@ function play(room, player, catalogue, table, preferences, legal) {
 
   for (const move of legal.moves.filter(move => move.canUse)) {
     const command = move.condition.kind === 'command';
-    const payment = cards.find(card => command ? card.kind === 'command' && (active.status !== 'paralysis' || sunny(card))
+    const payment = cards.find(card => command ? (card.kind==='command'||(move.printedValue>0&&card.id===legal.illusionDecoyId)) && (active.status !== 'paralysis' || sunny(card))
       : move.condition.weatherIconsInCondition.includes(card.weather));
     if (!payment && !(command && legal.muscleBand)) continue;
     const available = targetOrder(move.legalTargetIds);
@@ -390,6 +522,7 @@ function play(room, player, catalogue, table, preferences, legal) {
       }
       if (!isEnemy(id)) return { id, score: 0 };
       const damage = estimateCommandDamage(room, active, target, move, catalogue);
+      if (damage > 0 && publicSeats.get(id).active.disguise) return { id, score: 4, boost: null };
       const boost = hard && move.effectKind === 'hyper-beam' && payment && damage < targetHp &&
         estimateCommandDamage(room, active, target, move, catalogue, 1) >= targetHp
         ? cards.find(card => card.id !== payment.id && cardValue(card) <= 3) : null;
@@ -421,10 +554,21 @@ function play(room, player, catalogue, table, preferences, legal) {
       ...(move.effectKind === 'moonlight' ? { effectChoice: 'heal' } : {}),
       ...(doubleDodge ? { effectChoice: 'double-dodge' } : {}),
     }, recoverMove ? [] : hostile(targets.map(option => option.id)));
+    const coordinated = tactical && cards.find(card => canCoordinateCommand(move,card) && (active.status!=='paralysis'||sunny(card)));
+    if (coordinated && options.length > move.maxTargets) {
+      const fees = cards.filter(card=>card!==coordinated);
+      const second = fees.find(card=>card.weather!==fees[0]?.weather);
+      const expanded = options.toSorted((a,b)=>b.score-a.score).slice(0,move.maxTargets+1);
+      if (second && (!leaderId || expanded.some(option=>option.id===leaderId))) {
+        const ids = expanded.map(option=>option.id);
+        add(expanded.reduce((total,option,index)=>total+option.score*(index ? 0.45 : 1),0)-4,
+          'attack',{moveIndex:move.index,cardId:coordinated.id,targetIds:ids,coordinationCardIds:[fees[0].id,second.id]},hostile(ids));
+      }
+    }
   }
 
   for (const tool of legal.tools) {
-    const card = cards.find(card => card.kind === 'tool' && card.toolType === tool.toolType);
+    const card = cards.find(card => card.kind === 'tool' && card.toolType === tool.toolType && (!tool.cardId || tool.cardId === card.id));
     for (const choice of tool.choices) {
       if (choice.unavailableReason) continue;
       for (const target of choice.targets) {
@@ -434,6 +578,12 @@ function play(room, player, catalogue, table, preferences, legal) {
         const status = statusCost[pokemon?.status] ?? 0;
         const health = pokemon && currentHp(pokemon, catalogue);
         const scores = {
+          'tour-heal': 4 + recoveryBonus, 'tour-power': canAttack ? 9 : 2,
+          'tour-gear': 2, 'tour-dex': room.turn.tourNightObservation ? 2 : 4, 'tour-switch': betterReserve(player,catalogue) ? 9 : 0,
+          'tour-incense': player.reserve?.level < 3 ? 4 : 0, 'tour-recycle':4, 'tour-berry':6,
+          'hoenn-lum': 2 + status * 2,
+          'hoenn-umbrella': target.slot === 'active' && activeFieldWeather(room) &&
+            table.some(seat => !read.friendly(seat) && seat.active?.fieldForm) ? 4 : 0,
           revive: 15, potion: pokemon ? 3 * Math.min(2, injuries(pokemon)) + (health <= 2 ? 6 : 0) + recoveryBonus : 0,
           'full-heal': 3 + status * 2 + recoveryBonus,
           'rare-candy': pokemon?.level === 2 ? 8 : 6,
@@ -449,8 +599,27 @@ function play(room, player, catalogue, table, preferences, legal) {
 
   for (const event of legal.events.filter(event => event.canUse)) {
     const card = cards.find(card => card.kind === 'event' && card.eventType === event.eventType);
+    if (event.eventType==='tour-supply') { add(8,'useEvent',{cardId:card.id,targetId:player.id}); continue; }
+    if (event.field) {
+      if (activeFieldWeather(room)?.kind === event.field) continue;
+      let score = active.catalogueId === 'hoenn-castform' ? 8 : 1;
+      if (event.field === 'sand') {
+        score = table.filter(seat => !seat.eliminated && seat.active && sandstormAffects(seat.active)).reduce((total, seat) => {
+          if (seat.id === player.id && seat.active.damageProtected) return total;
+          const loss = seat.active.hp === 1 ? 4 : 2;
+          return total + (seat.id === player.id || read.friendly(seat) ? -loss : loss);
+        }, 0);
+      }
+      add(score,'useEvent',{cardId:card.id,targetId:player.id});
+      continue;
+    }
+    if (event.eventType==='tour-gift') {
+      const recipient=event.targetIds.find(isAlly);
+      if(recipient && cards.length>2)add(4,'useEvent',{cardId:card.id,targetId:recipient});
+      continue;
+    }
     if (event.targeting !== 'single') {
-      const offensive = !['berry-harvest', 'mew-blessing'].includes(event.eventType);
+      const offensive = !['berry-harvest', 'mew-blessing', 'tour-clinic'].includes(event.eventType);
       const affected = offensive ? event.targetIds.filter(id => !publicSeats.get(id).active.damageProtected) : [];
       if (offensive && leaderId && !affected.includes(leaderId)) continue;
       if (affected.includes(read.protectedLeaderId)) continue;
@@ -458,6 +627,7 @@ function play(room, player, catalogue, table, preferences, legal) {
         const target = publicSeats.get(id);
         const friendly = isAlly(id);
         if (event.eventType === 'berry-harvest') return sum + (friendly ? 3 : -1);
+        if (event.eventType==='tour-clinic')return sum+(friendly?3:-2)*Math.min(1,target.active.maxHp-target.active.hp);
         if (event.eventType === 'mew-blessing') {
           const benefit = (target.active.hp <= 2 ? 6 : 0) + (target.active.level < 3 ? 3 : 0);
           return sum + (friendly ? benefit : -benefit * 0.6);
@@ -480,6 +650,11 @@ function play(room, player, catalogue, table, preferences, legal) {
         effect: choice.effect,
         value: { item: itemScore(pokemon) + 1, hand: 4, power: 4, defense: 5, speed: 2 }[choice.effect] ?? 0,
       })).toSorted((a, b) => b.value - a.value)[0];
+      if (event.delayed) {
+        const score = event.eventType==='hoenn-raikou' && target.active.hp===1 ? 6 : 2;
+        add(score + read.pressure(target), 'useEvent', { cardId:card.id, targetId:id }, [id]);
+        continue;
+      }
       const score = bestEffect?.value ?? (event.eventType === 'rival-challenge'
         ? (target.handCount === 0 ? 10 : activeHP <= 2 ? 2 : 6) : 5);
       add(score + read.pressure(target), 'useEvent', { cardId: card.id, targetId: id, ...(bestEffect ? { effect: bestEffect.effect } : {}) }, [id]);
@@ -495,6 +670,42 @@ function play(room, player, catalogue, table, preferences, legal) {
           'equipItem', { cardId: card.id, slot });
       }
     }
+  }
+  for (const action of legal.tourActions || []) {
+    if((action.kind==='prepare' || action.kind==='observe') && !canAttack)add(1,'tourAction',{action:action.kind});
+    if(action.kind==='radio-contact') {
+      const {scores,goal} = room.scenario.radio;
+      const ours = scores[player.role];
+      const theirs = Math.max(...Object.entries(scores).filter(([role])=>role!==player.role).map(([,score])=>score));
+      add(ours===goal-1 ? 80 : theirs===goal-1 ? 14 : 7,'tourAction',{action:action.kind});
+    }
+    if(action.kind==='publish-survey') add(4,'tourAction',{action:action.kind});
+    if(action.kind==='lake-shutoff' && (cards.length>=4 || currentHp(active,catalogue)<=2))
+      add(10,'tourAction',{action:action.kind});
+    if(action.kind==='silph-claim' && cards.length>=3 && (room.scenario.silph.control || cards.length>=4))
+      add(room.scenario.silph.control?.anchorId ? 8 : 3,'tourAction',{action:action.kind});
+    if(action.kind==='oak-register' || action.kind==='looker-inquiry' || action.kind==='bird-supply') add(4,'tourAction',{action:action.kind});
+    if(action.kind==='disguise-trade' && cards.length && cardValue(cards[0])<=3) add(4,'tourAction',{action:action.kind});
+    if(action.kind==='viridian-investigate' && !canAttack && cards.length>=4 && cardValue(cards[0])<=3) add(3,'tourAction',{action:action.kind});
+    if(action.kind==='illusion-decoy'&&!hasCommand) add(3,'tourAction',{action:action.kind});
+    if (action.kind==='shed-disguise' && active.status!=='paralysis' && canAttack &&
+        legal.moves.some(move => move.canUse && move.printedValue>0 && move.condition.kind==='command' &&
+          move.legalTargetIds.some(id => {
+            const opponent = publicSeats.get(id)?.active;
+            if (!opponent || opponent.disguise || !isEnemy(id) || (leaderId && id!==leaderId)) return false;
+            const target = seats.get(id).active;
+            return estimateCommandDamage(room,active,target,move,catalogue) === opponent.hp-1 &&
+              estimateCommandDamage(room,active,target,move,catalogue,1) >= opponent.hp;
+          }))) add(20,'tourAction',{action:action.kind});
+
+    if(action.kind==='showdown' && !canAttack && cards.length>1 &&
+       cards.some(card=>card.weather==='thunderstorm' && cardValue(card)<4) &&
+       targetsForShowdown(room.players.filter(seat=>seat.id!==player.id&&!seat.eliminated).map(seat=>seat.id),table,read).length) {
+      add(2,'tourAction',{action:action.kind});
+    }
+    if(action.kind==='all-out' && currentHp(active,catalogue)>=3 && cards.length<=2) add(5,'tourAction',{action:action.kind});
+    if(action.kind==='pickup' || action.kind==='forecast')add(3,'tourAction',{action:action.kind});
+    if(action.kind==='handoff' && heldItemScore(player.reserve?.item,active)>heldItemScore(active.item,active)+2) add(4,'tourAction',{action:action.kind});
   }
   const ballTargets = targetOrder(legal.lightBallTargets).filter(id => isEnemy(id) && !publicSeats.get(id).active.status);
   const ballTarget = ballTargets.includes(leaderId) ? leaderId : ballTargets[0];
@@ -533,15 +744,32 @@ function play(room, player, catalogue, table, preferences, legal) {
 
 export function aiActions(room, player, catalogue, preferences) {
   if (room.status === 'identity') return [{ type: 'acknowledgeIdentity' }];
-  if (room.status === 'setup') return [player.candidateDeal.length ? { type: 'drawPokemon' } : choosePartners(player, catalogue)];
+  if (room.status === 'setup') return [player.candidateDeal.length ? { type: 'drawPokemon' } : choosePartners(room, player, catalogue)];
   const table = publicAiTable(room, catalogue);
+  const partner = rocketPartnerFor(room,player);
+  if (partner) {
+    const allySeat = table.find(seat=>seat.id===partner.id);
+    allySeat.role = 'rocket';
+    allySeat.rocketPartner = true;
+  }
+  if (player.role==='rocket' && room.settings?.rocketInfiltration && room.scenario?.viridian?.infiltrator?.choice==='rocket') {
+    const expected = room.settings.rocketPartners ? 3 : 2;
+    const others = table.filter(seat=>seat.id!==player.id);
+    const hidden = others.filter(seat=>!seat.role&&!seat.eliminated);
+    const unaccounted = expected-1-others.filter(seat=>seat.role==='rocket').length;
+    for (const seat of others) {
+      if (seat.role==='rocket' || (unaccounted===hidden.length && hidden.includes(seat))) {
+        seat.rocketPartner = true;
+      }
+    }
+  }
   if (room.pendingBattle) return [response(room, player, catalogue, table, preferences)].filter(Boolean);
   const legal = previewActions(room, player, catalogue);
   switch (room.turn.phase) {
     case 'draw': return legal?.canTrait && aiDifficulty(player) !== 'easy' ? [{ type: 'useTrait' }, { type: 'draw' }] : [{ type: 'draw' }];
     case 'play': return play(room, player, catalogue, table, preferences, legal);
     case 'discard': return [{ type: 'discard', cardId: cheapestFirst(player.hand)[0].id }];
-    case 'end': return [...(legal?.canTrait ? [{ type: 'useTrait' }] : []), { type: 'endTurn', levelUp: player.active.level < 3 }];
+    case 'end': return [...(legal?.tourActions?.some(action=>action.kind==='brock-care') ? [{type:'tourAction',action:'brock-care'}] : []),...(legal?.tourActions?.some(action=>action.kind==='train') && player.reserve?.level<player.active.level ? [{type:'tourAction',action:'train'}] : []),...(legal?.canTrait ? [{ type: 'useTrait' }] : []), { type: 'endTurn', levelUp: !player.raidBoss && !room.turn.tourLevelUsed && (room.turn.tourLevelTarget && room.turn.tourLevelTarget===player.reserve?.instanceId ? player.reserve.level<3 : player.active.level<3) }];
     default: return [];
   }
 }

@@ -18,7 +18,8 @@
  * Reserve statuses/traits are inactive; callers must not use reserves as sources.
  */
 
-import { isTeamRole, teamRoles } from '../public/match-mode.js';
+import { HOENN_PACK, TOUR_PACK } from '../public/expansion-content.js';
+import { matchTeamRoles, VIRIDIAN_GYM, viridianMinimum, VIRIDIAN_MAX } from '../public/match-mode.js';
 
 function integer(value, label, minimum = 0) {
   if (!Number.isSafeInteger(value) || value < minimum) throw new RangeError(`${label} must be an integer >= ${minimum}.`);
@@ -27,20 +28,40 @@ function integer(value, label, minimum = 0) {
 
 function injuries(creature) { return integer(creature.damage ?? 0, 'Damage'); }
 
+export function hasBattleHp(entry, face) {
+  return (face?.hpStatus === 'photo-reviewed' ||
+    (face?.hpStatus === 'homebrew' && [TOUR_PACK, HOENN_PACK].includes(entry?.expansionPack))) &&
+    Number.isSafeInteger(face.hp) && face.hp >= 1;
+}
 function reviewedFace(creature, catalogue) {
   const entry = catalogue?.entries?.find(row => row.id === creature.catalogueId);
   const face = entry?.levels?.find(row => row.level === creature.level);
-  if (face?.hpStatus !== 'photo-reviewed' || !Number.isSafeInteger(face.hp) || face.hp < 1) {
+  if (!hasBattleHp(entry, face)) {
     throw new Error(`No photo-reviewed HP for ${creature.catalogueId} level ${creature.level}.`);
   }
   return face;
 }
 
 // Photo 04 p.02: one leader/rocket, one gym from four players onward.
-export function roleDeck(count) {
+export function roleDeck(count, scenario, settings={}) {
+  if (scenario === VIRIDIAN_GYM) {
+    const minimum = viridianMinimum(settings);
+    integer(count, 'Player count', minimum);
+    if (count > VIRIDIAN_MAX) throw new RangeError(`Player count must be ${minimum}–${VIRIDIAN_MAX}.`);
+    const gymCount = count >= 7 ? 2 : 1;
+    const rocketCount = settings.rocketPartners ? 2 : 1;
+    const infiltration = settings.rocketInfiltration ? ['infiltrator'] : [];
+    const challengers = Array(count-gymCount-rocketCount-infiltration.length-1).fill('challenger');
+    return ['leader', ...Array(gymCount).fill('gym'), ...challengers, ...Array(rocketCount).fill('rocket'), ...infiltration];
+  }
   integer(count, 'Player count', 3);
   if (count > 6) throw new RangeError('Player count must be 3–6.');
   return ['leader', ...(count >= 4 ? ['gym'] : []), ...Array(count - (count >= 4 ? 3 : 2)).fill('challenger'), 'rocket'];
+}
+
+export function rocketPartnerFor(room, player) {
+  if (!room.settings?.rocketPartners || player.role!=='rocket' || !player.rocketAlias) return null;
+  return room.players.find(seat=>!seat.spectator && seat.id!==player.id && seat.role==='rocket' && seat.rocketAlias) ?? null;
 }
 
 export function maxHp(creature, catalogue) {
@@ -94,6 +115,8 @@ export function computeDamage(source, target, base, catalogue, { command = true,
     damage = Math.min(damage, 1);
   } else {
     damage += blazeBonus(source,catalogue,sourceTraits);
+    if (sourceTraits && ['tour-treecko', 'tour-totodile'].includes(source?.catalogueId) && channel === 'move' &&
+        currentHp(source,catalogue) * 2 <= maxHp(source,catalogue)) damage += 1;
     if (command && reinforcements) damage += powerBoost;
     if (guts && source.status) damage += 1;
   }
@@ -132,23 +155,34 @@ export function eligibleTargetIds(players, actorId, { ignoreDistance = false } =
   return [...new Set(allowed.filter(player => player.active && !player.active.defeated).map(player => player.id))];
 }
 
-export function evaluateVictory(players, matchMode) {
+export function evaluateVictory(players, matchMode, settings={}) {
+  const {rocketPartners=false,rocketInfiltration=false}=settings;
   const trainers = players.filter(player => !player.spectator);
   if (matchMode === 'teams') {
-    if (!trainers.every(player => isTeamRole(player.role)) || !teamRoles.every(role => trainers.some(player => player.role === role))) return null;
+    const roles=matchTeamRoles({...settings,matchMode});
+    if (!trainers.every(player => roles.includes(player.role)) || !roles.every(role => trainers.some(player => player.role === role))) return null;
     const livingRoles = new Set(trainers.filter(player => !player.eliminated).map(player => player.role));
     if (livingRoles.size !== 1) return null;
     const [winner] = livingRoles;
     return { winner, winnerIds: trainers.filter(player => player.role === winner).map(player => player.id) };
   }
   // Unassigned/setup and old foundation rooms have no source-backed role game.
-  if (trainers.some(player => !['leader', 'gym', 'challenger', 'rocket'].includes(player.role))) return null;
+  const roles = ['leader','gym','challenger','rocket'];
+  if (rocketInfiltration) roles.push('infiltrator');
+  if (trainers.some(player=>!roles.includes(player.role))) return null;
   const leader = trainers.find(player => player.role === 'leader');
   if (!leader) return null;
   const living = trainers.filter(player => !player.eliminated);
   let winner;
-  if (leader.eliminated) winner = living.length === 1 && living[0].role === 'rocket' ? 'rocket' : 'challengers';
-  else if (!living.some(player => player.role === 'challenger' || player.role === 'rocket')) winner = 'leader-team';
+  if (leader.eliminated) {
+    if (rocketInfiltration && living.length===1 && living[0].role==='infiltrator') {
+      return {winner:'infiltrator',winnerIds:[living[0].id]};
+    }
+    const rocketWins = rocketPartners || rocketInfiltration
+      ? living.length>0 && living.every(player=>player.role==='rocket')
+      : living.length===1 && living[0].role==='rocket';
+    winner = rocketWins ? 'rocket' : 'challengers';
+  } else if (living.every(player=>player.role==='leader'||player.role==='gym')) winner = 'leader-team';
   else return null;
   const winningRoles = winner === 'leader-team' ? ['leader', 'gym'] : winner === 'rocket' ? ['rocket'] : ['challenger'];
   return { winner, winnerIds: trainers.filter(player => winningRoles.includes(player.role)).map(player => player.id) };

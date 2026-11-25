@@ -1,4 +1,5 @@
 import * as THREE from '/vendor/three.module.js';
+import { fieldWeathers } from './expansion-content.js';
 import {moveRecipe,traitRecipe} from './battlefield-effect-recipes.js';
 
 const up = new THREE.Vector3(0,1,0);
@@ -34,7 +35,11 @@ const palettes = {
 };
 
 export function effectRecipe(cue) {
-  if (cue.kind==='attack' || cue.kind==='hit') return !cue.external && moveRecipe(cue.name?.en);
+  if (cue.kind==='attack' || cue.kind==='hit') {
+    if (cue.weatherBallForm === 'sand') return { ...moveRecipe('Rock Throw'), key:'weather-ball' };
+    if (cue.weatherBallForm) return { ...moveRecipe('Water Pulse'), key:'weather-ball', family:fieldWeathers[cue.weatherBallForm]?.moveFamily ?? 'steel' };
+    return !cue.external && moveRecipe(cue.name?.en);
+  }
   if (cue.kind==='ability') return traitRecipe(cue.name?.en);
 }
 
@@ -365,6 +370,7 @@ function travel(scene,recipe,source,target,textures) {
   const leechSeed = signature==='vines';
   const seed = leechSeed || signature==='seed';
   const ring = (form==='wave' || form==='drain') && !['pulse-orb','air-blades','venom-cloud','pollen','web'].includes(signature);
+  const hex = signature==='hex-rings';
   const sphere = ['bubbles','pulse-orb','sludge-glob','shadow-orb','dragon-orb','venom-cloud','pollen'].includes(signature);
   const geometry = signature==='coins' ? new THREE.CylinderGeometry(.24,.24,.055,18) :
     signature==='air-blades' ? new THREE.TorusGeometry(.45,.063,6,26,Math.PI*.75) :
@@ -407,11 +413,27 @@ function travel(scene,recipe,source,target,textures) {
       if (['coins','boomerang','fire-star','air-blades'].includes(signature)) shot.rotateZ(t*(signature==='coins'?24:12)+i);
       const expand = ring || signature==='web' ? .54+progress*1.03 : .74+.18*Math.sin(progress*Math.PI);
       shot.scale.setScalar(Math.max(.001,scale*strength*expand));
-      shot.material.opacity = strength*.96;
+      shot.material.opacity = strength*(hex?.70:.96);
+      if (hex) shot.rotateY(.18*Math.sin(progress*5+i));
       if (surface && !ring) {
         shot.material.uniforms.clock.value = t*1.5+i*.15;
         shot.material.uniforms.alpha.value = strength;
       }
+    }
+    for (const [i,wisp] of mist.entries()) {
+      const launch = .20+i*.024;
+      const age = clamp((t-launch)/(.62*rhythm),0,1);
+      wisp.material.opacity = smoothstep(age,0,.17)*fade(age,.42,1)*.47;
+      wisp.visible = wisp.material.opacity>0;
+      if (!wisp.visible) continue;
+      const swirl = i*2.399+age*3.4;
+      const drift = age*(.28+(i%3)*.12);
+      wisp.position.copy(start).lerp(end,smoothstep(age,0,.85));
+      wisp.position.addScaledVector(sideways,Math.sin(swirl)*drift);
+      wisp.position.y += Math.sin(age*Math.PI)*arc + age*(.28+.23*Math.cos(swirl));
+      const size = scale*(.38+age*.92);
+      wisp.scale.set(size,size*(.70+(i%3)*.13),1);
+      wisp.material.rotation = i*.82+age*.95;
     }
     for (const [i,{core,edge}] of arcs.entries()) {
       const age = t-i*(signature==='branching-bolts'?.044:.065);
@@ -435,6 +457,13 @@ function travel(scene,recipe,source,target,textures) {
       basic(color,{wireframe:signature==='web',...(signature==='bubbles'?{opacity:.65}: {})});
     return mesh(group,geometry,material);
   });
+  const mist = hex ? Array.from({length:9},(_,i)=>{
+    const sprite = new THREE.Sprite(new THREE.SpriteMaterial({
+      map:textures.flame,color:i%3===0 ? light : dark,transparent:true,depthWrite:false,toneMapped:false,
+    }));
+    group.add(sprite);
+    return sprite;
+  }) : [];
   if (bolt) geometry.dispose();
   const arcs = !bolt ? [] : Array.from({length:count},(_,i)=>{
     const origin = signature==='sky-strike' ? end.clone().add(new THREE.Vector3(.65*i,6.5,.28*i)) :
@@ -487,10 +516,10 @@ function localEffect(scene,recipe,source,target,textures,{hit=false,ability=fals
   const quake = form==='field' && family==='stone';
   const tide = signature==='surf' || signature==='cascade';
   const terrain = quake || tide;
-  const blades = ['claws','cross-cut','wing-arc','tail-wave','rapid-cuts','return-arc','chop'].includes(signature);
+  const blades = ['claws','cross-cut','wing-arc','tail-wave','rapid-cuts','return-arc','chop','sweeping-blades','dark-blades','shadow-claw'].includes(signature);
   const heavy = ['rush','slam','stomp','recoil-rush','counter','broken-stone','headbutt','punch','horn','great-horn'].includes(signature);
   const jaws = signature==='jaws' || signature==='dark-jaws';
-  const bodyBlows = ['palm','clap','flurry','kicks','jabs','bone-strikes'].includes(signature);
+  const bodyBlows = ['palm','clap','flurry','kicks','jabs','bone-strikes','play-rough'].includes(signature);
   const whirl = ['tornado','wind-spiral','venom-cloud','sludge-front','heat-front'].includes(signature);
   const cascade = signature==='cascade';
   const dew = signature==='dew';

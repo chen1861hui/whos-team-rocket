@@ -2,17 +2,24 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { battleCueSpacing, moveEffects, moveRecipe, moveReleaseDuration } from '../public/battlefield-effect-recipes.js';
+import { expansionPokemon, counterMoves } from '../public/expansion-content.js';
 import { recordedMoves } from '../public/game-audio.js';
 
 test('the playable catalogue has a presentation for every move and the audio manifest matches the bundled recordings', () => {
   const catalogue = JSON.parse(readFileSync(new URL('../content/catalogue.json', import.meta.url), 'utf8'));
   const names = new Set(catalogue.entries.filter(entry => entry.selectionEligible).flatMap(entry =>
     entry.levels.flatMap(level => level.moves.map(move => move.name.en))));
+  for (const id of ['hoenn-absol','hoenn-wobbuffet','hoenn-nincada','hoenn-shedinja','hoenn-zorua','hoenn-mimikyu']) {
+    const partner = expansionPokemon.find(pokemon=>pokemon.id===id);
+    for (const level of [1,2,3]) for (const move of partner.moves(level)) names.add(move.name.en);
+  }
+  for (const move of Object.values(counterMoves)) names.add(move.name.en);
   assert.deepEqual(new Set(moveEffects.map(move => move.name)), names);
   const signatures = [...names].map(name => moveRecipe(name).signature);
   assert.ok(signatures.every(Boolean));
   assert.equal(new Set(signatures).size, names.size);
-  assert.deepEqual(moveEffects.map(move => move.key).filter(key => !recordedMoves.includes(key)), ['life-dew']);
+  assert.deepEqual(new Set(moveEffects.map(move => move.key).filter(key => !recordedMoves.includes(key))),
+    new Set(['life-dew','slash','night-slash','struggle','counter','mirror-coat','safeguard','shadow-sneak','night-daze','shadow-claw','play-rough']));
   const audio = new URL('../public/audio/moves/', import.meta.url);
   assert.deepEqual(readdirSync(audio).filter(file=>file.endsWith('.mp3')).sort(), recordedMoves.map(key=>key+'.mp3').sort());
   for (const key of recordedMoves) assert.ok(readFileSync(new URL(key+'.mp3', audio)).length > 1024, key);

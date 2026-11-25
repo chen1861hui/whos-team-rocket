@@ -1,22 +1,29 @@
 // Supplied booklet pp.2–12 and reviewed-playcard-spec.md define these effects.
 // This is an explicitly labelled development scenario, not a retail deck manifest.
+import { TOUR_PACK, HOENN_PACK, hasPack, tourTools, hoennTools, tourItems, tourEvents, tourActionNames, showdownWeatherRank, hoennEvents, hoennDelayedEvents, hoennItems, fieldWeathers, labWeatherByPrint, futureSightEvent, airLockEvent, lightClay, powerHerb, emergencyRetreat, canCoordinateCommand, counterMoves, SHEDINJA_ID, MIMIKYU_ID } from '../public/expansion-content.js';
+import { trainerProfessions } from '../public/trainer-professions.js';
+import { moveRecipe } from '../public/battlefield-effect-recipes.js';
+import { pokemonTypes, sandstormAffects } from '../public/pokemon-types.js';
 import { randomUUID, randomInt } from 'node:crypto';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
 import { BASIC_DECK, playtestDeckPlan, makePlaytestCards } from './playtest-deck.js';
 import { partnerProfiles } from '../public/trainer-profiles.js';
-import { teamRoles, validTeamSize } from '../public/match-mode.js';
-import { roleDeck, maxHp, currentHp, heal, applyDamage, beginCommand, blazeBonus, computeDamage, capReceivingDamage, reinforcementEffective, eligibleTargetIds, evaluateVictory, ordinarySwitch } from './battle-rules.js';
+import { isTeamRole, teamRoles, validTeamScenarioSize, matchTeamRoles, isLakeRaid, isSilphControl, RADIO_TOWER, RADIO_GOAL, VIRIDIAN_GYM, validViridianSize, viridianMinimum, VIRIDIAN_MAX, VIRIDIAN_REVEAL_ROUND, INFILTRATOR_ROUND, openingGymAce } from '../public/match-mode.js';
+import { roleDeck, hasBattleHp, maxHp, currentHp, heal, applyDamage, beginCommand, blazeBonus, computeDamage, capReceivingDamage, reinforcementEffective, eligibleTargetIds, evaluateVictory, ordinarySwitch } from './battle-rules.js';
 
 export class BattleError extends Error {
   constructor(code, message, status = 409) { super(message); this.code = code; this.status = status; }
 }
 const requireRule = (condition, code, message) => { if (!condition) throw new BattleError(code, message); };
 export const isBattle = room => room.gameMode === 'combat-preview';
-export const battleSelectionIds = catalogue => catalogue.entries.filter(entry => entry.selectionEligible === true && [1,2,3].every(level => entry.levels?.some(face => face.level === level && face.hpStatus === 'photo-reviewed' && Number.isInteger(face.hp)))).map(entry => entry.id);
+export const battleSelectionIds = (catalogue, contentPack) => catalogue.entries.filter(entry => entry.selectionEligible === true &&
+  (!entry.expansionPack || hasPack(contentPack, entry.expansionPack)) && [1,2,3].every(level => entry.levels?.some(face =>
+    face.level === level && hasBattleHp(entry, face)))).map(entry => entry.id);
 const trainer = (room, id) => room.players.find(p => p.id === id);
 const live = room => room.players.filter(p => !p.spectator && !p.eliminated);
 const face = (pokemon, catalogue) => catalogue.entries.find(p => p.id === pokemon.catalogueId)?.levels.find(p => p.level === pokemon.level);
-const creature = (room, id) => room.players.flatMap(p => [p.active, p.reserve]).find(p => p?.instanceId === id);
+const creature = (room, id) => room.players.flatMap(p => [p.active, p.reserve]).find(p => p?.instanceId === id) ??
+  [room.resolution,...(room.resolutionStack ?? [])].find(resolution=>resolution?.raidSpentPhase?.instanceId===id)?.raidSpentPhase;
 // Suppression belongs to the trainer for the entire global turn, including reserves.
 export const battleTraitsEffective=(room,pokemon)=>Boolean(pokemon&&!pokemon.defeated&&!room?.turn?.suppressedTraitPlayerIds?.some(id=>{const owner=trainer(room,id);return [owner?.active,owner?.reserve].some(partner=>partner?.instanceId===pokemon.instanceId);}));
 // Named-event permission remains specific to the two printed Early Bird events.
@@ -49,11 +56,26 @@ export function revealBattleIdentity(room, player) {
   player.identityPublic = true;
   visualEvent(room,'identity-reveal',{targetIds:[player.id]});
 }
+function revealViridianLeader(room) {
+  const viridian = room.scenario?.viridian;
+  if (!viridian || viridian.leaderRevealed) return;
+  const leader = room.players.find(player => player.role === 'leader' && !player.spectator);
+  viridian.leaderRevealed = true;
+  revealBattleIdentity(room,leader);
+  note(room,`${leader.nickname}公开身份，是真馆主。`,`${leader.nickname} is revealed as the true Gym Leader.`);
+}
+export function startViridianRound(room) {
+  const viridian = room.scenario?.viridian;
+  if (!viridian) return;
+  viridian.round++;
+  if (viridian.round===INFILTRATOR_ROUND && room.settings.rocketInfiltration) room.turn.rocketPledgePending = true;
+  if (viridian.round===VIRIDIAN_REVEAL_ROUND) revealViridianLeader(room);
+}
 function moveVisual(room, targetId, telegraph = false) {
   const resolution = room.resolution;
   visualEvent(room,'attack',{
     sourceId:resolution.sourcePlayerId, targetIds:[targetId], family:resolution.sourceFamily,
-    name:resolution.moveName, effect:resolution.effectKind, ...(telegraph ? {telegraph:true} : {release:true}),
+    name:resolution.moveName, effect:resolution.effectKind, ...(resolution.weatherBallForm ? {weatherBallForm:resolution.weatherBallForm} : {}), ...(telegraph ? {telegraph:true} : {release:true}),
   });
 }
 function moveDodgeVisual(room, targetId) {
@@ -77,41 +99,86 @@ function shuffled(values) {
 export function setupBattle(room, catalogue) {
   const seats = room.players.filter(p => !p.spectator).toSorted((a,b)=>(a.seatNumber ?? 0)-(b.seatNumber ?? 0));
   const teams = room.settings.matchMode === 'teams';
-  const practiceDuel = !teams && seats.length === 2 && seats.filter(player => player.ai).length === 1;
-  if (teams) requireRule(validTeamSize(seats.length), 'INVALID_TEAM_SIZE', 'Team battles require an even number of trainers.');
-  requireRule((teams || practiceDuel || (seats.length >= 3 && seats.length <= 6)) && seats.every(p => p.ready),
-    'NOT_READY', teams ? 'All trainers must be ready.' : 'Start with 3–6 ready trainers, or one human and one AI for a practice duel.');
-  const pokemonPoolCount = battleSelectionIds(catalogue).length;
+  const viridian = !teams && room.settings.identityScenario === VIRIDIAN_GYM;
+  const practiceDuel = !teams && !viridian && seats.length === 2 && seats.filter(player => player.ai).length === 1;
+  const lake=isLakeRaid(room.settings), silph=isSilphControl(room.settings);
+  if (teams) requireRule(validTeamScenarioSize(seats.length,room.settings), 'INVALID_TEAM_SIZE',
+    lake ? 'Lake of Rage requires 2–6 challengers.' : silph ? 'Silph Co. requires 6 or 12 trainers.' :
+      'Team battles require an even number of trainers.');
+  if (viridian) requireRule(validViridianSize(seats.length,room.settings), 'INVALID_VIRIDIAN_SIZE',
+    `Viridian Gym requires ${viridianMinimum(room.settings)}–${VIRIDIAN_MAX} trainers for the selected rules.`);
+  requireRule((teams || viridian || practiceDuel || (seats.length >= 3 && seats.length <= 6)) && seats.every(p => p.ready),
+    'NOT_READY', teams || viridian ? 'All trainers must be ready.' : 'Start with 3–6 ready trainers, or one human and one AI for a practice duel.');
+  const pokemonPoolCount = battleSelectionIds(catalogue, room.settings.contentPack).length;
   requireRule(pokemonPoolCount >= (teams ? 5 : seats.length * 5), 'CONTENT_UNAVAILABLE', 'The Pokémon deck needs five unique groups per player.');
-  const deck = playtestDeckPlan(room.settings.deckProfile ?? BASIC_DECK, seats.length, catalogue);
+  const deck = playtestDeckPlan(room.settings.deckProfile ?? BASIC_DECK, seats.length, catalogue, room.settings.contentPack);
   requireRule(deck, 'CONTENT_UNAVAILABLE', 'The selected playtest deck requires all of its reviewed cards.');
-  const seatedTeams = teams ? seats.map((_, index) => teamRoles[index % teamRoles.length]) : null;
+  const publicRoles=matchTeamRoles(room.settings);
+  const seatedTeams = teams ? seats.map((_, index) => lake ? 'team-a' : publicRoles[index % publicRoles.length]) : null;
   const roles = teams && room.settings.teamAssignment !== 'random' ? seatedTeams
-    : shuffled(seatedTeams ?? (practiceDuel ? ['leader', 'rocket'] : roleDeck(seats.length)));
-  seats.forEach((p, index) => { p.role = roles[index]; p.eliminated = false; p.candidates = []; p.candidateDeal = []; p.identityAcknowledged = false; p.setupComplete = false; p.active = null; p.reserve = null; p.hand = []; p.exiledCards=[]; delete p.trainerAvatar; });
+    : shuffled(seatedTeams ?? (practiceDuel ? ['leader', 'rocket'] : roleDeck(seats.length,room.settings.identityScenario,room.settings)));
+  seats.forEach((p, index) => { p.role = roles[index]; p.eliminated = false; p.candidates = []; p.candidateDeal = []; p.identityAcknowledged = false; p.setupComplete = false; p.active = null; p.reserve = null; p.hand = []; p.exiledCards=[]; delete p.emergencyRetreatDebt; delete p.trainerAvatar; });
   for (const player of seats) {
     if (teams) player.identityPublic = true;
     else delete player.identityPublic;
+    delete player.rocketAlias;
+    delete player.profession; delete player.professionUsed; delete player.researcherJudged;
   }
+  if (viridian && room.settings.rocketPartners) {
+    const aliases = shuffled(['jessie','james']);
+    seats.filter(player=>player.role==='rocket').forEach((player,index)=>{ player.rocketAlias=aliases[index]; });
+  }
+  const gymSeats = viridian ? seats.filter(player=>player.role==='gym') : [];
+  const proxy = viridian ? gymSeats[randomInt(gymSeats.length)] : null;
+  if (proxy) proxy.identityPublic = true;
   room.trainerPoolSeed = randomInt(0x100000000);
-  const first = teams ? randomInt(seats.length) : seats.findIndex(p => p.role === 'leader');
-  room.players = [...seats.slice(first), ...seats.slice(0, first), ...room.players.filter(p => p.spectator)];
+  const first = teams ? randomInt(seats.length) : seats.findIndex(player=>proxy ? player.id===proxy.id : player.role==='leader');
+  const boss=lake ? {
+    id:randomUUID(),nickname:'Gyarados',seatNumber:7,raidBoss:true,ai:true,aiDifficulty:'normal',
+    spectator:false,ready:true,eliminated:false,identityAcknowledged:true,identityPublic:true,
+    role:'team-b',hand:[],candidates:[],candidateDeal:[],lastSeenAt:0,actions:{},
+    active:lakeBossPokemon(1,seats.length),reserve:null,setupComplete:true,
+  } : null;
+  room.players = [...seats.slice(first), ...seats.slice(0, first), ...(boss?[boss]:[]), ...room.players.filter(p => p.spectator)];
   delete room.judgment;delete room.resolutionStack;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries;
-  delete room.visualEvents;
+  delete room.fieldWeather; delete room.visualEvents; delete room.expansionTool; delete room.tourAfterSwitches; delete room.tourDefiantNext;
   room.gameMode = 'combat-preview'; room.result = null; room.pendingBattle = null; room.resolution = null; room.status = 'identity';
   const deckCopies = teams ? Math.ceil(seats.length * 5 / deck.cards.length) : 1;
   room.scenario = { name: 'reviewed-roster', developmentFixture: true, candidateCount: 5, pokemonPoolCount, potionSupported: true,
     ...(practiceDuel ? { practiceDuel } : {}), ...deck.summary };
+  if (proxy) {
+    room.scenario.viridian = {proxyId:proxy.id,round:0,leaderRevealed:false,clues:{},investigatorIds:[]};
+    if (room.settings.gymGuard) {
+      const guard = gymSeats.find(player=>player.id!==proxy.id) ?? proxy;
+      guard.identityPublic = true;
+      room.scenario.viridian.guard = {playerId:guard.id,used:false};
+      note(room,`${guard.nickname}担任公开的道馆护卫。`,`${guard.nickname} is the public Gym Guard.`);
+    }
+  }
+  if (room.settings.weatherLab && hasPack(room.settings.contentPack,HOENN_PACK)) {
+    room.scenario.weatherLab = {round:0,forecast:null};
+  }
+  if (teams && room.settings.teamScenario === RADIO_TOWER) {
+    room.scenario.radio = { goal: RADIO_GOAL, scores: Object.fromEntries(teamRoles.map(role=>[role,0])) };
+  }
+  if (boss) room.scenario.lake={bossId:boss.id,challengers:seats.length,phase:1,transmitter:true};
+  if (silph) room.scenario.silph={control:null};
   if (deckCopies > 1) Object.assign(room.scenario, { deckCopies, deckCardCount: deck.cards.length * deckCopies, extraCardCount: deck.summary.extraCardCount * deckCopies });
-  if (teams) note(room, '两队名单已公开；所有人确认后摸取宝可梦候选。', 'Teams are public. Confirm the lineup before drawing Pokémon candidates.');
+  if (lake) note(room,'挑战者协力迎战红色暴鲤龙。','The challengers face Red Gyarados together.');
+  else if (teams) note(room, '队伍名单已公开；所有人确认后摸取宝可梦候选。', 'Teams are public. Confirm the lineup before drawing Pokémon candidates.');
+  else if (proxy) note(room,`${proxy.nickname}是公开的代理馆主，将先行动。`,`${proxy.nickname} is the public Acting Gym Leader and will take the first turn.`);
   else note(room, '身份已分配；所有人查看身份后再摸取宝可梦候选。', 'Identities assigned; Pokémon candidates are dealt after everyone has viewed their identity.');
+}
+function lakeBossPokemon(phase, challengers) {
+  return {instanceId:randomUUID(),catalogueId:'magikarp',level:phase+1,revealed:true,
+    damage:0,status:null,reinforcements:[],hpBonus:challengers*2+(phase-1)*2,defeated:false,raidColor:'red'};
 }
 export function acknowledgeBattleIdentity(room, player, catalogue) {
   requireRule(!player.identityAcknowledged, 'IDENTITY_ALREADY_SEEN', 'Your identity is already acknowledged.');
   player.identityAcknowledged = true;
-  const seats = room.players.filter(p => !p.spectator);
+  const seats = room.players.filter(p => !p.spectator && !p.raidBoss);
   if (!seats.every(p => p.identityAcknowledged)) return;
-  const ids = battleSelectionIds(catalogue);
+  const ids = battleSelectionIds(catalogue, room.settings.contentPack);
   const refill = room.settings.matchMode === 'teams' && ids.length < seats.length * 5;
   room.pokemonDeck = dealPokemon(seats, ids, { refill });
   room.status = 'setup';
@@ -122,12 +189,13 @@ export function selectBattlePartners(room, player, activeId, reserveId, catalogu
   requireRule(!player.setupComplete && activeId !== reserveId && player.candidates.includes(activeId) && player.candidates.includes(reserveId), 'INVALID_SELECTION', 'Choose two different candidates.');
   requireRule(player.candidates.length === 5 && !(player.candidateDeal?.length), 'CANDIDATE_DRAW_INCOMPLETE', 'Draw all five Pokémon before choosing two.');
   const count = room.players.filter(p => !p.spectator).length;
-  const make = (id, level, revealed) => ({ instanceId: randomUUID(), catalogueId: id, level, revealed, damage: 0, status: null, reinforcements: [], hpBonus: player.role === 'leader' && count >= 5 ? 1 : 0, defeated: false });
-  player.active = make(activeId, player.role === 'leader' ? 2 : 1, true);
+  const ace = openingGymAce(room,player);
+  const make = (id, level, revealed) => ({ instanceId: randomUUID(), catalogueId: id, level, revealed, damage: 0, status: null, reinforcements: [], hpBonus: ace && count >= 5 ? 1 : 0, defeated: false });
+  player.active = make(activeId, ace ? 2 : 1, true);
   player.reserve = make(reserveId, 1, false); player.setupComplete = true;
   room.pokemonDeck.push(...player.candidates.filter(id => id !== activeId && id !== reserveId));
   if (!room.players.filter(p => !p.spectator).every(p => p.setupComplete)) return false;
-  const deck = playtestDeckPlan(room.scenario?.deckProfile ?? BASIC_DECK, count, catalogue);
+  const deck = playtestDeckPlan(room.scenario?.deckProfile ?? BASIC_DECK, count, catalogue, room.scenario?.contentPack);
   requireRule(deck, 'CONTENT_UNAVAILABLE', 'The selected playtest deck requires all of its reviewed cards.');
   const deckCopies = room.scenario?.deckCopies ?? 1;
   room.drawPile = shuffled(Array.from({ length: deckCopies }, () => makePlaytestCards(deck)).flat());
@@ -204,10 +272,26 @@ function revealJudgment(room,ctx,continuation,judgeId) {
     note(room,'当前没有可用的判定牌；没有判定结果，相关效果跳过。','No judgment card is available. There is no result, so the judgment effect is skipped.');
     return continueJudgment(room,ctx,continuation,null);
   }
+  const judge=trainer(room,judgeId);
+  if (judge?.profession==='researcher' && !judge.eliminated && !judge.researcherJudged) {
+    judge.researcherJudged=true;
+    if (judge.hand.length && room.drawPile.length+room.discardPile.length>=2) {
+      refillDrawPile(room,1);
+      const top=room.drawPile.at(-1);
+      const [zh,en]=printedWeatherNames[top.weather];
+      room.judgment={continuation,judgeId,forecastId:top.id};
+      tourDecision(room,judge,trainerProfessions.researcher.action,judge.hand.map(tourCardOption),{kind:'researcher-forecast'},ctx,true);
+      room.pendingBattle.privateDetail={
+        zh:`顶牌天气为${zh}。选一张手牌弃置可将顶牌置底，也可放弃。`,
+        en:`The top card is ${en}. Discard a hand card to put it on the bottom, or pass.`,
+      };
+      return;
+    }
+  }
   const card=topCard(room),seats=live(room),start=seats.findIndex(p=>p.id===room.turn.playerId);
   const ordered=[...seats.slice(start),...seats.slice(0,start)].filter(p=>p.active?.catalogueId==='vulpix'&&battleTraitsEffective(room,p.active));
   room.judgment={card,actorIds:ordered.map(p=>p.id),actorInstances:Object.fromEntries(ordered.map(p=>[p.id,p.active.instanceId])),index:0,continuation,judgeId};
-  const names={'intense-sun':['烈日','intense sun'],clear:['晴朗','clear'],rain:['暴雨','heavy rain'],thunderstorm:['雷雨','thunderstorm']}[card.weather];
+  const names=printedWeatherNames[card.weather];
   note(room,`判定展示一张牌，天气为${names[0]}；判定结果等待生效。`,`A judgment revealed ${names[1]}; its result is pending.`,
     {judgment:publicJudgmentFace(card)});
   advanceJudgment(room,ctx);
@@ -224,6 +308,7 @@ function advanceJudgment(room,ctx) {
     }
     judgment.index++;
   }
+  if (offerFutureSight(room, ctx)) return;
   const {card,continuation}=judgment;
   const gained=continuation.kind==='icicle-spear' && ['rain','thunderstorm'].includes(card.weather);
   if(gained)gainBattleCards(room,trainer(room,continuation.ownerId),[card],{reason:'judgment'});else room.discardPile.push(card);
@@ -231,7 +316,57 @@ function advanceJudgment(room,ctx) {
   note(room,gained?'冰锥获得最终的雨天判定牌。':'最终判定牌进入弃牌堆。',gained?'Icicle Spear obtained the final rainy judgment card.':'The final judgment card entered the discard pile.');
   continueJudgment(room,ctx,continuation,card.weather);
 }
+const isFutureSight = card => card.kind === 'event' && card.eventType === 'hoenn-future-sight';
+function offerFutureSight(room, ctx) {
+  const judgment = room.judgment;
+  if (judgment.futureSightUsed || !hasPack(room.settings.contentPack, HOENN_PACK) ||
+      room.drawPile.length + room.discardPile.length === 0) return false;
+  if (!judgment.futureSightOrder) {
+    const seats = live(room);
+    const start = Math.max(0, seats.findIndex(seat => seat.id === judgment.judgeId));
+    judgment.futureSightOrder = [...seats.slice(start), ...seats.slice(0, start)].map(seat => seat.id);
+    judgment.futureSightIndex = 0;
+  }
+  while (judgment.futureSightIndex < judgment.futureSightOrder.length) {
+    const player = trainer(room, judgment.futureSightOrder[judgment.futureSightIndex++]);
+    if (!player || player.eliminated) continue;
+    const events = player.hand.filter(card => isFutureSight(card) &&
+      player.hand.some(cost => cost.id !== card.id && cost.weather === judgment.card.weather));
+    if (!events.length) continue;
+    futureSightDecision(room, player, futureSightEvent.name, events, { kind:'future-sight-event' }, ctx);
+    return true;
+  }
+  return false;
+}
+function futureSightDecision(room, player, title, cards, continuation, ctx) {
+  tourDecision(room, player, title, cards.map(tourCardOption), continuation, ctx, true);
+  room.pendingBattle.targetId = room.judgment.judgeId;
+  room.pendingBattle.judgmentCard = publicJudgmentFace(room.judgment.card);
+}
 function continueJudgment(room,ctx,next,weather) {
+  if (next.kind === 'weather-lab') {
+    const research = room.scenario.weatherLab;
+    const forecast = research.forecast = labWeatherByPrint[weather] ?? null;
+    if (forecast) {
+      const {name} = fieldWeathers[forecast];
+      note(room,`天气研究所第 ${research.round} 轮预报为${name.zh}。`,
+        `Weather Institute forecast for round ${research.round} is ${name.en}.`);
+    } else {
+      note(room,`天气研究所第 ${research.round} 轮维持常态。`,
+        `Weather Institute forecast for round ${research.round} adds no field weather.`);
+    }
+    return continueBattleTurnStart(room,trainer(room,next.playerId),ctx);
+  }
+  if (next.kind === 'hoenn-delayed') {
+    if (room.resolution.eventType === 'hoenn-raikou' && weather === 'thunderstorm') {
+      return settleEventDamage(room, ctx, 1);
+    }
+    if (room.resolution.eventType === 'hoenn-roadblock' && weather && weather !== 'clear') {
+      room.turn.hoennRoadblocked = true;
+      note(room, '卡比兽堵住道路，本回合发起普通交替须额外弃一张手牌。', 'Snorlax blocks the road. An ordinary switch costs one extra hand card this turn.');
+    }
+    return finishResolution(room, ctx);
+  }
   if(next.kind==='zapdos') {
     const resolution=room.resolution,owner=activeOwner(room,next.targetId);
     if(weather==='thunderstorm'&&resolution?.kind==='event'&&resolution.eventType==='zapdos-punishment'&&owner&&owner.active.instanceId===resolution.targetCreatureId&&currentHp(owner.active,ctx.catalogue)>0)return settleEventDamage(room,ctx,owner.active.level);
@@ -292,8 +427,8 @@ function continueJudgment(room,ctx,next,weather) {
     }
     return afterDamage(room,ctx);
   }
-  if(next.kind==='sand-veil'||next.kind==='bright-powder') {
-    const name=next.kind==='sand-veil'?{zh:'沙隐',en:'Sand Veil'}:{zh:'光粉',en:'Bright Powder'};
+  if(next.kind==='sand-veil'||next.kind==='bright-powder'||next.kind==='tour-protect') {
+    const name=next.kind==='sand-veil'?{zh:'沙隐',en:'Sand Veil'}:next.kind==='tour-protect'?{zh:'守住学习器',en:'Protect TM'}:{zh:'光粉',en:'Bright Powder'};
     if(['intense-sun','clear'].includes(weather)) {
       if(next.kind==='sand-veil')abilityVisual(room,trainer(room,next.defense.actorId),ctx.catalogue);
       moveDodgeVisual(room,next.defense.actorId);
@@ -347,6 +482,7 @@ function decision(room, kind, actorId, targetId, ctx) {
 }
 export const handLimit=(room,player)=>room.turn?.noHandLimitIds?.includes(player.id)?Infinity:4;
 const heldItemDescriptions={
+  ...Object.fromEntries([...tourItems, ...hoennItems].map(item => [item.itemType, item.description])),
   'rocky-helmet':{zh:'出场宝可梦受到伤害后，对伤害来源造成1点伤害。',en:'After the active holder receives damage, it deals 1 damage to the source.'},
   leftovers:{zh:'你的回合结束时，出场宝可梦回复1点体力。',en:'At the end of your turn, the active holder recovers 1 HP.'},
   'poison-barb':{zh:'出场宝可梦受到伤害后，令伤害来源陷入中毒。',en:'After the active holder receives damage, the Pokémon that dealt it becomes Poisoned.'},
@@ -363,6 +499,13 @@ const reviewedItem=card=>card?.kind==='held-item'&&Object.hasOwn(heldItemDescrip
 const equipItems=player=>[...new Set(player.hand.filter(reviewedItem).map(card=>card.itemType))]
   .map(itemType=>({itemType,description:heldItemDescriptions[itemType]}));
 const publicItem=card=>card?{itemType:card.itemType,name:card.name,weather:card.weather}:null;
+function joyItemSlots(room,player,targetId) {
+  if (player.profession!=='joy' || player.professionUsed || (rescueOwnerOnly(room) && targetId!==player.id)) return [];
+  return ['active','reserve'].filter(slot=>{
+    const pokemon=player[slot];
+    return pokemon && !pokemon.defeated && (slot==='active'||pokemon.revealed) && reviewedItem(pokemon.item);
+  });
+}
 function itemEffective(room,pokemon) {
   return pokemon?.item?.kind==='held-item'&&![room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.suppressedItemIds?.includes(pokemon.instanceId));
 }
@@ -375,11 +518,21 @@ export function endBattleTurn(room,player,ctx) {
   if(player.eliminated||!pokemon||pokemon.defeated||currentHp(pokemon,ctx.catalogue)<=0)return;
   if(pokemon.catalogueId==='magikarp'&&pokemon.level===1&&battleTraitsEffective(room,pokemon)) abilityVisual(room,player,ctx.catalogue);
   const gluttony=gluttonyReplacesItem(room,pokemon);
-  if(!(gluttony||activeItemIs(room,pokemon,'leftovers'))||!heal(pokemon,1,ctx.catalogue).healed)return;
-  if(gluttony) {
-    abilityVisual(room,player,ctx.catalogue);
-    note(room,'贪吃鬼将持有物效果改为回合结束时回复1点体力。','Gluttony replaced the held-item effect and healed 1 HP at this trainer’s turn end.');
-  } else note(room,'吃剩的东西使携带者回复1点体力。','Leftovers restored 1 HP to the holder.');
+  if ((gluttony||activeItemIs(room,pokemon,'leftovers')) && heal(pokemon,1,ctx.catalogue).healed) {
+    if (gluttony) {
+      abilityVisual(room,player,ctx.catalogue);
+      note(room,'贪吃鬼将持有物效果改为回合结束时回复1点体力。','Gluttony replaced the held-item effect and healed 1 HP at this trainer’s turn end.');
+    } else note(room,'吃剩的东西使携带者回复1点体力。','Leftovers restored 1 HP to the holder.');
+  }
+  if (room.turn.tourNightObservation && room.drawPile.length + room.discardPile.length > 0) {
+    drawBattleCards(room,player,1,'night-observation');
+    note(room,'夜间观察使本回合的训练家摸了一张牌。','Night Observation let the current trainer draw one card.');
+  }
+  if (activeFieldWeather(room)?.kind === 'sand' && sandstormAffects(pokemon) && !damageImmune(room,pokemon)) {
+    room.resolution = { kind:'turn-end', environment:'sand', targetCreatureId:pokemon.instanceId,
+      sourceId:null, sourcePlayerId:null, damagedIds:[], defenseIds:[], actualDamage:0 };
+    return settleDealtDamage(room,ctx,1);
+  }
 }
 export function equipBattleItem(room,player,input,ctx) {
   requireRule(previewActions(room,player,ctx.catalogue)?.canEquip,'ITEM_UNAVAILABLE','A reviewed held item cannot be equipped now.');
@@ -429,6 +582,14 @@ function runReceivingEffect(room,effect,ctx) {
   const owner=room.players.find(p=>p.active?.instanceId===target?.instanceId&&!p.eliminated),sourceOwner=source?activeOwner(room,source.instanceId):null;
   if(!owner||target.defeated)return continueReceiving(room,ctx);
   if(!['rocky-helmet','poison-barb'].includes(effect)&&!battleTraitsEffective(room,target))return continueReceiving(room,ctx);
+  if (effect==='wobbuffet-counter') {
+    const response = wobbuffetResponse(room,owner,ctx.catalogue);
+    if (response) {
+      return tourDecision(room,owner,response.move.name,response.cards.map(tourCardOption),
+        {kind:'wobbuffet-counter',sourceId:response.source.active.instanceId},ctx,true);
+    }
+    return continueReceiving(room,ctx);
+  }
   if(effect==='water-absorb')return startJudgment(room,ctx,{kind:'water-absorb',pokemonId:target.instanceId},owner.id);
   if(effect==='battle-armor'&&owner.hand.length) {
     decision(room,'battle-armor',owner.id,owner.id,ctx);return;
@@ -478,8 +639,13 @@ function cleanResolution(room,resolution) {
   if(resolution.revealedCards?.length){room.discardPile.push(...resolution.revealedCards);delete resolution.revealedCards;}
   if(resolution.distributionCards?.length){room.drawPile.push(...[...resolution.distributionCards].reverse());delete resolution.distributionCards;}
   for(const id of new Set(resolution.defenseIds||[])) {
-    const pokemon=creature(room,id);if(pokemon)pokemon.reinforcements=(pokemon.reinforcements||[]).filter(kind=>kind!=='defense');
+    const pokemon=creature(room,id);
+    if (pokemon && !resolution.retainedDefenseIds?.includes(id)) clearDefense(pokemon);
   }
+}
+function clearDefense(pokemon) {
+  pokemon.reinforcements = (pokemon.reinforcements || []).filter(kind => kind !== 'defense');
+  delete pokemon.hoennClayDefense;
 }
 
 function canSandVeil(room,player) {
@@ -497,14 +663,41 @@ function switchStillValid(room,event,ctx) {
 function resumeBattleEntry(room,ctx,next) {
   if(next.kind==='turn')return beginBattleTurn(room,trainer(room,next.playerId),ctx);
   if(next.kind==='damage')return afterDamage(room,ctx);
+  if(['tour-post','emergency-retreat'].includes(next.switchKind))return advanceTourSwitches(room,ctx);
+  if(next.switchKind==='ordinary')finishTourTool(room);
   if(next.switchKind==='u-turn')return finishResolution(room,ctx);
   if(next.switchKind!=='ordinary')return nextSettlement(room,ctx);
 }
+function beginIllusion(room,player,catalogue) {
+  const {active,reserve}=player;
+  if (active.catalogueId!=='hoenn-zorua' || !hasPack(room.settings.contentPack,HOENN_PACK) ||
+      !battleTraitsEffective(room,active) || !reserve || reserve.defeated || currentHp(reserve,catalogue)<=0) return;
+  active.hoennIllusion={catalogueId:reserve.catalogueId,level:reserve.level,
+    ...(reserve.catalogueId===MIMIKYU_ID && reserve.disguiseSpent ? {disguiseSpent:true} : {})};
+}
+function revealIllusion(room,player,ctx,showCue=true) {
+  if (!player?.active?.hoennIllusion) return;
+  delete player.active.hoennIllusion;
+  if(showCue)abilityVisual(room,player,ctx.catalogue,{effect:'illusion'});
+  note(room,'幻觉解除，出战搭档现出真身。','Illusion ended and revealed the active Pokémon.');
+}
 function beginBattleEntries(room,players,ctx,next) {
   requireRule(!room.entryEvent,'ENTRY_PENDING','Finish the current entry effect first.');
-  for (const player of players) player.trainerAvatar = publicPartnerTrainerAvatar(player);
+  for (const player of players) {
+    beginIllusion(room,player,ctx.catalogue);
+    player.trainerAvatar = publicPartnerTrainerAvatar(player);
+  }
   room.entryEvent={actorIds:players.map(player=>player.id),actorInstances:Object.fromEntries(players.map(player=>[player.id,player.active.instanceId])),index:0,next};
   return advanceBattleEntries(room,ctx);
+}
+function bugPrizeCards(room, player, catalogue) {
+  if (player.profession!=='bugcatcher' || player.professionUsed ||
+      !pokemonTypes(player.active.catalogueId,player.active.level).includes('bug')) return [];
+  const moves=face(player.active,catalogue)?.moves ?? [];
+  const commandOnly=moves.length>0 && moves.every(move=>move.condition?.kind==='command');
+  const eligible=commandOnly ? player.hand.filter(card=>card.kind==='command').map(card=>card.weather) :
+    moves.flatMap(move=>move.condition?.weatherIconsInCondition ?? []);
+  return room.discardPile.filter(card=>card.kind==='tool' && eligible.includes(card.weather));
 }
 function advanceBattleEntries(room,ctx) {
   const event=room.entryEvent;
@@ -513,6 +706,12 @@ function advanceBattleEntries(room,ctx) {
     const targets=live(room).filter(player=>player.hand.length).map(player=>player.id);
     if(actor&&!actor.eliminated&&actor.active?.instanceId===event.actorInstances[actor.id]&&actor.active.catalogueId==='tauros'&&battleTraitsEffective(room,actor.active)&&currentHp(actor.active,ctx.catalogue)>0&&targets.length) {
       decision(room,'intimidate',actor.id,actor.id,ctx);room.pendingBattle.legalTargetIds=targets;return;
+    }
+    const prizes=actor && !actor.eliminated && actor.active?.instanceId===event.actorInstances[actor.id] &&
+      !actor.active.defeated && currentHp(actor.active,ctx.catalogue)>0 ? bugPrizeCards(room,actor,ctx.catalogue) : [];
+    if (prizes.length) {
+      return tourDecision(room,actor,trainerProfessions.bugcatcher.action,prizes.map(tourCardOption),
+        {kind:'bug-prize',activeId:actor.active.instanceId},ctx,true);
     }
     event.index++;
   }
@@ -524,11 +723,32 @@ function finishBattleSwitch(room,ctx,success) {
   const valid=switchStillValid(room,event,ctx);
   delete room.switchEvent;room.pendingBattle=null;
   if(success&&valid) {
+    const outgoing = player.active;
+    revealIllusion(room,player,ctx,false);
+    delete outgoing.illusionDecoyId;
+    const relay = event.kind==='ordinary' && outgoing.catalogueId==='tour-eevee' && battleTraitsEffective(room,outgoing) && outgoing.reinforcements.includes('speed');
     ordinarySwitch(player,ctx.catalogue);player.reserve.revealed=true;
-    if(event.kind==='ordinary')room.turn.switchUsed=true;
+    delete outgoing.hoennClayDefense;
+    if(relay && !player.active.reinforcements.includes('speed')) player.active.reinforcements.push('speed');
+    if(event.kind==='ordinary' && tourEnabled(room)) {
+      room.turn.tourHandoff={activeId:player.active.instanceId,reserveId:player.reserve.instanceId};
+      if(room.expansionTool?.effect==='tour-switch') heal(player.reserve,1,ctx.catalogue);
+      if(player.active.catalogueId==='tour-togepi'&&battleTraitsEffective(room,player.active)&&!room.turn.tourWelcome){heal(player.reserve,1,ctx.catalogue);room.turn.tourWelcome=true;}
+    }
+    if(event.kind==='ordinary') {
+      room.turn.switchUsed=true;
+      if(player.profession==='brock') room.turn.brockOrdinarySwitch=true;
+      if(player.profession==='birdkeeper') room.turn.birdOrdinaryEntry=player.active.instanceId;
+    }
+    if(event.kind==='emergency-retreat') {
+      player.emergencyRetreatDebt = true;
+      note(room,'紧急撤退成功，占用该训练家下回合的普通交替。','Emergency Retreat used this trainer’s ordinary switch for their next turn.');
+    }
     note(room,'出战与备战宝可梦已交替。','The active and reserve Pokémon switched.');
     return beginBattleEntries(room,[player],ctx,{kind:'switch',switchKind:event.kind});
   }else note(room,'本次交替未完成，已经支付的费用不退还。','The switch did not complete; any cards already paid remain discarded.');
+  if(['tour-post','emergency-retreat'].includes(event.kind))return advanceTourSwitches(room,ctx);
+  if(event.kind==='ordinary')finishTourTool(room);
   if(event.kind==='u-turn')return finishResolution(room,ctx);
   if(event.kind!=='ordinary')return nextSettlement(room,ctx);
 }
@@ -545,6 +765,15 @@ function advanceBattleSwitch(room,ctx) {
   finishBattleSwitch(room,ctx,true);
 }
 export function requestBattleSwitch(room,player,kind,ctx) {
+  if (kind === 'ordinary' && room.turn.hoennRoadblocked) {
+    requireRule(player.hand.length > 0, 'SWITCH_UNAVAILABLE', 'Snorlax Roadblock requires a hand card.');
+    return tourDecision(room, player,
+      { zh: '卡比兽堵路 · 弃一张手牌再交替', en: 'Snorlax Roadblock · discard one card to switch' },
+      player.hand.map(tourCardOption), { kind:'roadblock-switch' }, ctx, true);
+  }
+  return beginBattleSwitch(room, player, kind, ctx);
+}
+function beginBattleSwitch(room,player,kind,ctx) {
   requireRule(!room.switchEvent,'SWITCH_PENDING','Finish the current switch first.');
   const start=Math.max(0,room.players.findIndex(p=>p.id===room.turn.playerId));
   // Speed removes card/move distance only; Arena Trap uses passive base adjacency.
@@ -679,6 +908,15 @@ export function publicBattleDecision(room,self) {
   if(!room.pendingBattle)return null;
   const pending=structuredClone(room.pendingBattle);
   delete pending.targetCreatureId;
+  if (pending.kind === 'expansion') {
+    if (pending.actorId !== self.id) {
+      if (pending.continuation?.kind === 'illusion-decoy') pending.title={zh:'训练家正在选择',en:'Trainer is choosing'};
+      delete pending.options;
+    }
+    if (pending.actorId === self.id && pending.privateDetail) pending.detail=pending.privateDetail;
+    delete pending.privateDetail;
+    delete pending.continuation;
+  }
   if(pending.kind==='defense'&&room.resolution?.effectKind==='swords-dance')pending.moveEffect='swords-dance';
   const resolution = [room.resolution, ...(room.resolutionStack || []).toReversed()]
     .find(item => item?.targetIds?.length);
@@ -695,7 +933,7 @@ export function publicBattleDecision(room,self) {
     if(pending.actorId===self.id)pending.commandCards=self.hand.filter(sunnyCommand).map(({id,name,weather})=>({id,name,weather}));
     else delete pending.moves;
   }
-  if(pending.kind==='blunder-policy'&&pending.actorId===self.id)pending.paymentCards=self.hand.map(({id,name,kind,weather})=>({id,name,kind,weather}));
+  if(['blunder-policy','power-herb'].includes(pending.kind)&&pending.actorId===self.id)pending.paymentCards=self.hand.map(({id,name,kind,weather})=>({id,name,kind,weather}));
   if(pending.kind==='rescue') {
     const restricted=rescueOwnerOnly(room);
     pending.canUsePotion=!restricted||pending.actorId===pending.targetId;
@@ -704,6 +942,8 @@ export function publicBattleDecision(room,self) {
       const stub=({id,name,weather,kind})=>({id,name,weather,kind});
       pending.potionCards=pending.canUsePotion?self.hand.filter(isPotionCard).map(stub):[];
       pending.healerCards=pending.canUsePotion&&hasHealer(room,self)?self.hand.filter(card=>['intense-sun','clear'].includes(card.weather)).map(stub):[];
+      const joySlots=joyItemSlots(room,self,pending.targetId);
+      if (joySlots.length) pending.joyItems=joySlots.map(slot=>({...stub(self[slot].item),slot}));
     }
   }
   if(['battle-armor','bonemerang','neutralizing-gas','pressure','pressure-payment'].includes(pending.kind)&&pending.actorId===self.id)pending.paymentCards=self.hand.map(({id,name,weather,kind})=>({id,name,weather,kind}));
@@ -769,8 +1009,62 @@ function charmTargets(room,owner,ctx) {
   const resolution=room.resolution,index=resolution.targetingIndex;
   return eligibleTargetIds(room.players,owner.id).filter(id=>id!==owner.id&&id!==resolution.sourcePlayerId&&!resolution.targetIds.some((target,i)=>i!==index&&target===id)&&face(trainer(room,id).active,ctx.catalogue)?.effectStatus==='combat-preview');
 }
+function followMeCandidates(room, ctx) {
+  const resolution = room.resolution;
+  if (!resolution.followMeRange?.length || resolution.followMeAccepted || resolution.targetIds.length!==1) return [];
+  const target = trainer(room,resolution.targetIds[0]);
+  const source = trainer(room,resolution.sourcePlayerId);
+  if (!isTeamRole(target?.role) || source?.role===target.role || target.eliminated ||
+      !target.active || target.active.defeated || currentHp(target.active,ctx.catalogue)<=0) return [];
+  const seats = live(room), anchor = seats.indexOf(target);
+  return [...seats.slice(anchor+1),...seats.slice(0,anchor)].filter(player =>
+    player.role===target.role && player.id!==source.id && player.hand.length &&
+    resolution.followMeRange.includes(player.id) && player.active && !player.active.defeated &&
+    currentHp(player.active,ctx.catalogue)>0 && face(player.active,ctx.catalogue)?.effectStatus==='combat-preview');
+}
+function offerFollowMe(room, ctx) {
+  const resolution = room.resolution;
+  const cover = followMeCandidates(room,ctx).find(player=>!resolution.followMeAsked?.includes(player.id));
+  if (!cover) return false;
+  const ally = trainer(room,resolution.targetIds[0]);
+  (resolution.followMeAsked ??= []).push(cover.id);
+  tourDecision(room,cover,tourActionNames['follow-me'],cover.hand.map(tourCardOption),
+    {kind:'follow-me', targetInstance:ally.active.instanceId, coverInstance:cover.active.instanceId},ctx,true);
+  Object.assign(room.pendingBattle,{targetId:ally.id, detail:{
+    zh:`弃置一张手牌，替 ${ally.nickname} 承接${resolution.moveName.zh}。`,
+    en:`Discard one card to take ${resolution.moveName.en} for ${ally.nickname}.`,
+  }});
+  return true;
+}
+const gymGuardName = {zh:'道馆护卫',en:'Gym Guard'};
+function gymGuardForMove(room, ctx) {
+  const resolution = room.resolution, viridian = room.scenario?.viridian, guard = viridian?.guard;
+  if (!guard || guard.used || !viridian.leaderRevealed || resolution.targetIds.length!==1 ||
+      !resolution.gymGuardRange?.includes(guard.playerId) || resolution.sourcePlayerId===guard.playerId) return null;
+  const leader = trainer(room,resolution.targetIds[0]);
+  const protector = trainer(room,guard.playerId);
+  if (leader?.role!=='leader' || !leader.identityPublic || ![leader,protector].every(player=>
+    player?.active && !player.eliminated && !player.active.defeated && currentHp(player.active,ctx.catalogue)>0)) return null;
+  return {leader,protector};
+}
+function offerGymGuard(room, ctx) {
+  const resolution = room.resolution;
+  if (resolution.gymGuardAsked) return false;
+  const assignment = gymGuardForMove(room,ctx);
+  if (!assignment) return false;
+  const {leader,protector} = assignment;
+  resolution.gymGuardAsked = true;
+  tourDecision(room,protector,gymGuardName,[{value:'guard',label:{zh:'承接招式',en:'Intercept move'}}],
+    {kind:'gym-guard',leaderInstance:leader.active.instanceId,guardInstance:protector.active.instanceId},ctx,true);
+  Object.assign(room.pendingBattle,{targetId:leader.id,detail:{
+    zh:`代替 ${leader.nickname} 承接${resolution.moveName.zh}，每局限一次。`,
+    en:`Take ${resolution.moveName.en} for ${leader.nickname}. Once per match.`,
+  }});
+  return true;
+}
 function finishTargetAssignment(room,ctx) {
   delete room.resolution.targetingIndex;delete room.resolution.charmSeenIds;
+  if (offerGymGuard(room,ctx) || offerFollowMe(room,ctx)) return;
   if(!room.resolution.statusMove&&!room.resolution.pressureDone)return advancePressure(room,ctx);
   if(room.resolution.sourceFamily==='slowpoke'&&room.resolution.sourceLevel===3) {
     decision(room,'foresee',room.resolution.sourcePlayerId,room.resolution.sourcePlayerId,ctx);Object.assign(room.pendingBattle,{trait:'future-sight',canTrait:true});return;
@@ -871,12 +1165,18 @@ function openDefense(room, ctx) {
   }
   delete resolution.incomingDamage;delete resolution.modifierState;
   resolution.sourceAfterDone=false; resolution.sourceItemAfterDone=false; resolution.staticDone=false; delete resolution.receivingEffects;delete resolution.helmetCardId; resolution.actualDamage=0; delete resolution.handChoiceIds;delete resolution.lifeOrbRecoil;
+  if (resolution.baseDamage>0 && !resolution.statusMove && wonderGuardBlocks(room,target.active,resolution)) {
+    abilityVisual(room,target,ctx.catalogue);
+    note(room,'神奇守护挡下了这次招式。','Wonder Guard blocked this move.');
+    return nextSettlement(room,ctx);
+  }
   decision(room, 'defense', target.id, target.id, ctx);
   room.pendingBattle.cannotDodge=Boolean(resolution.ignoresReinforcements);
   if(room.turn.dodgeBlockedCreatureIds?.includes(target.active.instanceId)){room.pendingBattle.cannotDodge=true;room.pendingBattle.dodgeBlockedBy='lock-on';}
   if(resolution.dodgesRequired===2){room.pendingBattle.dodgesRequired=2;room.pendingBattle.dodgesPlayed=0;}
   room.pendingBattle.canTrait=!room.pendingBattle.cannotDodge && canSandVeil(room,target) && room.drawPile.length+room.discardPile.length>0;
   if(!room.pendingBattle.cannotDodge&&activeItemIs(room,target.active,'bright-powder')&&room.drawPile.length+room.discardPile.length>0)room.pendingBattle.canBrightPowder=true;
+  if (!room.pendingBattle.cannotDodge && activeItemIs(room,target.active,'tour-protect') && !room.turn.tourProtectUsed?.includes(target.active.instanceId) && room.drawPile.length+room.discardPile.length>0) room.pendingBattle.canTourProtect=true;
   if(room.pendingBattle.canTrait)room.pendingBattle.trait='sand-veil';
   if(resolution.sourceFamily==='caterpie'&&resolution.sourceLevel===3&&battleTraitsEffective(room,creature(room,resolution.sourceId))&&resolution.sourcePlayerId!==target.id) {
     room.pendingBattle.blockedDodgeWeathers=['intense-sun'];
@@ -891,19 +1191,31 @@ function reduceMoveDamage(room,targetId) {
   room.resolution.dodgeReductions??={};
   return room.resolution.dodgeReductions[targetId]=(room.resolution.dodgeReductions[targetId]||0)+1;
 }
-function cancelMoveWithDodge(room,ctx) {
+function cancelMoveWithDodge(room,ctx,card=null) {
   const resolution=room.resolution;
   const source=activeOwner(room,resolution.sourceId),target=activeOwner(room,resolution.targetCreatureId);
-  if(resolution.kind==='move'&&source?.hand.length>=2&&target&&activeItemIs(room,source.active,'blunder-policy')) {
-    resolution.blunderPolicyItemId=source.active.item.id;
-    decision(room,'blunder-policy',source.id,target.id,ctx);
-    return;
+  if (resolution.kind === 'move' && target && hasPack(room.settings.contentPack,HOENN_PACK) &&
+      card?.variant === emergencyRetreat.variant && !target.emergencyRetreatDebt) queueEmergencyRetreat(resolution,target);
+  if (resolution.kind === 'move' && source?.hand.length >= 2 && target) {
+    const policy = activeItemIs(room,source.active,'blunder-policy');
+    const herb = hasPack(room.settings.contentPack,HOENN_PACK) && activeItemIs(room,source.active,powerHerb.itemType) &&
+      resolution.baseDamage > 0 && resolution.targetIds.length === 1 && !resolution.statusMove &&
+      resolution.effectKind !== 'bonemerang' && (resolution.settlementCount ?? 1) === 1 &&
+      !damageImmune(room,target.active);
+    if (policy || herb) {
+      const kind = policy ? 'blunder-policy' : powerHerb.itemType;
+      resolution.dodgePaymentItemId=source.active.item.id;
+      decision(room,kind,source.id,target.id,ctx);
+      return;
+    }
   }
   return nextSettlement(room,ctx);
 }
 const hasSniper=(room,player)=>!player.spectator&&!player.eliminated&&player.active?.catalogueId==='weedle'&&player.active.level===3&&battleTraitsEffective(room,player.active);
 export const cardDistanceIgnored=(room,player)=>room.turn?.cardRangePlayerId===player.id||Boolean(room.turn?.rangeCreatureId&&[player.active,player.reserve].some(pokemon=>pokemon?.instanceId===room.turn.rangeCreatureId))||hasSniper(room,player)||activeItemIs(room,player.active,'quick-claw');
-const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen','lock-on','discard-other-hand','life-dew']);
+const sandObservationMoves = new Set(['Mud-Slap','Bulldoze','Earthquake','Bone Rush','Bonemerang',
+  'Rock Throw','Rock Slide','Stone Edge','Headlong Rush']);
+const weatherMoveEffects=new Set(['burn-judgment','temporary-hand-exile','self-defense','paralysis-judgment','forced-switch','sleep-judgment','swords-dance','light-screen','lock-on','discard-other-hand','life-dew','moonlight','u-turn','hoenn-weather-ball']);
 const isPotionCard=card=>card?.kind==='tool'&&['potion-full-heal','potion-revive'].includes(card.toolType);
 const rescueOwnerOnly=room=>[room.resolution,...(room.resolutionStack||[])].some(resolution=>resolution?.effectKind==='fainting-owner-potion-only');
 // A fainting active still has its trait until formal defeat; reserves do not.
@@ -919,7 +1231,12 @@ function reinforcementChoice(effect) {
 }
 // One physical split card supplies two alternatives; only one executes. These
 // readable tool faces impose no distance restriction (booklet p07 is conditional).
+const printedWeatherNames = {
+  'intense-sun':['烈日','intense sun'], clear:['晴朗','clear'], rain:['暴雨','heavy rain'], thunderstorm:['雷雨','thunderstorm'],
+};
 const splitTools=[
+  ...tourTools,
+  ...hoennTools,
   {toolType:'potion-full-heal',choices:[
     potionChoice,
     {effect:'full-heal',name:{zh:'万灵药',en:'Full Heal'},description:{zh:'在你的出牌阶段，对一只处于特殊状态的出战或备战宝可梦使用，恢复其特殊状态。',en:'During your Play phase, cure one active or reserve Pokémon’s special status.'}},
@@ -932,7 +1249,17 @@ const splitTools=[
   {toolType:'defense-speed',choices:['defense','speed'].map(reinforcementChoice)},
   {toolType:'power-speed',choices:['power','speed'].map(reinforcementChoice)},
 ];
-function toolTargets(room,player,catalogue,effect) {
+function toolTargets(room,player,catalogue,effect,card) {
+  if (effect.startsWith('tour-')) return tourEnabled(room) ? tourToolTargets(room,player,catalogue,effect,card) : [];
+  if (effect === 'hoenn-lum' || effect === 'hoenn-umbrella') {
+    if (!hasPack(room.settings?.contentPack, HOENN_PACK)) return [];
+    const slots = effect === 'hoenn-lum' ? ['reserve'] : ['active','reserve'];
+    return slots.filter(slot => {
+      const pokemon = player[slot];
+      return pokemon && !pokemon.defeated && currentHp(pokemon,catalogue)>0 &&
+        (effect === 'hoenn-lum' ? pokemon.status : !pokemon.hoennUmbrella);
+    }).map(slot => ({targetId:player.id,slot}));
+  }
   if(effect==='nugget')return live(room).map(owner=>({targetId:owner.id}));
   if(Object.hasOwn(reinforcementNames,effect))return live(room)
     .filter(({active})=>active&&!active.defeated&&currentHp(active,catalogue)>0&&!active.reinforcements?.includes(effect))
@@ -950,10 +1277,19 @@ function toolTargets(room,player,catalogue,effect) {
   }));
 }
 function toolActions(room,player,catalogue,own) {
-  return splitTools.filter(tool=>player.hand.some(card=>card.kind==='tool'&&card.toolType===tool.toolType)).map(tool=>({toolType:tool.toolType,choices:tool.choices.map(choice=>({...choice,targets:own?toolTargets(room,player,catalogue,choice.effect):[]}))}));
+  return splitTools.flatMap(tool=>{
+    const held=player.hand.filter(card=>card.kind==='tool'&&card.toolType===tool.toolType);
+    const expansion=Boolean(tool.weather);
+    return (expansion?held:held.slice(0,1)).map(card=>({
+      toolType:tool.toolType,...(expansion?{cardId:card.id}:{}),
+      choices:tool.choices.map(choice=>({...choice,targets:own?toolTargets(room,player,catalogue,choice.effect,card):[]})),
+    }));
+  });
 }
 // Ordinary Play events from the reviewed card faces. Articuno uses its own reaction window.
 const reviewedEvents={
+  ...tourEvents,
+  ...hoennEvents,
   'rival-challenge':{targeting:'single',name:{zh:'劲敌的挑战',en:'Rival’s Challenge'},description:{zh:'选择另一名训练家，从目标开始轮流打出「接招吧！」。最后打出的一方由出战宝可梦对另一方造成2点基础伤害。若目标一开始就放弃，则由发起者的出战宝可梦造成这次伤害。',en:'Choose another trainer and alternate playing Take this!, starting with the target. The last player’s active Pokémon deals 2 base damage to the other active Pokémon. If the target passes immediately, the challenger’s active Pokémon deals the damage.'}},
   'berry-harvest':{name:{zh:'树果大丰收',en:'Berry Harvest'},description:{zh:'亮出与目标数相同的牌。从你开始，各训练家依次获得一张尚未被选走的牌。',en:'Reveal one card per target. Starting with you, each trainer chooses and gains one of the remaining cards.'}},
   'farfetchd-prank':{targeting:'single',name:{zh:'大葱鸭的恶作剧',en:'Farfetch’d’s Prank'},description:{zh:'弃置另一名训练家的一张手牌，或弃置一只出战宝可梦的持有物或一枚强化指示物。',en:'Discard another trainer’s hand card, or discard an active Pokémon’s held item or one of its reinforcement markers.'}},
@@ -968,6 +1304,16 @@ function eventTargets(room,player,eventType) {
   const seats=live(room),index=seats.findIndex(seat=>seat.id===player.id);
   const ordered=[...seats.slice(index),...seats.slice(0,index)];
   if(eventType==='zapdos-punishment')ordered.push(ordered.shift());
+  if (hoennEvents[eventType]?.response || (Object.hasOwn(hoennEvents, eventType) && !hasPack(room.settings.contentPack, HOENN_PACK))) return [];
+  const delayed = hoennDelayedEvents[eventType];
+  if (delayed) {
+    const neighbors = delayed.adjacent ? eligibleTargetIds(room.players, player.id) : null;
+    return ordered.filter(seat => seat.id !== player.id && seat.active && !seat.active.defeated &&
+      (!neighbors || neighbors.includes(seat.id)) && !seat.delayedEvents?.some(card => card.eventType === eventType));
+  }
+  if (eventType === 'tour-supply' || Object.hasOwn(hoennEvents, eventType)) return ordered.filter(seat => seat.id === player.id);
+  if (eventType === 'tour-gift') return ordered.filter(seat => seat.id !== player.id && player.hand.length > 1 && eligibleTargetIds(room.players,player.id,{ignoreDistance:cardDistanceIgnored(room,player)||battleReinforcementEffective(room,player.active,'speed')}).includes(seat.id));
+  if (eventType === 'tour-search') return ordered.filter(seat => seat.id !== player.id && seat.hand.length && eligibleTargetIds(room.players,player.id,{ignoreDistance:cardDistanceIgnored(room,player)||battleReinforcementEffective(room,player.active,'speed')}).includes(seat.id));
   const ranged=eventType==='mr-mime-trick';
   const inRange=ranged?eligibleTargetIds(room.players,player.id,{ignoreDistance:cardDistanceIgnored(room,player)||battleReinforcementEffective(room,player.active,'speed')}):null;
   return ordered.filter(seat=>(!['mewtwo-threat','moltres-trial','mr-mime-trick','rival-challenge'].includes(eventType)||seat.id!==player.id)&&seat.active&&!seat.active.defeated&&battleEventTargetAllowed(room,seat.active,reviewedEvents[eventType].name.zh)&&(!ranged||inRange.includes(seat.id)));
@@ -1045,6 +1391,38 @@ function openEventTarget(room,ctx) {
         resolution.protectionCheckedIndex=resolution.index;
         if(startProtectionWindow(room,ctx,{mode:'cancel-event',targetId:owner.id,targetCreatureId:target.instanceId,eventName:resolution.eventName,eventCardId:resolution.card.id,eventIndex:resolution.index}))return;
       }
+      if (hoennDelayedEvents[resolution.eventType]) {
+        (owner.delayedEvents ??= []).push(resolution.card);
+        resolution.card = null;
+        note(room, `${resolution.eventName.zh}挂在${owner.nickname}的席位。`, `${resolution.eventName.en} was placed at ${owner.nickname}’s seat.`);
+        return nextSettlement(room, ctx);
+      }
+      const field = hoennEvents[resolution.eventType]?.field;
+      if (field) {
+        const { itemType, name } = fieldWeathers[field];
+        const rounds = activeItemIs(room, target, itemType) ? 2 : 1;
+        room.fieldWeather = { kind: field, expiresAtTurn: room.turn.number + live(room).length * rounds };
+        note(room, `场上出现${name.zh}，持续${rounds}轮。`, `${name.en} set field weather for ${rounds} round(s).`);
+        return nextSettlement(room, ctx);
+      }
+      if (resolution.eventType === 'tour-supply') {
+        drawBattleCards(room,owner,Math.min(2,room.drawPile.length+room.discardPile.length),'tour-supply');
+        return nextSettlement(room,ctx);
+      }
+      if (resolution.eventType === 'tour-search') {
+        if (owner.hand.length) {
+          const actor = trainer(room,resolution.actorPlayerId);
+          gainBattleCards(room,actor,owner.hand.splice(randomInt(owner.hand.length),1),{reason:'tour-search'});
+          note(room,'火箭队搜查取得了一张手牌。','Rocket Search took one hand card.');
+        }
+        return nextSettlement(room,ctx);
+      }
+      if (resolution.eventType === 'tour-clinic') { heal(target,1,ctx.catalogue); return nextSettlement(room,ctx); }
+      if (resolution.eventType === 'tour-gift') {
+        const actor = trainer(room,resolution.actorPlayerId);
+        if (!actor.hand.length) return nextSettlement(room,ctx);
+        return tourDecision(room,actor,resolution.eventName,actor.hand.map(tourCardOption),{kind:'gift',recipientId:owner.id},ctx);
+      }
       if(resolution.eventType==='zapdos-punishment')return startJudgment(room,ctx,{kind:'zapdos',targetId:target.instanceId},owner.id);
       if(resolution.eventType==='jigglypuff-performance')return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'sleep',weather:'thunderstorm',comparison:'not',next:'settlement'},owner.id);
       if(resolution.eventType==='rival-challenge') {
@@ -1069,6 +1447,7 @@ function openEventTarget(room,ctx) {
           const index=target.reinforcements?.indexOf(resolution.eventEffect)??-1;
           if(index>=0) {
             target.reinforcements.splice(index,1);
+            if (resolution.eventEffect === 'defense') delete target.hoennClayDefense;
             showEventTransfer(room,resolution,owner.id,'marker');
             note(room,'大葱鸭的恶作剧弃置一枚强化指示物。','Farfetch’d’s Prank discarded one reinforcement marker.');
           }
@@ -1147,11 +1526,12 @@ export function useBattleTool(room,player,input,ctx) {
   const legal=previewActions(room,player,ctx.catalogue);
   requireRule(room.turn?.playerId===player.id&&room.turn.phase==='play'&&legal&&!room.pendingBattle&&!room.pendingVote,'TOOL_UNAVAILABLE','Tools require your unblocked Play phase.');
   const card=player.hand.find(card=>card.id===input.cardId&&card.kind==='tool');
-  const choice=legal.tools.find(tool=>tool.toolType===card?.toolType)?.choices.find(choice=>choice.effect===input.effect);
+  const choice=legal.tools.find(tool=>tool.toolType===card?.toolType&&(!tool.cardId||tool.cardId===card.id))?.choices.find(choice=>choice.effect===input.effect);
   requireRule(card&&choice&&!choice.unavailableReason,'INVALID_CARD','Choose a reviewed effect of a physical split tool in your own hand.');
   requireRule(choice.targets.some(target=>target.targetId===input.targetId&&target.slot===input.slot),'INVALID_TARGET','Choose a legal target for this tool.');
   const owner=trainer(room,input.targetId);
   player.hand.splice(player.hand.indexOf(card),1);
+  if (input.effect.startsWith('tour-')) return useTourTool(room,player,input,card,ctx);
   let drawn=0;
   if(input.effect==='nugget') {
     // The used card stays outside both piles until the effect and any Pickup
@@ -1160,8 +1540,10 @@ export function useBattleTool(room,player,input,ctx) {
     drawBattleCards(room,owner,drawn,'nugget');
   } else {
     const pokemon=owner[input.slot];
-    if(input.slot==='reserve')pokemon.revealed=true;
-    if(input.effect==='potion')heal(pokemon,2,ctx.catalogue);
+    if(input.slot==='reserve' && !input.effect.startsWith('hoenn-'))pokemon.revealed=true;
+    if(input.effect==='hoenn-lum')pokemon.status=null;
+    else if(input.effect==='hoenn-umbrella')pokemon.hoennUmbrella=true;
+    else if(input.effect==='potion')heal(pokemon,2,ctx.catalogue);
     else if(input.effect==='full-heal')pokemon.status=null;
     else if(input.effect==='rare-candy')pokemon.level++;
     else if(input.effect==='revive') {
@@ -1173,7 +1555,9 @@ export function useBattleTool(room,player,input,ctx) {
     }
   }
   room.discardPile.push(card);
-  if(input.effect==='potion')note(room,'伤药回复目标至多2点体力；整张组合道具牌已弃置。','Potion restored up to 2 HP; the entire split tool was discarded.');
+  if(input.effect==='hoenn-lum')note(room,'木子果解除了使用者后备的异常状态。','Lum Berry cured the user’s reserve status.');
+  else if(input.effect==='hoenn-umbrella')note(room,'万能伞将抵消一次气象球的天气增伤。','Utility Umbrella will cancel the weather bonus on one Weather Ball.');
+  else if(input.effect==='potion')note(room,'伤药回复目标至多2点体力；整张组合道具牌已弃置。','Potion restored up to 2 HP; the entire split tool was discarded.');
   else if(input.effect==='nugget')note(room,`金珠令目标训练家摸了${drawn}张牌；整张组合道具牌已弃置。`,`Nugget let the target trainer draw ${drawn} card${drawn===1?'':'s'}; the entire split tool was discarded.`);
   else if(input.effect==='revive')note(room,'活力碎片恢复目标的战斗能力，体力回复至2点。','Revive restored the defeated Pokémon to fighting condition at 2 HP.');
   else if(Object.hasOwn(reinforcementNames,input.effect)) {
@@ -1182,8 +1566,26 @@ export function useBattleTool(room,player,input,ctx) {
   }
   else note(room,input.effect==='full-heal'?'使用万灵药恢复目标的特殊状态；整张组合道具牌已弃置。':'使用神奇糖果使目标提升一个等级；整张组合道具牌已弃置。',input.effect==='full-heal'?'Full Heal cured the target’s special status; the entire split tool was discarded.':'Rare Candy raised the target by one level; the entire split tool was discarded.');
 }
+export function activeFieldWeather(room) {
+  if (room.status !== 'playing') return null;
+  const forecast = room.scenario?.weatherLab?.forecast;
+  return room.fieldWeather ?? (forecast ? {kind:forecast,source:'weather-lab'} : null);
+}
+function weatherBallWeather(room, pokemon) {
+  return pokemon.catalogueId === 'hoenn-castform' && battleTraitsEffective(room, pokemon) ? activeFieldWeather(room)?.kind : undefined;
+}
+function castformWeather(room, pokemon) {
+  const weather = weatherBallWeather(room, pokemon);
+  return weather === 'sand' ? undefined : weather;
+}
 function battleMoves(room,pokemon,catalogue) {
   const native=face(pokemon,catalogue)?.moves||[];
+  const field = weatherBallWeather(room, pokemon);
+  if (field) {
+    return native.map(move => move.effectKind === 'hoenn-weather-ball'
+      ? { ...move, printedValue: 2, condition: { ...move.condition, weatherIconsInCondition: fieldWeathers[field].icons } }
+      : move);
+  }
   if(pokemon.catalogueId!=='scyther'||!battleTraitsEffective(room,pokemon))return native;
   return [...native,...catalogue.entries.find(entry=>entry.id==='scyther').levels.filter(level=>level.level<pokemon.level).sort((a,b)=>a.level-b.level).flatMap(level=>level.moves)];
 }
@@ -1192,7 +1594,7 @@ function moveOptions(room,player,catalogue,own,quickTargetId=null) {
   const used = room.turn?.usedMoves || [];
   const unlocked = quickTargetId || !room.turn.commandCreatureId || room.turn.commandCreatureId === pokemon.instanceId;
   const ignoresReinforcements=pokemon.catalogueId==='dratini' && pokemon.level>=2;
-  const targetsFor=ignoreDistance=>eligibleTargetIds(room.players,player.id,{ignoreDistance:ignoreDistance||activeItemIs(room,pokemon,'quick-claw')||hasSniper(room,player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&battleReinforcementEffective(room,pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
+  const targetsFor=ignoreDistance=>eligibleTargetIds(room.players,player.id,{ignoreDistance:ignoreDistance||player.raidBoss||activeItemIs(room,pokemon,'quick-claw')||hasSniper(room,player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&battleReinforcementEffective(room,pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
   const teleport=pokemon.catalogueId==='abra' && pokemon.level===1;
   const teleportBlocked=teleport && !quickTargetId && room.turn.switchBlocked && player.reserve && !player.reserve.defeated;
   const moveAvailable=Boolean(own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && !room.turn.movesBlocked && !(room.turn.blockedMoveIds||[]).includes(pokemon.instanceId));
@@ -1201,15 +1603,36 @@ function moveOptions(room,player,catalogue,own,quickTargetId=null) {
     const charm=item.effectKind==='discard-other-hand',dew=item.effectKind==='life-dew';
     const supported=command||(item.condition?.kind==='weather-card'&&weatherMoveEffects.has(item.effectKind)&&item.condition.weatherIconsInCondition?.length>0);
     const targets=!own?[]:(teleport||item.targeting?.kind==='self'?[player.id]:targetsFor(item.targeting?.ignoresDistance===true).filter(id=>!charm||(id!==player.id&&trainer(room,id).hand.length>0)));
+    if (own && command && activeItemIs(room,pokemon,'tour-scarf') && item.targeting?.kind !== 'self') {
+      const seats = live(room), position = seats.findIndex(seat=>seat.id===player.id);
+      for (const [index,seat] of seats.entries()) {
+        const gap = Math.abs(position-index);
+        if (Math.min(gap,seats.length-gap)<=2 && !targets.includes(seat.id)) targets.push(seat.id);
+      }
+    }
+    const boss=room.scenario?.lake && trainer(room,room.scenario.lake.bossId);
+    if (own && boss?.active && !boss.eliminated && !boss.active.defeated && !player.raidBoss &&
+        item.printedValue>0 && item.targeting?.kind!=='self' && !targets.includes(boss.id)) targets.push(boss.id);
+    const scarfKey = room.turn.tourCommandMoves?.[pokemon.instanceId];
+    const scarfAllowed = !command || !activeItemIs(room,pokemon,'tour-scarf') || !scarfKey || scarfKey===item.name.zh;
     const legalTargetIds=own?(quickTargetId?targets.filter(id=>id===quickTargetId):targets):[];
-    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,...(charm?{targeting:'trainer'}:{}),cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:dew?live(room).length:item.targeting?.max||1,legalTargetIds,canUse:Boolean(moveAvailable&&supported&&(!quickTargetId||(command&&legalTargetIds.length))&&(!charm||legalTargetIds.length)&&(!command||(!teleportBlocked&&unlocked))&&((pokemon.catalogueId==='shellder'&&battleTraitsEffective(room,pokemon))||item.uses?.unlimited===true||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
+    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,...(charm?{targeting:'trainer'}:{}),cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:dew?live(room).length:item.targeting?.max||1,legalTargetIds,canUse:Boolean(moveAvailable&&supported&&scarfAllowed&&(!quickTargetId||(command&&legalTargetIds.length))&&(!charm||legalTargetIds.length)&&(!command||(!teleportBlocked&&unlocked))&&((pokemon.catalogueId==='shellder'&&battleTraitsEffective(room,pokemon))||item.uses?.unlimited===true||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
   });
+}
+export function canChooseShedinja(room,pokemon) {
+  return hasPack(room.settings?.contentPack,HOENN_PACK) && pokemon?.catalogueId==='hoenn-nincada' &&
+    pokemon.level===2 && !pokemon.defeated && !pokemon.damage;
 }
 export function previewActions(room, player, catalogue) {
   if (room.status !== 'playing' || player.spectator || player.eliminated || !player.active) return null;
   const own = room.turn?.playerId === player.id && room.turn.phase === 'play' && !room.pendingBattle && !room.pendingVote;
   const pokemon = player.active;
   const move = face(pokemon, catalogue)?.moves?.[0];
+  const illusionDecoyId = own && battleTraitsEffective(room,pokemon) &&
+    player.hand.some(card=>card.id===pokemon.illusionDecoyId) ? pokemon.illusionDecoyId : null;
+  const endTarget = room.turn.tourLevelTarget ? creature(room,room.turn.tourLevelTarget) : pokemon;
+  const shedinjaEvolution = room.turn.playerId===player.id && room.turn.phase==='end' && !room.turn.tourLevelUsed &&
+    !room.pendingBattle && canChooseShedinja(room,endTarget);
   const traitUsed = (room.turn.traitsUsed || []).includes(pokemon.instanceId);
   const moves=moveOptions(room,player,catalogue,own);
   const canCommand=Boolean(move?.condition?.kind==='command'&&moves[0]?.canUse);
@@ -1217,7 +1640,7 @@ export function previewActions(room, player, catalogue) {
   // A virtual command has no printed sunny weather, so it cannot meet paralysis.
   const giveCommandAvailable = canCommand && pokemon.status!=='paralysis';
   const canGive = own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && pokemon.catalogueId==='growlithe' && battleTraitsEffective(room,pokemon) && !room.turn.justifiedUsed && giveRecipientIds.length>0 && (player.hand.length>1 || (player.hand.length===1 && giveCommandAvailable));
-  return { events:eventActions(room,player,own), tools:toolActions(room,player,catalogue,own), canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipItems:equipItems(player), muscleBand:Boolean(own&&player.hand.length>=2&&pokemon.status!=='paralysis'&&activeItemIs(room,pokemon,'muscle-band')), lightBallTargets:own&&activeItemIs(room,pokemon,'light-ball')?lightBallTargets(room,catalogue):[], equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && !player.reserve?.defeated), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
+  return { ...(shedinjaEvolution?{shedinjaEvolution:true}:{}), ...(illusionDecoyId?{illusionDecoyId}:{}), tourActions:tourActions(room,player,catalogue), events:eventActions(room,player,own), tools:toolActions(room,player,catalogue,own), canEquip:Boolean(own&&player.hand.some(reviewedItem)), equipItems:equipItems(player), muscleBand:Boolean(own&&player.hand.length>=2&&pokemon.status!=='paralysis'&&activeItemIs(room,pokemon,'muscle-band')), lightBallTargets:own&&activeItemIs(room,pokemon,'light-ball')?lightBallTargets(room,catalogue):[], equipSlots:own?['active','reserve'].filter(slot=>player[slot]&&!player[slot].defeated):[], moves, canCommand, canGive:Boolean(canGive), giveCommandAvailable, giveRecipientIds:own?giveRecipientIds:[], canSwitch: Boolean(own && !room.turn.switchUsed && !room.turn.switchBlocked && player.reserve && !player.reserve.defeated && (!room.turn.hoennRoadblocked || player.hand.length)), canTrait: Boolean(face(pokemon,catalogue)?.effectStatus==='combat-preview'&&battleTraitsEffective(room,pokemon)&&!room.pendingBattle && !room.pendingVote && !traitUsed && room.turn.playerId === player.id && ((['bulbasaur','magnemite','rhyhorn'].includes(pokemon.catalogueId) && room.turn.phase === 'play') || (pokemon.catalogueId==='psyduck'&&room.turn.phase==='play'&&!room.turn.swiftSwimUsed) || (pokemon.catalogueId==='staryu'&&room.turn.phase==='draw'&&!room.turnStart) || (['electabuzz','porygon'].includes(pokemon.catalogueId)&&room.turn.phase==='draw'&&room.turn.drawRemaining>0&&room.turn.drawStarted===false&&!room.turnStart) || (['squirtle','exeggcute'].includes(pokemon.catalogueId) && room.turn.phase === 'end'))), ...(pokemon.catalogueId==='porygon'?{trait:{kind:'download',name:{zh:'下载',en:'Download'}}}:pokemon.catalogueId==='electabuzz'?{trait:{kind:'vital-spirit',name:{zh:'干劲',en:'Vital Spirit'}}}:pokemon.catalogueId==='staryu'?{trait:{kind:'illuminate',name:{zh:'发光',en:'Illuminate'}}}:pokemon.catalogueId==='rhyhorn'?{trait:{kind:'reckless',name:{zh:'舍身',en:'Reckless'},maxHpLoss:Number.MAX_SAFE_INTEGER-(pokemon.damage||0)}}:pokemon.catalogueId==='magnemite'?{trait:{kind:'analytic',name:{zh:'分析',en:'Analytic'},maxCards:Math.min(player.hand.length,Math.max(0,currentHp(pokemon,catalogue)))}}:pokemon.catalogueId==='exeggcute'?{trait:{kind:'harvest',name:{zh:'收获',en:'Harvest'}}}:{}),legalTargetIds:moves[0]?.legalTargetIds||[], move: move ? { name: move.name, printedValue: move.printedValue, maxTargets:moves[0].maxTargets } : null };
 }
 export function playBattleMove(room, player, input, ctx, quickTargetId=null) {
   const legal=quickTargetId?{moves:moveOptions(room,player,ctx.catalogue,true,quickTargetId)}:previewActions(room,player,ctx.catalogue);
@@ -1225,36 +1648,70 @@ export function playBattleMove(room, player, input, ctx, quickTargetId=null) {
   requireRule(Number.isSafeInteger(index)&&index>=0 && legal?.moves?.[index]?.canUse,'MOVE_UNAVAILABLE','This Pokémon cannot use the selected move now.');
   const move=legal.moves[index],command=move.condition.kind==='command';
   requireRule(move.effectKind==='moonlight'?['heal','cure'].includes(input.effectChoice):move.effectKind==='x-scissor'?[undefined,'normal','double-dodge'].includes(input.effectChoice):input.effectChoice===undefined,'INVALID_MOVE_CHOICE','Choose a printed effect of this move only.');
-  requireRule(Array.isArray(input.targetIds)&&input.targetIds.length>=1&&input.targetIds.length<=move.maxTargets&&new Set(input.targetIds).size===input.targetIds.length&&input.targetIds.every(id=>move.legalTargetIds.includes(id)),'INVALID_TARGET','Choose legal active Pokémon within range.');
   const muscle=input.cardIds!==undefined;
   const selected=player.hand.find(card=>card.id===input.cardId);
+  const decoy = command && move.printedValue>0 && !quickTargetId && selected?.kind!=='command' &&
+    selected?.id && selected.id===legal.illusionDecoyId;
+  const coordinating=input.coordinationCardIds!==undefined;
+  const coordinationCards=coordinating&&Array.isArray(input.coordinationCardIds) ?
+    input.coordinationCardIds.map(id=>player.hand.find(card=>card.id===id)) : [];
+  if (coordinating) {
+    requireRule(!quickTargetId && !muscle && hasPack(room.settings.contentPack,HOENN_PACK) && canCoordinateCommand(move,selected) &&
+      coordinationCards.length===2 && coordinationCards.every(card=>card && card!==selected) &&
+      coordinationCards[0].weather!==coordinationCards[1].weather,
+      'INVALID_CARD','Choose a coordinated command and two other cards of different weather.');
+  }
+  const maximum=move.maxTargets+Number(coordinating);
+  requireRule(Array.isArray(input.targetIds)&&input.targetIds.length>=(coordinating?maximum:1)&&input.targetIds.length<=maximum&&
+    new Set(input.targetIds).size===input.targetIds.length&&input.targetIds.every(id=>move.legalTargetIds.includes(id)),
+    'INVALID_TARGET','Choose legal active Pokémon within range.');
   if(muscle) {
     requireRule(command&&!quickTargetId&&input.cardId===undefined&&legal.muscleBand&&Array.isArray(input.cardIds)&&input.cardIds.length===2&&
       new Set(input.cardIds).size===2&&input.cardIds.every(id=>typeof id==='string'&&player.hand.some(card=>card.id===id)),
       'INVALID_CARD','Choose two distinct own hand cards with Muscle Band.');
   }else {
-    requireRule(selected && (command?selected.kind==='command':move.condition.weatherIconsInCondition.includes(selected.weather)),'INVALID_CARD','Choose one qualifying card from your own hand.');
+    requireRule(selected && (command?(selected.kind==='command'||decoy):move.condition.weatherIconsInCondition.includes(selected.weather)),'INVALID_CARD','Choose one qualifying card from your own hand.');
     requireRule(!(quickTargetId||(command&&player.active.status==='paralysis'))||['intense-sun','clear'].includes(selected.weather),'INVALID_CARD','Choose a sunny-weather command card.');
   }
   const mayBoost=command&&move.effectKind==='hyper-beam';
   requireRule(mayBoost||input.boostCardId===undefined,'INVALID_CARD','Only Hyper Beam accepts a declaration discard.');
   const boost=input.boostCardId===undefined?null:player.hand.find(card=>card.id===input.boostCardId);
-  requireRule(input.boostCardId===undefined||(boost&&boost!==selected&&!input.cardIds?.includes(boost.id)),'INVALID_CARD','Choose a different card from your own hand for Hyper Beam.');
+  requireRule(input.boostCardId===undefined||(boost&&boost!==selected&&!input.cardIds?.includes(boost.id)&&!coordinationCards.includes(boost)),'INVALID_CARD','Choose a different card from your own hand for Hyper Beam.');
   const doubleDodge=move.effectKind==='x-scissor'&&input.effectChoice==='double-dodge';
   requireRule(!doubleDodge||player.active.reinforcements.includes('power'),'INVALID_MOVE_CHOICE','X-Scissor must discard one carried Power marker to require two Dodges.');
   if(doubleDodge)player.active.reinforcements.splice(player.active.reinforcements.indexOf('power'),1);
   if(boost)room.discardPile.push(...player.hand.splice(player.hand.indexOf(boost),1));
+  if (coordinating) {
+    player.hand=player.hand.filter(card=>!coordinationCards.includes(card));
+    room.discardPile.push(...coordinationCards);
+    note(room,'合力指挥弃置两张不同天气的手牌，增加了一个目标。','Coordinated Command discarded two cards of different weather for one extra target.');
+  }
   if(muscle) {
     const paid=new Set(input.cardIds);
     room.discardPile.push(...player.hand.filter(card=>paid.has(card.id)));
     player.hand=player.hand.filter(card=>!paid.has(card.id));
   }else {
     player.hand.splice(player.hand.indexOf(selected),1);
-    if(!command)room.discardPile.push(selected);
+    if(!command||decoy)room.discardPile.push(selected);
+    if(decoy) delete player.active.illusionDecoyId;
   }
-  beginBattleMove(room,player,input.targetIds,command&&!muscle?selected:null,{...legal,move,muscle,quickTargetId,damageBoost:boost?1:0,effectChoice:input.effectChoice,dodgesRequired:doubleDodge?2:1},ctx,command);
+  if (!command && selected?.weather==='thunderstorm' && player.active.catalogueId==='tour-mareep' && battleTraitsEffective(room,player.active) && !room.turn.tourCharge) {
+    room.turn.tourCharge=true;
+    if(!player.active.reinforcements.includes('speed'))player.active.reinforcements.push('speed');
+  }
+  const field = activeFieldWeather(room)?.kind;
+  const weather = fieldWeathers[field];
+  const ball = move.effectKind === 'hoenn-weather-ball';
+  const matchesWeather = ball ? weatherBallWeather(room, player.active) === field
+    : field === 'sand' ? sandObservationMoves.has(move.name.en)
+    : moveRecipe(move.name.en)?.family === weather?.moveFamily;
+  if (weather && selected && move.printedValue > 0 && matchesWeather && weather.icons.includes(selected.weather)) {
+    room.turn.hoennObservedWeather = field;
+  }
+  beginBattleMove(room,player,input.targetIds,command&&!muscle&&!decoy?selected:null,{...legal,move,muscle,decoy,quickTargetId,damageBoost:boost?1:0,effectChoice:input.effectChoice,dodgesRequired:doubleDodge?2:1},ctx,command);
 }
 function beginBattleMove(room,player,targetIds,command,legal,ctx,isCommand=true) {
+  revealIllusion(room,player,ctx);
   const source = player.active;
   if(isCommand&&!legal.quickTargetId)room.turn.commandCreatureId = source.instanceId;
   room.turn.usedMoves ??= [];
@@ -1266,12 +1723,29 @@ function beginBattleMove(room,player,targetIds,command,legal,ctx,isCommand=true)
     }
   }
   room.turn.usedMoves.push(moveUse);
-  room.resolution = { kind: 'move', card: command, virtualCommand:isCommand&&!command, statusMove:!isCommand, moveIndex:legal.move.index??0,effectKind:legal.move.effectKind||null, ignoresReinforcements:source.catalogueId==='dratini'&&source.level>=2, sourceId: source.instanceId, sourcePlayerId: player.id, sourceLevel: source.level, sourceFamily: source.catalogueId, moveName:legal.move.name, baseDamage: (legal.move.printedValue??0)+(legal.damageBoost||0), powerBoost: isCommand&&!reinforcementsSuppressed(room,source)?beginCommand(source):0, targetIds: [...targetIds], index: 0, damagedIds: [], defenseIds: [] };
+  if (isCommand) {
+    room.turn.tourCommandMoves ??= {};
+    room.turn.tourCommandMoves[source.instanceId] ??= legal.move.name.zh;
+  }
+  const signalBoost=Number(Boolean(player.raidBoss && room.scenario.lake.transmitter && room.turn.playerId===player.id &&
+    !room.turn.lakePulseUsed && legal.move.printedValue>0));
+  if (signalBoost) {
+    room.turn.lakePulseUsed=true;
+    note(room,'电波装置为暴鲤龙的首个伤害招式增加 1 点基础伤害。','The transmitter added 1 base damage to Gyarados’s first damaging move.');
+  }
+  room.resolution = { kind: 'move', card: command, virtualCommand:isCommand&&!command, statusMove:!isCommand&&legal.move.effectKind!=='hoenn-weather-ball', moveIndex:legal.move.index??0,effectKind:legal.move.effectKind||null, ignoresReinforcements:source.catalogueId==='dratini'&&source.level>=2, sourceId: source.instanceId, sourcePlayerId: player.id, sourceLevel: source.level, sourceFamily: source.catalogueId, moveName:legal.move.name, baseDamage: (legal.move.printedValue??0)+(legal.damageBoost||0)+signalBoost, powerBoost: isCommand&&!reinforcementsSuppressed(room,source)?beginCommand(source):0, targetIds: [...targetIds], index: 0, damagedIds: [], defenseIds: [] };
+  if (targetIds.length===1 && legal.move.maxTargets===1 && room.resolution.baseDamage>0 && !room.resolution.statusMove) {
+    const range = legal.move.legalTargetIds ?? legal.legalTargetIds;
+    if (tourEnabled(room) && room.settings.matchMode==='teams') room.resolution.followMeRange = [...range];
+    if (room.scenario?.viridian?.guard && room.scenario.viridian.leaderRevealed) room.resolution.gymGuardRange = [...range];
+  }
+  if(legal.move.effectKind==='hoenn-weather-ball') room.resolution.weatherBallForm = weatherBallWeather(room, source) ?? 'normal';
   if(legal.effectChoice)room.resolution.effectChoice=legal.effectChoice;
   if(legal.dodgesRequired===2)room.resolution.dodgesRequired=2;
   const camera = {camera:effectCamera(room,room.resolution)};
   if(!isCommand)note(room,`弃置一张符合天气的手牌使用${legal.move.name.zh}；目标正在决定响应。`,`One qualifying weather hand card was discarded to use ${legal.move.name.en}; the target is deciding a response.`,camera);
   else if(legal.muscle)note(room,'力量头带将两张手牌当接招吧！使用。','Muscle Band used two hand cards as one Take this! command.',camera);
+  else if(legal.decoy)note(room,'诱饵作为本次招式的指挥费用弃置。','The decoy was discarded as the command payment for this move.',camera);
   else if(legal.quickTargetId)note(room,'先制之爪在其他训练家的回合开始时使用接招吧！。','Quick Claw used a command at another trainer’s turn start.',camera);
   else note(room, command?'当前玩家使用接招吧！；目标正在决定响应。':'正义之心视为使用接招吧！；目标正在决定响应。', command?'The current trainer used Take this!; the target is deciding a response.':'Justified counted as using Take this!; the target is deciding a response.',camera);
   if(isCommand&&source.catalogueId==='magikarp'&&source.level>=2&&battleTraitsEffective(room,source)) {
@@ -1299,6 +1773,7 @@ export function giveBattleCards(room,player,input,ctx) {
   if(all)beginBattleMove(room,player,input.targetIds,null,legal,ctx);
 }
 function beginRescue(room, targetId, ctx) {
+  if (room.scenario?.lake?.bossId===targetId) return defeat(room,targetId,ctx);
   const index=room.players.findIndex(p=>p.id===room.turn.playerId);
   room.resolution.rescueActors=[...room.players.slice(index),...room.players.slice(0,index)].filter(p=>!p.spectator&&!p.eliminated).map(p=>p.id);
   room.resolution.rescueIndex = 0;
@@ -1306,6 +1781,24 @@ function beginRescue(room, targetId, ctx) {
   room.resolution.rescueActorInstances=Object.fromEntries(room.resolution.rescueActors.map(id=>[id,trainer(room,id).active?.instanceId]));
   note(room, '宝可梦昏厥；从当前回合训练家起依次结算救援。', 'A Pokémon is fainting; rescue starts with the current turn’s trainer.');
   decision(room, 'rescue', room.resolution.rescueActors[0], targetId, ctx);
+}
+export function intactDisguise(room, pokemon) {
+  return pokemon?.catalogueId === MIMIKYU_ID && !pokemon.disguiseSpent && battleTraitsEffective(room, pokemon);
+}
+function spendDisguise(room, owner, ctx) {
+  owner.active.disguiseSpent = true;
+  abilityVisual(room, owner, ctx.catalogue);
+}
+function blockWithDisguise(room, ctx, amount) {
+  const resolution = room.resolution;
+  if (resolution.kind !== 'move' || amount <= 0) return false;
+  const owner = activeOwner(room, resolution.targetCreatureId);
+  if (!owner || owner.id === resolution.sourcePlayerId || !intactDisguise(room, owner.active) ||
+      amount <= (resolution.dodgeReductions?.[owner.active.instanceId] ?? 0)) return false;
+  moveVisual(room, owner.id);
+  spendDisguise(room, owner, ctx);
+  note(room, '画皮挡下了这次招式伤害，谜拟丘变为现形。', 'Disguise blocked the hit and Mimikyu changed to Busted Form.');
+  return true;
 }
 function settleDamage(room, ctx) {
   const resolution = room.resolution;
@@ -1368,7 +1861,7 @@ function settleDamage(room, ctx) {
   if(resolution.effectKind==='paralysis-judgment'&&resolution.statusMove)return startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weather:'intense-sun',comparison:'not',next:'settlement'},resolution.sourcePlayerId);
   if(resolution.effectKind==='self-defense') {
     if(!target.reinforcements.includes('defense'))target.reinforcements.push('defense');
-    note(room,'守住使此宝可梦保有一枚防御强化指示物。','Protect leaves this Pokémon with one Defense reinforcement.');
+    note(room,`${resolution.moveName.zh}使此宝可梦保有一枚防御强化指示物。`,`${resolution.moveName.en} leaves this Pokémon with one Defense reinforcement.`);
     return nextSettlement(room,ctx);
   }
   if(resolution.effectKind==='temporary-hand-exile') {
@@ -1388,10 +1881,24 @@ function settleDamage(room, ctx) {
     }
     return nextSettlement(room,ctx);
   }
+  if (intactDisguise(room, target) && blockWithDisguise(room, ctx, commandDamage(room, source, target, resolution, ctx.catalogue))) {
+    return nextSettlement(room, ctx);
+  }
   if(resolution.effectKind==='double-edge'&&!resolution.doubleEdgeDecided&&!damageImmune(room,target)&&activeOwner(room,source?.instanceId)) {
     decision(room,'double-edge',resolution.sourcePlayerId,trainer(room,resolution.targetIds[resolution.index]).id,ctx);return;
   }
+  if (!resolution.airLockOffered && weatherBallBonus(resolution) &&
+      !umbrellaBlocksBonus(target,resolution) && !damageImmune(room,target) && hasPack(room.settings.contentPack,HOENN_PACK)) {
+    resolution.airLockOffered = true;
+    const owner = activeOwner(room,target.instanceId);
+    const cards = owner?.hand.filter(isAirLock);
+    if (cards?.length) return tourDecision(room, owner, airLockEvent.name, cards.map(tourCardOption), {kind:'air-lock'}, ctx, true);
+  }
   const amount = commandDamage(room, source, target, resolution, ctx.catalogue);
+  if (umbrellaBlocksBonus(target, resolution) && !damageImmune(room,target)) {
+    delete target.hoennUmbrella;
+    note(room,'万能伞抵消了气象球的天气增伤。','Utility Umbrella canceled Weather Ball’s weather bonus.');
+  }
   if(amount>0 && source?.status!=='burn' && blazeBonus(source,ctx.catalogue,battleTraitsEffective(room,source))) {
     abilityVisual(room,activeOwner(room,source.instanceId),ctx.catalogue,{effect:'blaze'});
   }
@@ -1401,16 +1908,33 @@ function settleDamage(room, ctx) {
   return settleDealtDamage(room,ctx,amount);
 }
 
+const isAirLock = card => card.kind === 'event' && card.eventType === 'hoenn-air-lock';
+function weatherBallBonus(resolution) {
+  return resolution.effectKind === 'hoenn-weather-ball' && Boolean(fieldWeathers[resolution.weatherBallForm]);
+}
+function umbrellaBlocksBonus(target, resolution) {
+  return target.hoennUmbrella && weatherBallBonus(resolution);
+}
+const rockMoves = new Set(['Rock Throw','Rock Slide','Stone Edge']);
+const wonderGuardWeaknessFamilies = new Set(['fire','air','spirit','dark']);
+function wonderGuardBlocks(room,target,resolution) {
+  if (target.catalogueId!==SHEDINJA_ID || !battleTraitsEffective(room,target)) return false;
+  if (resolution.effectKind==='hoenn-weather-ball') return !['sun','sand'].includes(resolution.weatherBallForm);
+  return !rockMoves.has(resolution.moveName?.en) && resolution.moveName?.en!=='Crunch' &&
+    !wonderGuardWeaknessFamilies.has(moveRecipe(resolution.moveName?.en)?.family);
+}
 function commandDamage(room, source, target, resolution, catalogue) {
-  const printedDamage=resolution.baseDamage+(resolution.doubleEdgeBoost?1:0)+(resolution.effectKind==='reversal'&&currentHp(target,catalogue)>currentHp(source,catalogue)?1:0)+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
+  if (wonderGuardBlocks(room,target,resolution)) return 0;
+  const printedDamage=resolution.baseDamage-(resolution.airLockApplied||umbrellaBlocksBonus(target,resolution)?1:0)+(resolution.doubleEdgeBoost?1:0)+(resolution.effectKind==='reversal'&&currentHp(target,catalogue)>currentHp(source,catalogue)?1:0)+(resolution.sourceFamily==='gastly'&&resolution.sourceLevel===3&&target.status?1:0)+(resolution.sourceFamily==='nidoran-m'&&resolution.sourceLevel>=2&&(source.damage||0)===0?1:0);
   return damageImmune(room,target)?0:computeDamage(source,target,printedDamage,catalogue,damageOptions(room,source,target,{command:true,powerBoost:resolution.powerBoost,reinforcements:!resolution.ignoresReinforcements,receiving:false}));
 }
 
 // AI only. Estimate the current hit before optional responses, without mutating either partner.
 export function estimateCommandDamage(room, source, target, move, catalogue, boost = 0) {
   const resolution = move ? {
-    baseDamage: move.printedValue + boost, effectKind: move.effectKind,
+    baseDamage: move.printedValue + boost, moveName:move.name, effectKind: move.effectKind,
     sourceFamily: source.catalogueId, sourceLevel: source.level,
+    weatherBallForm: move.effectKind === 'hoenn-weather-ball' ? weatherBallWeather(room,source) : undefined,
     powerBoost: battleReinforcementEffective(room, source, 'power')
       ? source.reinforcements.filter(marker => marker === 'power').length : 0,
     ignoresReinforcements: move.ignoresReinforcements,
@@ -1435,18 +1959,21 @@ function settleDealtDamage(room,ctx,amount) {
   return resolveDealtDamage(room,ctx,amount);
 }
 function resolveDealtDamage(room,ctx,amount) {
+  if (blockWithDisguise(room, ctx, amount)) return nextSettlement(room, ctx);
   const resolution=room.resolution;
   const target=creature(room,resolution.targetCreatureId),source=creature(room,resolution.sourceId);
   const reduction=resolution.dodgeReductions?.[target.instanceId]||0;
   // Older saved Fury Cutter modifiers may already have awarded Power.
-  if(resolution.effectKind==='fury-cutter')resolution.grantFuryCutterPower=true;
+  if(resolution.effectKind==='fury-cutter'&&!resolution.powerHerbApplied)resolution.grantFuryCutterPower=true;
   if(resolution.kind==='move'&&(reduction>0||hasShedSkin(room,target)||resolution.effectKind==='fury-cutter')) {
     resolution.modifierState={targetId:target.instanceId,amount,reduction,remaining:['dodge','defense','multiscale','marvel-scale','shed-skin']};
     return continueDamageModifiers(room,ctx);
   }
   const capped=hasShedSkin(room,target)?amount:capReceivingDamage(target,amount,damageOptions(room,source,target,{reinforcements:!resolution.ignoresReinforcements}));
-  if(capped<amount && target.catalogueId==='dratini' && target.level===3 && (target.damage||0)===0 && battleTraitsEffective(room,target)) {
-    abilityVisual(room,activeOwner(room,target.instanceId),ctx.catalogue);
+  if (capped < amount) {
+    if (target.catalogueId==='dratini' && target.level===3 && (target.damage||0)===0 && battleTraitsEffective(room,target)) {
+      abilityVisual(room,activeOwner(room,target.instanceId),ctx.catalogue);
+    } else recordLightClay(room,target);
   }
   return receiveDamage(room,ctx,capped);
 }
@@ -1483,6 +2010,7 @@ function runDamageModifier(room,effect,ctx) {
     decision(room,'scales',owner.id,owner.id,ctx);Object.assign(room.pendingBattle,{trait:'marvel-scale',canTrait:true,damage:state.amount});return;
   }
   state.amount=effect==='dodge'?Math.max(0,state.amount-state.reduction):Math.min(state.amount,1);
+  if (effect==='defense') recordLightClay(room,creature(room,state.targetId));
   if(effect==='multiscale')abilityVisual(room,activeOwner(room,state.targetId),ctx.catalogue);
   continueDamageModifiers(room,ctx);
 }
@@ -1504,16 +2032,18 @@ function receiveDamage(room,ctx,amount) {
 function commitDamage(room,ctx,amount) {
   const resolution=room.resolution,target=creature(room,resolution.targetCreatureId);
   delete resolution.incomingDamage;
+  if(amount>0)revealIllusion(room,activeOwner(room,target.instanceId),ctx);
   const result = applyDamage(target, amount, ctx.catalogue);
   resolution.actualDamage = amount;
+  if (amount > 0) queueTourSwitch(room,target,ctx);
   if (amount > 0) resolution.damagedIds.push(target.instanceId);
-  if (amount > 0 && resolution.kind!=='turn-start' && battleReinforcementEffective(room,target, 'defense')) resolution.defenseIds.push(target.instanceId);
-  const labels=resolution.kind==='item'?['凸凸头盔','Rocky Helmet']:resolution.kind==='turn-start'?['特殊状态','The special status']:resolution.kind==='event'?[resolution.externalSource?.name.zh||'事件',resolution.externalSource?.name.en||'The event']:['招式','The move'];
+  if (amount > 0 && !['turn-start','turn-end'].includes(resolution.kind) && battleReinforcementEffective(room,target, 'defense')) resolution.defenseIds.push(target.instanceId);
+  const labels=resolution.environment==='sand'?['沙暴','Sandstorm']:resolution.kind==='item'?['凸凸头盔','Rocky Helmet']:resolution.kind==='turn-start'?['特殊状态','The special status']:resolution.kind==='event'?[resolution.externalSource?.name.zh||'事件',resolution.externalSource?.name.en||'The event']:['招式','The move'];
   const recipient = activeOwner(room,target.instanceId);
   if (recipient && resolution.kind==='move') moveVisual(room,recipient.id);
   if (amount > 0 && recipient) visualEvent(room,'hit',{sourceId:resolution.sourcePlayerId || null,targetIds:[recipient.id],amount,
     hpBefore:result.hp+amount,targetCatalogueId:target.catalogueId,
-    ...(resolution.kind==='move' ? {name:resolution.moveName} : {})});
+    ...(['move','retaliation'].includes(resolution.kind) ? {name:resolution.moveName, ...(resolution.weatherBallForm ? {weatherBallForm:resolution.weatherBallForm} : {})} : {})});
   note(room, `${labels[0]}造成${amount}点伤害。`, `${labels[1]} dealt ${amount} damage.`);
   if(resolution.grantFuryCutterPower&&result.damage>0) {
     const source=activeOwner(room,resolution.sourceId)?.active;
@@ -1534,12 +2064,20 @@ function moveDamageEffect(room,ctx,resolution,source,target) {
   };
   if(resolution.sourceFamily==='exeggcute'&&resolution.sourceLevel===1)return ()=>{heal(source,1,ctx.catalogue);afterDamage(room,ctx);};
   const family=resolution.sourceFamily,level=resolution.sourceLevel;
+  if (resolution.effectKind === 'tour-crunch' && !resolution.tourCrunchOffered && activeOwner(room,target.instanceId)) return () => {
+    resolution.tourCrunchOffered = true;
+    const owner = activeOwner(room,target.instanceId);
+    const options = [{value:'damage',label:{zh:'承受额外1点伤害',en:'Take 1 extra damage'}}];
+    if (target.item) options.unshift({value:'discard',label:{zh:'弃持有物免额外伤害',en:'Discard held item'}});
+    return tourDecision(room,owner,{zh:'咬碎',en:'Crunch'},options,{kind:'crunch'},ctx);
+  };
   if(resolution.effectKind==='rainy-flinch')return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'flinch',weathers:['rain','thunderstorm'],next:'afterDamage'},resolution.sourcePlayerId);
   if(resolution.effectKind==='sunny-paralysis')return ()=>startJudgment(room,ctx,{kind:'status',targetId:target.instanceId,status:'paralysis',weathers:['intense-sun','clear'],next:'afterDamage'},resolution.sourcePlayerId);
   if(['remove-speed-after-damage','freeze-dry'].includes(resolution.effectKind)&&activeOwner(room,target.instanceId)) {
     if(!target.reinforcements?.some(marker=>resolution.effectKind==='freeze-dry'||marker==='speed'))return null;
     return ()=>{
       target.reinforcements=resolution.effectKind==='freeze-dry'?[]:target.reinforcements.filter(marker=>marker!=='speed');
+      if (resolution.effectKind === 'freeze-dry') delete target.hoennClayDefense;
       afterDamage(room,ctx);
     };
   }
@@ -1636,9 +2174,10 @@ function afterDamage(room,ctx) {
       const traits=battleTraitsEffective(room,target);
       if(traits&&target.catalogueId==='cubone'&&targetOwner.hand.length)resolution.receivingEffects.push('battle-armor');
       if(traits&&target.catalogueId==='lapras')resolution.receivingEffects.push('water-absorb');
+      if(wobbuffetResponse(room,targetOwner,ctx.catalogue))resolution.receivingEffects.push('wobbuffet-counter');
       if(traits&&target.catalogueId==='pikachu'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('static');
       if(traits&&target.catalogueId==='nidoran-m'&&sourceOwner&&!source.defeated)resolution.receivingEffects.push('poison-point');
-      if(traits&&target.catalogueId==='abra'&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
+      if(traits&&['abra','hoenn-ralts'].includes(target.catalogueId)&&resolution.card&&['command','event'].includes(resolution.card.kind)&&!resolution.cardClaimedBy)resolution.receivingEffects.push('synchronize');
       if(traits&&target.catalogueId==='slowpoke'&&room.turn.playerId!==targetOwner.id)resolution.receivingEffects.push('oblivious');
       if(traits&&target.catalogueId==='gastly'&&target.level===3&&sourceOwner?.hand.length&&sourceOwner.id!==targetOwner.id)resolution.receivingEffects.push('cursed-body');
       if(activeItemIs(room,target,'rocky-helmet')&&sourceOwner&&!source.defeated){resolution.receivingEffects.push('rocky-helmet');resolution.helmetCardId=target.item.id;}
@@ -1665,7 +2204,7 @@ function nextSettlement(room, ctx) {
     const owner=activeOwner(room,resolution.sourceId);
     if(owner&&currentHp(owner.active,ctx.catalogue)>0)return applySettlementRecoil(room,ctx,owner,{zh:'生命宝珠',en:'Life Orb'});
   }
-  if (['turn-start','item'].includes(resolution.kind)) return finishResolution(room, ctx);
+  if (['turn-start','turn-end','item','retaliation'].includes(resolution.kind)) return finishResolution(room, ctx);
   if(resolution.effectKind==='double-edge'&&resolution.doubleEdgeBoost&&resolution.actualDamage>0&&!resolution.recoilDone) {
     resolution.recoilDone=true;
     const owner=activeOwner(room,resolution.sourceId);
@@ -1686,6 +2225,20 @@ function nextSettlement(room, ctx) {
 }
 function finishResolution(room,ctx) {
   const resolution=room.resolution;
+  if (!resolution.tourAfterDone && resolution.tourSwitches?.length) {
+    resolution.tourAfterDone = true;
+    const seats = live(room), index = Math.max(0,seats.findIndex(seat=>seat.id===room.turn.playerId));
+    const order = [...seats.slice(index),...seats.slice(0,index)].map(seat=>seat.id);
+    room.tourAfterSwitches = {resolution, entries:resolution.tourSwitches.toSorted((a,b)=>order.indexOf(a.holderId)-order.indexOf(b.holderId)),index:0,switchedIds:[]};
+    room.resolution = null; room.pendingBattle = null;
+    return advanceTourSwitches(room,ctx);
+  }
+  if (resolution.effectKind === 'tour-rush' && !resolution.tourRushPaid) {
+    resolution.tourRushPaid = true;
+    const owner = activeOwner(room,resolution.sourceId);
+    if (owner?.hand.length) room.discardPile.push(...owner.hand.splice(0,1));
+  }
+  if (offerLightClay(room,ctx)) return;
   cleanResolution(room,resolution);room.pendingBattle=null;delete room.judgment;delete room.statusEvent;
   if(resolution.effectKind==='u-turn'&&!resolution.uTurnOffered) {
     resolution.uTurnOffered=true;
@@ -1699,7 +2252,15 @@ function finishResolution(room,ctx) {
 }
 function defeat(room, targetPlayerId, ctx) {
   const player = trainer(room, targetPlayerId), pokemon = player.active, resolution = room.resolution;
-  pokemon.defeated = true; pokemon.status = null; pokemon.reinforcements = []; if(pokemon.item)room.discardPile.push(pokemon.item);delete pokemon.item;
+  pokemon.defeated = true; pokemon.status = null; pokemon.reinforcements = []; delete pokemon.hoennUmbrella; delete pokemon.hoennClayDefense; if(pokemon.item)room.discardPile.push(pokemon.item);delete pokemon.item;
+  if (player.raidBoss && room.scenario.lake.phase===1) {
+    const lake=room.scenario.lake;
+    lake.phase=2;
+    room.resolution.raidSpentPhase=pokemon;
+    player.active=lakeBossPokemon(2,lake.challengers);
+    note(room,'红色暴鲤龙进入狂暴阶段，下一次行动起基础摸牌增加 1 张。','Red Gyarados entered its enraged phase and will draw one extra card on its turns.');
+    return beginBattleEntries(room,[player],ctx,{kind:'damage'});
+  }
   const source = creature(room, resolution.sourceId);
   if (source && source.instanceId !== pokemon.instanceId) {
     if(room.drawPile.length+room.discardPile.length)drawBattleCards(room,trainer(room,resolution.sourcePlayerId));
@@ -1712,28 +2273,67 @@ function defeat(room, targetPlayerId, ctx) {
     player.active = reserve; player.reserve = pokemon;
     note(room, '备战宝可梦强制登场；不消耗普通交替。', 'The reserve was deployed; this does not consume ordinary switching.');
   } else {
-    player.eliminated = true; room.discardPile.push(...player.hand); player.hand = [];
+    player.eliminated = true; room.discardPile.push(...player.hand, ...(player.delayedEvents || [])); player.hand = [];
+    delete player.delayedEvents;
     if(player.role!=='leader'&&!player.identityPublic)revealBattleIdentity(room,player);
+    if (room.scenario?.viridian && (targetPlayerId === room.scenario.viridian.proxyId || player.role === 'leader')) {
+      revealViridianLeader(room);
+    }
     if (room.settings.matchMode === 'teams') note(room, '一名训练家退场。', 'A trainer was eliminated.');
     else note(room, '一名训练家退场并公开身份。', 'A trainer was eliminated and revealed their identity.');
   }
-  const result = evaluateVictory(room.players, room.settings.matchMode);
+  const silph=room.scenario?.silph;
+  if (silph?.control && !live(room).some(seat=>seat.role===silph.control.team)) silph.control=null;
+  const result = evaluateVictory(room.players, room.settings.matchMode, room.settings);
   if (result) {
-    for(const pending of [room.resolution,...(room.resolutionStack||[])])cleanResolution(room,pending);room.resolution=null;room.pendingBattle=null;delete room.resolutionStack;delete room.judgment;delete room.statusEvent;delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; room.result = { ...result, completedAt: ctx.now(), developmentFixture: true };
-    room.status = 'finished'; room.turn = null;
-    note(room, '胜利条件已达成，所有身份与剩余手牌公开。', 'A victory condition was met; all identities and remaining hands are revealed.');
-    return;
+    const reason=room.scenario?.lake ? (result.winner==='team-a'?'boss-defeated':'raid-failed') :
+      (room.scenario?.radio || silph ? 'elimination' : null);
+    return finishBattle(room,reason?{...result,reason}:result,ctx);
   }
   if(deployed)return beginBattleEntries(room,[player],ctx,{kind:'damage'});
   afterDamage(room, ctx);
+}
+export function finishSilphRotation(room,priorIndex,nextIndex,ctx) {
+  const control=room.scenario?.silph?.control;
+  if (!control) return false;
+  const anchor=room.players.findIndex(player=>player.id===control.anchorId);
+  const crossed=nextIndex>priorIndex ? anchor>priorIndex && anchor<=nextIndex :
+    anchor>priorIndex || anchor<=nextIndex;
+  if (anchor<0 || !crossed) return false;
+  const winnerIds=room.players.filter(player=>player.role===control.team).map(player=>player.id);
+  finishBattle(room,{winner:control.team,winnerIds,reason:'master-ball'},ctx);
+  return true;
+}
+function finishBattle(room,result,ctx) {
+  for (const pending of [room.resolution,...(room.resolutionStack||[])].filter(Boolean)) cleanResolution(room,pending);
+  room.resolution = null;
+  room.pendingBattle = null;
+  for (const key of ['resolutionStack','judgment','statusEvent','protectionWindow','turnStart','switchEvent','entryEvent',
+    'drawChoice','initialBattleEntries','fieldWeather','tourDexSurvey']) delete room[key];
+  revealViridianLeader(room);
+  room.result = {...result,completedAt:ctx.now(),developmentFixture:true};
+  room.status = 'finished';
+  room.turn = null;
+  note(room, '胜利条件已达成，所有身份与剩余手牌公开。', 'A victory condition was met; all identities and remaining hands are revealed.');
+}
+function continueRescueAfterHealing(room,player,targetId,ctx) {
+  const resolution=room.resolution;
+  if(currentHp(trainer(room,targetId).active,ctx.catalogue)>=1) {
+    room.pendingBattle=null;
+    delete resolution.rescueActors;delete resolution.rescueIndex;delete resolution.rescueCreatureId;delete resolution.rescueActorInstances;
+    note(room,'救援成功；立即继续原结算。','Rescue succeeded; the original settlement resumes immediately.');
+    return afterDamage(room,ctx);
+  }
+  decision(room,'rescue',player.id,targetId,ctx);
 }
 export function respondBattle(room,player,input,ctx) {
   const pending=room.pendingBattle;
   requireRule(pending && input.decisionId===pending.id,'STALE_DECISION','Refresh the pending decision.');
   requireRule(pending.actorId===player.id && !player.spectator && !player.eliminated,'NOT_YOUR_DECISION','This response belongs to another trainer.');
+  if (pending.kind === 'expansion') return respondTour(room,player,input,ctx);
   requireRule(pending.kind==='distribute'||input.allocations===undefined,'INVALID_RESPONSE','This decision does not distribute cards.');
   requireRule(pending.kind==='exile'||input.handIndices===undefined,'INVALID_RESPONSE','This decision does not select multiple hand slots.');
-  requireRule(['shed-skin','sweet-kiss','blunder-policy'].includes(pending.kind)||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
+  requireRule(['shed-skin','sweet-kiss','blunder-policy','power-herb'].includes(pending.kind)||input.cardIds===undefined,'INVALID_RESPONSE','This decision does not select hand cards.');
   requireRule(['cute-charm','neutralizing-gas','intimidate'].includes(pending.kind)||input.targetId===undefined,'INVALID_RESPONSE','This decision does not choose a target.');
   requireRule(pending.kind==='forewarn-order'||(input.topOrder===undefined&&input.bottomOrder===undefined),'INVALID_RESPONSE','Only Forewarn chooses the deck top and bottom.');
   requireRule(pending.kind==='download'||input.targetIds===undefined,'INVALID_RESPONSE','Only Download chooses multiple trainers.');
@@ -1774,14 +2374,15 @@ export function respondBattle(room,player,input,ctx) {
     }
     return resolveDealtDamage(room,ctx,offer.amount+(input.choice==='boost'?1:0));
   }
-  if(pending.kind==='blunder-policy') {
+  if(['blunder-policy','power-herb'].includes(pending.kind)) {
     requireRule(['discard','pass'].includes(input.choice)&&Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardIds'].includes(key))&&
       (input.choice!=='pass'||input.cardIds===undefined),'INVALID_RESPONSE','Discard two hand cards or pass.');
     const resolution=room.resolution;
     requireRule(resolution?.kind==='move'&&player.active?.instanceId===resolution.sourceId&&
-      player.active.item?.id===resolution.blunderPolicyItemId&&activeItemIs(room,player.active,'blunder-policy')&&
+      player.active.item?.id===(resolution.dodgePaymentItemId ?? resolution.blunderPolicyItemId)&&activeItemIs(room,player.active,pending.kind)&&
       activeOwner(room,resolution.targetCreatureId)?.id===pending.targetId,'STALE_DECISION','The move, target, or Blunder Policy changed.');
     delete resolution.blunderPolicyItemId;
+    delete resolution.dodgePaymentItemId;
     room.pendingBattle=null;
     if(input.choice==='pass')return nextSettlement(room,ctx);
     const ids=input.cardIds;
@@ -1790,6 +2391,15 @@ export function respondBattle(room,player,input,ctx) {
     const selected=new Set(ids);
     room.discardPile.push(...player.hand.filter(card=>selected.has(card.id)));
     player.hand=player.hand.filter(card=>!selected.has(card.id));
+    if (pending.kind==='power-herb') {
+      room.discardPile.push(player.active.item);
+      delete player.active.item;
+      resolution.powerHerbApplied=true;
+      resolution.sourceAfterDone=true;
+      resolution.sourceItemAfterDone=true;
+      note(room,'强力香草与两张手牌已弃置，对原目标结算 1 点招式伤害。','Power Herb and two hand cards were discarded for 1 move damage to the original target.');
+      return resolveDealtDamage(room,ctx,damageImmune(room,creature(room,resolution.targetCreatureId))?0:1);
+    }
     note(room,'打空保险弃置两张手牌，使本次结算继续生效。','Blunder Policy discarded two cards so the settlement could resolve.');
     return settleDamage(room,ctx);
   }
@@ -1879,7 +2489,7 @@ export function respondBattle(room,player,input,ctx) {
     room.pendingBattle=null;return settleEventDamage(room,ctx);
   }
   if(pending.kind==='rescue') {
-    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardId'].includes(key))&&['pass','potion','healer'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Use one Potion or Healer card, or pass without extra fields.');
+    requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice','cardId'].includes(key))&&['pass','potion','healer','joy'].includes(input.choice)&&(input.choice!=='pass'||input.cardId===undefined),'INVALID_RESPONSE','Use an available rescue option or pass without extra fields.');
     const resolution=room.resolution,owner=trainer(room,pending.targetId),target=owner?.active;
     requireRule(resolution&&resolution.rescueActors?.[resolution.rescueIndex]===player.id&&target&&!target.defeated&&target.instanceId===(resolution.rescueCreatureId??resolution.targetCreatureId)&&currentHp(target,ctx.catalogue)<=0&&(!resolution.rescueActorInstances||resolution.rescueActorInstances[player.id]===player.active?.instanceId),'STALE_DECISION','The fainting Pokémon or rescue actor changed.');
     if(input.choice==='pass') {
@@ -1889,20 +2499,32 @@ export function respondBattle(room,player,input,ctx) {
       return;
     }
     requireRule(!rescueOwnerOnly(room)||player.id===pending.targetId,'POTION_RESTRICTED','Only the fainting Pokémon’s trainer may use Potion during this move.');
+    if (input.choice==='joy') {
+      const slot=joyItemSlots(room,player,pending.targetId).find(key=>player[key].item.id===input.cardId);
+      requireRule(slot,'INVALID_CARD','Nurse Joy needs one public held item and an unused rescue.');
+      const holder=player[slot];
+      room.discardPile.push(holder.item);
+      delete holder.item;
+      player.professionUsed=true;
+      heal(target,1,ctx.catalogue);
+      note(room,'乔伊弃置一件已公开的持有物，为昏厥目标回复1点体力。',
+        'Nurse Joy discarded one public held item to restore 1 HP to the fainting target.');
+      if (slot==='active' && holder.catalogueId==='mankey' && battleTraitsEffective(room,holder) &&
+          currentHp(holder,ctx.catalogue)>0 && room.drawPile.length+room.discardPile.length>=2) {
+        resolution.joyRescue={actorId:player.id,targetId:pending.targetId};
+        decision(room,'defiant',player.id,player.id,ctx);
+        Object.assign(room.pendingBattle,{trait:'defiant',canTrait:true});
+        return;
+      }
+      return continueRescueAfterHealing(room,player,pending.targetId,ctx);
+    }
     const index=player.hand.findIndex(card=>card.id===input.cardId),card=player.hand[index];
     requireRule(typeof input.cardId==='string'&&index>=0&&(input.choice==='potion'?isPotionCard(card):hasHealer(room,player)&&['intense-sun','clear'].includes(card.weather)),'INVALID_CARD','Choose an actual Potion pair, or one sunny own hand card with active Healer.');
     player.hand.splice(index,1);room.discardPile.push(card);
-    const result=heal(target,2,ctx.catalogue);
+    heal(target,2,ctx.catalogue);
     if(input.choice==='healer')abilityVisual(room,player,ctx.catalogue,{targetIds:[pending.targetId]});
     note(room,input.choice==='healer'?'治愈之心将一张晴天手牌当伤药，昏厥目标回复2点体力。':'伤药令昏厥目标回复2点体力；整张组合道具牌已弃置。',input.choice==='healer'?'Healer used one sunny hand card as Potion; the fainting target restored 2 HP.':'Potion restored 2 HP to the fainting target; the entire split card was discarded.');
-    if(result.hp>=1) {
-      room.pendingBattle=null;delete resolution.rescueActors;delete resolution.rescueIndex;delete resolution.rescueCreatureId;delete resolution.rescueActorInstances;
-      note(room,'救援成功；立即继续原结算。','Rescue succeeded; the original settlement resumes immediately.');
-      return afterDamage(room,ctx);
-    }
-    // Same trainer may use any number of actual cards before passing. Each use
-    // creates a fresh saved decision, so stale responses cannot heal twice.
-    decision(room,'rescue',player.id,pending.targetId,ctx);return;
+    return continueRescueAfterHealing(room,player,pending.targetId,ctx);
   }
   if(['pressure','pressure-payment'].includes(pending.kind)) {
     const resolution=room.resolution,target=trainer(room,resolution?.targetIds?.[resolution.pressureIndex]),source=trainer(room,resolution?.sourcePlayerId);
@@ -2026,13 +2648,14 @@ export function respondBattle(room,player,input,ctx) {
         abilityVisual(room,player,ctx.catalogue);
         if(!player.active.reinforcements.includes('defense'))player.active.reinforcements.push('defense');
         // The booklet removes even a newly gained Defense at this damaging card's end.
-        if(resolution.kind!=='turn-start')resolution.defenseIds.push(player.active.instanceId);
+        if(!['turn-start','turn-end'].includes(resolution.kind))resolution.defenseIds.push(player.active.instanceId);
         note(room,'战斗盔甲弃置一张手牌，获得一枚防御强化（不叠加）。','Battle Armor discarded one card and gained one Defense reinforcement, without stacking.');
       }else if(kind==='bonemerang') {
         resolution.settlementCount=2;
         note(room,'骨头回力镖弃置一张手牌，将再结算一次。','Bonemerang discarded one card and will settle once more.');
       }else {
         if(!room.turn.suppressedTraitPlayerIds.includes(input.targetId))room.turn.suppressedTraitPlayerIds.push(input.targetId);
+      revealIllusion(room,trainer(room,input.targetId),ctx);
         abilityVisual(room,player,ctx.catalogue,{targetIds:[input.targetId]});
         note(room,'化学变化气体弃置一张手牌，使所选训练家的所有宝可梦特性失效至当前回合结束。','Neutralizing Gas discarded one card and suppressed the chosen trainer’s Pokémon traits until this turn ends.');
       }
@@ -2198,11 +2821,13 @@ export function respondBattle(room,player,input,ctx) {
     return;
   }
   if(pending.kind==='defiant') {
-    if(room.resolution?.kind==='light-ball') {
+    const joyRescue=room.resolution?.joyRescue;
+    if(joyRescue) requireRule(joyRescue.actorId===player.id,'STALE_DECISION','The rescue actor changed.');
+    if(!joyRescue && room.resolution?.kind==='light-ball') {
       requireRule(room.resolution.sourceId===player.active?.instanceId&&player.active.catalogueId==='mankey'&&
         (input.choice!=='trait'||battleTraitsEffective(room,player.active)),'STALE_DECISION','The Light Ball holder changed.');
     }
-    if(room.resolution?.kind==='event') {
+    if(!joyRescue && room.resolution?.kind==='event') {
       const resolution=room.resolution;
       requireRule(Object.keys(input).every(key=>['id','revision','type','decisionId','choice'].includes(key)),'INVALID_RESPONSE','Defiant accepts only use or pass.');
       requireRule(['mr-mime-trick','farfetchd-prank'].includes(resolution.eventType)&&resolution.eventEffect==='item'&&player.active?.instanceId===resolution.targetInstances[player.id]&&!player.active.defeated&&player.active.catalogueId==='mankey'&&(input.choice!=='trait'||battleTraitsEffective(room,player.active)),'STALE_DECISION','The item-loss recipient changed.');
@@ -2210,8 +2835,17 @@ export function respondBattle(room,player,input,ctx) {
     requireRule(['trait','pass'].includes(input.choice)&&input.cardId===undefined&&input.handIndex===undefined&&input.order===undefined&&input.reinforcement===undefined,'INVALID_RESPONSE','Use Defiant or pass.');
     if(input.choice==='trait'){drawBattleCards(room,player,2);room.turn.noHandLimitIds??=[];if(!room.turn.noHandLimitIds.includes(player.id))room.turn.noHandLimitIds.push(player.id);abilityVisual(room,player,ctx.catalogue);note(room,'不服输摸两张牌，本回合没有手牌上限。','Defiant drew two cards and removed this trainer’s hand limit for the current turn.');}
     room.pendingBattle=null;
+    if (joyRescue) {
+      delete room.resolution.joyRescue;
+      return continueRescueAfterHealing(room,player,joyRescue.targetId,ctx);
+    }
     if(room.resolution?.kind==='light-ball')return applyStatus(room,ctx,creature(room,room.resolution.targetCreatureId),'paralysis','light-ball');
     if(room.resolution?.kind==='event'&&['mr-mime-trick','farfetchd-prank'].includes(room.resolution.eventType))return nextSettlement(room,ctx);
+    if(room.tourDefiantNext) {
+      const next=room.tourDefiantNext;delete room.tourDefiantNext;
+      if(next.kind==='damage')return afterDamage(room,ctx);
+      return requestBattleSwitch(room,trainer(room,next.playerId),'tour-post',ctx);
+    }
     return;
   }
   if(pending.kind==='judgment') {
@@ -2234,6 +2868,7 @@ export function respondBattle(room,player,input,ctx) {
     const target=trainer(room,pending.targetId)?.active;
     requireRule(target?.instanceId===room.resolution.markerTargetId && target.reinforcements.includes(input.reinforcement),'STALE_DECISION','The target reinforcement changed.');
     target.reinforcements.splice(target.reinforcements.indexOf(input.reinforcement),1);
+    if (input.reinforcement === 'defense') delete target.hoennClayDefense;
     const labels={power:['力量','Power'],defense:['防御','Defense'],speed:['速度','Speed']}[input.reinforcement];
     note(room,`${pending.timing==='after-damage'?'招式造成伤害后':'招式使用时'}弃置目标的一枚${labels[0]}强化指示物。`,`The move discarded one ${labels[1]} reinforcement from the target ${pending.timing==='after-damage'?'after damage':'before defense'}.`);
     if(pending.timing==='after-damage'){delete room.resolution.markerTargetId;room.pendingBattle=null;afterDamage(room,ctx);return;}
@@ -2305,7 +2940,16 @@ export function respondBattle(room,player,input,ctx) {
     room.pendingBattle=null;afterDamage(room,ctx);return;
   }
   if(pending.kind==='defense') {
-    requireRule(['pass','dodge','trait','bright-powder'].includes(input.choice),'INVALID_RESPONSE','Choose a defense or pass.');
+    requireRule(['pass','dodge','trait','bright-powder','tour-protect'].includes(input.choice),'INVALID_RESPONSE','Choose a defense or pass.');
+    if(input.choice==='tour-protect') {
+      requireRule(!pending.cannotDodge && pending.canTourProtect && activeItemIs(room,player.active,'tour-protect') && !room.turn.tourProtectUsed?.includes(player.active.instanceId),'ITEM_UNAVAILABLE','Protect TM is unavailable.');
+      room.turn.tourProtectUsed ??= [];
+      room.turn.tourProtectUsed.push(player.active.instanceId);
+      pending.canTourProtect = false;
+      const defense = structuredClone(pending);
+      if (defense.clock) { if(defense.clock.deadlineAt!==null) defense.clock.remainingMs=Math.max(0,defense.clock.deadlineAt-ctx.now()); defense.clock.deadlineAt=null; }
+      return startJudgment(room,ctx,{kind:'tour-protect',defense},player.id);
+    }
     if(input.choice==='trait'||input.choice==='bright-powder') {
       const powder=input.choice==='bright-powder';
       if(powder) {
@@ -2337,7 +2981,7 @@ export function respondBattle(room,player,input,ctx) {
         note(room,'锐利目光将快躲开！改为此招式对该宝可梦的伤害减1，持续到整个招式结束。','Keen Eye changed Dodge! into one damage reduction for this Pokémon until the whole move ends.');return;
       }
       if(pending.dodgesRequired===2&&++pending.dodgesPlayed<2){note(room,'十字剪已收到一次躲闪，仍需要另一次才能抵消。','X-Scissor received one Dodge; another is required to cancel this settlement.');return;}
-      note(room,'快躲开！抵消了本次结算。','Dodge! canceled this settlement.');return cancelMoveWithDodge(room,ctx);
+      note(room,'快躲开！抵消了本次结算。','Dodge! canceled this settlement.');return cancelMoveWithDodge(room,ctx,response);
     }else settleDamage(room,ctx);
     return;
   }
@@ -2402,10 +3046,26 @@ export function useBattleTrait(room, player, ctx,input={}) {
   startJudgment(room,ctx,{kind:'trait',sourceId:player.active.instanceId,family:player.active.catalogueId,ownerId:player.id},player.id);
 }
 export function beginBattleTurn(room, player, ctx) {
+  delete room.tourDexSurvey;
+  if (room.fieldWeather?.expiresAtTurn <= room.turn.number) {
+    delete room.fieldWeather;
+    note(room, '场上天气结束。', 'Field weather ended.');
+  }
   if(room.initialBattleEntries) {
     const players=room.initialBattleEntries.map(id=>trainer(room,id));delete room.initialBattleEntries;
     return beginBattleEntries(room,players,ctx,{kind:'turn',playerId:player.id});
   }
+  for (const pokemon of [player.active, player.reserve]) {
+    if (!pokemon) continue;
+    delete pokemon.hoennUmbrella;
+    if (pokemon.hoennClayDefense) clearDefense(pokemon);
+  }
+  if (player.emergencyRetreatDebt) {
+    room.turn.switchUsed = true;
+    delete player.emergencyRetreatDebt;
+    note(room,'此前的紧急撤退已占用本回合的普通交替。','An earlier Emergency Retreat used the ordinary switch for this turn.');
+  }
+  if (player.raidBoss && room.scenario.lake.phase===2) room.turn.drawRemaining++;
   room.turn.drawStarted=false;
   room.turn.dodgeBlockedCreatureIds=[];
   room.turn.suppressedTraitPlayerIds=[];
@@ -2417,9 +3077,34 @@ export function beginBattleTurn(room, player, ctx) {
   room.turn.movesBlocked = false; room.turn.switchBlocked = false;
   room.turn.blockedMoveIds = []; room.turn.damageImmunityIds = [];
   delete room.turnStart;
+  if (room.turn.weatherLabRoundStart) {
+    delete room.turn.weatherLabRoundStart;
+    const research = room.scenario.weatherLab;
+    research.round++;
+    research.forecast = null;
+    return startJudgment(room,ctx,{kind:'weather-lab',playerId:player.id},player.id);
+  }
+  continueBattleTurnStart(room,player,ctx);
+}
+function continueBattleTurnStart(room,player,ctx) {
+  if (room.turn.rocketPledgePending) {
+    delete room.turn.rocketPledgePending;
+    const infiltrator = live(room).find(seat=>seat.role==='infiltrator');
+    if (infiltrator) {
+      tourDecision(room,infiltrator,{zh:'潜伏者表态',en:'Infiltrator’s Allegiance'},[
+        {value:'independent',label:{zh:'保持独立',en:'Stay independent'}},
+        {value:'rocket',label:{zh:'加入火箭队',en:'Join Team Rocket'}},
+      ],{kind:'rocket-pledge'},ctx);
+      room.pendingBattle.detail = {
+        zh:'选择会向全桌公开，整局不能再更改。超时默认保持独立。',
+        en:'This choice is public and final. If time expires, stay independent.',
+      };
+      return;
+    }
+  }
   const remaining=[...(player.exiledCards?.length?['return-cards']:[]),...(['flinch','sleep','confusion','poison'].includes(player.active.status)?['status']:[]),...(player.active.catalogueId==='koffing'?['neutralizing-gas']:[])];
   const index=room.players.findIndex(p=>p.id===player.id),actors=[player,...[...room.players.slice(index+1),...room.players.slice(0,index)].filter(p=>!p.spectator&&!p.eliminated&&p.active?.catalogueId==='koffing'&&!p.active.defeated)];
-  if(remaining.length||actors.length>1||player.active.catalogueId==='jynx'||live(room).some(seat=>seat.id!==player.id&&activeItemIs(room,seat.active,'quick-claw'))) {
+  if(player.delayedEvents?.length||remaining.length||actors.length>1||player.active.catalogueId==='jynx'||live(room).some(seat=>seat.id!==player.id&&activeItemIs(room,seat.active,'quick-claw'))) {
     room.turnStart={playerId:player.id,pokemonId:player.active.instanceId,remaining,actorIds:actors.map(p=>p.id),actorInstances:Object.fromEntries(actors.map(p=>[p.id,p.active.instanceId])),index:0};
     continueTurnStart(room,ctx);
   }
@@ -2463,6 +3148,17 @@ function returnExiledCards(room,player) {
 }
 function continueTurnStart(room,ctx) {
   const start=room.turnStart;if(!start)return;
+  const owner = trainer(room, start.playerId);
+  if (owner && !owner.eliminated && owner.delayedEvents?.length) {
+    const card = owner.delayedEvents.shift();
+    const eventName = hoennDelayedEvents[card.eventType].name;
+    room.resolution = { kind:'event', card, eventType:card.eventType, eventName, sourceId:null, sourcePlayerId:null,
+      targetCreatureId:owner.active.instanceId, targetIds:[owner.id], index:0, damagedIds:[], defenseIds:[], actualDamage:0,
+      ...(card.eventType === 'hoenn-raikou' ? { externalSource:{ kind:'external-pokemon', name:{ zh:'雷公', en:'Raikou' } } } : {}) };
+    visualEvent(room, 'event', { targetIds:[owner.id], name:eventName, effect:card.eventType });
+    note(room, `现在判定${eventName.zh}。`, `Judging ${eventName.en}.`);
+    return startJudgment(room, ctx, { kind:'hoenn-delayed' }, owner.id);
+  }
   // Legacy saved local turn-start queues retain their original continuation.
   start.actorIds??=[start.playerId];start.actorInstances??={[start.playerId]:start.pokemonId};start.index??=0;
   while(start.index<start.actorIds.length) {
@@ -2509,12 +3205,880 @@ function runTurnStartEffect(room,effect,ctx) {
   }
   continueTurnStart(room,ctx);
 }
-export function publicBattlePokemon(pokemon, catalogue, room) {
+export function publicBattlePokemon(pokemon, catalogue, room, own = false) {
   if (!pokemon) return null;
   const turn=room?.turn;
   let fieldTrait;
+  const mask = !own && room?.status==='playing' ? pokemon.hoennIllusion : null;
+  const presented = mask ? {...pokemon,...mask} : pokemon;
+  const fieldForm = presented.catalogueId === MIMIKYU_ID && presented.disguiseSpent
+    ? 'busted' : room && castformWeather(room, presented);
   if(pokemon.catalogueId==='bulbasaur' && turn?.rangeCreatureId===pokemon.instanceId) fieldTrait='chlorophyll';
   if(pokemon.catalogueId==='psyduck' && turn?.swiftSwimCreatureIds?.includes(pokemon.instanceId)) fieldTrait='swift-swim';
   if(room && pokemon.catalogueId==='slowpoke' && damageImmune(room,pokemon)) fieldTrait='oblivious';
-  return { catalogueId: pokemon.catalogueId, level: pokemon.level, hp: currentHp(pokemon, catalogue), maxHp: maxHp(pokemon, catalogue), status: pokemon.status, damageProtected:Boolean(room&&damageImmune(room,pokemon)),traitsSuppressed:!pokemon.defeated&&!battleTraitsEffective(room,pokemon),reinforcementsSuppressed:Boolean(room&&reinforcementsSuppressed(room,pokemon)), ...(fieldTrait?{fieldTrait}:{}), ...(pokemon.item?{item:publicItem(pokemon.item),itemSuppressed:!itemEffective(room,pokemon),...(gluttonyReplacesItem(room,pokemon)?{itemEffectReplacement:'gluttony'}:{})}:{}), defeated: Boolean(pokemon.defeated), reinforcements: [...(pokemon.reinforcements || [])] };
+  return { catalogueId: presented.catalogueId, level: presented.level, ...(own&&pokemon.hoennIllusion?{illusionActive:true}:{}), hp: currentHp(pokemon, catalogue), maxHp: maxHp(pokemon, catalogue), status: pokemon.status, damageProtected:Boolean(room&&damageImmune(room,pokemon)),traitsSuppressed:!pokemon.defeated&&!battleTraitsEffective(room,pokemon),reinforcementsSuppressed:Boolean(room&&reinforcementsSuppressed(room,pokemon)), ...(fieldTrait?{fieldTrait}:{}), ...(fieldForm ? { fieldForm } : {}), ...(pokemon.raidColor ? {raidColor:pokemon.raidColor} : {}), ...(pokemon.hoennUmbrella ? {hoennUmbrella:true} : {}), ...(pokemon.hoennClayDefense ? {hoennClayDefense:true} : {}), ...(pokemon.item?{item:publicItem(pokemon.item),itemSuppressed:!itemEffective(room,pokemon),...(gluttonyReplacesItem(room,pokemon)?{itemEffectReplacement:'gluttony'}:{})}:{}), defeated: Boolean(pokemon.defeated), reinforcements: [...(pokemon.reinforcements || [])] };
+}
+
+
+// The tour uses the original response, switch and damage continuations.
+const tourEnabled = room => hasPack(room.settings?.contentPack, TOUR_PACK);
+const livingReserve = (player, catalogue) => player.reserve && !player.reserve.defeated && currentHp(player.reserve, catalogue) > 0;
+const tourCanSwitch = (room, player, catalogue) => !room.turn.switchBlocked && !player.eliminated &&
+  player.active && !player.active.defeated && currentHp(player.active, catalogue) > 0 && livingReserve(player, catalogue);
+const showdownTargets = (room, player) => live(room).filter(other => other.id !== player.id && other.hand.length);
+const canGoAllOut = (room, player, catalogue) => !player.tourAllOutUsed &&
+  currentHp(player.active, catalogue) >= 2 && room.drawPile.length + room.discardPile.length >= 2;
+const tourCardOption = card => ({ value: card.id, label: card.name, card: { id: card.id, name: card.name, kind: card.kind, weather: card.weather } });
+function tourDecision(room, player, title, options, continuation, ctx, allowPass = false) {
+  requireRule(options.length > 0, 'INVALID_RESPONSE', 'There must be an available choice.');
+  decision(room, 'expansion', player.id, player.id, ctx);
+  Object.assign(room.pendingBattle, { title, options, continuation, allowPass });
+}
+const showdownOrder = { zh: '雷雨 ＞ 暴雨 ＞ 烈日 ＞ 晴朗', en: 'Thunderstorm > Heavy Rain > Intense Sun > Clear' };
+function showdownDecision(room, player, other, title, options, continuation, ctx, allowPass) {
+  tourDecision(room, player, title, options, continuation, ctx, allowPass);
+  Object.assign(room.pendingBattle, { targetId: other?.id ?? player.id, detail: showdownOrder });
+}
+function resolveShowdown(room, player, option, next, ctx) {
+  if (next.kind === 'showdown-target') {
+    const other = showdownTargets(room, player).find(target => target.id === option.value);
+    requireRule(other, 'STALE_DECISION', 'The selected trainer is no longer eligible.');
+    return showdownDecision(room, player, other, { zh: '训练家对视 · 暗选一张手牌', en: 'Trainer Showdown · choose a hand card' },
+      player.hand.map(tourCardOption), { kind: 'showdown-commit', opponentId: other.id }, ctx, true);
+  }
+  if (next.kind === 'showdown-commit') {
+    const other = showdownTargets(room, player).find(target => target.id === next.opponentId);
+    requireRule(other && player.hand.some(card => card.id === option.value),
+      'STALE_DECISION', 'The selected trainer or hand card has changed.');
+    room.turn.tourShowdownUsed = true;
+    return showdownDecision(room, other, player, { zh: '训练家对视 · 暗选一张手牌', en: 'Trainer Showdown · choose a hand card' },
+      other.hand.map(tourCardOption), { kind: 'showdown-reveal', sourceId: player.id, cardId: option.value }, ctx, false);
+  }
+  const source = trainer(room, next.sourceId);
+  const committed = source?.hand.find(card => card.id === next.cardId);
+  const response = player.hand.find(card => card.id === option.value);
+  requireRule(committed && response, 'STALE_DECISION', 'The Showdown hand cards have changed.');
+  const cards = [takeCard(source, committed.id, committed.kind), takeCard(player, response.id, response.kind)];
+  room.discardPile.push(...cards);
+  const margin = showdownWeatherRank[committed.weather] - showdownWeatherRank[response.weather];
+  const winner = margin > 0 ? source : margin < 0 ? player : null;
+  if (winner) drawBattleCards(room, winner, 1, 'showdown');
+  const [sourceZh, sourceEn] = printedWeatherNames[committed.weather];
+  const [responseZh, responseEn] = printedWeatherNames[response.weather];
+  const captionZh = winner ? `，${winner.nickname}获胜并摸一张牌。` : '，平局。';
+  const captionEn = winner ? `. ${winner.nickname} won and drew one card.` : '. Draw.';
+  note(room, `训练家对视：${source.nickname}亮出${sourceZh}「${committed.name.zh}」，${player.nickname}亮出${responseZh}「${response.name.zh}」${captionZh}`,
+    `Trainer Showdown: ${source.nickname} revealed ${committed.name.en} (${sourceEn}); ${player.nickname} revealed ${response.name.en} (${responseEn})${captionEn}`);
+}
+function wobbuffetResponse(room, owner, catalogue) {
+  const hit=room.resolution, pokemon=owner.active;
+  if (pokemon?.catalogueId!=='hoenn-wobbuffet' || hit?.kind!=='move' || hit.actualDamage<=0 ||
+      hit.targetCreatureId!==pokemon.instanceId || room.turn.wobbuffetCounterIds?.includes(pokemon.instanceId) ||
+      !hasPack(room.settings.contentPack,HOENN_PACK) || !battleTraitsEffective(room,pokemon) || currentHp(pokemon,catalogue)<=0) return null;
+  const source=activeOwner(room,hit.sourceId);
+  if (!source || source.id===owner.id || damageImmune(room,source.active) || currentHp(source.active,catalogue)<=0) return null;
+  const command = hit.card?.kind==='command' || hit.virtualCommand;
+  if (!command && pokemon.level<2) return null;
+  const move = command ? counterMoves.command : counterMoves.weather;
+  const cards=owner.hand.filter(card=>move.weather.includes(card.weather));
+  return cards.length ? {move,cards,source} : null;
+}
+function recordLightClay(room, target) {
+  if (target.hoennClayDefense || !activeItemIs(room,target,lightClay.itemType) || !hasPack(room.settings.contentPack,HOENN_PACK)) return;
+  const entries = room.resolution.lightClayChecks ??= [];
+  if (!entries.some(entry => entry.pokemonId === target.instanceId)) entries.push({pokemonId:target.instanceId,itemId:target.item.id});
+}
+function canUseLightClay(room, resolution, pokemon, itemId, catalogue) {
+  return pokemon?.item?.id === itemId && activeItemIs(room,pokemon,lightClay.itemType) &&
+    currentHp(pokemon,catalogue)>0 && !pokemon.hoennClayDefense && pokemon.reinforcements.includes('defense') &&
+    resolution.defenseIds.includes(pokemon.instanceId);
+}
+function offerLightClay(room, ctx) {
+  const resolution = room.resolution;
+  while (resolution.lightClayChecks?.length) {
+    const {pokemonId,itemId} = resolution.lightClayChecks.shift();
+    const owner = activeOwner(room,pokemonId);
+    if (!canUseLightClay(room,resolution,owner?.active,itemId,ctx.catalogue)) continue;
+    tourDecision(room,owner,lightClay.name,[{value:'retain',label:{zh:'弃置道具 · 保留防御强化',en:'Discard item · keep Defense'}}],
+      {kind:'light-clay',pokemonId,itemId},ctx,true);
+    return true;
+  }
+  return false;
+}
+function finishTourTool(room) {
+  if (!room.expansionTool) return;
+  room.discardPile.push(room.expansionTool.card);
+  note(room, '巡回道具结算完成，组合牌进入弃牌堆。', 'The tour tool resolved and the physical card was discarded.');
+  delete room.expansionTool;
+}
+function tourToolTargets(room, player, catalogue, effect, card) {
+  const reserve = livingReserve(player, catalogue);
+  const active = player.active;
+  const own = slot => [{ targetId: player.id, slot }];
+  switch (effect) {
+    case 'tour-heal': return reserve && player.reserve.damage > 0 ? own('reserve') : [];
+    case 'tour-power': return !active.reinforcements.includes('power') ? own('active') : [];
+    case 'tour-gear': return player.hand.length >= 2 ? own('active') : [];
+    case 'tour-dex': return room.drawPile.length + room.discardPile.length > 0 ? own('active') : [];
+    case 'tour-switch': return !room.turn.switchUsed && tourCanSwitch(room, player, catalogue) && (!room.turn.hoennRoadblocked || player.hand.length > 1) ? own('active') : [];
+    case 'tour-incense': return reserve && player.reserve.level < 3 && !room.turn.tourLevelUsed ? own('reserve') : [];
+    case 'tour-recycle': {
+      return room.discardPile.some(item => item.kind === 'tool' && item.weather === card?.weather) ? own('active') : [];
+    }
+    case 'tour-berry': return ['active', 'reserve'].filter(slot => player[slot] && !player[slot].defeated &&
+      player[slot].status === 'paralysis').flatMap(own);
+    default: return [];
+  }
+}
+function useTourTool(room, player, input, card, ctx) {
+  room.expansionTool = { card, playerId: player.id, effect: input.effect };
+  const pokemon = player[input.slot];
+  switch (input.effect) {
+    case 'tour-heal': pokemon.revealed = true; heal(pokemon, 1, ctx.catalogue); break;
+    case 'tour-power': pokemon.reinforcements.push('power'); break;
+    case 'tour-incense':
+      pokemon.revealed = true;
+      room.turn.tourLevelTarget = pokemon.instanceId;
+      note(room, '进化香薰已公开后备，结束时可选择为其升级。', 'Incense revealed the reserve; it can receive the end-turn level-up.');
+      break;
+    case 'tour-berry': pokemon.revealed = true; pokemon.status = null; break;
+    case 'tour-switch': return requestBattleSwitch(room, player, 'ordinary', ctx);
+    case 'tour-gear':
+      return tourDecision(room, player, { zh: '宝可装置 · 弃一张再摸一张', en: 'Pokégear · discard and draw' },
+        player.hand.map(tourCardOption), { kind: 'gear' }, ctx);
+    case 'tour-dex': {
+      const count = Math.min(2, room.drawPile.length + room.discardPile.length);
+      refillDrawPile(room, count);
+      const cards = room.drawPile.splice(-count, count).reverse();
+      room.expansionTool.peek = cards;
+      return tourDecision(room, player, { zh: '图鉴 · 选择先摸到的一张', en: 'Pokédex · choose the top card' },
+        cards.map(tourCardOption), { kind: 'dex' }, ctx);
+    }
+    case 'tour-recycle':
+      return tourDecision(room, player, { zh: '能量回收 · 选择道具', en: 'Energy Retrieval · choose a tool' },
+        room.discardPile.filter(item => item.kind === 'tool' && item.weather === card.weather).map(tourCardOption),
+        { kind: 'recycle' }, ctx);
+  }
+  finishTourTool(room);
+}
+function canContactRadio(room, player, catalogue) {
+  return room.scenario?.radio && isTeamRole(player.role) && !room.turn.radioContactUsed &&
+    player.active && !player.active.defeated && currentHp(player.active,catalogue)>0 &&
+    new Set(player.hand.map(card=>card.weather)).size>1;
+}
+function radioDecision(room, player, cards, continuation, ctx) {
+  tourDecision(room,player,tourActionNames['radio-contact'],cards.map(tourCardOption),continuation,ctx,true);
+  room.pendingBattle.detail = continuation.kind==='radio-first'
+    ? {zh:'选择第一张手牌，两张牌的印刷天气须不同。',en:'Choose the first of two cards with different printed weather.'}
+    : {zh:'选一张不同天气的手牌，弃置两张并获得 1 情报点。',en:'Choose a different weather. Discard both cards for one intelligence point.'};
+}
+function resolveRadioContact(room, player, selected, continuation, ctx) {
+  const card = player.hand.find(item=>item.id===selected);
+  requireRule(card && canContactRadio(room,player,ctx.catalogue),'STALE_DECISION','Radio Contact can no longer be completed.');
+  if (continuation.kind==='radio-first') {
+    radioDecision(room,player,player.hand.filter(item=>item.weather!==card.weather),
+      {kind:'radio-second',firstId:card.id},ctx);
+    return;
+  }
+  const first = player.hand.find(item=>item.id===continuation.firstId);
+  requireRule(first && first.weather!==card.weather,'INVALID_CARD','Choose two cards with different printed weather.');
+  room.discardPile.push(takeCard(player,first.id,first.kind),takeCard(player,card.id,card.kind));
+  room.turn.radioContactUsed = true;
+  const radio = room.scenario.radio;
+  const score = ++radio.scores[player.role];
+  note(room,`${player.nickname}完成广播塔联络，队伍情报进度为 ${score}/${radio.goal}。`,
+    `${player.nickname} completed Radio Contact. Their team has ${score}/${radio.goal} intelligence.`);
+  if (score >= radio.goal) {
+    return finishBattle(room,{reason:'intelligence',winner:player.role,
+      winnerIds:room.players.filter(seat=>!seat.spectator && seat.role===player.role).map(seat=>seat.id)},ctx);
+  }
+}
+function viridianInvestigationTargets(room, player) {
+  const viridian = room.scenario?.viridian;
+  if (!viridian || viridian.leaderRevealed || !player.hand.length || viridian.investigatorIds.includes(player.id)) return [];
+  return live(room).filter(target=>target.id!==player.id && !target.identityPublic && !Object.hasOwn(viridian.clues,target.id));
+}
+function resolveViridianInvestigation(room, player, selected, next, ctx) {
+  const target = viridianInvestigationTargets(room,player).find(seat=>seat.id===(next.targetId ?? selected.value));
+  requireRule(target,'STALE_DECISION','This trainer is no longer a valid investigation target.');
+  if (next.kind==='viridian-investigate-target') {
+    return tourDecision(room,player,{zh:'公开查验 · 弃置一张手牌',en:'Public Investigation · discard a card'},
+      player.hand.map(tourCardOption),{kind:'viridian-investigate-payment',targetId:target.id},ctx,true);
+  }
+  room.discardPile.push(takeCard(player,selected.value,selected.card.kind));
+  const viridian = room.scenario.viridian;
+  const challenger = target.role==='challenger';
+  viridian.clues[target.id] = challenger;
+  viridian.investigatorIds.push(player.id);
+  note(room,`${player.nickname}查验了 ${target.nickname}。${challenger?'对方是挑战者。':'对方不是挑战者。'}`,
+    `${player.nickname} investigated ${target.nickname}. ${challenger?'They are a Challenger.':'They are not a Challenger.'}`);
+}
+function surveyTopCard(room) {
+  const top = room.drawPile.at(-1);
+  return top && top.id===room.tourDexSurvey?.cardId && room.turn.number===room.tourDexSurvey.turnNumber &&
+    !room.turn.tourNightObservation ? top : null;
+}
+const objectiveActionNames={
+  'lake-shutoff':{zh:'关闭电波装置',en:'Shut down transmitter'},
+  'silph-claim':{zh:'争夺大师球',en:'Claim Master Ball'},
+};
+function objectiveAction(room,player) {
+  if (player.raidBoss || room.turn.objectiveUsed || new Set(player.hand.map(card=>card.weather)).size<2) return null;
+  if (room.scenario?.lake?.transmitter) return 'lake-shutoff';
+  if (room.scenario?.silph && room.scenario.silph.control?.team!==player.role) return 'silph-claim';
+  return null;
+}
+function objectivePayment(room,player,action,cards,firstId,ctx) {
+  tourDecision(room,player,objectiveActionNames[action],cards.map(tourCardOption),{kind:'objective-payment',action,firstId},ctx,true);
+  room.pendingBattle.detail=firstId
+    ? {zh:'选择不同天气的第二张手牌。确定后弃置两张。',en:'Choose a second card with different weather. Both are discarded on confirmation.'}
+    : {zh:'选择要弃置的第一张手牌，两张牌的天气须不同。',en:'Choose the first of two hand cards of different weather to discard.'};
+}
+function resolveObjectivePayment(room,player,option,next,ctx) {
+  const card=player.hand.find(item=>item.id===option.value);
+  requireRule(card && objectiveAction(room,player)===next.action,'STALE_DECISION','The objective or payment changed.');
+  if (!next.firstId) return objectivePayment(room,player,next.action,player.hand.filter(item=>item.weather!==card.weather),card.id,ctx);
+  const first=player.hand.find(item=>item.id===next.firstId);
+  requireRule(first && first.weather!==card.weather,'INVALID_CARD','Choose two hand cards with different weather.');
+  room.discardPile.push(takeCard(player,first.id,first.kind),takeCard(player,card.id,card.kind));
+  room.turn.objectiveUsed=true;
+  if (next.action==='lake-shutoff') {
+    room.scenario.lake.transmitter=false;
+    note(room,'挑战者关闭了火箭队的电波装置。','The challengers shut down Team Rocket’s transmitter.');
+  } else {
+    room.scenario.silph.control={team:player.role,anchorId:player.id};
+    note(room,`${player.nickname}的队伍占领大师球，需要守住一圈。`,
+      `${player.nickname}’s team claimed the Master Ball and must hold it for a full rotation.`);
+  }
+}
+const professionActionNames = {
+  'brock-care':trainerProfessions.brock.action, 'oak-register':trainerProfessions.oak.action,
+  'disguise-trade':trainerProfessions.disguise.action, 'bird-supply':trainerProfessions.birdkeeper.action,
+  'looker-inquiry':trainerProfessions.looker.action,
+};
+const professionNeighbors = (room, player) => eligibleTargetIds(room.players,player.id)
+  .filter(id=>id!==player.id).map(id=>trainer(room,id));
+const tradeNeighbors = (room, player) => professionNeighbors(room,player).filter(other=>other.hand.length);
+const professionTrainerOption = other => ({value:other.id,label:{zh:other.nickname,en:other.nickname}});
+function birdSupplyTargets(room, player) {
+  const flying=player.active.instanceId===room.turn.birdOrdinaryEntry &&
+    pokemonTypes(player.active.catalogueId,player.active.level).includes('flying');
+  return flying ? [player,...professionNeighbors(room,player)] : [player];
+}
+export function tourActions(room, player, catalogue) {
+  if (room.status !== 'playing' || player.eliminated || player.spectator ||
+      room.turn.playerId !== player.id || room.pendingBattle || room.pendingVote) return [];
+  const play = room.turn.phase === 'play', end = room.turn.phase === 'end', reserve = livingReserve(player, catalogue);
+  const actions = [];
+  const objective=play && objectiveAction(room,player);
+  if (objective) actions.push(objective);
+  const field = activeFieldWeather(room);
+  const observe = play && field && room.turn.hoennObservedWeather === field.kind &&
+      !room.turn.hoennObserved && player.hand.length && room.drawPile.length + room.discardPile.length > 0;
+  if (observe) actions.push('observe');
+  if (play && player.active.hoennIllusion && player.active.level>=2 && battleTraitsEffective(room,player.active) &&
+      !player.active.illusionDecoyId && player.hand.some(card=>card.kind!=='command')) actions.push('illusion-decoy');
+  if (play && hasPack(room.settings?.contentPack, HOENN_PACK) && player.active.catalogueId === 'hoenn-absol' &&
+      battleTraitsEffective(room, player.active) && !room.turn.hoennForecastUsed &&
+      room.drawPile.length + room.discardPile.length > 0) actions.push('forecast');
+  if (play && player.active.level === 3 && intactDisguise(room, player.active) &&
+      !player.active.reinforcements.includes('power')) actions.push('shed-disguise');
+  if (play && canContactRadio(room,player,catalogue)) actions.push('radio-contact');
+  if (play && viridianInvestigationTargets(room,player).length) actions.push('viridian-investigate');
+  if (end && player.profession==='brock' && room.turn.brockOrdinarySwitch && !room.turn.brockCareUsed &&
+      reserve && player.reserve.damage>0) actions.push('brock-care');
+  if (play && player.profession==='oak' && !player.professionUsed && reserve &&
+      room.drawPile.length+room.discardPile.length>0) actions.push('oak-register');
+  if (play && !player.professionUsed) {
+    if (player.profession==='disguise' && player.hand.length && tradeNeighbors(room,player).length) actions.push('disguise-trade');
+    if (player.profession==='looker' && professionNeighbors(room,player).length) actions.push('looker-inquiry');
+    if (player.profession==='birdkeeper' && room.turn.birdOrdinaryEntry &&
+        room.drawPile.length+room.discardPile.length>0) actions.push('bird-supply');
+  }
+  const present = kind=>({kind,name:objectiveActionNames[kind] ?? professionActionNames[kind] ?? tourActionNames[kind]});
+  if (!tourEnabled(room)) return actions.map(present);
+  if (play && !room.turn.tourPrepared && player.hand.length) actions.push('prepare');
+  if (play && surveyTopCard(room)) actions.push('publish-survey');
+  if (play && !room.turn.tourShowdownUsed && player.hand.length && showdownTargets(room, player).length) actions.push('showdown');
+  if (play && canGoAllOut(room, player, catalogue)) actions.push('all-out');
+  if (end && reserve && player.reserve.level < 3 && !room.turn.tourLevelUsed && player.hand.length) actions.push('train');
+  const handoff = room.turn.tourHandoff;
+  if (play && handoff && handoff.activeId === player.active.instanceId && handoff.reserveId === player.reserve?.instanceId &&
+      (player.active.item || player.reserve.item) && player.hand.length) actions.push('handoff');
+  if (play && player.active.catalogueId === 'tour-teddiursa' && battleTraitsEffective(room, player.active) &&
+      !room.turn.tourPickup && player.hand.some(card => room.discardPile.some(item => item.kind === 'held-item' && item.weather === card.weather))) actions.push('pickup');
+  return actions.map(present);
+}
+export function useTourAction(room, player, input, ctx) {
+  requireRule(tourActions(room, player, ctx.catalogue).some(action => action.kind === input.action), 'ACTION_UNAVAILABLE', 'This action is unavailable now.');
+  if (Object.hasOwn(objectiveActionNames,input.action))
+    return objectivePayment(room,player,input.action,player.hand,null,ctx);
+  if (input.action === 'brock-care') {
+    room.turn.brockCareUsed=true;
+    heal(player.reserve,1,ctx.catalogue);
+    note(room,'小刚为自己受伤的后备回复1点体力。','Brock restored 1 HP to the injured reserve.');
+    return;
+  }
+  if (input.action === 'oak-register') {
+    const count=Math.min(2,room.drawPile.length+room.discardPile.length);
+    refillDrawPile(room,count);
+    const top=room.drawPile.slice(-count).reverse();
+    player.reserve.revealed=true;
+    player.professionUsed=true;
+    note(room,`${player.nickname}发动图鉴登记，公开自己的后备。`,
+      `${player.nickname} used Pokédex Registration and revealed their reserve.`);
+    tourDecision(room,player,professionActionNames['oak-register'],top.map(tourCardOption),
+      {kind:'oak-order',cardIds:top.map(card=>card.id)},ctx,true);
+    room.pendingBattle.detail = {
+      zh:'选择哪张牌留在最上面。放弃则保持原顺序。',
+      en:'Choose the card to place on top, or pass to keep the current order.',
+    };
+    return;
+  }
+  if (input.action === 'disguise-trade') {
+    tourDecision(room,player,professionActionNames[input.action],tradeNeighbors(room,player).map(professionTrainerOption),
+      {kind:'disguise-target'},ctx,true);
+    room.pendingBattle.detail={zh:'选择一名有手牌的相邻训练家。',en:'Choose a neighbor who has hand cards.'};
+    return;
+  }
+  if (input.action === 'looker-inquiry') {
+    tourDecision(room,player,professionActionNames[input.action],professionNeighbors(room,player).map(professionTrainerOption),
+      {kind:'looker-target'},ctx,true);
+    room.pendingBattle.detail={zh:'选择一名相邻训练家，由对方决定公开哪项线索。',en:'Choose a neighbor, who will decide what to reveal.'};
+    return;
+  }
+  if (input.action === 'bird-supply') {
+    const targets=birdSupplyTargets(room,player);
+    if (targets.length===1) return giveBirdSupply(room,player,player);
+    tourDecision(room,player,professionActionNames[input.action],targets.map(professionTrainerOption),
+      {kind:'bird-recipient'},ctx,true);
+    room.pendingBattle.detail={zh:'选择摸一张牌的训练家。',en:'Choose who draws one card.'};
+    return;
+  }
+  if (input.action === 'radio-contact') {
+    return radioDecision(room,player,player.hand,{kind:'radio-first'},ctx);
+  }
+  if (input.action === 'viridian-investigate') {
+    return tourDecision(room,player,tourActionNames[input.action],viridianInvestigationTargets(room,player).map(target=>({
+      value:target.id,label:{zh:target.nickname,en:target.nickname},
+    })),{kind:'viridian-investigate-target'},ctx,true);
+  }
+  if (input.action === 'publish-survey') {
+    const revealed = surveyTopCard(room);
+    const [zh,en] = printedWeatherNames[revealed.weather];
+    room.turn.tourNightObservation = true;
+    delete room.tourDexSurvey;
+    note(room,`图鉴调查公开当前顶牌「${revealed.name.zh}」（${zh}）。本回合结束时进行夜间观察。`,
+      `Pokédex Survey revealed ${revealed.name.en} (${en}) on top of the deck. Night Observation is ready.`,
+      {tourCard:publicJudgmentFace(revealed)});
+    return;
+  }
+  if (input.action === 'shed-disguise') return tourDecision(room, player, tourActionNames[input.action],
+    [{ value: 'power', label: { zh: '消耗画皮并获得一枚力量强化', en: 'Spend Disguise and gain one Power marker' } }],
+    { kind: 'shed-disguise' }, ctx, true);
+  if (input.action === 'showdown') return showdownDecision(room, player, null,
+    { zh: '训练家对视 · 选择训练家', en: 'Trainer Showdown · choose a trainer' },
+    showdownTargets(room, player).map(other => ({ value: other.id, label: { zh: other.nickname, en: other.nickname } })),
+    { kind: 'showdown-target' }, ctx, true);
+  if (input.action === 'all-out') return tourDecision(room, player, tourActionNames['all-out'],
+    [{ value: 'pay', label: { zh: '支付 1 点体力，摸两张牌', en: 'Pay 1 HP and draw two cards' } }],
+    { kind: 'all-out' }, ctx, true);
+  if (input.action === 'illusion-decoy') return tourDecision(room,player,tourActionNames[input.action],
+    player.hand.filter(card=>card.kind!=='command').map(tourCardOption),
+    {kind:'illusion-decoy',activeId:player.active.instanceId},ctx,true);
+  if (input.action === 'forecast') {
+    refillDrawPile(room,1);
+    const card = room.drawPile.at(-1);
+    const [zh,en] = printedWeatherNames[card.weather];
+    const speed = player.active.level === 3 && card.weather === 'thunderstorm' && !player.active.reinforcements.includes('speed');
+    const options = [{
+      value:'keep', label: speed ? {zh:`保留${zh} · 获得速度强化`,en:`Keep ${en} · gain Speed`}
+        : {zh:`保留${zh}`,en:`Keep ${en}`},
+    }];
+    if (player.active.level >= 2 && room.drawPile.length + room.discardPile.length > 1) {
+      options.push({value:'bottom',label:{zh:'将这张牌置底',en:'Put it on the bottom'}});
+    }
+    room.turn.hoennForecastUsed = true;
+    return tourDecision(room, player, tourActionNames.forecast, options, {kind:'absol-forecast',cardId:card.id}, ctx, true);
+  }
+  const eligible = input.action === 'pickup' ? player.hand.filter(card =>
+    room.discardPile.some(item => item.kind === 'held-item' && item.weather === card.weather)) : player.hand;
+  tourDecision(room, player, tourActionNames[input.action], eligible.map(tourCardOption),
+    { kind: 'action', action: input.action, activeId: player.active.instanceId, reserveId: player.reserve?.instanceId }, ctx, true);
+}
+function giveBirdSupply(room, player, recipient) {
+  player.professionUsed=true;
+  drawBattleCards(room,recipient,1,'bird-supply');
+  note(room,`驯鸟补给使 ${recipient.nickname} 摸了一张牌。`,
+    `Bird Keeper’s Supply let ${recipient.nickname} draw one card.`);
+}
+const heldInquiryOption={value:'held',label:{zh:'回答后备是否有持有物',en:'Answer about the reserve’s held item'}};
+function resolveProfessionDecision(room, player, option, next, ctx) {
+  switch (next.kind) {
+    case 'bug-prize': {
+      const prize=bugPrizeCards(room,player,ctx.catalogue).find(card=>card.id===option.value);
+      requireRule(room.entryEvent && player.active.instanceId===next.activeId && prize,
+        'STALE_DECISION','The entry or discarded Item changed.');
+      room.discardPile.splice(room.discardPile.indexOf(prize),1);
+      player.professionUsed=true;
+      gainBattleCards(room,player,[prize],{reason:'bug-prize'});
+      note(room,`捕虫大会奖品使 ${player.nickname} 取回了${prize.name.zh}。`,
+        `Bug-Catching Prize let ${player.nickname} recover ${prize.name.en}.`,{tourCard:publicJudgmentFace(prize)});
+      room.entryEvent.index++;
+      return advanceBattleEntries(room,ctx);
+    }
+    case 'bird-recipient': {
+      const recipient=birdSupplyTargets(room,player).find(other=>other.id===option.value);
+      requireRule(recipient && !player.professionUsed,'STALE_DECISION','The recipient changed.');
+      return giveBirdSupply(room,player,recipient);
+    }
+    case 'researcher-forecast': {
+      const judgment=room.judgment;
+      requireRule(judgment?.judgeId===player.id && room.drawPile.at(-1)?.id===judgment.forecastId,
+        'STALE_DECISION','The forecast card changed.');
+      const index=player.hand.findIndex(card=>card.id===option.value);
+      requireRule(index>=0,'INVALID_CARD','Choose one of your hand cards.');
+      refillDrawPile(room,2);
+      room.drawPile.unshift(room.drawPile.pop());
+      room.discardPile.push(player.hand.splice(index,1)[0]);
+      note(room,'气象研究员弃一张手牌，将原顶牌置底后继续判定。','The Weather Researcher discarded a hand card and moved the original top card to the bottom.');
+      return revealJudgment(room,ctx,judgment.continuation,judgment.judgeId);
+    }
+    case 'disguise-target': {
+      const other=tradeNeighbors(room,player).find(seat=>seat.id===option.value);
+      requireRule(other && player.hand.length,'STALE_DECISION','The exchange partner changed.');
+      return tourDecision(room,player,{zh:'暗号交换 · 选择要提出的手牌',en:'Trade by Password · choose your offered card'},
+        player.hand.map(tourCardOption),{kind:'disguise-offer',recipientId:other.id},ctx,true);
+    }
+    case 'disguise-offer': {
+      const other=tradeNeighbors(room,player).find(seat=>seat.id===next.recipientId);
+      const offered=player.hand.find(card=>card.id===option.value);
+      requireRule(other && offered && !player.professionUsed,'STALE_DECISION','The offered card or the exchange partner changed.');
+      player.professionUsed=true;
+      const [zh,en]=printedWeatherNames[offered.weather];
+      const detail={
+        zh:`${player.nickname} 向 ${other.nickname} 提议交换一张${zh}手牌。`,
+        en:`${player.nickname} offered a ${en} card to ${other.nickname}.`,
+      };
+      note(room,detail.zh,detail.en);
+      tourDecision(room,other,trainerProfessions.disguise.action,[
+        ...other.hand.filter(card=>card.weather===offered.weather).map(tourCardOption),
+        {value:'decline',label:{zh:'拒绝交换',en:'Decline exchange'}},
+      ],{kind:'disguise-reply',sourceId:player.id,cardId:offered.id},ctx);
+      room.pendingBattle.detail=detail;
+      return;
+    }
+    case 'disguise-reply': {
+      if (option.value==='decline') {
+        note(room,`${player.nickname} 拒绝了暗号交换。`,`${player.nickname} declined the trade.`);
+        return;
+      }
+      const source=trainer(room,next.sourceId);
+      const sourceIndex=source?.hand.findIndex(card=>card.id===next.cardId) ?? -1;
+      const ownIndex=player.hand.findIndex(card=>card.id===option.value);
+      requireRule(sourceIndex>=0 && ownIndex>=0 && source.hand[sourceIndex].weather===player.hand[ownIndex].weather,
+        'STALE_DECISION','The matching hand cards changed.');
+      const [offered]=source.hand.splice(sourceIndex,1);
+      const [returned]=player.hand.splice(ownIndex,1);
+      gainBatches(room,[{player,cards:[offered]},{player:source,cards:[returned]}],'disguise-trade');
+      note(room,`${player.nickname} 与 ${source.nickname} 完成了暗号交换。`,
+        `${player.nickname} and ${source.nickname} completed the trade.`);
+      return;
+    }
+    case 'looker-target': {
+      const other=professionNeighbors(room,player).find(seat=>seat.id===option.value);
+      requireRule(other && !player.professionUsed,'STALE_DECISION','The interview target changed.');
+      player.professionUsed=true;
+      tourDecision(room,other,trainerProfessions.looker.action,[heldInquiryOption,
+        ...other.hand.map(tourCardOption)],{kind:'looker-reply'},ctx);
+      room.pendingBattle.detail={zh:'只公开所选手牌的天气，或存活后备是否有持有物。',
+        en:'Reveal only the chosen card’s weather, or whether your living reserve has a held item.'};
+      return;
+    }
+    case 'looker-reply': {
+      if (option.value==='held') {
+        const equipped=livingReserve(player,ctx.catalogue) && Boolean(player.reserve.item);
+        note(room,equipped ? `${player.nickname} 回答：存活后备有持有物。` : `${player.nickname} 回答：没有携带持有物的存活后备。`,
+          equipped ? `${player.nickname} confirmed their living reserve holds an item.` :
+            `${player.nickname} confirmed they have no living reserve with an item.`);
+        return;
+      }
+      const card=player.hand.find(card=>card.id===option.value);
+      requireRule(card,'INVALID_CARD','Choose one of your hand cards.');
+      const [zh,en]=printedWeatherNames[card.weather];
+      note(room,`${player.nickname} 回答：一张手牌的天气为${zh}。`,
+        `${player.nickname} reported a hand card with ${en} weather.`);
+    }
+  }
+}
+export function tourTimeoutChoice(pending) {
+  if (pending.kind !== 'expansion') return null;
+  const { kind } = pending.continuation;
+  if (kind === 'showdown-reveal') return { choice: 'choose', effect: pending.options[randomInt(pending.options.length)].value };
+  if (kind==='rocket-pledge') return {choice:'choose',effect:'independent'};
+  if (['oak-order','bug-prize','bird-recipient','researcher-forecast','disguise-target','disguise-offer','looker-target'].includes(kind)) return {choice:'pass'};
+  if (kind==='objective-payment') return {choice:'pass'};
+  if (kind==='disguise-reply') return {choice:'choose',effect:'decline'};
+  if (kind==='looker-reply') return {choice:'choose',effect:'held'};
+  if (kind==='gym-guard' || kind.startsWith('viridian-investigate-')) return {choice:'pass'};
+  if (kind === 'showdown-target' || kind === 'showdown-commit' || kind === 'all-out' || kind === 'shed-disguise' || kind === 'follow-me' || kind === 'radio-first' || kind === 'radio-second') return { choice: 'pass' };
+  return null;
+}
+function respondTour(room, player, input, ctx) {
+  const pending = room.pendingBattle, next = pending.continuation;
+  requireRule(Object.keys(input).every(key => ['id', 'revision', 'type', 'decisionId', 'choice', 'effect'].includes(key)),
+    'INVALID_RESPONSE', 'Only submit an available tour choice.');
+  if (input.choice === 'pass') {
+    requireRule(pending.allowPass && input.effect === undefined, 'INVALID_RESPONSE', 'Choose an available option.');
+    room.pendingBattle = null;
+    if (next.kind === 'follow-me' || next.kind === 'gym-guard') return finishTargetAssignment(room,ctx);
+    if (next.kind === 'wobbuffet-counter') return continueReceiving(room,ctx);
+    if (next.kind === 'air-lock') return settleDamage(room,ctx);
+    if (next.kind === 'light-clay') return finishResolution(room,ctx);
+    if (['post-switch','emergency-retreat'].includes(next.kind)) return advanceTourSwitches(room, ctx);
+    if (next.kind === 'roadblock-switch') return finishTourTool(room);
+    if (next.kind === 'future-sight-event' || next.kind === 'future-sight-payment') return advanceJudgment(room, ctx);
+    if (next.kind==='researcher-forecast') return revealJudgment(room,ctx,room.judgment.continuation,room.judgment.judgeId);
+    if (next.kind==='bug-prize') {
+      room.entryEvent.index++;
+      return advanceBattleEntries(room,ctx);
+    }
+    return;
+  }
+  const option = pending.options.find(option => option.value === input.effect);
+  requireRule(input.choice === 'choose' && option, 'INVALID_RESPONSE', 'Choose an available option.');
+  room.pendingBattle = null;
+  if (next.kind==='objective-payment') return resolveObjectivePayment(room,player,option,next,ctx);
+  if (['bug-prize','bird-recipient','researcher-forecast'].includes(next.kind) ||
+      next.kind.startsWith('disguise-') || next.kind.startsWith('looker-')) {
+    return resolveProfessionDecision(room,player,option,next,ctx);
+  }
+  if (next.kind === 'rocket-pledge') {
+    const viridian = room.scenario.viridian;
+    requireRule(room.settings.rocketInfiltration && viridian.round===INFILTRATOR_ROUND &&
+      !viridian.infiltrator && player.role==='infiltrator' && !player.eliminated,
+      'STALE_DECISION','The infiltrator has already declared allegiance or left the game.');
+    const joined = option.value==='rocket';
+    if (joined) player.role = 'rocket';
+    viridian.infiltrator = {playerId:player.id,choice:option.value};
+    revealBattleIdentity(room,player);
+    note(room,joined?`${player.nickname}公开身份并加入火箭队。`:`${player.nickname}公开身份，选择保持独立。`,
+      joined?`${player.nickname} revealed their identity and joined Team Rocket.`:`${player.nickname} revealed their identity and stayed independent.`);
+    return continueBattleTurnStart(room,trainer(room,room.turn.playerId),ctx);
+  }
+  if (next.kind === 'radio-first' || next.kind === 'radio-second') return resolveRadioContact(room,player,option.value,next,ctx);
+  if (next.kind.startsWith('viridian-investigate-')) return resolveViridianInvestigation(room,player,option,next,ctx);
+  if (next.kind === 'gym-guard') {
+    const assignment = gymGuardForMove(room,ctx);
+    requireRule(assignment?.leader.active.instanceId===next.leaderInstance &&
+      assignment.protector.id===player.id && player.active.instanceId===next.guardInstance,
+      'STALE_DECISION','The Gym Guard or the original target changed.');
+    const resolution = room.resolution;
+    room.scenario.viridian.guard.used = true;
+    resolution.targetIds[0] = player.id;
+    visualEvent(room,'ability',{sourceId:player.id,targetIds:[assignment.leader.id],name:gymGuardName});
+    note(room,`${player.nickname}发动道馆护卫，替 ${assignment.leader.nickname} 承接${resolution.moveName.zh}。`,
+      `${player.nickname} used Gym Guard to take ${resolution.moveName.en} for ${assignment.leader.nickname}.`,
+      {camera:effectCamera(room,resolution)});
+    return finishTargetAssignment(room,ctx);
+  }
+  if (next.kind === 'follow-me') {
+    const resolution = room.resolution, ally = trainer(room,pending.targetId);
+    requireRule(ally?.active?.instanceId===next.targetInstance && player.active?.instanceId===next.coverInstance &&
+      followMeCandidates(room,ctx).some(candidate=>candidate.id===player.id),
+      'STALE_DECISION','The trainer or the attack target changed.');
+    room.discardPile.push(takeCard(player,option.value,option.card.kind));
+    resolution.targetIds[0] = player.id;
+    resolution.followMeAccepted = true;
+    const name = tourActionNames['follow-me'];
+    visualEvent(room,'ability',{sourceId:player.id,targetIds:[ally.id],name});
+    note(room,`${player.nickname}用「看我嘛」替 ${ally.nickname} 承接了${resolution.moveName.zh}。`,
+      `${player.nickname} used Follow Me to take ${resolution.moveName.en} for ${ally.nickname}.`,
+      {camera:effectCamera(room,resolution)});
+    return finishTargetAssignment(room,ctx);
+  }
+  if (next.kind === 'shed-disguise') {
+    requireRule(intactDisguise(room, player.active) && !player.active.reinforcements.includes('power'),
+      'ACTION_UNAVAILABLE', 'Mimikyu cannot spend Disguise now.');
+    spendDisguise(room, player, ctx);
+    player.active.reinforcements.push('power');
+    note(room, '谜拟丘主动解除画皮，获得一枚力量强化。', 'Mimikyu spent Disguise and gained one Power marker.');
+    return;
+  }
+  if (next.kind.startsWith('showdown-')) return resolveShowdown(room, player, option, next, ctx);
+  if (next.kind === 'all-out') {
+    requireRule(canGoAllOut(room, player, ctx.catalogue), 'ACTION_UNAVAILABLE', 'This trainer cannot pay 1 HP and draw two cards.');
+    player.tourAllOutUsed = true;
+    applyDamage(player.active, 1, ctx.catalogue);
+    drawBattleCards(room, player, 2, 'all-out');
+    note(room, `${player.nickname}发动「拼尽全力」，支付1点体力并摸两张牌。`,
+      `${player.nickname} used Go All Out, paid 1 HP, and drew two cards.`);
+    return;
+  }
+  if (next.kind === 'illusion-decoy') {
+    requireRule(player.active?.instanceId===next.activeId && player.active.hoennIllusion &&
+      player.active.level>=2 && !player.active.illusionDecoyId &&
+      player.hand.some(card=>card.id===option.value && card.kind!=='command'),
+      'INVALID_RESPONSE','Choose a non-command card from your own hand while disguised.');
+    player.active.illusionDecoyId=option.value;
+    return;
+  }
+  if (next.kind === 'wobbuffet-counter') {
+    const parent = room.resolution, pokemon = player.active;
+    const response = wobbuffetResponse(room,player,ctx.catalogue);
+    const card = response?.cards.find(card=>card.id===option.value);
+    requireRule(response?.source.active.instanceId===next.sourceId && card,'STALE_DECISION','The incoming move or counter payment changed.');
+    player.hand.splice(player.hand.indexOf(card),1);
+    room.discardPile.push(card);
+    (room.turn.wobbuffetCounterIds ??= []).push(pokemon.instanceId);
+    (room.resolutionStack ??= []).push(parent);
+    const source = response.source;
+    room.resolution = {kind:'retaliation',sourceId:pokemon.instanceId,sourcePlayerId:player.id,
+      targetIds:[source.id], targetCreatureId:source.active.instanceId, moveName:response.move.name,
+      sourceAfterDone:true, sourceItemAfterDone:true, damagedIds:[], defenseIds:[], actualDamage:0};
+    const amount = pokemon.level===3 ? Math.min(2,parent.actualDamage) : 1;
+    note(room,`${response.move.name.zh}向原招式来源反击。`,`${response.move.name.en} struck back at the original attacker.`);
+    visualEvent(room,'attack',{sourceId:player.id,targetIds:[source.id],name:response.move.name,release:true});
+    return resolveDealtDamage(room,ctx,amount);
+  }
+  if (next.kind === 'air-lock') {
+    const resolution = room.resolution;
+    requireRule(resolution?.targetCreatureId === player.active?.instanceId && weatherBallBonus(resolution) && !resolution.airLockApplied,
+      'STALE_DECISION','The weather damage changed.');
+    requireRule(player.hand.some(card => card.id === option.value && isAirLock(card)),'INVALID_CARD','Choose a held Air Lock response.');
+    const card = takeCard(player,option.value,'event');
+    room.discardPile.push(card);
+    resolution.airLockApplied = true;
+    visualEvent(room,'event',{sourceId:player.id,targetIds:[player.id],name:card.name,effect:card.eventType});
+    note(room,'烈空坐的气闸抵消了这次气象球的天气增伤。','Rayquaza’s Air Lock canceled the weather bonus on this Weather Ball.');
+    return settleDamage(room,ctx);
+  }
+  if (next.kind === 'light-clay') {
+    const resolution = room.resolution, pokemon = player.active;
+    requireRule(resolution && pokemon?.instanceId === next.pokemonId && canUseLightClay(room,resolution,pokemon,next.itemId,ctx.catalogue),
+      'STALE_DECISION','The defense marker or held item changed.');
+    room.discardPile.push(pokemon.item);
+    delete pokemon.item;
+    pokemon.hoennClayDefense = true;
+    (resolution.retainedDefenseIds ??= []).push(pokemon.instanceId);
+    note(room,'光之黏土保留了一次防御强化。','Light Clay kept the Defense marker for one more settlement.');
+    return finishResolution(room,ctx);
+  }
+  if (next.kind === 'future-sight-event' || next.kind === 'future-sight-payment') {
+    const judgment = room.judgment;
+    requireRule(judgment?.card && !judgment.futureSightUsed && room.drawPile.length + room.discardPile.length > 0,
+      'STALE_DECISION', 'There is no longer a judgment to replace.');
+    const eventId = next.kind === 'future-sight-event' ? option.value : next.eventId;
+    const event = player.hand.find(card => card.id === eventId && isFutureSight(card));
+    requireRule(event, 'INVALID_CARD', 'Choose a Future Sight card from your own hand.');
+    const matches = card => card.id !== event.id && card.weather === judgment.card.weather;
+    if (next.kind === 'future-sight-event') {
+      return futureSightDecision(room, player,
+        { zh:'预知未来 · 弃一张同天气手牌', en:'Future Sight · discard a matching weather card' },
+        player.hand.filter(matches), { kind:'future-sight-payment', eventId }, ctx);
+    }
+    const cost = player.hand.find(card => card.id === option.value && matches(card));
+    requireRule(cost, 'INVALID_CARD', 'Choose a different card with the current judgment weather.');
+    const replacement = topCard(room);
+    room.drawPile.unshift(judgment.card);
+    player.hand = player.hand.filter(card => card !== event && card !== cost);
+    room.discardPile.push(event, cost);
+    judgment.card = replacement;
+    judgment.futureSightUsed = true;
+    visualEvent(room, 'event', { sourceId:player.id, targetIds:[judgment.judgeId], effect:event.eventType, name:event.name });
+    note(room, '预知未来将原判定牌置底，并翻出一张新的判定牌。', 'Future Sight put the old judgment card on the bottom and revealed a new one.',
+      { judgment:publicJudgmentFace(replacement) });
+    return advanceJudgment(room, ctx);
+  }
+  if (next.kind === 'absol-forecast') {
+    const top = room.drawPile.at(-1);
+    requireRule(top?.id === next.cardId, 'STALE_DECISION', 'The top card has changed.');
+    if (option.value === 'bottom') {
+      refillDrawPile(room,2);
+      room.drawPile.unshift(room.drawPile.pop());
+    } else if (player.active.level === 3 && top.weather === 'thunderstorm' && !player.active.reinforcements.includes('speed')) {
+      player.active.reinforcements.push('speed');
+    }
+    return;
+  }
+  if (next.kind === 'oak-order') {
+    const top=room.drawPile.slice(-next.cardIds.length).reverse();
+    requireRule(next.cardIds.every((id,index)=>top[index]?.id===id),'STALE_DECISION','The registered cards moved.');
+    if (option.value!==top[0].id) {
+      room.drawPile.pop();
+      room.drawPile.pop();
+      room.drawPile.push(top[0],top[1]);
+    }
+    return;
+  }
+  if (next.kind === 'dex') {
+    const cards = room.expansionTool.peek;
+    const ordered = [cards.find(card => card.id === option.value), ...cards.filter(card => card.id !== option.value)];
+    room.drawPile.push(...ordered.reverse());
+    room.tourDexSurvey = {cardId:option.value,turnNumber:room.turn.number};
+    delete room.expansionTool.peek;
+    return finishTourTool(room);
+  }
+  if (next.kind === 'recycle' || next.kind === 'pickup-item') {
+    const index = room.discardPile.findIndex(card => card.id === option.value);
+    requireRule(index >= 0, 'INVALID_CARD', 'The discarded card is unavailable.');
+    const [card] = room.discardPile.splice(index, 1);
+    gainBattleCards(room, player, [card], { reason: 'tour-retrieval' });
+    note(room, '公开取回了一张弃牌。', 'A discarded card was publicly retrieved.', { tourCard: { name: card.name, weather: card.weather } });
+    return finishTourTool(room);
+  }
+  if (next.kind === 'gift') {
+    const event = room.resolution, recipient = trainer(room, next.recipientId);
+    requireRule(event?.eventType === 'tour-gift' && recipient && !recipient.eliminated, 'STALE_DECISION', 'The gift recipient changed.');
+    if (option.value === 'done') return finishTourGift(room, ctx);
+    const index = player.hand.findIndex(card => card.id === option.value);
+    requireRule(index >= 0, 'INVALID_CARD', 'Choose a card from your hand.');
+    gainBattleCards(room, recipient, player.hand.splice(index, 1), { reason: 'tour-gift' });
+    event.giftCount = (event.giftCount || 0) + 1;
+    if (event.giftCount === 2 || !player.hand.length) return finishTourGift(room, ctx);
+    return tourDecision(room, player, pending.title,
+      [{ value: 'done', label: { zh: '结束赠礼', en: 'Finish gift' } }, ...player.hand.map(tourCardOption)],
+      next, ctx);
+  }
+  if (next.kind === 'emergency-retreat') {
+    const event = room.tourAfterSwitches, entry = event.entries[event.index - 1];
+    requireRule(tourSwitchValid(room,entry,ctx) && entry.playerId===player.id,'STALE_DECISION','The retreating partners changed.');
+    event.switchedIds.push(player.id);
+    return requestBattleSwitch(room,player,'emergency-retreat',ctx);
+  }
+  if (next.kind === 'post-switch') {
+    const event = room.tourAfterSwitches, entry = event.entries[event.index - 1];
+    const holder = trainer(room, entry.holderId), switching = trainer(room, entry.playerId);
+    if (tourSwitchValid(room, entry, ctx)) {
+      room.discardPile.push(holder.active.item);
+      delete holder.active.item;
+      event.switchedIds.push(switching.id);
+      if(holder.active.catalogueId==='mankey'&&battleTraitsEffective(room,holder.active)) {
+        room.tourDefiantNext={kind:'switch',playerId:switching.id};
+        decision(room,'defiant',holder.id,holder.id,ctx);return;
+      }
+      return requestBattleSwitch(room, switching, 'tour-post', ctx);
+    }
+    return advanceTourSwitches(room, ctx);
+  }
+  if (next.kind === 'crunch') {
+    const target = creature(room, room.resolution.targetCreatureId);
+    if (option.value === 'discard' && target.item) {
+      room.discardPile.push(target.item); delete target.item;
+      if (target.catalogueId === 'mankey' && battleTraitsEffective(room, target)) {
+        room.tourDefiantNext={kind:'damage'};
+        decision(room, 'defiant', player.id, player.id, ctx);
+        return;
+      }
+      return afterDamage(room, ctx);
+    }
+    room.resolution.tourCrunchDamage = true;
+    return receiveDamage(room, ctx, 1);
+  }
+  const index = player.hand.findIndex(card => card.id === option.value);
+  requireRule(index >= 0, 'INVALID_CARD', 'Choose a card from your own hand.');
+  const [card] = player.hand.splice(index, 1);
+  if (next.kind === 'roadblock-switch') {
+    room.discardPile.push(card);
+    note(room, '本次普通交替已为卡比兽堵路弃置一张手牌。', 'A hand card was discarded to attempt an ordinary switch through Snorlax Roadblock.');
+    return beginBattleSwitch(room, player, 'ordinary', ctx);
+  }
+  if (next.kind === 'gear') {
+    room.discardPile.push(card);
+    drawBattleCards(room, player, Math.min(1, room.drawPile.length + room.discardPile.length), 'tour-gear');
+    return finishTourTool(room);
+  }
+  requireRule(next.kind === 'action' && player.active.instanceId === next.activeId &&
+    player.reserve?.instanceId === next.reserveId, 'STALE_DECISION', 'Your partners changed.');
+  if (next.action === 'prepare' || next.action === 'observe') {
+    const observe = next.action === 'observe';
+    if (observe) {
+      room.turn.hoennObserved = true;
+      refillDrawPile(room, 1);
+    } else room.turn.tourPrepared = true;
+    room.drawPile.unshift(card);
+    drawBattleCards(room, player, 1, observe ? 'hoenn-observe' : 'tour-prepare');
+  } else {
+    room.discardPile.push(card);
+    if (next.action === 'train') {
+      player.reserve.revealed = true; player.reserve.level++; room.turn.tourLevelUsed = true;
+      delete room.turn.tourLevelTarget;
+    }
+    if (next.action === 'handoff') {
+      const item = player.active.item;
+      player.active.item = player.reserve.item;
+      player.reserve.item = item;
+      delete room.turn.tourHandoff;
+      // Losing or replacing an active item uses Defiant's existing continuation.
+      if (item && player.active.catalogueId === 'mankey' && battleTraitsEffective(room, player.active)) {
+        decision(room, 'defiant', player.id, player.id, ctx);
+      }
+    }
+    if (next.action === 'pickup') {
+      room.turn.tourPickup = true;
+      return tourDecision(room, player, tourActionNames.pickup,
+        room.discardPile.filter(item => item.kind === 'held-item' && item.weather === card.weather).map(tourCardOption),
+        { kind: 'pickup-item' }, ctx);
+    }
+  }
+  note(room, '巡回行动已完成。', 'The tour action resolved.');
+}
+function finishTourGift(room, ctx) {
+  const event = room.resolution, source = creature(room, event.actorCreatureId);
+  if (event.giftCount === 2 && activeOwner(room, source?.instanceId)) heal(source, 1, ctx.catalogue);
+  note(room, '赠礼已完成，手牌内容仅双方可见。', 'The gift resolved. Card faces are private to the participants.');
+  return nextSettlement(room, ctx);
+}
+function queueEmergencyRetreat(resolution,player) {
+  resolution.tourSwitches ??= [];
+  if (!resolution.tourSwitches.some(entry=>entry.kind==='emergency-retreat' && entry.playerId===player.id)) {
+    resolution.tourSwitches.push({kind:'emergency-retreat',holderId:player.id,playerId:player.id,
+      activeId:player.active.instanceId,reserveId:player.reserve?.instanceId});
+  }
+}
+function tourSwitchValid(room, entry, ctx) {
+  if (entry.kind==='emergency-retreat') {
+    const owner=trainer(room,entry.playerId);
+    return owner && !owner.emergencyRetreatDebt && owner.active?.instanceId===entry.activeId &&
+      owner.reserve?.instanceId===entry.reserveId && tourCanSwitch(room,owner,ctx.catalogue) &&
+      !room.tourAfterSwitches.switchedIds.includes(owner.id);
+  }
+  const holder = trainer(room, entry.holderId), switching = trainer(room, entry.playerId);
+  return holder && !holder.eliminated && holder.active?.instanceId === entry.holderInstanceId &&
+    activeItemIs(room, holder.active, entry.itemType) && holder.active.item.id === entry.itemId &&
+    currentHp(holder.active, ctx.catalogue) > 0 &&
+    switching?.active?.instanceId === entry.activeId && tourCanSwitch(room, switching, ctx.catalogue) &&
+    !room.tourAfterSwitches.switchedIds.includes(switching.id);
+}
+function queueTourSwitch(room, target, ctx) {
+  const resolution = room.resolution;
+  if (resolution.kind !== 'move' || resolution.tourCrunchDamage) return;
+  const holder = activeOwner(room, target.instanceId);
+  if (!holder || !['tour-eject', 'tour-red-card'].some(type => activeItemIs(room, target, type))) return;
+  const item = target.item;
+  const playerId = item.itemType === 'tour-eject' ? holder.id : resolution.sourcePlayerId;
+  const switching = trainer(room, playerId);
+  if (!switching) return;
+  resolution.tourSwitches ??= [];
+  if (resolution.tourSwitches.some(entry => entry.itemId === item.id)) return;
+  resolution.tourSwitches.push({ holderId: holder.id, holderInstanceId: target.instanceId, itemId: item.id,
+    itemType: item.itemType, playerId, activeId: switching.active.instanceId });
+}
+function advanceTourSwitches(room, ctx) {
+  const event = room.tourAfterSwitches;
+  while (event.index < event.entries.length) {
+    const entry = event.entries[event.index++];
+    if (!tourSwitchValid(room, entry, ctx)) continue;
+    const holder = trainer(room, entry.holderId);
+    if (entry.kind==='emergency-retreat') return tourDecision(room,holder,emergencyRetreat.name,
+      [{value:'switch',label:{zh:'交替 · 占用下回合普通交替',en:'Switch · use next turn’s ordinary switch'}}],
+      {kind:'emergency-retreat'},ctx,true);
+    return tourDecision(room, holder, holder.active.item.name,
+      [{ value: 'switch', label: { zh: '弃物并交替', en: 'Discard item and switch' } }],
+      { kind: 'post-switch' }, ctx, true);
+  }
+  const resolution = event.resolution;
+  delete room.tourAfterSwitches;
+  room.resolution = resolution;
+  return finishResolution(room, ctx);
 }

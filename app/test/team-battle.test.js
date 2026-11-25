@@ -34,10 +34,13 @@ function createTeamRoom(t, teamAssignment) {
     for (const trainer of seats) act(trainer, 'ready', { ready: true });
     return act(host, 'startBattlePreview');
   };
-  const select = () => {
+  const select = candidateGroups => {
     for (const trainer of seats) act(trainer, 'acknowledgeIdentity');
     const groups = [];
-    for (const trainer of seats) {
+    for (const [index, trainer] of seats.entries()) {
+      if (candidateGroups) {
+        room().players.find(player => player.id === trainer.playerId).candidateDeal = candidateGroups[index];
+      }
       let pick;
       for (let draw = 0; draw < 5; draw++) pick = act(trainer, 'drawPokemon');
       assert.equal(new Set(pick.self.candidates).size, 5);
@@ -106,7 +109,10 @@ test('a two-human team battle resolves an actual final knockout and returns to i
   match.settings('teams');
   match.add();
   match.start();
-  match.select();
+  match.select([
+    ['bulbasaur','charmander','pidgey','caterpie','weedle'],
+    ['squirtle','pikachu','abra','machop','mankey'],
+  ]);
   const room = match.room();
   const [attacker, defender] = room.players;
   const who = id => match.seats.find(seat => seat.playerId === id);

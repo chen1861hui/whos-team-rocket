@@ -1,7 +1,8 @@
 import { createServer as createHttpServer } from 'node:http';
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
+import { expansionPokemon, MIMIKYU_ID, mimikyuModelDexes } from '../public/expansion-content.js';
 import { ApiError, RoomStore } from './store.js';
 import { playCardArtFiles } from '../public/play-card-face.js';
 import { pokemonTypeIconPaths } from '../public/pokemon-types.js';
@@ -14,12 +15,16 @@ const staticFiles = new Map([
   ['/index.html', ['index.html', 'text/html; charset=utf-8']],
   ['/ai-worker.js', ['ai-worker.js', 'text/javascript; charset=utf-8']],
   ['/match-mode.js', ['match-mode.js', 'text/javascript; charset=utf-8']],
+  ['/expansion-content.js', ['expansion-content.js', 'text/javascript; charset=utf-8']],
   ['/app.js', ['app.js', 'text/javascript; charset=utf-8']],
+  ['/rulebook.js', ['rulebook.js', 'text/javascript; charset=utf-8']],
+  ['/trainer-professions.js', ['trainer-professions.js', 'text/javascript; charset=utf-8']],
   ['/styles.css', ['styles.css', 'text/css; charset=utf-8']],
   ['/catalogue.json', ['catalogue.json', 'application/json; charset=utf-8']],
   ['/combat-ui.js', ['combat-ui.js', 'text/javascript; charset=utf-8']],
   ['/play-card-face.js', ['play-card-face.js', 'text/javascript; charset=utf-8']],
   ['/pokemon-types.js', ['pokemon-types.js', 'text/javascript; charset=utf-8']],
+  ['/battlefield-objectives.js', ['battlefield-objectives.js', 'text/javascript; charset=utf-8']],
   ['/battlefield.js', ['battlefield.js', 'text/javascript; charset=utf-8']],
   ['/trainer-profiles.js', ['trainer-profiles.js', 'text/javascript; charset=utf-8']],
   ['/battlefield-effects.js', ['battlefield-effects.js', 'text/javascript; charset=utf-8']],
@@ -28,6 +33,7 @@ const staticFiles = new Map([
   ['/battlefield-effect-recipes.js', ['battlefield-effect-recipes.js', 'text/javascript; charset=utf-8']],
   ['/game-audio.js', ['game-audio.js', 'text/javascript; charset=utf-8']],
   ['/pokemon-battle-motion.js', ['pokemon-battle-motion.js', 'text/javascript; charset=utf-8']],
+  ['/pokemon-model-effects.js', ['pokemon-model-effects.js', 'text/javascript; charset=utf-8']],
   ['/battlefield-terrain.js', ['battlefield-terrain.js', 'text/javascript; charset=utf-8']],
   ['/battlefield-fire.js', ['battlefield-fire.js', 'text/javascript; charset=utf-8']],
   ['/battlefield-grass.js', ['battlefield-grass.js', 'text/javascript; charset=utf-8']],
@@ -63,6 +69,9 @@ for (const name of ['ice','flow','ring','leaf','laser','shock']) {
 }
 for (const id of ["charmander", "bulbasaur", "squirtle", "grimer", "shellder", "gastly", "caterpie", "weedle", "pidgey", "sandshrew", "pikachu", "abra", "psyduck", "meowth", "machop", "slowpoke", "magikarp", "dratini", "mankey", "clefairy", "vulpix", "nidoran-m", "diglett", "growlithe", "magnemite", "exeggcute", "cubone", "koffing", "rhyhorn", "chansey", "kangaskhan", "staryu", "scyther", "jynx", "electabuzz", "tauros", "lapras", "porygon", "aerodactyl", "snorlax"]) staticFiles.set(`/pokemon-art/${id}.png`, [`pokemon-art/${id}.png`, 'image/png']);
 for (const dex of [2, 3, 5, 6, 8, 9, 11, 12, 14, 15, 17, 18, 26, 28, 33, 34, 36, 38, 51, 53, 55, 57, 59, 64, 65, 67, 68, 80, 82, 89, 91, 93, 94, 103, 105, 110, 112, 121, 130, 148, 149]) staticFiles.set(`/pokemon-art/forms/${dex}.png`, [`pokemon-art/forms/${dex}.png`, 'image/png']);
+staticFiles.set('/play-card-art/sand-grains.png', ['play-card-art/sand-grains.png', 'image/png']);
+for (const pokemon of expansionPokemon) for (const dex of pokemon.forms) staticFiles.set(`/pokemon-art/tour/${dex}.png`, [`pokemon-art/tour/${dex}.png`, 'image/png']);
+for (const form of ['351-sun','351-rain','351-hail',mimikyuModelDexes[1]]) staticFiles.set(`/pokemon-art/tour/${form}.png`, [`pokemon-art/tour/${form}.png`, 'image/png']);
 for (const trainer of [...civilianProfiles, ...Object.values(gymLeaderProfiles), ...Object.values(roleProfiles).flat(), ...Object.values(partnerProfiles), 'blue', 'mina', 'trace']) {
   const path = `trainer-models/${trainer}.glb`;
   staticFiles.set(`/${path}`, [path, 'model/gltf-binary']);
@@ -80,7 +89,7 @@ for (const track of [...Object.values(musicTracks), ...recordedMoves.map(move=>`
 for (const path of pokemonTypeIconPaths) {
   staticFiles.set(path, [path.slice(1), 'image/png']);
 }
-const modelFiles = /^\/pokemon-models\/([1-9]\d{0,2})\.glb$/;
+const modelFiles = /^\/pokemon-models\/([1-9]\d{0,2}|351-(?:sun|rain|hail)|778-busted|130-red)\.glb$/;
 const vendorFiles = new Map([
   ['/vendor/three.module.js', join(appDir, 'node_modules/three/build/three.module.js')],
   ['/vendor/three.core.js', join(appDir, 'node_modules/three/build/three.core.js')],
@@ -111,7 +120,10 @@ function credential(req) {
 }
 
 export function createApplication({ store, dataDir = join(appDir, '.data'), publicDir = join(appDir, 'public'), catalogue, now, cleanupIntervalMs = 30_000, publicOrigin } = {}) {
-  const rooms = store || new RoomStore({ dataDir, catalogue: catalogue || JSON.parse(readFileSync(join(appDir, 'content', 'catalogue.json'), 'utf8')), now });
+  const mimikyuAvailable = mimikyuModelDexes.every(dex => [`pokemon-models/${dex}.glb`, `pokemon-art/tour/${dex}.png`]
+    .every(file => statSync(join(publicDir, file), { throwIfNoEntry: false })?.isFile()));
+  const entries = catalogue || JSON.parse(readFileSync(join(appDir, 'content', 'catalogue.json'), 'utf8'));
+  const rooms = store || new RoomStore({ dataDir, catalogue: { ...entries, mimikyuAvailable }, now });
   const server = createHttpServer(async (req, res) => {
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -149,6 +161,19 @@ export function createApplication({ store, dataDir = join(appDir, '.data'), publ
         let data;
         try { data = readFileSync(join(publicDir, asset[0])); }
         catch (error) { if (error.code === 'ENOENT') throw new ApiError(404, 'NOT_FOUND', 'File not found.'); throw error; }
+        if (path === '/catalogue.json' && mimikyuAvailable && rooms.catalogue.entries.some(entry => entry.id === MIMIKYU_ID)) {
+          return send(res, 200, { ...JSON.parse(data), mimikyuAvailable: true });
+        }
+        if (path === '/pokemon-models/forms.json') {
+          const forms = JSON.parse(data);
+          const present = new Set(expansionPokemon.flatMap(pokemon => pokemon.forms).filter(dex =>
+            statSync(join(publicDir, 'pokemon-models', dex + '.glb'), { throwIfNoEntry: false })?.isFile()));
+          for (const pokemon of expansionPokemon) {
+            const levels = pokemon.forms.map(dex => present.has(dex) ? dex : null);
+            if (levels.some(Boolean)) forms[pokemon.id] = levels;
+          }
+          return send(res, 200, forms);
+        }
         const cacheable = asset[1] === 'model/gltf-binary' || asset[1] === 'audio/mpeg';
         const headers = { 'Content-Type': asset[1], 'Content-Length': data.length, ...(cacheable ? {'Cache-Control':'public, max-age=86400'} : {}) };
         if (asset[1] === 'audio/mpeg') {

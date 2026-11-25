@@ -1,4 +1,5 @@
 import { randomUUID } from 'node:crypto';
+import { expansionCards } from '../public/expansion-content.js';
 import { retailCounts, retailWeathers } from './retail-deck-counts.js';
 
 export const BASIC_DECK = 'basic';
@@ -26,7 +27,7 @@ function countedWeather(key) {
   return retailWeathers.flatMap((weather, index) => Array(retailCounts[key][index]).fill(weather));
 }
 
-export function playtestDeckPlan(profile, seats, catalogue) {
+export function playtestDeckPlan(profile, seats, catalogue, contentPack) {
   if (!isDeckProfile(profile)) return null;
   const retail = profile === RETAIL_DECK;
   const reviewed = profile !== BASIC_DECK;
@@ -54,11 +55,14 @@ export function playtestDeckPlan(profile, seats, catalogue) {
       }
     }
   }
+  const expansion = expansionCards(contentPack);
+  extras.push(...expansion);
   const cards = [...(retail ? commandAndDodge : Array.from({ length: seats }, () => commandAndDodge).flat()), ...extras];
   return {
     cards,
     summary: {
       deckProfile: profile,
+      ...(expansion.length ? { contentPack } : {}),
       ...(retail ? {} : { cardsPerSeat: commandAndDodge.length, commandPerSeat: commands.length, dodgePerSeat: dodges.length }),
       deckCardCount: cards.length, extraCardCount: extras.length,
       articunoReactions: extras.some(card => card.eventType === 'articuno-protection'),

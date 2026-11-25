@@ -1,8 +1,11 @@
 import { isTeamRole } from './match-mode.js';
+import { trainerProfessions } from './trainer-professions.js';
 import {playCardFace} from './play-card-face.js';
+import {canCoordinateCommand, emergencyRetreat} from './expansion-content.js';
 
 const words = {
-  'team-a':['Team A','A 队'], 'team-b':['Team B','B 队'],
+  'team-a':['Team A','A 队'], 'team-b':['Team B','B 队'], 'team-c':['Team C','C 队'],
+  jessie:['Jessie','武藏'], james:['James','小次郎'], infiltrator:['Rocket Infiltrator','火箭队潜伏者'],
   leader:['Gym Leader','道馆馆主'], gym:['Gym Trainer','道馆训练家'], challenger:['Challenger','挑战者'], rocket:['Rocket Grunt','火箭队手下'], hidden:['Hidden identity','隐藏身份'],
   burn:['Burn','灼伤'], flinch:['Flinch','畏缩'], sleep:['Sleep','睡眠'], confusion:['Confusion','混乱'], paralysis:['Paralysis','麻痹'], poison:['Poison','中毒'],
 };
@@ -22,7 +25,7 @@ function node(tag, attrs = {}, ...children) {
 }
 export function moveChoiceDialog(card,kit) {
   const initial=kit.getView(),language=kit.language,turnNumber=initial.turn?.number;
-  const applicable=move=>move.condition?.kind==='command'?card.kind==='command':move.condition?.kind==='weather-card'&&move.condition.weatherIconsInCondition.includes(card.weather);
+  const applicable=move=>move.condition?.kind==='command'?(card.kind==='command'||(initial.self.battle?.illusionDecoyId===card.id&&move.printedValue>0)):move.condition?.kind==='weather-card'&&move.condition.weatherIconsInCondition.includes(card.weather);
   const usable=(move,current)=>move.canUse&&!(move.condition?.kind==='command'&&current.players.find(player=>player.id===current.selfId)?.active?.status==='paralysis'&&!['intense-sun','clear'].includes(card.weather));
   const moves=(initial.self.battle?.moves||[]).filter(applicable);
   const dialog=node('section',{class:'arena-prompt','aria-labelledby':'move-choice-title',tabindex:-1},
@@ -144,7 +147,7 @@ function targetedEventDialog(card,kit) {
 export const toolChoiceEnabled=choice=>Boolean(choice?.targets?.length&&!choice.unavailableReason);
 export function toolDialog(card,kit) {
   const initial=kit.getView(),language=kit.language;
-  const descriptor=current=>current?.self?.battle?.tools?.find(tool=>tool.toolType===card.toolType);
+  const descriptor=current=>current?.self?.battle?.tools?.find(tool=>tool.toolType===card.toolType&&(!tool.cardId||tool.cardId===card.id));
   const tool=descriptor(initial);
   if(card.kind!=='tool'||!tool)return;
   const art=playCardFace(card,language).art;
@@ -254,11 +257,12 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   const turnNumber=initial.turn.number,code=initial.code,selfId=initial.selfId,muscle=card===null;
   const language=kit.language,selected=new Set(quick?[quick.targetId]:[]);
   if (!legal?.move) return;
+  const defaultTargetHint = quick?`${say(language,'Quick Claw','先制之爪')} · ${initial.players.find(player=>player.id===quick.targetId)?.nickname}`
+    : legal.move.maxTargets===1?say(language,'Choose a target below or on the field.','在下方名单或战场上选择目标。')
+    : say(language,`Choose up to ${legal.move.maxTargets} targets below or on the field.`,`在下方名单或战场上选择目标，最多 ${legal.move.maxTargets} 个。`);
+  const targetHint = node('p',{},defaultTargetHint);
   const dialog = node('section', {class:'arena-prompt arena-attack-prompt',tabindex:-1,'aria-labelledby':'arena-attack-title'},
-    node('h2', {id:'arena-attack-title'}, kit.localized(legal.move.name)),
-    node('p', {}, quick?`${say(language,'Quick Claw','先制之爪')} · ${initial.players.find(player=>player.id===quick.targetId)?.nickname}`
-      : legal.move.maxTargets===1?say(language,'Choose a target below or on the field.','在下方名单或战场上选择目标。')
-      : say(language,`Choose up to ${legal.move.maxTargets} targets below or on the field.`,`在下方名单或战场上选择目标，最多 ${legal.move.maxTargets} 个。`)));
+    node('h2', {id:'arena-attack-title'}, kit.localized(legal.move.name)),targetHint);
   const confirm = node('button', {type:'button',id:'confirm-arena-attack',class:'button primary',disabled:true},say(language,'Commit move','确认招式'));
   const targetSummary = node('span',{class:'arena-target-summary','aria-live':'polite'});
   const targetList = node('div',{class:'arena-move-targets',role:'group','aria-label':say(language,'Legal move targets','合法招式目标')});
@@ -277,14 +281,25 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
     targetButtons.set(id,target);
     targetList.append(target);
   }
-  dialog.append(node('p',{class:'arena-move-cost'},movePaymentLabel(legal.move,card,language,muscle,quick)),targetList);
+  dialog.append(node('p',{class:'arena-move-cost'},card?.id&&card.id===initial.self.battle?.illusionDecoyId&&legal.move.condition.kind==='command'
+      ? say(language,'Cost · marked decoy','费用 · 标记的诱饵') : movePaymentLabel(legal.move,card,language,muscle,quick)),targetList);
   let boostCardId='',effectChoice=legal.move.effectKind==='moonlight'?'heal':undefined;
-  const payments=[];
+  const payments=[], coordinationPayments=[];
+  const coordination=node('input',{type:'checkbox',id:'add-coordinated-target'});
+  const maxTargets=()=>legal.move.maxTargets+Number(coordination.checked);
   if(legal.move.effectKind==='swords-dance')dialog.append(node('p',{class:'muted'},say(language,'Discard this sunny card to use Swords Dance. It grants one Power marker when the move resolves.','弃置这张晴天牌发动剑舞。招式结算后获得一枚力量强化。')));
   const paymentIds=()=>payments.map(select=>select.value);
-  const validPayment=()=>!muscle||(paymentIds().every(Boolean)&&new Set(paymentIds()).size===2&&!paymentIds().includes(boostCardId));
+  const coordinationIds=()=>coordinationPayments.map(select=>select.value);
+  const validPayment=()=>{
+    if (muscle) return paymentIds().every(Boolean)&&new Set(paymentIds()).size===2&&!paymentIds().includes(boostCardId);
+    if (!coordination.checked) return true;
+    const fees=coordinationIds().map(id=>initial.self.hand.find(item=>item.id===id));
+    return fees.length===2 && fees.every(Boolean) && fees[0].weather!==fees[1].weather && !coordinationIds().includes(boostCardId);
+  };
   const update=()=>{
-    confirm.disabled=kit.busy||Boolean(kit.getView().pendingVote)||selected.size<1||selected.size>legal.move.maxTargets||!validPayment();
+    confirm.disabled=kit.busy||Boolean(kit.getView().pendingVote)||selected.size<(coordination.checked?maxTargets():1)||selected.size>maxTargets()||!validPayment();
+    targetHint.textContent=coordination.checked
+      ? say(language,`Choose exactly ${maxTargets()} targets.`,`请选择 ${maxTargets()} 个目标。`) : defaultTargetHint;
     targetSummary.textContent = [...selected].map(id=>{
       const target = initial.players.find(player=>player.id===id);
       return target?.active ? kit.partnerName(target.active.catalogueId,target.active.level) : target?.nickname;
@@ -295,8 +310,8 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
   function selectTarget(id) {
     if (kit.busy || quick || !legal.legalTargetIds.includes(id)) return;
     if (!selected.delete(id)) {
-      if (legal.move.maxTargets===1) selected.clear();
-      if (selected.size<legal.move.maxTargets) selected.add(id);
+      if (maxTargets()===1) selected.clear();
+      if (selected.size<maxTargets()) selected.add(id);
     }
     update();
   }
@@ -306,6 +321,27 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
     select.addEventListener('change',update);
     payments.push(select);
     dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,`Payment card ${index+1}`,`支付手牌${index+1}`)),select));
+  }
+  if (!quick && canCoordinateCommand(legal.move,card)) {
+    const feeCards=initial.self.hand.filter(item=>item.id!==card.id);
+    if(new Set(feeCards.map(item=>item.weather)).size>=2) {
+      const choices=node('div',{hidden:true});
+      for(let index=0;index<2;index++) {
+        const select=node('select',{id:`coordination-payment-${index}`,'aria-label':say(language,`Coordination card ${index+1}`,`合力指挥支付牌 ${index+1}`)},
+          node('option',{value:''},say(language,'Choose a hand card','选择一张手牌')));
+        for(const fee of feeCards)select.append(node('option',{value:fee.id},`${kit.localized(fee.name)} · ${weatherLabel(fee.weather,language)}`));
+        select.addEventListener('change',update);
+        coordinationPayments.push(select);
+        choices.append(node('label',{class:'attack-target'},select));
+      }
+      coordination.addEventListener('change',()=>{
+        choices.hidden=!coordination.checked;
+        for(const id of [...selected].slice(maxTargets()))selected.delete(id);
+        update();
+      });
+      dialog.append(node('label',{class:'arena-coordinated-option',for:'add-coordinated-target'},coordination,
+        say(language,'Add one target · discard two cards of different weather','增加一个目标 · 弃两张不同天气手牌')),choices);
+    }
   }
   if(legal.move.effectKind==='moonlight') {
     const selector=node('select',{'aria-label':say(language,'Moonlight effect','月光效果')},node('option',{value:'heal'},say(language,'Restore 2 HP','回复2点体力')),node('option',{value:'cure'},say(language,'Clear special status','恢复特殊状态')));
@@ -339,7 +375,8 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
     const held=id=>current.self.hand.some(item=>item.id===id);
     kit.closeArenaPrompt(false);
     if(current.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||kit.busy||current.pendingVote||
-      !(currentChoice?.canUse??current.self.battle?.canCommand)||!currentMove||selected.size<1||selected.size>currentMove.maxTargets||
+      !(currentChoice?.canUse??current.self.battle?.canCommand)||!currentMove||selected.size<1||selected.size>currentMove.maxTargets+Number(coordination.checked)||
+      (coordination.checked&&(!canCoordinateCommand(currentMove,card)||selected.size!==currentMove.maxTargets+1||!validPayment()||!coordinationIds().every(held)))||
       [...selected].some(id=>!currentTargets.includes(id))||(boostCardId&&!held(boostCardId)))return;
     const declaration={...(moveIndex?{moveIndex}:{}),...(boostCardId?{boostCardId}:{}),...(effectChoice?{effectChoice}:{})};
     if(quick) {
@@ -347,7 +384,7 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
         kit.action('respondBattle',{decisionId:quickDecisionId,choice:'command',cardId:card.id,...declaration});
       }
     }else if(!pending&&(muscle?current.self.battle?.muscleBand&&validPayment()&&paymentIds().every(held):held(card.id))) {
-      kit.action('attack',{...(muscle?{cardIds:paymentIds()}:{cardId:card.id}),targetIds:[...selected],...declaration});
+      kit.action('attack',{...(muscle?{cardIds:paymentIds()}:{cardId:card.id}),targetIds:[...selected],...declaration,...(coordination.checked?{coordinationCardIds:coordinationIds()}:{})});
     }
   });
   dialog.append(node('div',{class:'action-row'},targetSummary,cancel,confirm));
@@ -647,7 +684,7 @@ function blunderPolicyControls(pending,kit,view) {
   const currentDecision=()=>{
     const current=kit.getView(),decision=current?.pendingBattle;
     return current?.code===view.code&&current.selfId===view.selfId&&!kit.busy&&!current.pendingVote&&
-      decision?.id===pending.id&&decision.kind==='blunder-policy'&&decision.actorId===view.selfId?decision:null;
+      decision?.id===pending.id&&decision.kind===pending.kind&&decision.actorId===view.selfId?decision:null;
   };
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-blunder-policy',onclick:()=>{
     const current=currentDecision();
@@ -924,10 +961,22 @@ function articunoControls(pending,kit) {
 function rescueControls(pending,kit) {
   const draft=privateDecisionDraft(pending,kit,()=>({optionKey:''})),language=kit.language,view=kit.getView(),code=view.code,selfId=view.selfId,decisionId=pending.id;
   const key=option=>JSON.stringify([option.choice,option.card.id]);
-  const options=pending.canUsePotion?[...(pending.potionCards||[]).map(card=>({choice:'potion',card})),...(pending.healerCards||[]).map(card=>({choice:'healer',card}))]:[];
+  const available = decision => decision.canUsePotion ? [
+    ...(decision.potionCards||[]).map(card=>({choice:'potion',card})),
+    ...(decision.healerCards||[]).map(card=>({choice:'healer',card})),
+    ...(decision.joyItems||[]).map(card=>({choice:'joy',card})),
+  ] : [];
+  const options=available(pending);
   if(!options.some(option=>key(option)===draft.optionKey))draft.optionKey='';
-  const payment=node('select',{id:'rescue-card','aria-label':say(language,'Potion or Healer rescue card','伤药或治愈之心救援用牌')},node('option',{value:''},say(language,'Choose Potion or a Healer card','选择伤药或治愈之心用牌')));
-  for(const option of options)payment.append(node('option',{value:key(option)},`${option.choice==='potion'?say(language,'Potion · whole tool card','伤药 · 整张道具牌'):say(language,'Healer · discard as Potion','治愈之心 · 弃牌视为伤药')} · ${kit.localized(option.card.name)} · ${weatherLabel(option.card.weather,language)}`));
+  const payment=node('select',{id:'rescue-card','aria-label':say(language,'Rescue payment','救援费用')},
+    node('option',{value:''},say(language,'Choose a rescue option','选择救援方式')));
+  const names={
+    potion:say(language,'Potion · whole tool card','伤药 · 整张道具牌'),
+    healer:say(language,'Healer · discard as Potion','治愈之心 · 弃牌视为伤药'),
+    joy:say(language,'Nurse Joy · discard held item','乔伊 · 弃置持有物'),
+  };
+  for(const option of options)payment.append(node('option',{value:key(option)},
+    `${names[option.choice]} · ${kit.localized(option.card.name)} · ${weatherLabel(option.card.weather,language)}`));
   payment.value=draft.optionKey;
   const currentDecision=()=>{
     const current=kit.getView(),decision=current?.pendingBattle;
@@ -936,19 +985,24 @@ function rescueControls(pending,kit) {
   const submit=()=>{
     const decision=currentDecision(),option=options.find(option=>key(option)===draft.optionKey);
     if(!decision?.canUsePotion||!option)return;
-    const cards=option.choice==='potion'?decision.potionCards:decision.healerCards;
-    if(!cards?.some(card=>card.id===option.card.id))return;
+    if(!available(decision).some(entry=>key(entry)===draft.optionKey))return;
     kit.action('respondBattle',{decisionId,choice:option.choice,cardId:option.card.id});
   };
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-rescue',onclick:submit},say(language,'Restore 2 HP','回复2点体力'));
   const update=()=>{
     const blocked=kit.busy||Boolean(kit.getView().pendingVote);
-    payment.disabled=blocked||!options.length;confirm.disabled=blocked||!pending.canUsePotion||!options.some(option=>key(option)===draft.optionKey);
+    const option=options.find(entry=>key(entry)===draft.optionKey);
+    payment.disabled=blocked||!options.length;
+    confirm.disabled=blocked||!option;
+    confirm.textContent=option?.choice==='joy' ? say(language,'Restore 1 HP','回复1点体力') : say(language,'Restore 2 HP','回复2点体力');
   };
   payment.addEventListener('change',()=>{draft.optionKey=payment.value;update();});
   const pass=node('button',{type:'button',class:'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{if(currentDecision())kit.action('respondBattle',{decisionId,choice:'pass'});}},say(language,'Pass rescue · ask the next trainer','放弃救援 · 询问下一位训练家'));
-  const help=!pending.canUsePotion?say(language,'You cannot use Potion during this restricted rescue settlement. You may pass.','本次受限的救援结算中，你不能使用伤药。可以放弃救援。'):!options.length?say(language,'Your hand has no available Potion or eligible Healer card. You may pass.','你的手牌中没有可用的伤药或符合治愈之心的牌。可以放弃救援。'):say(language,'Potion spends the whole physical tool card, including its other half. Healer discards the selected sunny hand card as Potion. Both restore 2 HP to the fainting Pokémon.','伤药会消耗整张实体道具牌，包括另一半；治愈之心弃置所选晴天手牌，视为使用伤药。两种方式均为昏厥宝可梦回复2点体力。');
-  update();return [node('p',{class:'muted'},help),node('div',{class:'charm-controls paid-effect-controls'},node('label',{for:'rescue-card'},say(language,'Your rescue card','你的救援用牌'),payment)),node('div',{class:'action-row'},confirm,pass)];
+  const help=pending.joyItems?.length ? say(language,
+    'Nurse Joy restores 1 HP by discarding a public held item. Potion and Healer restore 2 HP.',
+    '乔伊弃置一件已公开的持有物以回复1点体力。伤药与治愈之心回复2点体力。')
+    : !pending.canUsePotion?say(language,'You cannot use Potion during this restricted rescue settlement. You may pass.','本次受限的救援结算中，你不能使用伤药。可以放弃救援。'):!options.length?say(language,'Your hand has no available Potion or eligible Healer card. You may pass.','你的手牌中没有可用的伤药或符合治愈之心的牌。可以放弃救援。'):say(language,'Potion spends the whole physical tool card, including its other half. Healer discards the selected sunny hand card as Potion. Both restore 2 HP to the fainting Pokémon.','伤药会消耗整张实体道具牌，包括另一半；治愈之心弃置所选晴天手牌，视为使用伤药。两种方式均为昏厥宝可梦回复2点体力。');
+  update();return [node('p',{class:'muted'},help),node('div',{class:'charm-controls paid-effect-controls rescue-choices'},node('label',{for:'rescue-card'},say(language,'Your rescue card','你的救援用牌'),payment)),node('div',{class:'action-row'},confirm,pass)];
 }
 function pressureControls(pending,kit) {
   const draft=privateDecisionDraft(pending,kit,()=>({cardId:''})),language=kit.language,view=kit.getView(),cards=pending.paymentCards||[],sourcePayment=pending.kind==='pressure-payment';
@@ -964,6 +1018,24 @@ function pressureControls(pending,kit) {
 }
 export function decisionPanel(view,kit) {
   const pending=view.pendingBattle;if(!pending)return null;
+  if (pending.kind === 'expansion') {
+    const panel = node('section',{class:'combat-decision expansion-decision'},
+      node('h2',{},kit.localized(pending.title)),
+      node('p',{},view.players.find(player=>player.id===pending.actorId)?.nickname),
+      pending.detail ? node('p',{},kit.localized(pending.detail)) : null);
+    if (pending.actorId === view.selfId) {
+      const actions = node('div',{class:'action-row'});
+      for (const option of pending.options || []) actions.append(node('button',{
+        type:'button',class:'button secondary',disabled:kit.busy||Boolean(view.pendingVote),
+        onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'choose',effect:option.value}),
+      },kit.localized(option.label),option.card ? ' · '+weatherLabel(option.card.weather,kit.language) : null));
+      if (pending.allowPass) actions.append(node('button',{id:'response-pass',type:'button',class:'button secondary',
+        disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},
+        say(kit.language,'Pass','放弃')));
+      panel.append(actions);
+    } else panel.append(node('p',{},say(kit.language,'Waiting for the trainer’s choice.','等待该训练家选择。')));
+    return panel;
+  }
   const swordsDance=pending.kind==='defense'&&pending.moveEffect==='swords-dance';
   const language=kit.language,actor=view.players.find(p=>p.id===pending.actorId),target=view.players.find(p=>p.id===pending.targetId);
   const titles={'poison-touch':['Poison Touch · optional ability','毒手 · 可选特性'],cycle:['Spike Cannon · cycle a card','尖刺加农炮 · 交换手牌'],scales:['Marvel Scale · reduce damage','神奇鳞片 · 减少伤害'],effects:['Choose effect order','选择效果结算顺序'],defiant:['Defiant · optional ability','不服输 · 可选特性'],judgment:['Drought · replace judgment','日照 · 替换判定'],defense:['Respond to the move','响应招式'],static:['Static · optional ability','静电 · 可选特性'],synchronize:['Synchronize · optional ability','同步 · 可选特性'],'cursed-body':['Cursed Body · optional ability','咒术之躯 · 可选特性'],foresee:['Future Sight','预知未来'],reorder:['Choose the deck order','选择牌堆顺序'],reinforcement:['Remove a reinforcement','弃置强化指示物'],hand:['Choose a hand card','选择一张手牌'],rescue:['Rescue settlement','昏厥救援结算']};
@@ -978,6 +1050,7 @@ export function decisionPanel(view,kit) {
   titles['source-effect-order']=['Choose which attack effect resolves first','选择造成伤害后的结算顺序'];
   titles['life-orb']=['Life Orb · optional boost','生命宝珠 · 可选增伤'];
   titles['blunder-policy']=['Blunder Policy · discard to resolve','打空保险 · 弃牌后结算'];
+  titles['power-herb']=['Power Herb · deal 1 damage','强力香草 · 结算 1 点伤害'];
   titles['quick-claw']=['Quick Claw · turn-start command','先制之爪 · 回合开始时使用接招吧！'];
   if(pending.kind==='event-hand'&&pending.eventName?.zh==='大葱鸭的恶作剧')titles['event-hand']=['Farfetch’d’s Prank · discard a hand card','大葱鸭的恶作剧 · 弃置手牌'];
   if(pending.kind==='articuno')titles.articuno=pending.counterProtection?['Counter Articuno’s Protection','反制急冻鸟的庇护']:pending.mode==='cancel-event'
@@ -1019,6 +1092,7 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='sweet-kiss')panel.append(node('p',{},pending.actorId===view.selfId&&!view.self.spectator?say(language,`Discard exactly ${pending.requiredCards} hand cards, then draw 2. With fewer than two cards, discard your entire hand. This choice is mandatory.`,`必须弃置恰好${pending.requiredCards}张手牌，然后摸2张。手牌不足两张时弃置全部手牌。此选择不可放弃。`):say(language,'The target trainer must privately choose hand cards to discard, then draw 2.','目标训练家必须私下选择手牌弃置，然后摸2张。')));
   if(pending.kind==='double-edge')panel.append(node('p',{},say(language,'Before damage modifiers, you may add 1 damage. If this settlement deals damage, its original source loses 1 HP after receiving effects finish. Burn and other damage modifiers still apply.','伤害修正前，可以令伤害+1。若本次结算造成伤害，受到伤害后的效果结算完毕后，原伤害来源失去1点体力。灼伤等伤害修正仍生效。')));
   if(pending.kind==='life-orb')panel.append(node('p',{},say(language,`Damage before the target’s modifiers: ${pending.damage}. Boost by 1 and lose 1 HP after this settlement.`,`目标修正前的伤害值：${pending.damage}。可令伤害加1，并在本次结算后失去1点体力。`)));
+  if(pending.kind==='power-herb')panel.append(node('p',{},say(language,'Discard the held item and two hand cards to deal 1 move damage to the original target.','弃置强力香草和两张手牌，对原目标结算 1 点招式伤害。')));
   if(pending.kind==='blunder-policy')panel.append(node('p',{},say(language,'The defender completed a Dodge. You may discard two cards from your hand to resolve this hit.','对方已完成躲闪。你可以弃置两张手牌，使本次结算生效。')));
   if(pending.kind==='quick-claw')panel.append(node('p',{},say(language,'You may use a sunny command against the indicated active Pokémon.','你可以对指定的出战宝可梦使用一张晴天接招吧！')));
   if(['effects','source-effect-order'].includes(pending.kind))panel.append(node('p',{},say(language,'These effects triggered together. Choose which one resolves next.','这些效果在同一时机触发，请选择下一个结算的效果。')));
@@ -1081,7 +1155,7 @@ export function decisionPanel(view,kit) {
     else if(['battle-armor','bonemerang','neutralizing-gas'].includes(pending.kind))panel.append(...paidEffectControls(pending,kit));
     else if(pending.kind==='cute-charm')panel.append(...charmControls(pending,kit));
     else if(pending.kind==='shed-skin')panel.append(...shedControls(pending,kit));
-    else if(pending.kind==='blunder-policy')panel.append(...blunderPolicyControls(pending,kit,view));
+    else if(['blunder-policy','power-herb'].includes(pending.kind))panel.append(...blunderPolicyControls(pending,kit,view));
     else if(pending.kind==='quick-claw')panel.append(quickClawControls(pending,kit,view));
     else if(pending.kind==='distribute')panel.append(...distributionControls(pending,kit));
     else if(pending.kind==='exile')panel.append(...exileControls(pending,kit));
@@ -1129,7 +1203,7 @@ export function decisionPanel(view,kit) {
           }
         }},say(language,...names[effect])));
       }else if(pending.kind==='effects')for(const effect of pending.effects) {
-        const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'water-absorb':['Water Absorb · mandatory judgment','储水 · 必须判定'],'rocky-helmet':['Rocky Helmet','凸凸头盔'],'poison-barb':['Poison Barb','毒针']};
+        const names={'battle-armor':['Battle Armor','战斗盔甲'],static:['Static','静电'],'poison-point':['Poison Point','毒刺'],synchronize:['Synchronize','同步'],'wobbuffet-counter':['Ready to Counter','蓄势反击'],'cursed-body':['Cursed Body','咒术之躯'],oblivious:['Oblivious','迟钝'],'water-absorb':['Water Absorb · mandatory judgment','储水 · 必须判定'],'rocky-helmet':['Rocky Helmet','凸凸头盔'],'poison-barb':['Poison Barb','毒针']};
         row.append(node('button',{type:'button',class:'button primary effect-choice',id:`effect-${effect}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'effect',effect})},say(language,...names[effect])));
       }else if(pending.kind==='reinforcement')for(const kind of pending.reinforcements||[]) {
         const names={power:['Power','力量'],defense:['Defense','防御'],speed:['Speed','速度']};
@@ -1150,6 +1224,9 @@ export function decisionPanel(view,kit) {
         if(pending.kind==='judgment')for(const card of pending.replacementCards||[])row.append(node('button',{type:'button',class:'button primary judgment-replacement',id:`replace-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'replace',cardId:card.id})},say(language,'Replace with','替换为'),` ${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
         if(pending.kind==='cycle')for(const card of pending.cards||[])row.append(node('button',{type:'button',class:'button primary cycle-card',id:`cycle-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'cycle',cardId:card.id})},say(language,'Discard','弃置'),` ${kit.localized(card.name)} · ${weatherLabel(card.weather,language)}`));
         if(pending.kind==='defense'&&!pending.cannotDodge) {
+          if(pending.canTourProtect)row.append(node('button',{type:'button',id:'response-tour-protect',class:'button primary',
+            disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'tour-protect'})},
+            say(language,'Use Protect TM','发动守住学习器')));
           if(pending.canBrightPowder)row.append(node('button',{type:'button',class:'button primary',id:'response-bright-powder',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>{
             const current=kit.getView(),defense=current?.pendingBattle;
             if(current?.code===view.code&&current.selfId===view.selfId&&!kit.busy&&!current.pendingVote&&
@@ -1158,7 +1235,7 @@ export function decisionPanel(view,kit) {
             }
           }},say(language,'Use Bright Powder','发动光粉')));
           const active=view.players.find(player=>player.id===view.selfId)?.active,levitate=active?.catalogueId==='gastly'&&active.level<=2;
-          for(const card of view.self.hand.filter(c=>(c.kind==='dodge'||(levitate&&['rain','thunderstorm'].includes(c.weather)))&&!pending.blockedDodgeWeathers?.includes(c.weather)))row.append(node('button',{type:'button',class:swordsDance?'button secondary':'button primary',id:`respond-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'dodge',cardId:card.id})},levitate&&card.kind!=='dodge'?say(language,'Levitate as Dodge','飘浮视为快躲开！'):say(language,'Use Dodge!','打出快躲开！'),` · ${weatherLabel(card.weather,language)}`));
+          for(const card of view.self.hand.filter(c=>(c.kind==='dodge'||(levitate&&['rain','thunderstorm'].includes(c.weather)))&&!pending.blockedDodgeWeathers?.includes(c.weather)))row.append(node('button',{type:'button',class:swordsDance?'button secondary':'button primary',id:`respond-${card.id}`,disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'dodge',cardId:card.id})},levitate&&card.kind!=='dodge'?say(language,'Levitate as Dodge','飘浮视为快躲开！'):card.variant===emergencyRetreat.variant?kit.localized(card.name):say(language,'Use Dodge!','打出快躲开！'),` · ${weatherLabel(card.weather,language)}`));
         }
         row.append(node('button',{type:'button',class:swordsDance?'button primary':'button secondary',id:'response-pass',disabled:kit.busy||Boolean(view.pendingVote),onclick:()=>kit.action('respondBattle',{decisionId:pending.id,choice:'pass'})},swordsDance?say(language,'Resolve Swords Dance','结算剑舞'):pending.kind==='arena-trap'?say(language,'Allow switch','允许交替'):pending.kind==='defense'&&pending.dodgeReducesDamage?say(language,'Resolve damage','结算伤害'):pending.kind==='defense'&&pending.cannotDodge?say(language,'Continue settlement','继续结算'):say(language,'Pass response','放弃响应')));
       }
@@ -1170,17 +1247,26 @@ export function decisionPanel(view,kit) {
   if(pending.kind==='rescue')panel.append(node('p',{class:'muted'},say(language,'Each Potion restores 2 HP. While being asked, a trainer may use more cards if HP is still 0 or below, or pass to the next trainer. Rescue stops immediately at 1 HP or above.','每次伤药回复2点体力。被询问的训练家在体力仍为0或以下时，可以继续使用牌，或放弃并询问下一位训练家。体力达到1点或以上时立即结束救援。')));
   return panel;
 }
-export function resultPanel(view, kit) {
+export function resultPanel(view, kit, objectiveSummary = null) {
   const language=kit.language;
-  const title = isTeamRole(view.result?.winner) ? roleName(view.result.winner,language) : view.result?.winner==='rocket'?roleName('rocket',language):view.result?.winner==='challengers'?roleName('challenger',language):say(language,'Gym Leader and Gym Trainers','道馆馆主与道馆训练家');
+  const winner = view.result?.winner;
+  const title = view.result?.reason==='boss-defeated' ? say(language,'Challengers','挑战者')
+    : view.result?.reason==='raid-failed' ? say(language,'Red Gyarados','红色暴鲤龙')
+    : isTeamRole(winner) || winner==='infiltrator' ? roleName(winner,language)
+    : winner==='rocket' && view.settings?.rocketInfiltration ? say(language,'Team Rocket','火箭队')
+    : winner==='rocket' && view.settings?.rocketPartners ? say(language,'Jessie and James','武藏与小次郎')
+    : winner==='rocket' ? roleName('rocket',language)
+    : winner==='challengers' ? roleName('challenger',language) : say(language,'Gym Leader and Gym Trainers','道馆馆主与道馆训练家');
   const deckLabel = view.scenario?.deckProfile === 'retail'
     ? say(language, `Master Edition (${view.scenario.deckCardCount ?? 108} cards).`, `大师版（${view.scenario.deckCardCount ?? 108} 张）。`)
     : say(language, 'Playtest deck.', '测试牌库。');
   const revealSummary = say(language, 'All identities, hands and reserve partners are now public.', '所有身份、手牌与备战搭档现已公开。');
-  const panel=node('section',{class:'combat-result'},node('h1',{},`${title} · ${say(language,'Victory','胜利')}`),node('p',{},`${deckLabel} ${revealSummary}`));
+  const panel=node('section',{class:'combat-result'},node('h1',{},`${title} · ${say(language,'Victory','胜利')}`),node('p',{},`${deckLabel} ${revealSummary}`),objectiveSummary);
+  const partner = pokemon => pokemon ? kit.partnerName(pokemon.catalogueId,pokemon.level) : '—';
   for (const player of view.players.filter(p=>!p.spectator)) panel.append(node('article',{},
-    node('h2',{},`${player.nickname} · ${roleName(player.role,language)}${view.result?.winnerIds.includes(player.id)?' ★':''}`),
-    node('p',{},`${say(language,'Active','出场')}: ${kit.partnerName(player.active.catalogueId,player.active.level)} · ${say(language,'Reserve','备战')}: ${kit.partnerName(player.reserve.catalogueId,player.reserve.level)}`),
+    node('h2',{},`${player.nickname} · ${(player.raidBoss ? say(language,'Boss','首领') : roleName(player.rocketAlias ?? player.role,language))}${view.result?.winnerIds.includes(player.id)?' ★':''}`),
+    player.profession ? node('p',{'data-profession':player.profession},kit.localized(trainerProfessions[player.profession]?.name)) : null,
+    node('p',{},`${say(language,'Active','出场')}: ${partner(player.active)} · ${say(language,'Reserve','备战')}: ${partner(player.reserve)}`),
     node('p',{},`${say(language,'Hand','手牌')}: ${player.hand.map(c=>kit.localized(c.name)).join(' / ') || '—'}`),
     player.exiledCount?node('p',{},`${say(language,'Removed cards','移出的牌')}: ${player.exiledCount}`):null));
   if (view.ownerId===view.selfId) panel.append(node('button',{type:'button',class:'button primary',onclick:()=>kit.action('returnToLobby')},say(language,'Return to lobby / rematch','返回大厅 / 再来一局')));

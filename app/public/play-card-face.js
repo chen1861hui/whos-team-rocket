@@ -1,8 +1,13 @@
+import { tourTools, hoennTools, tourItems, tourEvents, hoennItems, hoennEvents, hoennDelayedEvents, coordinatedCommand, emergencyRetreat } from './expansion-content.js';
+
 const commands = {
   command: ['rusted-sword', 'Use a command move.', '发动需要指挥的招式。'],
   dodge: ['rusted-shield', 'Dodge when asked to respond.', '需要响应时打出，闪避攻击。'],
 };
 
+for (const [card,art] of [[coordinatedCommand,'coordinated-command'],[emergencyRetreat,'emergency-retreat']]) {
+  commands[card.variant] = [art,card.description.en,card.description.zh];
+}
 const tools = {
   'potion-full-heal': [['potion', 'full-heal'], 'Heal 2 HP or cure status.', '回复 2 点体力，或解除特殊状态。'],
   'potion-revive': [['potion', 'revive'], 'Heal 2 HP or revive at 2 HP.', '回复 2 点体力，或以 2 点体力复活。'],
@@ -38,6 +43,20 @@ const items = {
   'quick-claw': ['quick-claw', 'Ignore distance. Use sunny commands at opponents’ turn start.', '无视距离，对手回合开始时可使用晴天接招吧。'],
 };
 
+for (const tool of [...tourTools, ...hoennTools]) {
+  const icons = { 'tour-medicine-power':['super-potion','x-attack'], 'tour-gear-dex':['town-map','poke-radar'],
+    'tour-switch-incense':['escape-rope','odd-incense'], 'tour-recycle-berry':['ether','cheri-berry'],
+    'hoenn-berry-umbrella':['lum-berry','utility-umbrella'] };
+  tools[tool.toolType] = [icons[tool.toolType], tool.choices.map(choice=>choice.description.en).join(' / '), tool.choices.map(choice=>choice.description.zh).join(' / ')];
+}
+for (const item of [...tourItems, ...hoennItems]) {
+  const icon = {'tour-protect':'tm-normal','tour-scarf':'choice-scarf','tour-eject':'eject-button','tour-red-card':'red-card','heat-rock':'heat-rock','damp-rock':'damp-rock','icy-rock':'icy-rock','smooth-rock':'smooth-rock','light-clay':'light-clay','power-herb':'power-herb'}[item.itemType];
+  items[item.itemType] = [icon,item.description.en,item.description.zh];
+}
+for (const [id,event] of Object.entries({...tourEvents,...hoennEvents})) {
+  const icon = {'tour-supply':'nugget','tour-search':'rival.svg','tour-clinic':'potion','tour-gift':'rare-candy','hoenn-sun':'sunny-day','hoenn-rain':'rain-dance','hoenn-hail':'hail','hoenn-sand':'sandstorm','hoenn-raikou':'raikou-thunder','hoenn-roadblock':'snorlax-roadblock','hoenn-future-sight':'future-sight','hoenn-air-lock':'air-lock'}[id];
+  events[id] = [icon,event.description.en,event.description.zh];
+}
 const artFiles = art => [art].flat().map(name => name.endsWith('.svg') ? name : `${name}.png`);
 
 export const playCardArtFiles = [...new Set([commands, tools, events, items]
@@ -52,11 +71,12 @@ const categoryNames = {
 };
 
 export function playCardFace(card, language) {
-  const labels = categoryNames[card.kind];
+  const labels = hoennDelayedEvents[card.eventType] ? ['Delayed event', '延时事件']
+    : hoennEvents[card.eventType]?.response ? ['Response event', '响应事件'] : categoryNames[card.kind];
   const face = card.kind === 'tool' ? tools[card.toolType]
     : card.kind === 'event' ? events[card.eventType]
     : card.kind === 'held-item' ? items[card.itemType]
-    : commands[card.kind];
+    : commands[card.variant] || commands[card.kind];
   if (!face) return {art:[], category:labels?.[language === 'zh' ? 1 : 0]};
   const [art, english, chinese] = face;
   return {art:artFiles(art), category:labels[language === 'zh' ? 1 : 0], brief:language === 'zh' ? chinese : english};

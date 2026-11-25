@@ -2,8 +2,9 @@ import {battleCueSpacing, moveEffects, moveRecipe, traitRecipe} from './battlefi
 
 export const musicTracks = Object.freeze({title:'title',gym:'gym',battle:'battle',rocket:'rocket'});
 // BellBlitzKing's recordings: https://bellblitzking.itch.io/pokemon-sound-collection
-// Gen VII, with Gen VI Lick. Life Dew uses its own synthesized cue.
-export const recordedMoves = moveEffects.map(move=>move.key).filter(key=>key!=='life-dew');
+// Gen VII, with Gen VI Lick. Moves without a recording use the synthesized cue.
+const synthesizedMoves = new Set(['life-dew','slash','night-slash','struggle','counter','mirror-coat','safeguard','shadow-sneak','night-daze','shadow-claw','play-rough']);
+export const recordedMoves = moveEffects.map(move=>move.key).filter(key=>!synthesizedMoves.has(key));
 const recordedMoveKeys = new Set(recordedMoves);
 
 const effects = {
@@ -32,6 +33,7 @@ const effects = {
 
 function cueSound(cue) {
   if (cue.telegraph) return null;
+  if (cue.kind === 'attack' && cue.weatherBallForm === 'sand') return {family:'stone'};
   if (cue.kind === 'attack' && !cue.external) return moveRecipe(cue.name?.en) || {family:'steel'};
   if (cue.kind === 'ability') return traitRecipe(cue.name?.en) || {family:'light'};
   const family = {hit:'impact',dodge:'dodge',knockout:'knockout',event:'prism'}[cue.kind];

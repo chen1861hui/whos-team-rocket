@@ -1,11 +1,14 @@
 import { randomBytes, randomUUID, createHash } from 'node:crypto';
 import { mkdirSync, readdirSync, readFileSync, writeFileSync, renameSync, unlinkSync } from 'node:fs';
 import { join } from 'node:path';
-import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective, revealBattleIdentity } from './combat.js';
+import { BattleError, isBattle, setupBattle, acknowledgeBattleIdentity, selectBattlePartners, drawBattleCards, beginBattleTurn, endBattleTurn, canChooseShedinja, playBattleMove, giveBattleCards, equipBattleItem, useLightBall, useBattleTool, useBattleEvent, handLimit, respondBattle, useBattleTrait, previewActions, publicBattlePokemon, publicBattleDecision, publicActiveCardEvent, publicPartnerTrainerAvatar, requestBattleSwitch, battleTraitsEffective, revealBattleIdentity, useTourAction, tourTimeoutChoice, activeFieldWeather, startViridianRound, finishSilphRotation } from './combat.js';
+import { contentPacks, expansionCatalogue, hasPack, HOENN_PACK, SHEDINJA_ID } from '../public/expansion-content.js';
 import { civilianProfiles, gymLeaderProfiles, roleProfiles } from '../public/trainer-profiles.js';
-import { ROOM_CAPACITY, seatCapacity } from '../public/match-mode.js';
+import { RADIO_TOWER, LAKE_RAGE, SILPH_CONTROL, ROOM_CAPACITY, seatCapacity, VIRIDIAN_GYM } from '../public/match-mode.js';
+import { trainerProfessionIds } from '../public/trainer-professions.js';
 import { pokemonTypes } from '../public/pokemon-types.js';
 import { dealPokemon, shufflePokemon } from './pokemon-deal.js';
+import { rocketPartnerFor } from './battle-rules.js';
 import { aiActor, aiActions, aiDifficulty, aiDifficulties, needsAiStrategy, publicAiTable } from './ai-players.js';
 import { BASIC_DECK, isDeckProfile, RETAIL_DECK } from './playtest-deck.js';
 
@@ -95,7 +98,7 @@ export class RoomStore {
     this.dataDir = dataDir;
     this.catalogueIds = [...new Set(catalogue.entries.map(entry => entry.id).filter(id => typeof id === 'string'))];
     this.now = now;
-    this.catalogue = catalogue;
+    this.catalogue = expansionCatalogue(catalogue);
     this.allowTestDecks = allowTestDecks;
     // Loaded owners get a full recovery window even though saved transport presence is cleared.
     this.restartGraceUntil = this.now() + OWNER_GRACE_MS;
@@ -175,9 +178,10 @@ export class RoomStore {
     log(room, `本回合自动摸取${count}张牌。`, `The current trainer automatically drew ${count} card(s).`);
     return true;
   }
-  startTurn(room, playerId, number) {
+  startTurn(room, playerId, number, roundStart = number === 1) {
     room.turn = {
       playerId, number, drawRemaining: 2, phase: 'draw', switchUsed: false, discardComplete:false,
+      ...(roundStart && room.scenario?.weatherLab ? {weatherLabRoundStart:true} : {}),
       clock: room.settings.turnSeconds > 0 ? { remainingMs: room.settings.turnSeconds * 1000, deadlineAt: null, pausedReason: null, expired: false } : null,
     };
     const clock = room.turn.clock;
@@ -186,20 +190,37 @@ export class RoomStore {
       clock.deadlineAt = connected ? this.now() + clock.remainingMs : null;
       clock.pausedReason = connected ? null : 'disconnected';
     }
-    if (isBattle(room)) beginBattleTurn(room, room.players.find(p => p.id === playerId), this.battleContext());
+    if (isBattle(room)) {
+      if (roundStart) {
+        for (const player of room.players) delete player.researcherJudged;
+        startViridianRound(room);
+      }
+      beginBattleTurn(room, room.players.find(p => p.id === playerId), this.battleContext());
+    }
     this.resolveAutomaticDraw(room);
     if (room.pendingBattle && clock) { clock.deadlineAt = null; clock.pausedReason = 'response'; }
   }
   advanceTurn(room) {
-    if(isBattle(room))endBattleTurn(room,room.players.find(player=>player.id===room.turn.playerId),this.battleContext());
+    if (isBattle(room)) {
+      const ending = room.turn;
+      endBattleTurn(room, room.players.find(player=>player.id===ending.playerId), this.battleContext());
+      if (room.status !== 'playing') return;
+      if (room.pendingBattle) {
+        ending.awaitingEndSettlement = true;
+        return;
+      }
+    }
     const priorIndex = room.players.findIndex(player => player.id === room.turn.playerId);
     const next = Array.from({ length: room.players.length }, (_, offset) => room.players[(priorIndex + offset + 1) % room.players.length]).find(player => !player.spectator && (!isBattle(room) || !player.eliminated));
-    this.startTurn(room, next.id, room.turn.number + 1);
+    const nextIndex=room.players.indexOf(next);
+    if (isBattle(room) && finishSilphRotation(room,priorIndex,nextIndex,this.battleContext())) return;
+    this.startTurn(room, next.id, room.turn.number + 1, nextIndex <= priorIndex);
     log(room, isBattle(room) ? '回合结束。' : '回合结束；卡牌效果及胜负判定尚未实现。', isBattle(room) ? 'Turn ended.' : 'Turn ended; card effects and victory evaluation are not implemented.');
   }
   synchronizeTurn(room, { commit = true } = {}) {
     if (isBattle(room) && room.status === 'playing' && room.pendingBattle) return this.synchronizeBattleDecision(room, { commit });
-    if (isBattle(room) && room.status === 'playing' && room.turn && room.players.find(p => p.id === room.turn.playerId)?.eliminated) this.advanceTurn(room);
+    if (isBattle(room) && room.status === 'playing' && room.turn &&
+        (room.turn.awaitingEndSettlement || room.players.find(p => p.id === room.turn.playerId)?.eliminated)) this.advanceTurn(room);
     if (isBattle(room) && room.status === 'playing' && room.pendingBattle) return this.synchronizeBattleDecision(room, { commit });
     if (this.resolveAutomaticDraw(room) && commit) {
       room.revision++;
@@ -225,7 +246,7 @@ export class RoomStore {
       if (turn.phase === 'end' && turn.drawRemaining === 0 && (turn.discardComplete||skipsDiscard||player.hand.length <= handLimit(room,player))) this.advanceTurn(room);
     }
     if (room.turn === turn) {
-      const reason = room.pendingVote ? 'vote' : clock.expired ? 'mandatory' : !this.connected(player) ? 'disconnected' : null;
+      const reason = room.pendingVote ? 'vote' : room.pendingBattle ? 'response' : clock.expired ? 'mandatory' : !this.connected(player) ? 'disconnected' : null;
       clock.pausedReason = reason;
       clock.deadlineAt = reason ? null : now + clock.remainingMs;
     }
@@ -252,7 +273,11 @@ export class RoomStore {
         clock.remainingMs = Math.max(0, clock.deadlineAt - until);
       }
       if (clock.remainingMs === 0 && !room.pendingVote) {
-        if(actor?.ai || ['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','source-effect-order','turn-start-order','distribute','damage-order','mew-blessing','event-hand','berry-pick','reveal-judgment'].includes(pending.kind)) {
+        const tourChoice = !actor?.ai && tourTimeoutChoice(pending);
+        if (tourChoice) {
+          respondBattle(room, actor, { decisionId: pending.id, ...tourChoice }, this.battleContext());
+          structural = true;
+        } else if(actor?.ai || ['hand','reorder','forewarn-order','sweet-kiss','vital-spirit','download','download-hand','intimidate','intimidate-hand','reinforcement','effects','source-effect-order','turn-start-order','distribute','damage-order','mew-blessing','event-hand','berry-pick','reveal-judgment','expansion'].includes(pending.kind)) {
           const reason=this.connected(actor)?'mandatory':'disconnected';
           structural ||= !clock.expired || clock.pausedReason!==reason;
           clock.expired=true;clock.deadlineAt=null;clock.pausedReason=reason;
@@ -344,16 +369,20 @@ export class RoomStore {
   }
   project(room, self) {
     const battle = isBattle(room), disclosed = battle && room.status === 'finished';
-    const leaderConcealed = room.settings.matchMode !== 'teams' && room.status==='identity' && !room.players.some(player=>player.role==='leader' && player.identityAcknowledged);
+    const field = battle ? activeFieldWeather(room) : null;
+    const fieldWeather = field && (field.source==='weather-lab' ? field : {kind:field.kind,turnsRemaining:field.expiresAtTurn-room.turn.number});
+    const viridian = room.scenario?.viridian;
+    const rocketPartner = battle ? rocketPartnerFor(room,self) : null;
+    const leaderConcealed = !viridian && room.settings.matchMode !== 'teams' && room.status==='identity' && !room.players.some(player=>player.role==='leader' && player.identityAcknowledged);
     // Match order starts at the leader, so withhold that ordering until the public flip.
     const players = leaderConcealed ? room.players.toSorted((a,b)=>Number(a.spectator)-Number(b.spectator) || a.id.localeCompare(b.id)) : room.players;
-    const visiblePokemon = pokemon => battle ? publicBattlePokemon(pokemon, this.catalogue, room) : publicPokemon(pokemon);
+    const visiblePokemon = (pokemon,own) => battle ? publicBattlePokemon(pokemon, this.catalogue, room, own) : publicPokemon(pokemon);
     const hasTrainerAvatars = battle || room.status === 'lobby';
     const cosmeticSeats = hasTrainerAvatars ? room.players.filter(player=>!player.spectator).toSorted((a,b)=>a.id.localeCompare(b.id)) : [];
     const seed = room.trainerPoolSeed ?? Number.parseInt(hash(room.code).slice(0,8),16);
-    const publicIdentity = player => (player.role==='leader' && !leaderConcealed) || player.identityPublic || player.eliminated || disclosed ? player.role ?? null : null;
+    const publicIdentity = player => (player.role==='leader' && !viridian && !leaderConcealed) || player.identityPublic || player.eliminated || disclosed ? player.role ?? null : null;
     const avatar = (player, role) => {
-      if (role==='leader') return gymLeaderProfiles[room.settings.arena] ?? gymLeaderProfiles.fire;
+      if (role==='leader' && !viridian) return gymLeaderProfiles[room.settings.arena] ?? gymLeaderProfiles.fire;
       const pool = roleProfiles[role];
       if (pool) {
         const index = cosmeticSeats.filter(seat=>seat.role===role).indexOf(player);
@@ -376,19 +405,28 @@ export class RoomStore {
       settings: { ...room.settings },
       players: players.map(player => ({ id: player.id, nickname: player.nickname, ready: player.ready, connected: this.connected(player), spectator: player.spectator, ai: Boolean(player.ai), ...(player.ai ? { aiDifficulty: aiDifficulty(player) } : {}), handCount: player.hand.length,...(battle?{exiledCount:player.exiledCards?.length||0}:{}),
         ...(!player.spectator ? {seatNumber: player.seatNumber} : {}),
-        active: player.active && (room.status !== 'setup' || player.id === self.id) ? visiblePokemon(player.active) : null,
+        active: player.active && (room.status !== 'setup' || player.id === self.id) ? visiblePokemon(player.active,player.id===self.id) : null,
         ...((room.status === 'playing' && player.reserve?.revealed === true) || (disclosed && player.reserve) ? { reserve: visiblePokemon(player.reserve) } : {}),
         reserveCount: player.reserve ? 1 : 0, setupComplete: player.setupComplete,
+        ...(battle && player.delayedEvents?.length ? {
+          delayedEvents: player.delayedEvents.map(({kind,eventType,name,weather})=>({kind,eventType,name,weather})),
+        } : {}),
+        ...(player.raidBoss ? {raidBoss:true} : {}),
         ...(battle ? { role:publicIdentity(player), eliminated:Boolean(player.eliminated), identityAcknowledged:Boolean(player.identityAcknowledged), candidateDrawCount:player.candidates.length } : {}),
+        ...(battle && player.rocketAlias && publicIdentity(player)==='rocket' ? {rocketAlias:player.rocketAlias} : {}),
+        ...(battle && player.profession ? {profession:player.profession,
+          ...(player.professionUsed ? {professionUsed:true} : {})} : {}),
         ...(hasTrainerAvatars && !player.spectator ? {trainerAvatar:avatar(player,battle ? publicIdentity(player) : null)} : {}),
         ...(disclosed ? { hand: structuredClone(player.hand) } : {}),
       })),
       self: { spectator: self.spectator, hand: structuredClone(self.hand), ...(battle?{exiledCount:self.exiledCards?.length||0}:{}), candidates: [...self.candidates], reserve: self.reserve ? { ...self.reserve } : null,
+        ...(rocketPartner ? {rocketAlias:self.rocketAlias,
+          rocketPartner:{id:rocketPartner.id,nickname:rocketPartner.nickname,alias:rocketPartner.rocketAlias}} : {}),
         ...(battle && room.status==='setup' && !self.spectator && !self.setupComplete
           ? {candidateTypeHints:(self.candidateDeal || []).map(id => pokemonTypes(id)[0] ?? null)} : {}),
         ...(battle ? { role: self.role ?? null, identityAcknowledged: Boolean(self.identityAcknowledged), pokemonDrawRemaining: self.candidateDeal?.length ?? 0, handLimit:Number.isFinite(handLimit(room,self))?handLimit(room,self):null, battle: previewActions(room, self, this.catalogue) } : {}) },
       turn: room.turn ? structuredClone(room.turn) : null, log: structuredClone(room.log), pendingVote: room.pendingVote ? structuredClone(room.pendingVote) : null,
-      ...(battle ? { gameMode: 'combat-preview', scenario: { ...room.scenario }, visualEvents:structuredClone(room.visualEvents || []), activeCardEvent:publicActiveCardEvent(room), pendingBattle: publicBattleDecision(room,self), result: room.result ? structuredClone(room.result) : null, drawCount: room.drawPile?.length ?? 0, discardCount: room.discardPile?.length ?? 0 } : {}),
+      ...(battle ? { gameMode: 'combat-preview', scenario: { ...room.scenario }, visualEvents:structuredClone(room.visualEvents || []), activeCardEvent:publicActiveCardEvent(room), pendingBattle: publicBattleDecision(room,self), result: room.result ? structuredClone(room.result) : null, ...(fieldWeather ? {fieldWeather} : {}), drawCount: room.drawPile?.length ?? 0, discardCount: room.discardPile?.length ?? 0 } : {}),
       lastActionAt: room.lastActionAt, expiresAt: room.lastActionAt + IDLE_MS, serverNow: this.now(), foundation: true,
     };
   }
@@ -479,16 +517,54 @@ export class RoomStore {
         player.readyRevision = room.revision + 1;
         break;
       case 'settings': {
-        check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile', 'autoDraw', 'autoJudgment', 'matchMode', 'teamAssignment']); owner(); status('lobby');
+        check(['arena', 'turnSeconds', 'responseSeconds', 'deckProfile', 'autoDraw', 'autoJudgment', 'matchMode', 'teamAssignment', 'teamScenario', 'identityScenario', 'contentPack', 'weatherLab', 'gymGuard', 'rocketPartners', 'rocketInfiltration', 'trainerProfessions']); owner(); status('lobby');
         if (!['fire', 'water', 'grass', 'stadium', 'gym', 'floating'].includes(input.arena) || ![input.turnSeconds, input.responseSeconds].every(value => Number.isInteger(value) && (value === 0 || (value >= 5 && value <= 600)))) fail(400, 'INVALID_SETTINGS', 'Choose a supported arena and timers of 0 or 5–600 seconds.');
         if (input.deckProfile !== undefined && !(this.allowTestDecks ? isDeckProfile(input.deckProfile) : input.deckProfile === RETAIL_DECK)) fail(400, 'INVALID_SETTINGS', 'Choose a supported deck.');
+        const contentPack = input.contentPack === undefined ? current.settings.contentPack ?? 'base' : input.contentPack;
+        if (!contentPacks.includes(contentPack)) fail(400, 'INVALID_SETTINGS', 'Choose a supported content pack.');
+        const weatherPack = hasPack(contentPack, HOENN_PACK);
+        const weatherLab = input.weatherLab === undefined ? weatherPack && Boolean(current.settings.weatherLab) : input.weatherLab;
+        if (typeof weatherLab !== 'boolean' || (weatherLab && !weatherPack))
+          fail(400, 'INVALID_SETTINGS', 'The Weather Institute requires the Hoenn content pack.');
         const deckProfile = input.deckProfile ?? room.settings.deckProfile;
         const matchMode = input.matchMode === undefined ? current.settings.matchMode ?? 'identity' : input.matchMode;
         const teamAssignment = input.teamAssignment === undefined ? current.settings.teamAssignment ?? 'seat' : input.teamAssignment;
         if (!['identity', 'teams'].includes(matchMode) || !['seat', 'random'].includes(teamAssignment)) fail(400, 'INVALID_SETTINGS', 'Choose a supported match mode and team assignment.');
-        if (seated.length > seatCapacity({ matchMode })) fail(409, 'TOO_MANY_TRAINERS', 'There are too many trainers for the selected mode.');
+        const teamScenario = input.teamScenario === undefined
+          ? (matchMode === 'teams' ? current.settings.teamScenario ?? 'standard' : 'standard') : input.teamScenario;
+        if (!['standard', RADIO_TOWER, LAKE_RAGE, SILPH_CONTROL].includes(teamScenario) || (matchMode !== 'teams' && teamScenario !== 'standard'))
+          fail(400, 'INVALID_SETTINGS', 'Choose a supported team scenario.');
+        const identityScenario = input.identityScenario === undefined
+          ? (matchMode === 'identity' ? current.settings.identityScenario ?? 'standard' : 'standard') : input.identityScenario;
+        if (!['standard', VIRIDIAN_GYM].includes(identityScenario) || (matchMode !== 'identity' && identityScenario !== 'standard'))
+          fail(400, 'INVALID_SETTINGS', 'Choose a supported identity scenario.');
+        const viridian = identityScenario === VIRIDIAN_GYM;
+        const gymGuard = input.gymGuard === undefined ? viridian && Boolean(current.settings.gymGuard) : input.gymGuard;
+        if (typeof gymGuard !== 'boolean' || (gymGuard && !viridian))
+          fail(400, 'INVALID_SETTINGS', 'Gym Guard requires the Viridian Gym identity scenario.');
+        const rocketPartners = input.rocketPartners === undefined ? viridian && Boolean(current.settings.rocketPartners) : input.rocketPartners;
+        if (typeof rocketPartners !== 'boolean' || (rocketPartners && !viridian))
+          fail(400, 'INVALID_SETTINGS', 'Rocket Partners requires the Viridian Gym identity scenario.');
+        const rocketInfiltration = input.rocketInfiltration === undefined
+          ? viridian && Boolean(current.settings.rocketInfiltration) : input.rocketInfiltration;
+        if (typeof rocketInfiltration !== 'boolean' || (rocketInfiltration && !viridian))
+          fail(400, 'INVALID_SETTINGS', 'Rocket Infiltrator requires the Viridian Gym identity scenario.');
+        const trainerProfessions = input.trainerProfessions ?? Boolean(current.settings.trainerProfessions);
+        if (typeof trainerProfessions !== 'boolean' || input.trainerProfessions === null)
+          fail(400, 'INVALID_SETTINGS', 'Trainer professions must be on or off.');
+        if (seated.length > seatCapacity({ matchMode, identityScenario, teamScenario })) fail(409, 'TOO_MANY_TRAINERS', 'There are too many trainers for the selected mode.');
         room.settings = { arena: input.arena, turnSeconds: input.turnSeconds, responseSeconds: input.responseSeconds, ...(deckProfile ? { deckProfile } : {}) };
-        if (matchMode === 'teams') Object.assign(room.settings, { matchMode, teamAssignment });
+        if (contentPack !== 'base') room.settings.contentPack = contentPack;
+        if (weatherLab) room.settings.weatherLab = true;
+        if (viridian) room.settings.identityScenario = identityScenario;
+        if (gymGuard) room.settings.gymGuard = true;
+        if (rocketPartners) room.settings.rocketPartners = true;
+        if (rocketInfiltration) room.settings.rocketInfiltration = true;
+        if (trainerProfessions) room.settings.trainerProfessions = true;
+        if (matchMode === 'teams') {
+          Object.assign(room.settings, { matchMode, teamAssignment });
+          if (teamScenario !== 'standard') room.settings.teamScenario = teamScenario;
+        }
         // When returning to the smaller lobby, keep the relative seating order.
         if (seated.some(entry => !validSeat(room, entry.seatNumber))) {
           seated.toSorted((a, b) => a.seatNumber - b.seatNumber).forEach((entry, index) => {
@@ -534,11 +610,15 @@ export class RoomStore {
         log(room, '每位训练家从共享洗匀牌库获得五个不重复候选，并选两只搭档。', 'Each trainer receives five distinct candidates from one shuffled shared deck and selects two partners.');
         break;
       case 'selectPokemon':
-        check(['activeId', 'reserveId']); seat(); status('setup');
+        check(['activeId', 'reserveId', 'profession']); seat(); status('setup');
         if (player.setupComplete) fail(409, 'ALREADY_SELECTED', 'Your setup selection is already locked.');
         if (input.activeId === input.reserveId || !player.candidates.includes(input.activeId) || !player.candidates.includes(input.reserveId)) fail(400, 'INVALID_SELECTION', 'Choose two distinct candidates from your private selection.');
+        if (input.profession !== undefined &&
+            (!isBattle(room) || !room.settings.trainerProfessions || !trainerProfessionIds.includes(input.profession)))
+          fail(400, 'INVALID_PROFESSION', 'Choose an available trainer profession.');
         player.setupRevision = room.revision + 1;
         if (isBattle(room)) {
+          if (input.profession) player.profession = input.profession;
           const complete = this.battleCall(() => selectBattlePartners(room, player, input.activeId, input.reserveId, this.catalogue));
           if (complete) this.startTurn(room, room.players.find(p => !p.spectator).id, 1);
           break;
@@ -573,10 +653,13 @@ export class RoomStore {
         log(room, isBattle(room) ? '当前玩家摸取一张牌。' : '当前玩家抽取一张测试手牌。', isBattle(room) ? 'The current player drew one card.' : 'The current player drew one fixture card.');
         break;
       case 'attack':
-        check(['cardId', 'cardIds', 'targetIds', 'moveIndex', 'boostCardId','effectChoice']); ownTurn();
+        check(['cardId', 'cardIds', 'coordinationCardIds', 'targetIds', 'moveIndex', 'boostCardId','effectChoice']); ownTurn();
         if (!isBattle(room)) fail(409, 'WRONG_MODE', 'Attacks are available in the combat preview.');
         this.battleCall(() => playBattleMove(room, player, input, this.battleContext()));
         break;
+      case 'tourAction':
+        check(['action']); ownTurn();
+        this.battleCall(() => useTourAction(room, player, input, this.battleContext())); break;
       case 'useEvent':
         check(['cardId','targetId','effect']);ownTurn();if(!isBattle(room))fail(409,'WRONG_MODE','Events require combat preview.');
         this.battleCall(()=>useBattleEvent(room,player,input,this.battleContext()));break;
@@ -602,6 +685,8 @@ export class RoomStore {
       case 'revealRole':
         check([]); ownTurn();
         if (!isBattle(room) || room.turn.phase!=='play' || player.eliminated) fail(409, 'WRONG_PHASE', 'Reveal your identity during your play phase.');
+        if (player.role==='infiltrator' && !player.identityPublic)
+          fail(409, 'INFILTRATOR_AWAITS_PLEDGE', 'Wait for the public allegiance decision.');
         if (!player.role || player.role==='leader' || player.identityPublic) fail(409, 'IDENTITY_ALREADY_PUBLIC', 'Your identity is already public.');
         revealBattleIdentity(room,player);
         log(room, `${player.nickname}主动公开了身份。`, `${player.nickname} revealed their identity.`);
@@ -659,14 +744,28 @@ export class RoomStore {
         break;
       }
       case 'endTurn': {
-        check(['levelUp']); ownTurn();
+        check(['levelUp','evolution']); ownTurn();
+        if(input.evolution!==undefined && (input.evolution!==SHEDINJA_ID || input.levelUp!==true || !isBattle(room)))
+          fail(400,'INVALID_EVOLUTION','Choose an available evolution with a level-up.');
         if (input.levelUp !== undefined && typeof input.levelUp !== 'boolean') fail(400, 'INVALID_INPUT', 'Level up must be a boolean.');
         const skipsDiscard=isBattle(room)&&player.active?.catalogueId==='magikarp'&&player.active.level===1&&battleTraitsEffective(room,player.active);
         if (room.turn.phase !== 'end' || room.turn.drawRemaining !== 0 || (!room.turn.discardComplete&&!skipsDiscard&&player.hand.length > handLimit(room,player))) fail(409, 'TURN_INCOMPLETE', 'Finish play, complete both draws and discard down to four cards first.');
         if (input.levelUp === true) {
-          if (player.active.level >= 3) fail(409, 'LEVEL_CAP', 'The active Pokémon is already at level 3.');
-          player.active.level++;
-          log(room, '当前玩家选择让出战宝可梦提升一个等级。', 'The current player chose to raise their active Pokémon by one level.');
+          if (player.raidBoss) fail(409,'LEVEL_CAP','Red Gyarados levels up only when it changes phase.');
+          if (room.turn.tourLevelUsed) fail(409, 'LEVEL_CAP', 'The level-up opportunity was already used.');
+          const levelTarget = room.turn.tourLevelTarget ? [player.active,player.reserve].find(pokemon=>pokemon?.instanceId===room.turn.tourLevelTarget&&!pokemon.defeated) : player.active;
+          if (!levelTarget) fail(409,'LEVEL_CAP','The selected partner can no longer level up.');
+          if (levelTarget.level >= 3) fail(409, 'LEVEL_CAP', 'The active Pokémon is already at level 3.');
+          if(input.evolution===SHEDINJA_ID) {
+            if(!canChooseShedinja(room,levelTarget)) fail(409,'INVALID_EVOLUTION','Only an uninjured Lv. 2 Ninjask can choose Shedinja.');
+            levelTarget.catalogueId=SHEDINJA_ID;
+            levelTarget.hpBonus=0;
+            log(room,'选择了脱壳忍者进化分支。','Shedinja was chosen as the evolution branch.');
+          }
+          levelTarget.level++;
+          if(isBattle(room))levelTarget.revealed = true;
+          room.turn.tourLevelUsed = true;
+          log(room, levelTarget===player.reserve?'当前玩家选择让备战宝可梦提升一个等级。':'当前玩家选择让出战宝可梦提升一个等级。', levelTarget===player.reserve?'The current trainer leveled up their reserve.':'The current player chose to raise their active Pokémon by one level.');
         }
         this.advanceTurn(room);
         break;
@@ -802,7 +901,7 @@ export class RoomStore {
     if (actor?.id !== task.actorId || task.ownerId !== owner.id || task.revision !== room.revision)
       fail(409, 'STALE_AI_TASK', 'The AI task changed.');
     const { targetIds, focus } = input;
-    if (!Array.isArray(targetIds) || targetIds.length >= seatCapacity(room.settings) || new Set(targetIds).size !== targetIds.length ||
+    if (!Array.isArray(targetIds) || targetIds.length >= room.players.filter(player=>!player.spectator).length || new Set(targetIds).size !== targetIds.length ||
         targetIds.some(id => id === actor.id || !room.players.some(player => player.id === id && !player.spectator && !player.eliminated)) ||
         !['attack', 'recover'].includes(focus)) fail(400, 'INVALID_AI_STRATEGY', 'Submit public target preferences only.');
     if (task.preferences) return { accepted: true };
@@ -815,13 +914,15 @@ export class RoomStore {
     const vote = room.pendingVote;
     if (!vote.requiredIds.every(id => vote.approvedIds.includes(id))) return;
     room.pendingVote = null;
-    delete room.visualEvents; delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent; delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
+    delete room.fieldWeather; delete room.visualEvents; delete room.pokemonDeck; delete room.gameMode; delete room.pendingBattle; delete room.resolution; delete room.resolutionStack; delete room.judgment; delete room.statusEvent; delete room.protectionWindow;delete room.turnStart;delete room.switchEvent;delete room.entryEvent;delete room.drawChoice;delete room.initialBattleEntries; delete room.expansionTool; delete room.tourDexSurvey; delete room.tourAfterSwitches; delete room.tourDefiantNext; delete room.drawPile; delete room.discardPile; delete room.scenario; delete room.result;
     room.turn = null;
     room.status = vote.kind === 'endRoom' ? 'closed' : 'lobby';
     if (room.status === 'lobby' && !this.allowTestDecks) room.settings.deckProfile = RETAIL_DECK;
+    room.players=room.players.filter(player=>!player.raidBoss);
     for (const player of room.players) {
       delete player.role; delete player.eliminated; delete player.identityAcknowledged; delete player.identityPublic; delete player.candidateDeal;
-      delete player.exiledCards;
+      delete player.exiledCards; delete player.delayedEvents; delete player.tourAllOutUsed; delete player.rocketAlias;
+      delete player.profession; delete player.professionUsed; delete player.researcherJudged;
       player.ready = Boolean(player.ai); player.hand = []; player.candidates = []; player.active = null; player.reserve = null; player.setupComplete = false;
       player.readyRevision = room.revision + 1;
     }

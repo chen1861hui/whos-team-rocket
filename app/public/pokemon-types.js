@@ -1,5 +1,17 @@
-// Standard species types from PokéAPI. Used as visual metadata.
+import { fieldWeathers } from './expansion-content.js';
+
+// Standard species types from PokéAPI.
 const speciesTypes = {
+  'hoenn-castform':'normal',
+  'hoenn-ralts':'psychic,fairy',
+  'hoenn-absol':'dark',
+  'hoenn-wobbuffet':'psychic',
+  'hoenn-nincada':['bug,ground','bug,flying','bug,flying'],
+  'hoenn-shedinja':'bug,ghost',
+  'hoenn-zorua':'dark',
+  'hoenn-mimikyu':'ghost,fairy',
+  'tour-eevee':['normal','dark','dark'], 'tour-togepi':['fairy','fairy,flying','fairy,flying'],
+  'tour-mareep':'electric', 'tour-treecko':'grass', 'tour-totodile':'water', 'tour-teddiursa':['normal','normal','ground,normal'],
   "charmander":["fire", "fire", "fire,flying"],
   "bulbasaur":"grass,poison",
   "squirtle":"water",
@@ -42,9 +54,14 @@ const speciesTypes = {
   "snorlax":"normal",
 };
 
-export function pokemonTypes(id, level = 1) {
+export function pokemonTypes(id, level = 1, fieldForm) {
+  if (id === 'hoenn-castform' && fieldForm !== 'sand' && fieldWeathers[fieldForm]) return [fieldWeathers[fieldForm].moveFamily];
   const types = Object.hasOwn(speciesTypes, id) ? speciesTypes[id] : null;
   return (Array.isArray(types) ? types[level - 1] : types)?.split(',') ?? [];
+}
+
+export function sandstormAffects({ catalogueId, level }) {
+  return !pokemonTypes(catalogueId, level).some(type => type === 'rock' || type === 'ground' || type === 'steel');
 }
 
 // Original Let's Go type symbols, distributed by PokeAPI/sprites.

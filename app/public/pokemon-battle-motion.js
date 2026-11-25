@@ -14,8 +14,8 @@ const axisX = new THREE.Vector3(1,0,0);
 const axisY = new THREE.Vector3(0,1,0);
 const axisZ = new THREE.Vector3(0,0,1);
 const pulse = t => Math.sin(Math.PI*THREE.MathUtils.clamp(t,0,1));
-const quadrupeds = new Set([1,2,3,32,37,38,53,58,59,79,111,112,128]);
-const airborne = new Set([6,12,15,16,17,18,81,82,92,93,94,109,110,142,144,145,146,149,150,151]);
+const quadrupeds = new Set([1,2,3,32,37,38,53,58,59,79,111,112,128,290,359,570]);
+const airborne = new Set([6,12,15,16,17,18,81,82,92,93,94,109,110,142,144,145,146,149,150,151,291,292]);
 
 const jointName = name => name.replace(/^\d+[ _]+/,'').replace(/_[1-9]\d{0,2}$/,'').replaceAll('_','').toLowerCase();
 
@@ -42,7 +42,8 @@ export function createEventPokemonMotion(model,dex) {
   const bindings = {};
   for (const [joint,pattern] of Object.entries(eventJoints)) {
     const bone = dex===146 && joint.endsWith('Wing')
-      ? skeleton.get(joint==='leftWing'?'lupperarm':'rupperarm')
+      ? skeleton.get(joint==='leftWing'?'lupperarm':'rupperarm') ??
+        skeleton.get(joint==='leftWing'?'larm':'rarm')
       : [...skeleton].find(([name])=>pattern.test(name))?.[1];
     if (!bone?.parent) continue;
     const basis = bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert().multiply(facing);
@@ -185,11 +186,14 @@ export function preparePokemonIdle(asset,dex,bounds) {
 
 export function createPokemonBattleMotion(model, dex) {
   model.updateMatrixWorld(true);
+  const patterns = dex === 291 ? {...joints,leftForewing:/^lfeelerb$/,rightForewing:/^rfeelerb$/,
+    leftHindwing:/^lfeelerc$/,rightHindwing:/^rfeelerc$/}
+    : dex === 292 ? {...joints,head:/^feeler$/,chest:/^waist$/} : joints;
   const bindings = {};
   model.traverse(bone=>{
     if (!bone.isBone || !bone.parent) return;
     const name = jointName(bone.name);
-    const key = Object.keys(joints).find(joint=>joints[joint].test(name));
+    const key = Object.keys(patterns).find(joint=>patterns[joint].test(name));
     if (!key || bindings[key]) return;
     const inverse = bone.parent.getWorldQuaternion(new THREE.Quaternion()).invert();
     bindings[key] = {
@@ -198,20 +202,27 @@ export function createPokemonBattleMotion(model, dex) {
       roll:axisZ.clone().applyQuaternion(inverse),
     };
   });
+  const castform = dex===351 || dex==='351-sun' || dex==='351-rain' || dex==='351-hail';
+  const floatingBody = castform ? model.children[0] : null;
+  const floatingHeight = floatingBody?.position.y ?? 0;
+  const authoredArms = model.children[0]?.userData.nativeBattleArms === true;
   const turn = new THREE.Quaternion();
   const rotate = (joint,axis,radians)=>{
+    // The generic dodge and recoil poses can fold these authored limbs into the torso.
+    if (authoredArms && (joint.endsWith('Arm') || joint.endsWith('Elbow'))) return;
     const binding = bindings[joint];
     if (binding) binding.bone.quaternion.premultiply(turn.setFromAxisAngle(binding[axis],radians));
   };
   const wings = dex===142 || dex===144 || dex===145 || dex===146 || dex===149 || dex===6;
   const onFourFeet = quadrupeds.has(dex);
+  const swaying = dex === 202 || dex === 360;
   const restArms = [];
-  if (!wings && !onFourFeet) {
+  if (!authoredArms && !wings && !onFourFeet) {
     for (const side of ['left','right']) {
       const arm=bindings[side+'Arm']?.bone, elbow=bindings[side+'Elbow']?.bone;
       if (!arm || !elbow) continue;
       const line=elbow.getWorldPosition(new THREE.Vector3()).sub(arm.getWorldPosition(new THREE.Vector3())).normalize();
-      if (Math.abs(line.x)<.72 || line.y<-.48) continue;
+      if (Math.abs(line.x)<(dex === 202 ? .62 : .72) || line.y<-.48) continue;
       const delta=Math.atan2(-.86,Math.sign(line.x)*.51)-Math.atan2(line.y,line.x);
       restArms.push([side,Math.atan2(Math.sin(delta),Math.cos(delta))]);
     }
@@ -222,13 +233,24 @@ export function createPokemonBattleMotion(model, dex) {
     if (relaxed!=null) morphs.push(mesh.morphTargetInfluences);
   });
   return {
-    airborne: airborne.has(dex),
+    airborne: castform || airborne.has(dex),
     reset() {
       for (const {bone,rest} of Object.values(bindings)) bone.quaternion.copy(rest);
     },
     pose(kind,t,seconds,animatedIdle) {
       const still = seconds==null;
       const breath = still ? .3 : .5+.5*Math.sin(seconds*2.1);
+      if (dex === 291 && !still && !animatedIdle) {
+        const flap = Math.sin(seconds*42) * (kind==='faint'||kind==='knockout' ? .10 : .38);
+        rotate('leftForewing','roll',flap);
+        rotate('rightForewing','roll',-flap);
+        rotate('leftHindwing','roll',flap*.76);
+        rotate('rightHindwing','roll',-flap*.76);
+      }
+      if (floatingBody) {
+        const lift = kind==='faint' || kind==='knockout' ? 1-t : 1;
+        floatingBody.position.y = floatingHeight + lift*(.48 + .16*breath);
+      }
       for (const influences of morphs) {
         influences[0]=1-breath;
         influences[1]=breath;
@@ -240,6 +262,11 @@ export function createPokemonBattleMotion(model, dex) {
       if (kind==='idle') {
         if (animatedIdle || still) return;
         const glance = Math.sin(seconds*1.07);
+        if (swaying) {
+          rotate('chest','roll',.085*glance);
+          rotate('leftArm','pitch',.10*glance);
+          rotate('rightArm','pitch',-.10*glance);
+        }
         rotate('head','yaw',.16*glance);
         rotate('head','pitch',-.038+.075*breath);
         rotate('tail','yaw',(onFourFeet?.22:.15)*Math.sin(seconds*1.65));

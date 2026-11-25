@@ -20,7 +20,7 @@ const moveFamilies = {
     ['Acid Spray','beam',1,.78,.30], ['Sludge Wave','field',3,1.12],
   ],
   spirit: [
-    ['Lick','slash',1,.68], ['Shadow Ball','volley',1,1.21,.45], ['Hex','wave',3,.83,.08],
+    ['Lick','slash',1,.68], ['Shadow Ball','volley',1,1.21,.45], ['Shadow Sneak','strike',1,.86], ['Shadow Claw','slash',3,.96], ['Hex','wave',3,.83,.08],
   ],
   air: [
     ['Whirlwind','field',4,.99], ['Wing Attack','slash',2,.95], ['Air Slash','wave',2,.87,.21],
@@ -34,7 +34,7 @@ const moveFamilies = {
   mind: [
     ['Teleport','ward',2,.72], ['Confusion','wave',2,.76,.15], ['Psychic','wave',3,1.12,.21],
     ['Disable','mark',3,.78], ['Zen Headbutt','strike',1,1.06],
-    ['Future Sight','mark',4,1.17], ['Psybeam','beam',1,.9,.12],
+    ['Future Sight','mark',4,1.17], ['Mirror Coat','wave',2,1.04], ['Psybeam','beam',1,.9,.12],
   ],
   stone: [
     ['Rock Smash','strike',2,1.12], ['Mud-Slap','volley',3,.69,.28],
@@ -50,16 +50,16 @@ const moveFamilies = {
     ['Tackle','strike',1,.83], ['Pound','strike',1,.89], ['Spike Cannon','volley',4,.89,.07],
     ['Protect','ward',3,1.01], ['Pay Day','volley',4,.71,.64], ['Fake Out','strike',2,.72],
     ['Brick Break','slash',1,1.15], ['Dynamic Punch','strike',1,1.39], ['Hyper Beam','beam',1,1.47,.06],
-    ['Scratch','slash',3,.71], ['Close Combat','strike',4,1.23], ['Double Kick','strike',2,.95],
+    ['Scratch','slash',3,.71], ['Struggle','strike',2,.92], ['Counter','strike',2,1.18], ['Slash','slash',2,.87], ['Close Combat','strike',4,1.23], ['Double Kick','strike',2,.95],
     ['Horn Attack','strike',1,1.02], ['Megahorn','strike',1,1.36], ['Double-Edge','strike',2,1.34],
     ['Reversal','strike',2,1.19], ['Stomp','field',1,1.06], ['Body Slam','strike',1,1.40],
   ],
   dark: [
-    ['Knock Off','slash',1,1.04], ['Thief','slash',2,.73], ['Bite','strike',2,.86],
+    ['Knock Off','slash',1,1.04], ['Night Slash','slash',2,1.12], ['Thief','slash',2,.73], ['Bite','strike',2,.86], ['Night Daze','wave',3,1.17],
   ],
   light: [
     ['Moonlight','heal',2,1.04], ['Helping Hand','heal',3,.82], ['Charm','mark',2,.85],
-    ['Light Screen','ward',3,1.13], ['Sweet Kiss','mark',3,.95], ['Lock-On','mark',3,.85],
+    ['Light Screen','ward',3,1.13], ['Safeguard','ward',3,1.02], ['Play Rough','strike',3,.97], ['Sweet Kiss','mark',3,.95], ['Lock-On','mark',3,.85],
   ],
   insect: [
     ['Fury Attack','strike',3,.83], ['U-turn','slash',1,.93], ['Fury Cutter','slash',3,.93],
@@ -75,14 +75,14 @@ const traitFamilies = {
   poison: [['Poison Touch','cloud'],['Poison Point','focus'],['Neutralizing Gas','cloud']],
   steel: [['Skill Link','focus'],['Limber','ward'],['Guts','flare'],['Rattled','flow'],['Moxie','flare'],
     ['Battle Armor','ward'],['Reckless','flare'],['Technician','focus'],['Pressure','ward']],
-  spirit: [['Levitate','flow'],['Cursed Body','cloud']],
+  spirit: [['Levitate','flow'],['Cursed Body','cloud'],['Disguise','ward']],
   insect: [['Shield Dust','ward'],['Shed Skin','ward'],['Compound Eyes','focus']],
   air: [['Keen Eye','focus']],
   stone: [['Sand Veil','cloud'],['Arena Trap','ward']],
   electric: [['Static','flare'],['Analytic','focus'],['Vital Spirit','ward']],
   mind: [['Synchronize','gather'],['Oblivious','ward'],['Forewarn','focus'],['Download','gather']],
   light: [['Pickup','gather'],['Cute Charm','flow'],['Justified','gather'],['Healer','heal'],
-    ['Early Bird','ward'],['Illuminate','sun'],['Intimidate','flare'],['Gluttony','heal']],
+    ['Early Bird','ward'],['Follow Me','ward'],['Illuminate','sun'],['Intimidate','flare'],['Gluttony','heal']],
   dragon: [['Marvel Scale','ward'],['Multiscale','ward']],
 };
 
@@ -94,14 +94,15 @@ const signatures = {
   'Ice Beam':'ice-beam','Icicle Spear':'icicles','Ice Shard':'ice-shard','Freeze-Dry':'frost',
   'Leech Seed':'vines','Mega Drain':'sap','Giga Drain':'sap-burst','Seed Bomb':'seed',
   'Sludge Bomb':'sludge-glob',Toxic:'venom-cloud','Poison Sting':'needles','Acid Spray':'acid-stream','Sludge Wave':'sludge-front',
-  Lick:'tongue','Shadow Ball':'shadow-orb',Hex:'hex-rings',
+  Lick:'tongue','Shadow Ball':'shadow-orb','Shadow Sneak':'shadow-sneak','Shadow Claw':'shadow-claw','Play Rough':'play-rough',Hex:'hex-rings',
   Whirlwind:'wind-spiral','Wing Attack':'wing-arc','Air Slash':'air-blades','Sleep Powder':'pollen',
   'Thunder Shock':'short-sparks',Thunderbolt:'branching-bolts',Thunder:'sky-strike','Thunder Wave':'static-rings','Shock Wave':'electric-front',Electroweb:'web',
   Teleport:'portal',Confusion:'mind-ripples',Psychic:'psychic-pressure',Disable:'seal','Zen Headbutt':'headbutt','Future Sight':'omen',Psybeam:'prism-beam',
   'Rock Smash':'broken-stone','Mud-Slap':'mud-fan',Bulldoze:'ground-front',Earthquake:'faults','Bone Rush':'bone-strikes',Bonemerang:'boomerang','Rock Throw':'boulder','Rock Slide':'rockfall','Stone Edge':'spires',
   Twister:'tornado','Dragon Rage':'dragon-orb','Draco Meteor':'meteors',
   Tackle:'rush',Pound:'palm','Spike Cannon':'spikes',Protect:'shell','Pay Day':'coins','Fake Out':'clap','Brick Break':'chop','Dynamic Punch':'punch','Hyper Beam':'hyper-beam',
-  Scratch:'claws','Close Combat':'flurry','Double Kick':'kicks','Horn Attack':'horn',Megahorn:'great-horn','Double-Edge':'recoil-rush',Reversal:'counter',Stomp:'stomp','Body Slam':'slam',
+  Struggle:'struggle',Counter:'counter-strike','Mirror Coat':'mirror-coat',Safeguard:'safeguard',
+  Scratch:'claws',Slash:'sweeping-blades','Night Slash':'dark-blades','Night Daze':'night-daze','Close Combat':'flurry','Double Kick':'kicks','Horn Attack':'horn',Megahorn:'great-horn','Double-Edge':'recoil-rush',Reversal:'counter',Stomp:'stomp','Body Slam':'slam',
   'Knock Off':'knock-away',Thief:'snatch',Bite:'dark-jaws',Moonlight:'moon','Helping Hand':'helping-light',Charm:'hearts','Light Screen':'screen','Sweet Kiss':'kiss','Lock-On':'reticle',
   'Fury Attack':'jabs','U-turn':'return-arc','Fury Cutter':'rapid-cuts','Swords Dance':'swords','X-Scissor':'cross-cut','Tri Attack':'triad',
 };
