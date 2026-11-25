@@ -153,7 +153,15 @@ const strings = {
   inspectPokemon:['Levels & abilities','等级与技能'], traitLabel:['Ability','特性'], movesLabel:['Moves','招式'], movesPending:['Move text has not been reviewed yet.','招式文本尚待复核。'], evolutionLine:['Evolution line','进化路线'], abilityHelp:['Choose a level to view its form, HP, ability and moves.','选择等级，查看形态、体力、特性与招式。'],
   damageProtected:['Protected this turn','本回合伤害免疫'],
   active: ['Active partner', '出场搭档'], reserve: ['Private reserve', '私密后备'], choose: ['Choose', '选择'], selected: ['Selected', '已选择'],
-  confirmPick: ['Confirm my two partners', '确认两位搭档'], clearPick: ['Clear selection', '清空选择'],
+  confirmPick: ['Confirm my two partners', '确认两位搭档'],
+  draftSummon: ['Summon five Poké Balls', '召唤五颗精灵球'],
+  draftChooseRoles: ['Choose a Pokémon, then assign its role', '点选宝可梦，再指定出场或后备'],
+  draftLevelPreview: ['Level tabs are for preview', '等级页面仅供预览'],
+  draftActive: ['Active', '出场'], draftReserve: ['Reserve', '后备'], draftEmptyPick: ['Unassigned', '尚未选择'],
+  draftSetActive: ['Set as active', '设为出场'], draftSetReserve: ['Set as reserve', '设为后备'],
+  draftActiveSet: ['Set as active ✓', '已设为出场'], draftReserveSet: ['Set as reserve ✓', '已设为后备'],
+  draftSwapActive: ['Swap into active', '交换到出场'], draftSwapReserve: ['Swap into reserve', '交换到后备'],
+  draftClearActive: ['Clear active partner', '移除出场'], draftClearReserve: ['Clear reserve partner', '移除后备'],
   waitingPick: ['Your partners are locked in.', '你的搭档已确认。'], waitingPickCopy: ['Waiting for the rest of the crew to choose their partners.', '正在等待其他玩家完成选择。'], chosen: ['Partners chosen', '已选择搭档'], choosing: ['Choosing partners', '正在选择搭档'],
   round: ['TURN', '回合'], currentTurn: ['Your turn', '轮到你了'], theirTurn: ['At the controls', '当前行动玩家'],
   turnFlow: ['Draw → play → discard → end', '摸牌 → 出牌 → 弃牌 → 结束'],
@@ -247,12 +255,13 @@ let dexModelForms = {};
 let session = null;
 try { const saved = JSON.parse(sessionStorage.getItem('rocket.session') || 'null'); if (saved?.code && saved?.token) session = saved; } catch { sessionStorage.removeItem('rocket.session'); }
 let identityFaceShown = false, revealedCandidate = null, arrivingHandCards = [], enteringArena = false, leaderPortrait = null;
-let drawCeremony = 'sealed', inspectedCandidate = null, inspectedLevel = 1;
+let draftSummonedAt = null, inspectedCandidate = null, inspectedLevel = 1;
+let draftPicks = {active:null,reserve:null};
 let revealVictory = false, victorySoundTimer;
 let victoryRevealDelay = 0;
 const gymThemes = ['fire', 'water', 'grass'];
 let professionDraft = '';
-let view = null, busy = false, pollRunning = false, connected = true, errorKey = '', errorCode = '', noticeKey = '', selected = [], settingsDraft = null, signature = '', dialogKind = null, terminalReason = '';
+let view = null, busy = false, pollRunning = false, connected = true, errorKey = '', errorCode = '', noticeKey = '', settingsDraft = null, signature = '', dialogKind = null, terminalReason = '';
 let credentialVisible = false, dialogReturnFocus = null;
 const entryDraft = { nickname: '', code: '' };
 let clockSample = null, responseClockSample = null, clockAnnouncement = '', phaseAnnouncement = '', turnTimerDefault = 60, turnLiveRegion = null;
@@ -1139,10 +1148,9 @@ function pokemonTypeIcon(active, preferredType) {
 }
 
 function startDrawCeremony() {
-  if (drawCeremony!=='sealed' || busy || view.pendingVote) return;
-  drawCeremony = 'ready';
+  if (draftSummonedAt!==null || busy || view.pendingVote) return;
+  draftSummonedAt = performance.now();
   render();
-  if (motionAllowed()) $('.draft-center')?.classList.add('draft-summoned');
   $('#draw-pokemon')?.focus({preventScroll:true});
 }
 
@@ -1168,9 +1176,10 @@ function selectionPanel(count) {
   const candidates = view.self.candidates;
   const remaining = view.self.pokemonDrawRemaining || 0;
   const expected = view.scenario?.candidateCount || 5;
-  const progress = el('p',{class:'draft-progress',role:'status'},`${t('selectionProgress')} · ${count} / ${seated().length}`);
+  const blocked = busy || Boolean(view.pendingVote);
   const title = el('header',{class:'draft-heading'},
-    el('small',{},t(venueTheme(view.settings))),el('h1',{},t('combatPickTitle')),progress);
+    el('small',{},t(venueTheme(view.settings))),el('h1',{},t('combatPickTitle')),
+    el('p',{class:'draft-progress',role:'status'},`${t('selectionProgress')} · ${count} / ${seated().length}`));
   if (view.self.spectator || own?.setupComplete) {
     return el('section',{class:'arena-draft draft-waiting'},title,
       el('div',{class:'draft-waiting-message'},el('h2',{},t(view.self.spectator?'watch':'waitingPick')),
@@ -1179,46 +1188,52 @@ function selectionPanel(count) {
         own?.setupComplete?privateReserve():null));
   }
 
-  selected = selected.filter(id=>candidates.includes(id));
+  const slots = ['active','reserve'];
+  for (const slot of slots) if (!candidates.includes(draftPicks[slot])) draftPicks[slot] = null;
   if (!candidates.includes(inspectedCandidate)) {
     inspectedCandidate = candidates.at(-1) ?? null;
     inspectedLevel = 1;
   }
-  const ceremony = candidates.length ? 'ready' : drawCeremony;
+  const summoned = candidates.length>0 || draftSummonedAt!==null;
   const tray = el('div',{class:'draft-ball-tray'});
-  const roster = el('div',{class:'draft-roster-list',role:'group','aria-label':t('partnerLineup')});
   const details = el('aside',{class:'draft-details','aria-label':t('inspectPokemon')});
+  const pickFor = id => slots.find(slot=>draftPicks[slot]===id);
 
   function inspect(id) {
-    if (inspectedCandidate===id) return;
+    if (id===inspectedCandidate) return;
     inspectedCandidate = id;
     inspectedLevel = 1;
     paintDetails();
   }
 
-  function inspectButton(id,attributes,...content) {
-    return el('button',{type:'button','data-candidate':id,...attributes,
-      onclick:()=>inspect(id),onfocus:()=>inspect(id),
-      onpointerenter:event=>{if(event.pointerType==='mouse')inspect(id);}},...content);
+  function assign(slot,id) {
+    const oldSlot=pickFor(id);
+    if (oldSlot===slot) return;
+    if (oldSlot) draftPicks[oldSlot]=draftPicks[slot];
+    draftPicks[slot]=id;
+    render();
   }
 
   function paintDetails() {
     const entry = catalogueEntry(inspectedCandidate);
     if (!entry) return;
-    for (const control of [...roster.children,...tray.children]) {
-      const candidate = control.dataset.candidate;
-      if (candidate) control.setAttribute('aria-pressed',String(candidate===entry.id));
+    for (const tile of tray.querySelectorAll('button[data-candidate]')) {
+      tile.setAttribute('aria-pressed',String(tile.dataset.candidate===entry.id));
     }
-    const index = selected.indexOf(entry.id);
-    const assign = button(index<0?'choose':index===0?'active':'reserve',()=>{
-      selected = index<0 ? [...selected,entry.id] : selected.filter(id=>id!==entry.id);
-      render();
-    },index<0?'button primary':'button secondary',remaining>0||(index<0&&selected.length>=2)||Boolean(view.pendingVote),
-    {id:'assign-draft-partner','aria-pressed':index>=0,
-      title:index>=0?(language==='zh'?'取消选择这只宝可梦':'Remove this Pokémon from your lineup'):null});
+    const picked=pickFor(entry.id);
+    const controls=slots.map(slot=>{
+      const selected=slot===picked;
+      const label=selected ? t(slot==='active'?'draftActiveSet':'draftReserveSet')
+        : picked && draftPicks[slot] ? t(slot==='active'?'draftSwapActive':'draftSwapReserve')
+        : t(slot==='active'?'draftSetActive':'draftSetReserve');
+      return el('button',{type:'button',id:`draft-set-${slot}`,class:`button ${slot==='active'?'primary':'secondary'}`,
+        'aria-pressed':selected,disabled:blocked,onclick:()=>assign(slot,entry.id)},label);
+    });
     details.replaceChildren(
-      el('div',{class:'draft-detail-heading'},el('div',{},el('small',{},t('inspectPokemon')),el('h2',{},partnerName(entry.id,inspectedLevel))),
-        el('div',{class:'draft-type-row'},pokemonTypes(entry.id,inspectedLevel).map(typeBadge))),
+      el('div',{class:'draft-detail-heading'},
+        el('h2',{},partnerName(entry.id)),el('div',{class:'draft-type-row'},pokemonTypes(entry.id).map(typeBadge))),
+      el('div',{class:'draft-detail-actions'},controls,
+        inspectedLevel>1?el('small',{class:'draft-level-note'},t('draftLevelPreview')):null),
       el('div',{class:'draft-detail-body'},pokemonDetails(entry,inspectedLevel,{
         prefix:'draft-level',compact:true,
         selectLevel:level=>{
@@ -1226,74 +1241,70 @@ function selectionPanel(count) {
           paintDetails();
           document.getElementById(`draft-level-tab-${level}`)?.focus({preventScroll:true});
         },
-      })),
-      el('div',{class:'draft-detail-actions'},assign));
+      })));
   }
 
-  const arena = el('div',{class:'draft-center'},
+  const now = performance.now();
+  const arena = el('div',{class:`draft-center${draftSummonedAt!==null && now-draftSummonedAt<950?' draft-summoned':''}`},
     el('div',{class:'draft-portal','aria-hidden':'true'},el('i'),el('i'),el('i')));
-  if (ceremony==='sealed') {
-    const summonLabel = language==='zh'?'召唤五颗精灵球':'Summon five Poké Balls';
-    arena.append(el('div',{class:'draft-summon'},
-      el('button',{id:'start-draw-ceremony',type:'button',class:'draft-summon-button','aria-label':summonLabel,
-        disabled:busy||Boolean(view.pendingVote),onclick:startDrawCeremony},draftBall(),el('strong',{},summonLabel)),
-      el('p',{},language==='zh'?'触碰光阵，召唤你的候选搭档。':'Activate the ring to summon your candidates.')));
+  if (!summoned) {
+    arena.append(el('div',{class:'draft-summon'},el('button',{id:'start-draw-ceremony',
+      type:'button',class:'draft-summon-button',disabled:blocked,onclick:startDrawCeremony},
+    draftBall(),el('strong',{},t('draftSummon')))));
   } else {
     for (let index=0;index<expected;index++) {
       const id = candidates[index];
       const number = String(index+1).padStart(2,'0');
       let tile;
       if (id) {
-        const entry = catalogueEntry(id), picked = selected.indexOf(id);
-        tile = inspectButton(id,{id:`candidate-${id}`,class:`draft-slot draft-revealed ${id===revealedCandidate?'draft-arriving':''}`,
-          'aria-label':`${partnerName(id)} · ${t('inspectPokemon')}`},
+        const entry=catalogueEntry(id), picked=pickFor(id);
+        tile=el('button',{type:'button',id:`candidate-${id}`,'data-candidate':id,'data-pick':picked,
+          class:`draft-slot draft-revealed${id===revealedCandidate?' draft-arriving':''}`,onclick:()=>inspect(id)},
           el('span',{class:'draft-slot-number'},number),
           el('span',{class:'draft-slot-art'},draftBall(true),
             entry?.portraitImage?.url?el('img',{src:entry.portraitImage.url,alt:'',draggable:false}):null),
-          el('strong',{},partnerName(id)),picked>=0?el('small',{class:'draft-slot-pick'},t(picked===0?'active':'reserve')):null);
-        roster.append(inspectButton(id,{id:`draft-wheel-${id}`,class:'draft-wheel-option'},
-          entry?.portraitImage?.url?el('img',{src:entry.portraitImage.url,alt:'',draggable:false}):null,
-          el('span',{},el('strong',{},partnerName(id)),picked>=0?el('small',{},t(picked===0?'active':'reserve')):typeBadge(pokemonTypes(id)[0]))));
+          el('strong',{},partnerName(id)),el('small',{class:'draft-slot-pick'},picked ? t(picked==='active'?'draftActive':'draftReserve') : ''));
       } else {
-        const next = index===candidates.length && remaining>0;
-        const type = view.self.candidateTypeHints?.[index-candidates.length];
-        tile = el(next?'button':'div',{class:`draft-slot draft-unopened ${next?'draft-next':''}`,
-          ...(next?{type:'button',id:'draw-pokemon',disabled:busy||Boolean(view.pendingVote),onclick:()=>action('drawPokemon'),
-            'aria-label':`${t('revealPokemon')} ${index+1} / ${expected} · ${typeName(type)}`}:{}),
-          'data-type':type},el('span',{class:'draft-slot-number'},number),draftBall(),typeBadge(type),
-          next?el('small',{class:'draft-open-label'},t('revealPokemon')):null);
+        const next=index===candidates.length && remaining>0;
+        const type=view.self.candidateTypeHints?.[index-candidates.length];
+        const landAt=draftSummonedAt===null ? null : draftSummonedAt+index*135;
+        const landing=landAt!==null && now<landAt+330;
+        tile=el(next?'button':'div',{class:`draft-slot draft-unopened${next?' draft-next':''}${landing?' draft-landing':''}`,
+          'data-land-at':landing?landAt:null,'data-type':type,
+          ...(next?{id:'draw-pokemon',type:'button',disabled:blocked,onclick:()=>action('drawPokemon'),
+            'aria-label':`${t('revealPokemon')} ${index+1} / ${expected}${type?' · '+typeName(type):''}`}:{})},
+          el('span',{class:'draft-slot-number'},number),draftBall(),type?typeBadge(type):null,
+          el('small',{class:'draft-open-label'},next?t('revealPokemon'):''));
+        if (landing) tile.style.setProperty('--draft-delay',`${landAt-now}ms`);
       }
       tray.append(tile);
     }
     arena.append(tray,el('p',{class:'draft-draw-count','aria-live':'polite'},
-      remaining>0?`${candidates.length} / ${expected} · ${t('cardsDrawn')}`
-        : (language==='zh'?'选择出场与后备搭档':'Choose an active Pokémon and a reserve')));
+      remaining>0?`${candidates.length} / ${expected} · ${t('cardsDrawn')}` : t('draftChooseRoles')));
   }
   revealedCandidate = null;
   paintDetails();
 
-  let lastWheel = 0;
-  roster.addEventListener('wheel',event=>{
-    if (candidates.length<2 || !event.deltaY || event.ctrlKey) return;
-    event.preventDefault();
-    const now = performance.now();
-    if (now-lastWheel<135) return;
-    lastWheel = now;
-    const next = Math.max(0,Math.min(candidates.length-1,candidates.indexOf(inspectedCandidate)+Math.sign(event.deltaY)));
-    inspect(candidates[next]);
-    roster.children[next]?.scrollIntoView({block:'nearest',inline:'nearest'});
-  },{passive:false});
-
-  const left = el('aside',{class:'draft-wheel','aria-label':t('partnerLineup')},
-    el('h2',{},t('partnerLineup')),
-    el('p',{class:'draft-wheel-hint'},language==='zh'?'滚轮切换候选':'Scroll to browse candidates'),roster,
-    el('div',{class:'draft-picks'},['active','reserve'].map((slot,index)=>
-      el('div',{},el('small',{},t(slot)),el('strong',{},selected[index]?partnerName(selected[index]):'—')))),
+  const lineup=el('div',{class:'draft-lineup','aria-label':t('partnerLineup')},
+    el('div',{class:'draft-picks'},slots.map(slot=>{
+      const id=draftPicks[slot];
+      const caption=el('span',{},el('small',{},t(slot==='active'?'draftActive':'draftReserve')),
+        el('strong',{},id?partnerName(id):t('draftEmptyPick')));
+      return el('div',{class:'draft-pick','data-role':slot,'data-filled':id?'true':null},
+        id ? el('button',{type:'button',id:`draft-review-${slot}`,class:'draft-pick-preview',onclick:()=>inspect(id)},
+          partnerImage({catalogueId:id,level:1}),caption) : caption,
+        id ? el('button',{type:'button',id:`draft-clear-${slot}`,class:'draft-pick-clear',disabled:blocked,
+          'aria-label':t(slot==='active'?'draftClearActive':'draftClearReserve'),onclick:()=>{
+            draftPicks[slot]=null;
+            render();
+            document.getElementById(`candidate-${id}`)?.focus({preventScroll:true});
+          }},'×') : null);
+    })),
     professionPicker(),
-    button('confirmPick',()=>action('selectPokemon',{activeId:selected[0],reserveId:selected[1],
+    button('confirmPick',()=>action('selectPokemon',{activeId:draftPicks.active,reserveId:draftPicks.reserve,
       ...(view.settings.trainerProfessions && professionDraft ? {profession:professionDraft} : {})}),'button primary',
-      selected.length!==2||remaining>0||Boolean(view.pendingVote),{id:'confirm-partners'}));
-  return el('section',{class:`arena-draft ${candidates.length?'draft-inspecting':''}`},title,left,arena,details);
+      !draftPicks.active || !draftPicks.reserve || remaining>0 || blocked,{id:'confirm-partners'}));
+  return el('section',{class:`arena-draft${candidates.length?' draft-inspecting':''}`},title,arena,details,lineup);
 }
 const statusKinds = new Set(['burn','flinch','sleep','confusion','paralysis','poison']);
 const reinforcementArt = {power:'x-attack.png',defense:'x-defense.png',speed:'x-speed.png'};
@@ -1514,10 +1525,10 @@ function worldPanel(players, viewerId, turnId, theme) {
         [partnerImage(reserve),el('small',{},language==='zh'?'备战':'Reserve')]);
     }
   }
-  host.append(el('div',{class:'flat-field','aria-hidden':'true'},el('div',{class:'field-centre'})),
-    view?.fieldWeather?.kind==='sand' && !largeTable ? el('div',{class:'arena-sand','aria-hidden':'true'}) : null,
-    sprites,labels,targetLayer,
-    largeTable ? null : el('span',{class:'renderer-status'},t('fallbackView')));
+  host.append(el('div',{class:'flat-field','aria-hidden':'true'},el('div',{class:'field-centre'})));
+  if (view?.fieldWeather?.kind==='sand' && !largeTable) host.append(el('div',{class:'arena-sand','aria-hidden':'true'}));
+  host.append(sprites,labels,targetLayer);
+  if (!largeTable) host.append(el('span',{class:'renderer-status'},t('fallbackView')));
   if(richGraphics && !largeTable) queueMicrotask(async()=>{
     try {
       if(!host.isConnected || !richGraphics)return;
@@ -2149,8 +2160,8 @@ function setView(next, force = false) {
   if (finishedBattle) revealVictory = true;
   if (arenaPrompt && (!sameSeat || arenaPrompt.revision!==next.revision)) closeArenaPrompt(false);
   if (!sameSeat || view?.status !== next.status) {
-    selected = []; professionDraft = ''; settingsDraft = null; identityFaceShown = false; revealedCandidate = null;
-    drawCeremony = 'sealed'; inspectedCandidate = null; inspectedLevel = 1;
+    draftPicks = {active:null,reserve:null}; professionDraft = ''; settingsDraft = null; identityFaceShown = false; revealedCandidate = null;
+    draftSummonedAt = null; inspectedCandidate = null; inspectedLevel = 1;
     arenaJudgment = arenaEffect = arenaEvent = arenaTraitEvent = null;
     arenaJudgmentQueue.length = 0;
     clearTimeout(arenaJudgmentTimer);
@@ -2333,12 +2344,12 @@ async function poll(force = false) {
       terminalReason = error.code === 'ROOM_NOT_FOUND' ? 'expired' : 'closed';
       const code = session.code;
       sessionStorage.removeItem('rocket.session'); session = null;
-      selected = []; settingsDraft = null; credentialVisible = false; errorKey = ''; errorCode = ''; noticeKey = '';
+      draftPicks = {active:null,reserve:null}; settingsDraft = null; credentialVisible = false; errorKey = ''; errorCode = ''; noticeKey = '';
       view = {code, revision: view?.revision || 0, status: 'closed', players: [], self: {spectator:false, hand:[], candidates:[], reserve:null}};
       connected = true; render(); return;
     }
     if (error.code === 'UNAUTHORIZED') {
-      sessionStorage.removeItem('rocket.session'); session = null; view = null; credentialVisible = false; selected = [];
+      sessionStorage.removeItem('rocket.session'); session = null; view = null; credentialVisible = false; draftPicks = {active:null,reserve:null};
       render(); showError(error); return;
     }
     const changed = connected; connected = false;
@@ -2359,7 +2370,7 @@ async function saveSettings() {
   if (await action('settings', next)) $('#info-dialog')?.close();
 }
 function clearSession() {
-  sessionStorage.removeItem('rocket.session'); session = null; view = null; suggestAiStrategy(); selected = []; settingsDraft = null; signature = ''; errorKey = ''; noticeKey = ''; credentialVisible = false; terminalReason = ''; clockSample = null; clockAnnouncement = ''; phaseAnnouncement = ''; if (turnLiveRegion) turnLiveRegion.textContent = ''; render();
+  sessionStorage.removeItem('rocket.session'); session = null; view = null; suggestAiStrategy(); draftPicks = {active:null,reserve:null}; settingsDraft = null; signature = ''; errorKey = ''; noticeKey = ''; credentialVisible = false; terminalReason = ''; clockSample = null; clockAnnouncement = ''; phaseAnnouncement = ''; if (turnLiveRegion) turnLiveRegion.textContent = ''; render();
 }
 async function copyText(value) {
   try { await navigator.clipboard.writeText(value); noticeKey = 'copied'; errorKey = ''; }

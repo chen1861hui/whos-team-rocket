@@ -142,6 +142,7 @@ export function createDraftModels(loadModel, refresh) {
         ballGroup.add(model);
         const tile = anchor.closest('.draft-slot');
         return {anchor,index,model,lid:model.getObjectByName('lid'),
+          landAt:tile?.dataset.landAt ? Number(tile.dataset.landAt) : null,
           candidate:candidates.get(tile?.dataset.candidate)};
       });
     },
@@ -156,19 +157,20 @@ export function createDraftModels(loadModel, refresh) {
         camera.updateProjectionMatrix();
       }
       const origin = center.getBoundingClientRect();
-      for (const {anchor,index,model,lid,candidate} of balls) {
+      for (const {anchor,index,model,lid,landAt,candidate} of balls) {
         const rect = anchor.getBoundingClientRect();
         const radius = Math.min(rect.width,rect.height)*.47;
-        model.visible = radius>0;
+        const landing = reducedMotion || landAt===null ? 1 : THREE.MathUtils.smoothstep(time-landAt,0,330);
+        model.visible = radius>0 && landing>0;
         if (!model.visible) continue;
         const opening = candidate
           ? reducedMotion || candidate.openedAt==null ? 1 : THREE.MathUtils.smoothstep(time-candidate.openedAt,35,415)
           : 0;
         const phase = reducedMotion ? 0 : Math.sin(time*.0026+index*.8)*(1-opening);
         model.position.set(rect.left-origin.left+rect.width/2,
-          height-(rect.top-origin.top+rect.height/2)+phase*3,0);
-        model.rotation.set(.23,-.16+phase*.23,phase*.055);
-        model.scale.setScalar(radius*(1-opening*.33));
+          height-(rect.top-origin.top+rect.height/2)+phase*3+54*(1-landing),0);
+        model.rotation.set(.23,-.16+phase*.23+(1-landing)*2.4,phase*.055);
+        model.scale.setScalar(radius*(1-opening*.33)*(.72+.28*landing));
         lid.rotation.x = -2.17*opening;
       }
       const displayed = [];
