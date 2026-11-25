@@ -85,7 +85,9 @@ function gastlyMaterial(noise,clock) {
     shader.vertexShader = smokeVertex+shader.vertexShader.replace('#include <project_vertex>',`
       #include <project_vertex>
       fogSurface = position;
-      fogEye = (inverse(modelViewMatrix)*vec4(0.0,0.0,0.0,1.0)).xyz;
+      // Parallel rays start at the pixel's position on the orthographic view plane.
+      vec2 viewOrigin = isOrthographic ? mvPosition.xy : vec2(0.0);
+      fogEye = (inverse(modelViewMatrix)*vec4(viewOrigin,0.0,1.0)).xyz;
     `);
     shader.fragmentShader = smokeFragment+shader.fragmentShader.replace('#include <map_fragment>',`
       #include <map_fragment>

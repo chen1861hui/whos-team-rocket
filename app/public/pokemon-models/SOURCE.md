@@ -126,3 +126,7 @@ The corresponding Sun/Moon meshes supply corrected joint indices and weights for
 The supplied Sun/Moon battle models and animations provide matching rigs for Totodile, Croconaw, Feraligatr, Cleffa, Togetic, Mareep, Flaaffy, Ampharos, Wobbuffet, Porygon2, Treecko, Grovyle, Sceptile, Nincada, Ninjask, Shedinja, Absol, Wynaut, Magnezone, Togekiss, Porygon-Z, Zorua and Zoroark. All 23 use battle slots 0, 16 and 17 for idle, hit and faint. Physical and special attacks use slots 5 and 8 where those slots have a skeletal clip. Longer attack displacements are scaled to fit the arena. The arena layers the positional dodge over the authored resting posture.
 
 The source weighting corrects Togetic's wing layer, Porygon2's foot and tail layers and Porygon-Z's arm layer. Ampharos and Magnezone use their existing geometry and weights, verified under the new clips.
+
+## Partner draft preview
+
+The draft camera uses the regular front-facing rotation for Gastly. The billowing smoke uses parallel view rays in the orthographic draft preview and perspective rays at the battle table. Grimer's opaque eye-region surface uses the complete X/Y colour layer, including the head skin surrounding the eyes. The animation and skinning are preserved.
