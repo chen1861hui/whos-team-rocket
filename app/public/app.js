@@ -56,7 +56,7 @@ const strings = {
   lakeStartHelp:['Seat 2–6 challengers. The Gyarados AI joins when you start.','2–6 位挑战者准备后开局。系统会加入红色暴鲤龙首领 AI。'],
   silphStartHelp:['Seat 6 or 12 ready trainers in three equal teams.','6 或 12 位训练家准备后开局，平分为三队。'],
   teamScenario:['Team scenario','组队场景'], standardTeams:['Standard battle','标准对战'],
-  radioTower:['Goldenrod Radio Tower','满金市广播塔争夺战'], radioIntelligence:['Intelligence','情报点'],
+  radio:['Goldenrod Radio Tower','满金市广播塔'], radioTower:['Goldenrod Radio Tower','满金市广播塔争夺战'], radioIntelligence:['Intelligence','情报点'],
   radioVictory:['Radio Tower won by intelligence','通过广播塔情报获胜'],
   radioElimination:['Opposing team eliminated','对方全队退场'],
   teamAssignment:['Team assignment','分队方式'], teamSeat:['Alternate by seat','按座位交替'], teamRandom:['Random teams','随机分队'],
@@ -704,10 +704,12 @@ document.addEventListener('keydown',event=>{
 });
 window.addEventListener('resize',()=>{ if (arenaPrompt) syncArenaPrompt(); });
 function combatKit() { return {getView:()=>view,language,localized,partnerName,partnerImage,action,openArenaPrompt,closeArenaPrompt,syncArenaPrompt,get busy(){return busy;}}; }
-const venueTheme = settings => isLakeRaid(settings) ? 'lake' : isSilphControl(settings) ? 'silph' : settings.arena;
+const isRadioTower = settings => settings.matchMode==='teams' && settings.teamScenario===RADIO_TOWER;
+const venueTheme = settings => isLakeRaid(settings) ? 'lake' : isSilphControl(settings) ? 'silph' : isRadioTower(settings) ? 'radio' : settings.arena;
 const teamModeLabel = settings => ({[LAKE_RAGE]:'lake',[SILPH_CONTROL]:'silph',[RADIO_TOWER]:'radioTower'}[settings.teamScenario] ?? 'teamMode');
 function gymTypeIcon(theme) {
   if (theme==='lake') return typeIcon('water');
+  if (theme==='radio') return '◉';
   return theme==='silph' ? '◆' : gymThemes.includes(theme) ? typeIcon(theme) : '★';
 }
 function scenarioObjective() {
@@ -959,7 +961,8 @@ function lobbyPanel() {
     render();
   },'trainerProfessions');
   $('input',professions).disabled = busy || !isOwner();
-  panel.append(professions,arenas);
+  panel.append(professions);
+  if (!isRadioTower(settings)) panel.append(arenas);
   const timers = el('div', { class: 'timer-grid' });
   const turnEnabled = Number(settings.turnSeconds) > 0;
   const turnToggle = preference('turnTimerEnabled', turnEnabled, enabled => {
@@ -1469,7 +1472,7 @@ function worldPanel(players, viewerId, turnId, theme) {
   const showLeader = player => player.role==='leader' && (view?.status!=='identity' || player.identityAcknowledged);
   const coastalBattle = theme==='water' && ['playing','finished'].includes(view?.status);
   const seats = players.map(player=>({id:player.id,leader:showLeader(player)}));
-  const layout = coastalBattle
+  const layout = coastalBattle || theme==='radio'
     ? coastalSeatLayout(seats,viewerId)
     : (theme==='fire' || theme==='grass') ? fireGymLayout(seats,viewerId).seats : seatLayout(players,viewerId,theme==='silph' && players.length>8 ? 9.3 : 7.2);
   for(const [index,player] of players.entries()) {
