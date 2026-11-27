@@ -294,7 +294,7 @@ function wetLimestone(map) {
 }
 
 export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
-  if (theme==='fire') return createFireGym(scene,sceneryAngle,refresh);
+  if (theme==='fire') return createFireGym(scene,sceneryAngle);
   if (theme==='grass') return createGrassGym(scene,sceneryAngle,refresh);
   const palette = design[theme];
   const random = randomFor(palette.seed+24);
