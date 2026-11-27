@@ -547,10 +547,15 @@ function play(room, player, catalogue, table, preferences, legal) {
     const doubleDodge = hard && move.effectKind === 'x-scissor' &&
       battleReinforcementEffective(room, active, 'power') && publicSeats.get(primaryId).handCount > 0 &&
       !(room.turn.dodgeBlockedCreatureIds ?? []).includes(primary.instanceId) && move.printedValue >= publicSeats.get(primaryId).active.hp;
+    const accuracyFee = tactical && move.compoundEyes && publicSeats.get(primaryId).handCount > 0 &&
+      !(room.turn.dodgeBlockedCreatureIds ?? []).includes(primary.instanceId) &&
+      estimateCommandDamage(room,active,primary,move,catalogue) >= publicSeats.get(primaryId).active.hp &&
+      (payment ? cards.filter(card=>card!==payment) : cards.slice(2)).find(card=>cardValue(card)<=3);
+    const declarationFee = targets[0].boost || accuracyFee;
     add(score + (recoverMove ? recoveryBonus : 0) - (payment ? 0 : 2), 'attack', {
       moveIndex: move.index, targetIds: targets.map(option => option.id),
       ...(payment ? { cardId: payment.id } : { cardIds: cards.slice(0, 2).map(card => card.id) }),
-      ...(targets[0].boost ? { boostCardId: targets[0].boost.id } : {}),
+      ...(declarationFee ? { boostCardId: declarationFee.id } : {}),
       ...(move.effectKind === 'moonlight' ? { effectChoice: 'heal' } : {}),
       ...(doubleDodge ? { effectChoice: 'double-dodge' } : {}),
     }, recoverMove ? [] : hostile(targets.map(option => option.id)));

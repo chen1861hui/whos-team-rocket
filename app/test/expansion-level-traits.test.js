@@ -41,13 +41,16 @@ test('Nincada displays both evolution routes separately from battle abilities',(
   assert.match(levels[0].evolutionText.en,/Ninjask or Shedinja/);
   assert.match(levels[1].evolutionText.en,/full HP.*Shedinja/);
   assert.equal(levels[2].evolutionText,undefined);
+  assert.deepEqual(levels.map(level=>level.traitName.en),['Compound Eyes','Compound Eyes','Speed Boost']);
+  assert.match(levels[0].abilityText.en,/discard one extra hand card.*two Dodges/);
+  assert.deepEqual(levels[1].abilityText,levels[0].abilityText);
+  assert.match(levels[2].abilityText.en,/first damaging move has [+]1 range/);
   assert.deepEqual(pokemonTypes('hoenn-nincada',2),['bug','ground']);
   assert.deepEqual(pokemonTypes('hoenn-nincada',3),['bug','flying']);
 });
 
 test('expansion battle abilities have bilingual text, including shared abilities',()=>{
   for(const entry of catalogue.entries)for(const level of entry.levels){
-    if (entry.id==='hoenn-nincada' && !level.traitName) continue;
     assert.ok(level.abilityText?.en?.trim(), `${entry.id} Lv. ${level.level}: missing English ability`);
     assert.ok(level.abilityText?.zh?.trim(), `${entry.id} Lv. ${level.level}: missing Chinese ability`);
   }

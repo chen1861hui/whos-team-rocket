@@ -1,6 +1,6 @@
 // Supplied booklet pp.2–12 and reviewed-playcard-spec.md define these effects.
 // This is an explicitly labelled development scenario, not a retail deck manifest.
-import { TOUR_PACK, HOENN_PACK, hasPack, tourTools, hoennTools, tourItems, tourEvents, tourActionNames, showdownWeatherRank, hoennEvents, hoennDelayedEvents, hoennItems, fieldWeathers, labWeatherByPrint, futureSightEvent, airLockEvent, lightClay, powerHerb, emergencyRetreat, canCoordinateCommand, counterMoves, SHEDINJA_ID, MIMIKYU_ID } from '../public/expansion-content.js';
+import { TOUR_PACK, HOENN_PACK, hasPack, tourTools, hoennTools, tourItems, tourEvents, tourActionNames, showdownWeatherRank, hoennEvents, hoennDelayedEvents, hoennItems, fieldWeathers, labWeatherByPrint, futureSightEvent, airLockEvent, lightClay, powerHerb, emergencyRetreat, canCoordinateCommand, counterMoves, NINCADA_ID, SHEDINJA_ID, MIMIKYU_ID } from '../public/expansion-content.js';
 import { trainerProfessions } from '../public/trainer-professions.js';
 import { moveRecipe } from '../public/battlefield-effect-recipes.js';
 import { pokemonTypes, sandstormAffects } from '../public/pokemon-types.js';
@@ -433,7 +433,7 @@ function continueJudgment(room,ctx,next,weather) {
       if(next.kind==='sand-veil')abilityVisual(room,trainer(room,next.defense.actorId),ctx.catalogue);
       moveDodgeVisual(room,next.defense.actorId);
       if(!next.defense.dodgeReducesDamage) {
-        if(next.defense.dodgesRequired===2&&++next.defense.dodgesPlayed<2)note(room,`${name.zh}视为一次躲闪；十字剪仍需要另一次才能抵消。`,`${name.en} counted as one Dodge; X-Scissor still needs another to cancel.`);
+        if(next.defense.dodgesRequired===2&&++next.defense.dodgesPlayed<2)note(room,`${name.zh}视为一次躲闪；仍需要另一次才能抵消本次结算。`,`${name.en} counted as one Dodge; another is needed to cancel this settlement.`);
         else {note(room,`${name.zh}视为使用一张快躲开！并抵消本次结算。`,`${name.en} counted as one Dodge! and canceled this settlement.`);return cancelMoveWithDodge(room,ctx);}
       }else {
         next.defense.damageReduction=reduceMoveDamage(room,room.resolution.targetCreatureId);
@@ -1173,7 +1173,11 @@ function openDefense(room, ctx) {
   decision(room, 'defense', target.id, target.id, ctx);
   room.pendingBattle.cannotDodge=Boolean(resolution.ignoresReinforcements);
   if(room.turn.dodgeBlockedCreatureIds?.includes(target.active.instanceId)){room.pendingBattle.cannotDodge=true;room.pendingBattle.dodgeBlockedBy='lock-on';}
-  if(resolution.dodgesRequired===2){room.pendingBattle.dodgesRequired=2;room.pendingBattle.dodgesPlayed=0;}
+  if(resolution.dodgesRequired===2) {
+    room.pendingBattle.dodgesRequired=2;
+    room.pendingBattle.dodgesPlayed=0;
+    room.pendingBattle.doubleDodgeMove=resolution.moveName;
+  }
   room.pendingBattle.canTrait=!room.pendingBattle.cannotDodge && canSandVeil(room,target) && room.drawPile.length+room.discardPile.length>0;
   if(!room.pendingBattle.cannotDodge&&activeItemIs(room,target.active,'bright-powder')&&room.drawPile.length+room.discardPile.length>0)room.pendingBattle.canBrightPowder=true;
   if (!room.pendingBattle.cannotDodge && activeItemIs(room,target.active,'tour-protect') && !room.turn.tourProtectUsed?.includes(target.active.instanceId) && room.drawPile.length+room.discardPile.length>0) room.pendingBattle.canTourProtect=true;
@@ -1589,12 +1593,21 @@ function battleMoves(room,pokemon,catalogue) {
   if(pokemon.catalogueId!=='scyther'||!battleTraitsEffective(room,pokemon))return native;
   return [...native,...catalogue.entries.find(entry=>entry.id==='scyther').levels.filter(level=>level.level<pokemon.level).sort((a,b)=>a.level-b.level).flatMap(level=>level.moves)];
 }
+function hasUsedDamagingMove(turn,player,catalogue) {
+  if (turn.damagingMoveUsed || !turn.usedMoves?.length) return Boolean(turn.damagingMoveUsed);
+  // Older room saves recorded move names but did not track the first damaging move.
+  return [player.active,player.reserve].some(pokemon=>pokemon && catalogue.entries
+    .find(entry=>entry.id===pokemon.catalogueId)?.levels.some(level=>level.moves?.some(move=>
+      move.printedValue>0 && turn.usedMoves?.includes(`${pokemon.instanceId}:${move.name.zh}`))));
+}
 function moveOptions(room,player,catalogue,own,quickTargetId=null) {
   const pokemon=player.active;
   const used = room.turn?.usedMoves || [];
   const unlocked = quickTargetId || !room.turn.commandCreatureId || room.turn.commandCreatureId === pokemon.instanceId;
   const ignoresReinforcements=pokemon.catalogueId==='dratini' && pokemon.level>=2;
-  const targetsFor=ignoreDistance=>eligibleTargetIds(room.players,player.id,{ignoreDistance:ignoreDistance||player.raidBoss||activeItemIs(room,pokemon,'quick-claw')||hasSniper(room,player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&battleReinforcementEffective(room,pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
+  const ownNincadaTurn = own && !quickTargetId && pokemon.catalogueId===NINCADA_ID && battleTraitsEffective(room,pokemon);
+  const speedBoostAvailable = ownNincadaTurn && pokemon.level===3 && !hasUsedDamagingMove(room.turn,player,catalogue);
+  const targetsFor=(ignoreDistance,distance)=>eligibleTargetIds(room.players,player.id,{distance,ignoreDistance:ignoreDistance||player.raidBoss||activeItemIs(room,pokemon,'quick-claw')||hasSniper(room,player)||room.turn.rangeCreatureId===pokemon.instanceId||room.turn.swiftSwimCreatureIds?.includes(pokemon.instanceId)||(!ignoresReinforcements&&battleReinforcementEffective(room,pokemon,'speed'))}).filter(id=>face(trainer(room,id).active,catalogue)?.effectStatus==='combat-preview');
   const teleport=pokemon.catalogueId==='abra' && pokemon.level===1;
   const teleportBlocked=teleport && !quickTargetId && room.turn.switchBlocked && player.reserve && !player.reserve.defeated;
   const moveAvailable=Boolean(own && face(pokemon,catalogue)?.effectStatus==='combat-preview' && !room.turn.movesBlocked && !(room.turn.blockedMoveIds||[]).includes(pokemon.instanceId));
@@ -1602,25 +1615,22 @@ function moveOptions(room,player,catalogue,own,quickTargetId=null) {
     const command=item.condition?.kind==='command';
     const charm=item.effectKind==='discard-other-hand',dew=item.effectKind==='life-dew';
     const supported=command||(item.condition?.kind==='weather-card'&&weatherMoveEffects.has(item.effectKind)&&item.condition.weatherIconsInCondition?.length>0);
-    const targets=!own?[]:(teleport||item.targeting?.kind==='self'?[player.id]:targetsFor(item.targeting?.ignoresDistance===true).filter(id=>!charm||(id!==player.id&&trainer(room,id).hand.length>0)));
-    if (own && command && activeItemIs(room,pokemon,'tour-scarf') && item.targeting?.kind !== 'self') {
-      const seats = live(room), position = seats.findIndex(seat=>seat.id===player.id);
-      for (const [index,seat] of seats.entries()) {
-        const gap = Math.abs(position-index);
-        if (Math.min(gap,seats.length-gap)<=2 && !targets.includes(seat.id)) targets.push(seat.id);
-      }
-    }
+    const speedBoost = speedBoostAvailable && item.printedValue>0;
+    const compoundEyes = ownNincadaTurn && pokemon.level<3 && item.name.en==='Scratch' && !used.includes(`${pokemon.instanceId}:${item.name.zh}`);
+    const scarfRange = command && activeItemIs(room,pokemon,'tour-scarf') ? 2 : 1;
+    const distance = scarfRange + Number(speedBoost);
+    const targets=!own?[]:(teleport||item.targeting?.kind==='self'?[player.id]:targetsFor(item.targeting?.ignoresDistance===true,distance).filter(id=>!charm||(id!==player.id&&trainer(room,id).hand.length>0)));
     const boss=room.scenario?.lake && trainer(room,room.scenario.lake.bossId);
     if (own && boss?.active && !boss.eliminated && !boss.active.defeated && !player.raidBoss &&
         item.printedValue>0 && item.targeting?.kind!=='self' && !targets.includes(boss.id)) targets.push(boss.id);
     const scarfKey = room.turn.tourCommandMoves?.[pokemon.instanceId];
     const scarfAllowed = !command || !activeItemIs(room,pokemon,'tour-scarf') || !scarfKey || scarfKey===item.name.zh;
     const legalTargetIds=own?(quickTargetId?targets.filter(id=>id===quickTargetId):targets):[];
-    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,...(charm?{targeting:'trainer'}:{}),cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:dew?live(room).length:item.targeting?.max||1,legalTargetIds,canUse:Boolean(moveAvailable&&supported&&scarfAllowed&&(!quickTargetId||(command&&legalTargetIds.length))&&(!charm||legalTargetIds.length)&&(!command||(!teleportBlocked&&unlocked))&&((pokemon.catalogueId==='shellder'&&battleTraitsEffective(room,pokemon))||item.uses?.unlimited===true||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
+    return {index,name:item.name,condition:item.condition,printedValue:item.printedValue,effectKind:item.effectKind||null,...(speedBoost?{speedBoost:true}:{}),...(compoundEyes?{compoundEyes:true}:{}),...(charm?{targeting:'trainer'}:{}),cannotDodge:ignoresReinforcements,ignoresReinforcements,maxTargets:dew?live(room).length:item.targeting?.max||1,legalTargetIds,canUse:Boolean(moveAvailable&&supported&&scarfAllowed&&(!quickTargetId||(command&&legalTargetIds.length))&&(!charm||legalTargetIds.length)&&(!command||(!teleportBlocked&&unlocked))&&((pokemon.catalogueId==='shellder'&&battleTraitsEffective(room,pokemon))||item.uses?.unlimited===true||!used.includes(`${pokemon.instanceId}:${item.name.zh}`)))};
   });
 }
 export function canChooseShedinja(room,pokemon) {
-  return hasPack(room.settings?.contentPack,HOENN_PACK) && pokemon?.catalogueId==='hoenn-nincada' &&
+  return hasPack(room.settings?.contentPack,HOENN_PACK) && pokemon?.catalogueId===NINCADA_ID &&
     pokemon.level===2 && !pokemon.defeated && !pokemon.damage;
 }
 export function previewActions(room, player, catalogue) {
@@ -1673,10 +1683,11 @@ export function playBattleMove(room, player, input, ctx, quickTargetId=null) {
     requireRule(selected && (command?(selected.kind==='command'||decoy):move.condition.weatherIconsInCondition.includes(selected.weather)),'INVALID_CARD','Choose one qualifying card from your own hand.');
     requireRule(!(quickTargetId||(command&&player.active.status==='paralysis'))||['intense-sun','clear'].includes(selected.weather),'INVALID_CARD','Choose a sunny-weather command card.');
   }
-  const mayBoost=command&&move.effectKind==='hyper-beam';
-  requireRule(mayBoost||input.boostCardId===undefined,'INVALID_CARD','Only Hyper Beam accepts a declaration discard.');
+  const hyperBeam=command&&move.effectKind==='hyper-beam';
+  requireRule(hyperBeam||move.compoundEyes||input.boostCardId===undefined,'INVALID_CARD','This move does not accept an additional discard.');
   const boost=input.boostCardId===undefined?null:player.hand.find(card=>card.id===input.boostCardId);
-  requireRule(input.boostCardId===undefined||(boost&&boost!==selected&&!input.cardIds?.includes(boost.id)&&!coordinationCards.includes(boost)),'INVALID_CARD','Choose a different card from your own hand for Hyper Beam.');
+  requireRule(input.boostCardId===undefined||(boost&&boost!==selected&&!input.cardIds?.includes(boost.id)&&!coordinationCards.includes(boost)),'INVALID_CARD','Choose a different card from your own hand for the additional discard.');
+  const usedCompoundEyes=Boolean(move.compoundEyes&&boost);
   const doubleDodge=move.effectKind==='x-scissor'&&input.effectChoice==='double-dodge';
   requireRule(!doubleDodge||player.active.reinforcements.includes('power'),'INVALID_MOVE_CHOICE','X-Scissor must discard one carried Power marker to require two Dodges.');
   if(doubleDodge)player.active.reinforcements.splice(player.active.reinforcements.indexOf('power'),1);
@@ -1708,7 +1719,7 @@ export function playBattleMove(room, player, input, ctx, quickTargetId=null) {
   if (weather && selected && move.printedValue > 0 && matchesWeather && weather.icons.includes(selected.weather)) {
     room.turn.hoennObservedWeather = field;
   }
-  beginBattleMove(room,player,input.targetIds,command&&!muscle&&!decoy?selected:null,{...legal,move,muscle,decoy,quickTargetId,damageBoost:boost?1:0,effectChoice:input.effectChoice,dodgesRequired:doubleDodge?2:1},ctx,command);
+  beginBattleMove(room,player,input.targetIds,command&&!muscle&&!decoy?selected:null,{...legal,move,muscle,decoy,quickTargetId,damageBoost:hyperBeam&&boost?1:0,usedCompoundEyes,effectChoice:input.effectChoice,dodgesRequired:doubleDodge||usedCompoundEyes?2:1},ctx,command);
 }
 function beginBattleMove(room,player,targetIds,command,legal,ctx,isCommand=true) {
   revealIllusion(room,player,ctx);
@@ -1723,6 +1734,15 @@ function beginBattleMove(room,player,targetIds,command,legal,ctx,isCommand=true)
     }
   }
   room.turn.usedMoves.push(moveUse);
+  if (room.turn.playerId===player.id && legal.move.printedValue>0 && hasPack(room.settings.contentPack,HOENN_PACK)) room.turn.damagingMoveUsed=true;
+  if (legal.usedCompoundEyes) {
+    abilityVisual(room,player,ctx.catalogue,{targetIds});
+    note(room,'复眼额外弃置一张手牌，每个目标需要两次躲闪。','Compound Eyes discarded an extra hand card. Each target needs two Dodges.');
+  }
+  if (legal.move.speedBoost) {
+    abilityVisual(room,player,ctx.catalogue,{targetIds});
+    note(room,'加速使本回合第一个伤害招式的距离上限加 1。','Speed Boost added 1 range to the first damaging move this turn.');
+  }
   if (isCommand) {
     room.turn.tourCommandMoves ??= {};
     room.turn.tourCommandMoves[source.instanceId] ??= legal.move.name.zh;
@@ -2980,7 +3000,7 @@ export function respondBattle(room,player,input,ctx) {
         pending.damageReduction=reduceMoveDamage(room,room.resolution.targetCreatureId);
         note(room,'锐利目光将快躲开！改为此招式对该宝可梦的伤害减1，持续到整个招式结束。','Keen Eye changed Dodge! into one damage reduction for this Pokémon until the whole move ends.');return;
       }
-      if(pending.dodgesRequired===2&&++pending.dodgesPlayed<2){note(room,'十字剪已收到一次躲闪，仍需要另一次才能抵消。','X-Scissor received one Dodge; another is required to cancel this settlement.');return;}
+      if(pending.dodgesRequired===2&&++pending.dodgesPlayed<2){note(room,'已使用一次躲闪，仍需要另一次才能抵消本次结算。','One Dodge was played. Another is required to cancel this settlement.');return;}
       note(room,'快躲开！抵消了本次结算。','Dodge! canceled this settlement.');return cancelMoveWithDodge(room,ctx,response);
     }else settleDamage(room,ctx);
     return;

@@ -176,9 +176,17 @@ export function buildRulebook(settings = {}, context = {}) {
   if (radio) sections.push(radioRules);
   if (settings.weatherLab && hasPack(pack,HOENN_PACK)) sections.push(forecast);
   if (hasPack(pack,HOENN_PACK)) sections.push({
-    id:'nincada-evolution',title:text('Nincada evolution','土居忍士的进化'),copy:text(
+    id:'nincada-evolution',title:text('Nincada evolution and abilities','土居忍士的进化与特性'),copy:text(
       'Nincada stays Bug/Ground at levels 1 and 2. It normally evolves into Ninjask at level 3. If a full-HP level 2 Nincada levels up at the end of its trainer’s turn, the trainer may choose Shedinja instead. Shedinja has a maximum of 1 HP.',
       '土居忍士在 1 级和 2 级均为虫／地面，通常升到 3 级时进化为铁面忍者。2 级土居忍士满体力且在自己回合结束时升级，可选择进化成脱壳忍者。脱壳忍者的体力上限为 1。'),
+    steps:[
+      [text('Lv. 1–2 Nincada · Compound Eyes','1–2 级土居忍士 · 复眼'),text(
+        'On your first Scratch during your turn, you may discard one extra hand card. Each target then needs two Dodges to cancel its settlement.',
+        '在自己的回合第一次使用「抓」时，可额外弃置一张手牌，使每个目标需要两次躲闪才能抵消本次结算。')],
+      [text('Lv. 3 Ninjask · Speed Boost','3 级铁面忍者 · 加速'),text(
+        'Your first damaging move on your turn has +1 range. Declaring the move uses the bonus for the turn, even if the move is dodged.',
+        '自己回合的第一个伤害招式距离上限 +1。声明招式即用掉本回合的加速，即使该招式随后被闪避。')],
+    ],
   });
   if (teams && hasPack(pack,TOUR_PACK)) sections.push({
     id:'follow-me',title:text('Follow Me','看我嘛'),copy:text(

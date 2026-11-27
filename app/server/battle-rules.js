@@ -4,7 +4,7 @@
  *
  * Pure queries: roleDeck(count), maxHp(creature,catalogue), currentHp(...),
  * computeDamage(source,target,base,catalogue,{command=true,powerBoost=0}),
- * eligibleTargetIds(players,actorId,{ignoreDistance=false}), evaluateVictory(players).
+ * eligibleTargetIds(players,actorId,{ignoreDistance=false,distance=1}), evaluateVictory(players).
  * Explicit mutations: heal(creature,amount,catalogue) -> {healed,hp,rescued};
  * applyDamage(creature,amount,catalogue) -> {damage,hp,fainting};
  * beginCommand(source) -> 0|1 (consume effective power; retain result per card);
@@ -147,11 +147,17 @@ export function ordinarySwitch(player, catalogue) {
 
 // IDs name trainers; only their ACTIVE Pokémon are default direct targets.
 // Ignore distance only after a reviewed effect grants that permission.
-export function eligibleTargetIds(players, actorId, { ignoreDistance = false } = {}) {
+export function eligibleTargetIds(players, actorId, { ignoreDistance = false, distance = 1 } = {}) {
   const seats = players.filter(player => !player.spectator && !player.eliminated);
   const index = seats.findIndex(player => player.id === actorId);
   if (index < 0) return [];
   const allowed = ignoreDistance ? seats : [seats[index], seats[(index + 1) % seats.length], seats[(index + seats.length - 1) % seats.length]];
+  if (!ignoreDistance && distance > 1) {
+    allowed.push(...seats.filter((_, position) => {
+      const gap = Math.abs(position - index);
+      return Math.min(gap, seats.length - gap) <= distance;
+    }));
+  }
   return [...new Set(allowed.filter(player => player.active && !player.active.defeated).map(player => player.id))];
 }
 

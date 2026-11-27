@@ -242,8 +242,15 @@ const wobbuffet = {
   ],
 };
 export const SHEDINJA_ID = 'hoenn-shedinja';
+export const NINCADA_ID = 'hoenn-nincada';
+const compoundEyes = text(
+  '在自己的回合第一次使用「抓」时，可以额外弃置 1 张手牌，使每个目标需要两次躲闪才能抵消本次结算。',
+  'On your first Scratch during your turn, you may discard one extra hand card. Each target then needs two Dodges to cancel its settlement.');
 const nincada = {
-  id:'hoenn-nincada', forms:[290,290,291], names:[['土居忍士','Nincada'],['土居忍士','Nincada'],['铁面忍者','Ninjask']], hp:[3,4,5],
+  id:NINCADA_ID, forms:[290,290,291], names:[['土居忍士','Nincada'],['土居忍士','Nincada'],['铁面忍者','Ninjask']], hp:[3,4,5],
+  traitNameByLevel: [text('复眼','Compound Eyes'), text('复眼','Compound Eyes'), text('加速','Speed Boost')],
+  traitByLevel: [compoundEyes, compoundEyes,
+    text('在自己的回合，第一个伤害招式的距离上限 +1。', 'On your turn, your first damaging move has +1 range.')],
   evolutionByLevel: [
     text('在 3 级进化为铁面忍者或脱壳忍者。', 'Evolves into Ninjask or Shedinja at Lv. 3.'),
     text('升到 3 级时进化为铁面忍者。满体力时，在自己的回合结束选择升到 3 级，也可进化为脱壳忍者。',
@@ -315,7 +322,7 @@ export function expansionCatalogue(catalogue) {
     evidenceStatus: 'homebrew', effectStatus: 'combat-preview',
     levels: pokemon.names.map((name, index) => ({
       level: index + 1, name: text(...name), hp: pokemon.hp[index], hpStatus: 'homebrew',
-      effectStatus: 'combat-preview', evidenceStatus: 'homebrew', traitName: pokemon.traitName,
+      effectStatus: 'combat-preview', evidenceStatus: 'homebrew', traitName: pokemon.traitNameByLevel?.[index] ?? pokemon.traitName,
       abilityText: pokemon.traitByLevel?.[index] ?? pokemon.trait, moves: pokemon.moves(index + 1),
       ...(pokemon.evolutionByLevel?.[index] ? {evolutionText:pokemon.evolutionByLevel[index]} : {}),
       portraitImage: { url: '/pokemon-art/tour/' + pokemon.forms[index] + '.png', dex: pokemon.forms[index] },

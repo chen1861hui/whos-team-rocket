@@ -348,12 +348,24 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
     selector.addEventListener('change',()=>{effectChoice=selector.value;});
     dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,'Choose Moonlight effect','选择月光效果')),selector));
   }
-  if(legal.move.effectKind==='hyper-beam') {
+  if (legal.move.speedBoost) dialog.append(node('p',{class:'muted'},say(language,
+    'Speed Boost · Your first damaging move has +1 range.',
+    '加速 · 本回合第一个伤害招式的距离上限 +1。')));
+  const canPayCompoundEyes = legal.move.compoundEyes && initial.self.hand.length > (muscle ? 2 : 1);
+  if(legal.move.effectKind==='hyper-beam' || canPayCompoundEyes) {
     const hasMoxie=initial.players.find(player=>player.id===initial.selfId)?.active?.catalogueId==='magikarp';
-    const selector=node('select',{'aria-label':say(language,'Optional Hyper Beam discard','破坏光线可选弃牌')},node('option',{value:''},say(language,'Do not boost','不追加弃牌')));
+    const discardLabel=canPayCompoundEyes
+      ? say(language,'Optional Compound Eyes discard','复眼可选弃牌')
+      : say(language,'Optional Hyper Beam discard','破坏光线可选弃牌');
+    const selector=node('select',{'aria-label':discardLabel},node('option',{value:''},say(language,'Do not discard','不追加弃牌')));
     for(const option of initial.self.hand.filter(item=>item.id!==card?.id))selector.append(node('option',{value:option.id},`${kit.localized(option.name)} · ${weatherLabel(option.weather,language)}`));
     selector.addEventListener('change',()=>{boostCardId=selector.value;update();});
-    dialog.append(node('label',{class:'attack-target'},node('strong',{},say(language,'Hyper Beam declaration','破坏光线声明')),selector),node('p',{class:'muted'},hasMoxie?say(language,'Optionally discard one different hand card now for +1 damage. Moxie draws only after this choice.','现在可以额外弃置一张不同的手牌，使伤害+1；自信过度在此选择之后才摸牌。'):say(language,'Optionally discard one different hand card now for +1 damage. Burn and other damage modifiers still apply.','现在可以额外弃置一张不同的手牌，使伤害+1。灼伤及其他伤害修正仍然生效。')));
+    const title=canPayCompoundEyes ? say(language,'Compound Eyes','复眼') : say(language,'Hyper Beam declaration','破坏光线声明');
+    const explanation=canPayCompoundEyes
+      ? say(language,'Optionally discard one extra hand card. Each target needs two Dodges to cancel this move.',
+        '可以额外弃置一张手牌，使每个目标需要两次躲闪才能抵消本次结算。')
+      : hasMoxie?say(language,'Optionally discard one different hand card now for +1 damage. Moxie draws only after this choice.','现在可以额外弃置一张不同的手牌，使伤害+1；自信过度在此选择之后才摸牌。'):say(language,'Optionally discard one different hand card now for +1 damage. Burn and other damage modifiers still apply.','现在可以额外弃置一张不同的手牌，使伤害+1。灼伤及其他伤害修正仍然生效。');
+    dialog.append(node('label',{class:'attack-target'},node('strong',{},title),selector),node('p',{class:'muted'},explanation));
   }
   if(legal.move.effectKind==='x-scissor') {
     const active=initial.players.find(player=>player.id===initial.selfId)?.active;
@@ -377,7 +389,8 @@ export function attackDialog(card, kit, moveIndex=0, quickDecisionId=null) {
     if(current.code!==code||current.selfId!==selfId||current.turn?.number!==turnNumber||kit.busy||current.pendingVote||
       !(currentChoice?.canUse??current.self.battle?.canCommand)||!currentMove||selected.size<1||selected.size>currentMove.maxTargets+Number(coordination.checked)||
       (coordination.checked&&(!canCoordinateCommand(currentMove,card)||selected.size!==currentMove.maxTargets+1||!validPayment()||!coordinationIds().every(held)))||
-      [...selected].some(id=>!currentTargets.includes(id))||(boostCardId&&!held(boostCardId)))return;
+      [...selected].some(id=>!currentTargets.includes(id))||
+      (boostCardId&&(!held(boostCardId)||(canPayCompoundEyes&&!currentChoice?.compoundEyes))))return;
     const declaration={...(moveIndex?{moveIndex}:{}),...(boostCardId?{boostCardId}:{}),...(effectChoice?{effectChoice}:{})};
     if(quick) {
       if(pending?.id===quickDecisionId&&pending.kind==='quick-claw'&&pending.actorId===selfId&&pending.commandCards?.some(item=>item.id===card.id)) {
@@ -1118,7 +1131,12 @@ export function decisionPanel(view,kit) {
   }
   if(pending.kind==='defense'&&!pending.cannotDodge&&pending.blockedDodgeWeathers?.includes('intense-sun'))panel.append(node('p',{},say(language,'Compound Eyes prevents intense-sun Dodge cards. Other Dodge weather and successful Sand Veil can still cancel this settlement.','复眼使烈日天气的快躲开！不可用。其他天气的躲闪牌及成功的沙隐仍可抵消本次结算。')));
   if(pending.kind==='defense'&&!pending.cannotDodge&&pending.dodgeReducesDamage)panel.append(node('p',{},say(language,`Keen Eye changes your Dodge into damage −1 for this whole move. Applied reduction: ${pending.damageReduction}. You may use another Dodge or resolve damage.`,`锐利目光使你的快躲开！改为本次整个招式伤害减1。已累积减伤：${pending.damageReduction}。可以继续躲闪或结算伤害。`)));
-  if(pending.kind==='defense'&&!pending.cannotDodge&&pending.dodgesRequired===2)panel.append(node('p',{},say(language,`X-Scissor requires 2 Dodges in this same settlement. Played: ${pending.dodgesPlayed||0}/2. The first Dodge keeps this response window open; passing after only one does not cancel the move and full damage continues through its damage modifiers.`,`十字剪需要在本次同一结算中使用2张快躲开！。已使用：${pending.dodgesPlayed||0}/2。第一张躲闪后响应窗口继续；仅使用一张后放弃不会抵消招式，完整伤害仍按伤害修正规则结算。`)));
+  if(pending.kind==='defense'&&!pending.cannotDodge&&pending.dodgesRequired===2) {
+    const move=pending.doubleDodgeMove ?? {en:'X-Scissor',zh:'十字剪'};
+    panel.append(node('p',{},say(language,
+      `${move.en} requires 2 Dodges. Played: ${pending.dodgesPlayed||0}/2. If you pass after one Dodge, damage resolves as usual.`,
+      `${move.zh}需要两次躲闪。已使用 ${pending.dodgesPlayed||0}/2。仅躲闪一次后放弃，仍按正常流程结算伤害。`)));
+  }
   if(pending.kind==='pay-day')panel.append(node('p',{},say(language,'You may privately inspect the top two available cards, then give each to any living trainer, including yourself. After inspecting, you must assign every card.','你可以私下观看牌堆顶至多两张可用的牌，然后将每张牌交给任意存活训练家，包括自己。观看后必须完成所有牌的分配。')));
   if(pending.kind==='distribute')panel.append(node('p',{},say(language,'Only you can see these cards. Choose a recipient for each; the same trainer may receive both.','仅你能看到这些牌。请为每张牌选择接收者，同一训练家可以接收两张。')));
   if(pending.kind==='exile')panel.append(node('p',{},say(language,`Choose up to ${pending.maxCards} hand cards. They cannot be used or inspected while removed and return when this trainer’s next turn begins.`,`选择至多${pending.maxCards}张手牌。移出期间不能使用或查看，直到该训练家的下次回合开始时返回。`)));

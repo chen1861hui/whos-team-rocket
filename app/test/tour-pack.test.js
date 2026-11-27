@@ -1389,6 +1389,95 @@ test('Lv. 2 Nincada learns U-turn on taking the Ninjask branch at Lv. 3',t=>{
   assert.equal(f.player(who).active.instanceId,current.instanceId);
 });
 
+test('Compound Eyes at both levels pays a separate card and requires two successful Dodges',t=>{
+  for (const level of [1,2]) {
+    const f=fixture(t,{pack:HOENN_PACK}),attacker=f.turn(),defender=f.byId(f.room().players[1].id);
+    Object.assign(f.player(attacker).active,{catalogueId:'hoenn-nincada',level});
+    const command=f.take(attacker,card=>card.kind==='command');
+    const fee=f.take(attacker,card=>card.kind==='tool');
+    const dodge=f.take(defender,card=>card.kind==='dodge'&&!card.variant);
+    const second=f.take(defender,card=>card.kind==='dodge'&&!card.variant&&card.id!==dodge.id);
+    const attack={cardId:command.id,targetIds:[defender.playerId]};
+    const before=JSON.stringify(f.room());
+    assert.throws(()=>f.act(attacker,'attack',{...attack,boostCardId:command.id}),{code:'INVALID_CARD'});
+    assert.equal(JSON.stringify(f.room()),before);
+    assert.equal(f.view(attacker).self.battle.moves[0].compoundEyes,true);
+    f.act(attacker,'attack',{...attack,boostCardId:fee.id});
+    assert.equal(f.room().resolution.baseDamage,1);
+    assert.ok(f.room().discardPile.some(card=>card.id===fee.id));
+    const decisionId=f.room().pendingBattle.id;
+    f.act(defender,'respondBattle',{decisionId,choice:'dodge',cardId:dodge.id});
+    assert.equal(f.room().pendingBattle.id,decisionId);
+    assert.equal(f.view(defender).pendingBattle.dodgesPlayed,1);
+    assert.equal(f.view(defender).pendingBattle.doubleDodgeMove.en,'Scratch');
+    f.restart();
+    assert.equal(f.room().pendingBattle.dodgesPlayed,1);
+    if (level===1) f.act(defender,'respondBattle',{decisionId,choice:'dodge',cardId:second.id});
+    else f.pass();
+    assert.equal(f.room().pendingBattle,null);
+    assert.equal(f.player(defender).active.damage,level===1?0:1);
+    assert.equal(f.view(attacker).self.battle.moves[0].compoundEyes,undefined);
+  }
+});
+
+test('Compound Eyes is optional, and trait suppression disallows an extra discard atomically',t=>{
+  for (const suppressed of [false,true]) {
+    const f=fixture(t,{pack:HOENN_PACK}),attacker=f.turn(),defender=f.byId(f.room().players[1].id);
+    Object.assign(f.player(attacker).active,{catalogueId:'hoenn-nincada',level:2});
+    if (suppressed) f.room().turn.suppressedTraitPlayerIds=[attacker.playerId];
+    const command=f.take(attacker,card=>card.kind==='command');
+    const fee=f.take(attacker,card=>card.kind==='tool');
+    const dodge=f.take(defender,card=>card.kind==='dodge'&&!card.variant);
+    const attack={cardId:command.id,targetIds:[defender.playerId]};
+    if (suppressed) {
+      const before=JSON.stringify(f.room());
+      assert.throws(()=>f.act(attacker,'attack',{...attack,boostCardId:fee.id}),{code:'INVALID_CARD'});
+      assert.equal(JSON.stringify(f.room()),before);
+    }
+    f.act(attacker,'attack',attack);
+    assert.equal(f.room().pendingBattle.dodgesRequired,undefined);
+    f.act(defender,'respondBattle',{decisionId:f.room().pendingBattle.id,choice:'dodge',cardId:dodge.id});
+    assert.equal(f.room().pendingBattle,null);
+    assert.equal(f.player(defender).active.damage,0);
+    assert.ok(f.player(attacker).hand.some(card=>card.id===fee.id));
+  }
+});
+
+test('Speed Boost grants exactly one extra seat to the first damaging move, even when it is dodged',t=>{
+  const f=fixture(t,{pack:HOENN_PACK,count:6}),attacker=f.turn();
+  const distant=f.byId(f.room().players[2].id),tooFar=f.byId(f.room().players[3].id);
+  Object.assign(f.player(attacker).active,{catalogueId:'hoenn-nincada',level:3});
+  f.room().turn.suppressedTraitPlayerIds=[attacker.playerId];
+  assert.ok(!f.view(attacker).self.battle.moves[0].legalTargetIds.includes(distant.playerId));
+  delete f.room().turn.suppressedTraitPlayerIds;
+  const command=f.take(attacker,card=>card.kind==='command');
+  const nextCommand=f.take(attacker,card=>card.kind==='command'&&card.id!==command.id);
+  const dodge=f.take(distant,card=>card.kind==='dodge'&&!card.variant);
+  let moves=f.view(attacker).self.battle.moves;
+  assert.equal(moves[0].speedBoost,true);
+  assert.ok(moves[0].legalTargetIds.includes(distant.playerId));
+  assert.ok(!moves[0].legalTargetIds.includes(tooFar.playerId));
+  assert.throws(()=>f.act(attacker,'attack',{cardId:command.id,targetIds:[tooFar.playerId]}),{code:'INVALID_TARGET'});
+  f.act(attacker,'attack',{cardId:command.id,targetIds:[distant.playerId]});
+  f.act(distant,'respondBattle',{decisionId:f.room().pendingBattle.id,choice:'dodge',cardId:dodge.id});
+  assert.equal(f.player(distant).active.damage,0);
+  f.restart();
+  moves=f.view(attacker).self.battle.moves;
+  assert.equal(moves[1].speedBoost,undefined);
+  assert.ok(!moves[1].legalTargetIds.includes(distant.playerId));
+  assert.throws(()=>f.act(attacker,'attack',{moveIndex:1,cardId:nextCommand.id,targetIds:[distant.playerId]}),{code:'INVALID_TARGET'});
+  const advance=seat=>{
+    while(f.room().turn.drawRemaining)f.act(seat,'draw');
+    f.act(seat,'finishPlay');
+    while(f.room().turn.phase==='discard')f.act(seat,'discard',{cardId:f.player(seat).hand[0].id});
+    f.act(seat,'endTurn');
+  };
+  advance(attacker);
+  while(f.turn()!==attacker)advance(f.turn());
+  while(f.room().turn.drawRemaining)f.act(attacker,'draw');
+  assert.ok(f.view(attacker).self.battle.moves[1].legalTargetIds.includes(distant.playerId));
+});
+
 test('Wonder Guard blocks ordinary and Ground move damage, while sandy Weather Ball reaches rescue',t=>{
   const f=fixture(t,{pack:HOENN_PACK}),a=f.turn(),b=f.byId(f.room().players[1].id);
   Object.assign(f.player(a).active,{catalogueId:'hoenn-castform',level:2});
