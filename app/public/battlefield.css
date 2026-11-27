@@ -2675,6 +2675,28 @@ button.checkin-seat .checkin-seat-copy { color:#5d3918; }
 .team-lineup-columns[data-team-count='3'] { grid-template-columns:repeat(3,minmax(0,1fr)); }
 .world-lake { background:radial-gradient(ellipse at 56% 59%,#529397,#245767 65%,#283d46); }
 .world-silph { background:radial-gradient(ellipse at 55% 55%,#647d90,#304459 65%,#1a283d); }
+.world-radio { background:radial-gradient(ellipse at 55% 57%,#374659,#202b3b 62%,#151e2b); }
+.world-radio .flat-field { border-color:#927761; background:radial-gradient(ellipse,#59636d,#303d4c); }
+.world-radio .field-centre,.world-radio .flat-field::before,.world-radio .flat-field::after { border-color:#9e8d7b; }
+.battle-view:has(.theme-radio) .site-header { background:#141e2beb; border-color:#8b756447; }
+.battle-view:has(.theme-radio) .site-header .brand strong { color:#f7e8d5; }
+.theme-radio .venue-mark { border:1px solid #b29473; background:radial-gradient(circle at 35% 25%,#435364,#202a36); color:#f4d6a7; }
+.match-table.theme-radio .world-seat.world-seat-compact { background:#18212ded; }
+.theme-radio .radio-scoreboard { border-color:#766659; background:#202935f2; }
+.match-table.theme-radio .turn-console { background:#202935ee; }
+.match-table.theme-radio .match-stage:has(.world-radio[data-mode="3d"]) .match-progress {
+  position:absolute; grid-area:auto; align-self:auto; margin:0;
+  top:88px; bottom:auto; width:clamp(156px,13vw,185px);
+}
+.match-table.theme-radio .match-progress .battle-actions:not(:has(button)) { display:none; }
+.match-table.theme-radio .world-roster .world-labels { inset-block-start:90px; }
+@media (width < 670px) {
+  .match-table.theme-radio .match-stage:has(.world-radio[data-mode="3d"]) .match-progress {
+    top:100px; left:8px; width:min(218px,68vw);
+  }
+  .match-table.theme-radio .turn-console,.match-table.theme-radio .radio-scoreboard { padding:5px 7px; }
+  .match-table.theme-radio .radio-score-teams strong { font-size:12px; }
+}
 .scenario-objective {
   color:#f3f5f7;
   background:#131d29ed;
