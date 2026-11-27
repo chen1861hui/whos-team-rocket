@@ -408,8 +408,8 @@ function confirmTurnEnd() {
   const choice = el('input',{type:'checkbox',id:'end-level-up'});
   const branch = next && view.self.battle?.shedinjaEvolution ? el('select',{id:'end-evolution',disabled:true,
     'aria-label':battleText(['Evolution branch','进化分支'])},
-    el('option',{value:''},battleText(['Ninjask · continue','铁面忍者 · 继续升级'])),
-    el('option',{value:SHEDINJA_ID},battleText(['Shedinja · 1 HP','脱壳忍者 · 1 点体力']))) : null;
+    el('option',{value:''},battleText(['Evolve into Ninjask','进化为铁面忍者'])),
+    el('option',{value:SHEDINJA_ID},battleText(['Evolve into Shedinja · 1 HP','进化为脱壳忍者 · 1 点体力']))) : null;
   const display = next ? el('span',{class:'arena-evolution-preview'}) : null;
   const syncBranch = () => {
     if (branch) branch.disabled=!choice.checked;
@@ -1885,7 +1885,12 @@ function pokemonDetails(entry, selectedLevel, {prefix='pokemon',compact=false,se
       compact?null:el('div',{class:'pokemon-detail-types'},(form?.types ?? pokemonTypes(entry.id,face.level)).map(typeBadge))),
       el('strong',{class:'pokemon-hp-badge'},`${face.hp} ♥ ${t('hp')}`)),
     portrait?el('div',{class:'pokemon-detail-portrait'},el('img',{src:portrait,alt:name})):null,
-    el('section',{class:'pokemon-ability-section'},el('small',{class:'pokemon-section-label'},t('traitLabel')),el('h4',{},face.traitName?localized(face.traitName):t('abilityPending')),face.abilityText?el('p',{},localized(face.abilityText)):null),
+    !entry.expansionPack || face.traitName || face.abilityText
+      ? el('section',{class:'pokemon-ability-section'},el('small',{class:'pokemon-section-label'},t('traitLabel')),
+        el('h4',{},face.traitName?localized(face.traitName):t('abilityPending')),face.abilityText?el('p',{},localized(face.abilityText)):null)
+      : null,
+    face.evolutionText ? el('section',{class:'pokemon-ability-section'},el('small',{class:'pokemon-section-label'},t('evolutionLine')),
+      el('p',{},localized(face.evolutionText))) : null,
     el('section',{class:'pokemon-moves-section'},el('small',{class:'pokemon-section-label'},t('movesLabel')),
       ...(face.moves?.length?face.moves.map(move=>el('article',{class:'pokemon-move'},el('div',{class:'pokemon-move-heading'},el('h4',{},localized(move.name)),move.printedValue!=null?tag(`${t('printedValue')} ${move.printedValue}`):null),
         el('small',{},moveCostText(move)),

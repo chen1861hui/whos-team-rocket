@@ -6,7 +6,7 @@ const speciesTypes = {
   'hoenn-ralts':'psychic,fairy',
   'hoenn-absol':'dark',
   'hoenn-wobbuffet':'psychic',
-  'hoenn-nincada':['bug,ground','bug,flying','bug,flying'],
+  'hoenn-nincada':['bug,ground','bug,ground','bug,flying'],
   'hoenn-shedinja':'bug,ghost',
   'hoenn-zorua':'dark',
   'hoenn-mimikyu':'ghost,fairy',

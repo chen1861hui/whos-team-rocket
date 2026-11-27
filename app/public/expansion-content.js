@@ -243,17 +243,15 @@ const wobbuffet = {
 };
 export const SHEDINJA_ID = 'hoenn-shedinja';
 const nincada = {
-  id:'hoenn-nincada', forms:[290,291,291], names:[['土居忍士','Nincada'],['铁面忍者','Ninjask'],['铁面忍者','Ninjask']], hp:[3,4,5],
-  traitName:text('分支进化','Split Evolution'),
-  traitByLevel: [
-    text('升至 2 级时进化为铁面忍者。', 'Evolves into Ninjask at Lv. 2.'),
-    text('在自己的回合结束时，若铁面忍者满体力且本次选择让它升至 3 级，可选择进化为脱壳忍者。',
-      'When levelling this Ninjask to Lv. 3 at the end of your turn, you may choose Shedinja if Ninjask is at full HP.'),
-    text('铁面忍者路线在本级完成进化。', 'This is the final form of the Ninjask branch.'),
+  id:'hoenn-nincada', forms:[290,290,291], names:[['土居忍士','Nincada'],['土居忍士','Nincada'],['铁面忍者','Ninjask']], hp:[3,4,5],
+  evolutionByLevel: [
+    text('在 3 级进化为铁面忍者或脱壳忍者。', 'Evolves into Ninjask or Shedinja at Lv. 3.'),
+    text('升到 3 级时进化为铁面忍者。满体力时，在自己的回合结束选择升到 3 级，也可进化为脱壳忍者。',
+      'Evolves into Ninjask at Lv. 3. If at full HP when levelling up at the end of your own turn, you may choose Shedinja instead.'),
   ],
-  moves:level=>level===1?[move('抓','Scratch',1)]:[
-    ...(level===3?[move('十字剪','X-Scissor',2,'x-scissor')]:[]),
-    move('急速折返','U-turn',level===2?1:2,'u-turn'),
+  moves:level=>level<3 ? [move('抓','Scratch',1)] : [
+    move('十字剪','X-Scissor',2,'x-scissor'),
+    move('急速折返','U-turn',2,'u-turn'),
   ],
 };
 const shedinja = {
@@ -319,6 +317,7 @@ export function expansionCatalogue(catalogue) {
       level: index + 1, name: text(...name), hp: pokemon.hp[index], hpStatus: 'homebrew',
       effectStatus: 'combat-preview', evidenceStatus: 'homebrew', traitName: pokemon.traitName,
       abilityText: pokemon.traitByLevel?.[index] ?? pokemon.trait, moves: pokemon.moves(index + 1),
+      ...(pokemon.evolutionByLevel?.[index] ? {evolutionText:pokemon.evolutionByLevel[index]} : {}),
       portraitImage: { url: '/pokemon-art/tour/' + pokemon.forms[index] + '.png', dex: pokemon.forms[index] },
     })),
     portraitImage: { url: '/pokemon-art/tour/' + pokemon.forms[0] + '.png' },

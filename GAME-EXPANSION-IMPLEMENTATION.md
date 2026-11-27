@@ -324,16 +324,18 @@
 | 等级与路线 | 体力 | 招式 |
 | --- | ---: | --- |
 | Lv.1 土居忍士 | 3 | 指挥发动抓，基础伤害 1。 |
-| Lv.2 铁面忍者 | 4 | 指挥发动急速折返，基础伤害 1。招式结算后可交替，沿用已有的急速折返流程。 |
-| Lv.3 铁面忍者 | 5 | 急速折返的基础伤害升至 2，加入基础伤害 2 的十字剪。 |
+| Lv.2 土居忍士 | 4 | 指挥发动抓，基础伤害 1。 |
+| Lv.3 铁面忍者 | 5 | 急速折返与十字剪的基础伤害均为 2。急速折返结算后可交替。 |
 | Lv.3 脱壳忍者 | 1 | 指挥发动影子偷袭，基础伤害 1。 |
 
-- **进化裁定。** 铁面忍者在自己的回合结束、满体力并选升至 Lv.3 时，可选脱壳忍者。该选择改变同一只搭档的牌面，沿用原本席位、状态及持有物。固定体力上限为 1，原有额外体力不转入。常规升级与 AI 默认保留铁面忍者。神奇糖果等直接升级沿用常规路线。脱壳忍者展示在图鉴和分支选择里，开局候选仍以土居忍士为组。
+- **进化裁定。** 土居忍士在 Lv.3 进化为铁面忍者。Lv.2 土居忍士满体力且在自己的回合结束选择升至 Lv.3 时，可改选脱壳忍者。该选择改变同一只搭档的牌面，沿用原本席位、状态及持有物。固定体力上限为 1，原有额外体力不转入。常规升级与 AI 默认保留铁面忍者。神奇糖果等直接升级沿用常规路线。脱壳忍者展示在图鉴和分支选择里，开局候选仍以土居忍士为组。
+- **战斗特性草案。** 土居忍士的「复眼」可借鉴《三国杀》马超压制闪避的机制。建议 1、2 级各自显示同一效果。自己的回合第一次使用「抓」时，可以额外弃一张手牌，令目标需要两张「快躲开！」。铁面忍者的「加速」建议参考马术调整距离。自己回合的第一个伤害招式距离上限加 1。两项触发条件待确认。 [土居忍士官方图鉴](https://dex.pokemon.cn/play/pokedex/0290) · [铁面忍者官方图鉴](https://dex.pokemon.cn/play/pokedex/0291) · [《三国杀》马超](https://www.sanguosha.com/hero/6)
 - **神奇守护。** 特性有效时，挡下火、飞行、岩石、幽灵、恶以外的伤害招式，跳过该目标的闪避窗口。气象球按场上实际属性判断，大晴天和沙暴时能命中，普通、雨水和雪云时受阻。事件、环境、异常和反击伤害沿用既有结算，特性压制时仍可被普通招式命中。
 - **来源与改编。** 原作在土居忍士进化时可额外产生脱壳忍者。本作沿用每位训练家两只搭档的结构，将它作为 Lv.3 的分支选择。保留原作神奇守护的五项弱点，按本作的招式与非招式伤害管线结算。 [脱壳忍者官方图鉴](https://www.pokemon.com/br/pokedex/shedinja) · [铁面忍者与脱壳忍者的官方卡牌示例](https://www.pokemon.com/uk/pokemon-tcg/pokemon-cards/series/sm8/30/)
 - **模型。** 三阶段使用本地《X／Y》骨骼、网格与贴图。铁面忍者采用原模型的展开翼面，前后翅屈伸由网页驱动。脱壳忍者应用漂浮与身体反应，保留壳翼形状。头像从同一 GLB 渲染。 [三阶段动作预览](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/hoenn-nincada-3d.png) · [模型检查](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/hoenn-nincada-models.log)
 - **浏览器与回归。** 3D 房间依次加载三个模型，实际用回合末界面选择脱壳忍者，确认其满体力为 1。撞击触发免伤，火属性气象球命中后进入救援并换入后备。1,329 项自动测试全部通过，包含岩石气象球、地面伤害、沙暴、特性压制和重连。 [升级界面](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/hoenn-nincada-branch-room.png) · [浏览器日志](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/hoenn-nincada-ui.log) · [测试日志](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/hoenn-nincada-full.log)
 - **房间实测。** 四人原版身份、四人丰缘身份、八人随机混用组队与 30 人按座位混用组队均经普通入口加入 AI，完成胜负并返回大厅。30 席含 29 个 AI，86 回合结算。 [原版](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/nincada-play-4-base.log) · [丰缘](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/nincada-play-4-hoenn-weather.log) · [八席混用](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/nincada-play-8-tour-hoenn.log) · [30 席混用](C:/Users/pc/Documents/ChatGPT/Game/outputs/expansion-dev/nincada-play-30-tour-hoenn.log)
+- **2026-11-27 进化路线回归。** Chromium 房间验证 Lv.1 升到 Lv.2 仍是土居忍士，图鉴的第二级显示土居忍士，第三级显示铁面忍者。两场丰缘房间分别从回合末界面选择铁面忍者和脱壳忍者，确认等级、体力和 3D 模型。四席原版身份局含三个 AI，43 回合结算并返回大厅。全量 1,390 项自动测试通过。
 - **待定。** 真人试玩重点观察混用牌桌上的弱点招式密度、一点体力的取舍与大桌收尾速度。索罗亚、谜拟丘与独立行动继续保留在清单。
 
 

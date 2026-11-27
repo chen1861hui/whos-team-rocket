@@ -175,6 +175,11 @@ export function buildRulebook(settings = {}, context = {}) {
   ]});
   if (radio) sections.push(radioRules);
   if (settings.weatherLab && hasPack(pack,HOENN_PACK)) sections.push(forecast);
+  if (hasPack(pack,HOENN_PACK)) sections.push({
+    id:'nincada-evolution',title:text('Nincada evolution','土居忍士的进化'),copy:text(
+      'Nincada stays Bug/Ground at levels 1 and 2. It normally evolves into Ninjask at level 3. If a full-HP level 2 Nincada levels up at the end of its trainer’s turn, the trainer may choose Shedinja instead. Shedinja has a maximum of 1 HP.',
+      '土居忍士在 1 级和 2 级均为虫／地面，通常升到 3 级时进化为铁面忍者。2 级土居忍士满体力且在自己回合结束时升级，可选择进化成脱壳忍者。脱壳忍者的体力上限为 1。'),
+  });
   if (teams && hasPack(pack,TOUR_PACK)) sections.push({
     id:'follow-me',title:text('Follow Me','看我嘛'),copy:text(
       'When an ally is targeted by a damaging single-target move, an eligible teammate may discard one card to take the move if they are in range and otherwise legal. Defense and damage then resolve against the new target.',

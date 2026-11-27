@@ -1,6 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { expansionCatalogue } from '../public/expansion-content.js';
+import { pokemonTypes } from '../public/pokemon-types.js';
 
 const catalogue = expansionCatalogue({entries:[],mimikyuAvailable:true});
 const descriptions = id => catalogue.entries.find(entry=>entry.id===id).levels.map(level=>level.abilityText);
@@ -23,11 +24,6 @@ test('the catalogue uses the current level for other abilities that unlock effec
   assert.doesNotMatch(absol2.en,/Speed/);
   assert.match(absol3.en,/Thunderstorm.*Speed/);
 
-  const [nincada,ninjask,ninjask3] = descriptions('hoenn-nincada');
-  assert.doesNotMatch(nincada.en,/Shedinja/);
-  assert.match(ninjask.en,/end of your turn.*Shedinja.*full HP/);
-  assert.match(ninjask3.en,/final form/);
-
   const [zorua,zoroark,zoroark3] = descriptions('hoenn-zorua');
   assert.doesNotMatch(zorua.en,/mark one/);
   assert.match(zoroark.en,/mark one non-command card/);
@@ -39,8 +35,19 @@ test('the catalogue uses the current level for other abilities that unlock effec
   assert.match(mimikyu3.en,/Power marker/);
 });
 
-test('each expansion level has bilingual ability text, including shared abilities',()=>{
+test('Nincada displays both evolution routes separately from battle abilities',()=>{
+  const levels=catalogue.entries.find(entry=>entry.id==='hoenn-nincada').levels;
+  assert.deepEqual(levels.map(level=>level.name.en),['Nincada','Nincada','Ninjask']);
+  assert.match(levels[0].evolutionText.en,/Ninjask or Shedinja/);
+  assert.match(levels[1].evolutionText.en,/full HP.*Shedinja/);
+  assert.equal(levels[2].evolutionText,undefined);
+  assert.deepEqual(pokemonTypes('hoenn-nincada',2),['bug','ground']);
+  assert.deepEqual(pokemonTypes('hoenn-nincada',3),['bug','flying']);
+});
+
+test('expansion battle abilities have bilingual text, including shared abilities',()=>{
   for(const entry of catalogue.entries)for(const level of entry.levels){
+    if (entry.id==='hoenn-nincada' && !level.traitName) continue;
     assert.ok(level.abilityText?.en?.trim(), `${entry.id} Lv. ${level.level}: missing English ability`);
     assert.ok(level.abilityText?.zh?.trim(), `${entry.id} Lv. ${level.level}: missing Chinese ability`);
   }

@@ -1320,10 +1320,11 @@ test('Wobbuffet counters only after rescue, and a counter knockout resumes the o
   assert.equal(f.room().resolutionStack,undefined);
 });
 
-test('an undamaged Lv. 2 Ninjask can pick Shedinja at turn end and keep only one HP',t=>{
+test('an undamaged Lv. 2 Nincada can pick Shedinja at turn end and keep only one HP',t=>{
   const f=fixture(t,{pack:HOENN_PACK}),who=f.turn();
   const group=f.catalogue().entries.find(entry=>entry.id==='hoenn-nincada');
-  assert.deepEqual(group.levels.map(level=>level.portraitImage.dex),[290,291,291]);
+  assert.deepEqual(group.levels.map(level=>level.portraitImage.dex),[290,290,291]);
+  assert.deepEqual(group.levels.map(level=>level.name.en),['Nincada','Nincada','Ninjask']);
   assert.ok(battleSelectionIds(f.catalogue(),HOENN_PACK).includes(group.id));
   assert.ok(!battleSelectionIds(f.catalogue(),HOENN_PACK).includes('hoenn-shedinja'));
   assert.ok(!battleSelectionIds(f.catalogue(),'base').includes(group.id));
@@ -1361,22 +1362,31 @@ test('an undamaged Lv. 2 Ninjask can pick Shedinja at turn end and keep only one
   assert.equal(f.room().players.length,4);
 });
 
-test('Ninjask can stay on the default evolution and use U-turn to switch normally staged partners',t=>{
+test('Lv. 2 Nincada learns U-turn on taking the Ninjask branch at Lv. 3',t=>{
   const f=fixture(t,{pack:MIXED_PACK}),who=f.turn(),other=f.byId(f.room().players[1].id);
   const current=f.player(who).active, incoming=f.player(who).reserve;
   Object.assign(current,{catalogueId:'hoenn-nincada',level:2});
-  f.attack(other);
+  assert.deepEqual(f.view(who).self.battle.moves.map(move=>move.name.en),['Scratch']);
+  function finish(seat,levelUp=false){
+    while(f.room().turn.drawRemaining)f.act(seat,'draw');
+    f.act(seat,'finishPlay');
+    while(f.room().turn.phase==='discard')f.act(seat,'discard',{cardId:f.player(seat).hand[0].id});
+    f.act(seat,'endTurn',{levelUp});
+  }
+  finish(who,true);
+  assert.equal(f.player(who).active.level,3);
+  assert.equal(f.player(who).active.instanceId,current.instanceId);
+  assert.equal(f.player(who).reserve.instanceId,incoming.instanceId);
+  while(f.turn()!==who)finish(f.turn());
+  while(f.room().turn.drawRemaining)f.act(who,'draw');
+  const uturn=f.view(who).self.battle.moves.find(move=>move.name.en==='U-turn');
+  assert.ok(uturn);
+  f.attack(other,uturn.index);
   assert.equal(f.room().resolution.moveName.en,'U-turn');
   f.pass();
   assert.equal(f.room().pendingBattle.kind,'u-turn');
   f.act(who,'respondBattle',{decisionId:f.room().pendingBattle.id,choice:'pass'});
   assert.equal(f.player(who).active.instanceId,current.instanceId);
-  f.act(who,'finishPlay');
-  while(f.room().turn.phase==='discard')f.act(who,'discard',{cardId:f.player(who).hand[0].id});
-  f.act(who,'endTurn',{levelUp:true});
-  assert.equal(f.player(who).active.level,3);
-  assert.equal(f.player(who).active.catalogueId,current.catalogueId);
-  assert.equal(f.player(who).reserve.instanceId,incoming.instanceId);
 });
 
 test('Wonder Guard blocks ordinary and Ground move damage, while sandy Weather Ball reaches rescue',t=>{
