@@ -6,6 +6,7 @@ import {animateBattlePose, battleEffectLabel, createBattleEffects, createStatusE
 import {civilianProfiles, gymLeaderProfiles} from './trainer-profiles.js';
 import {waterGymArcadeBounds,waterGymRearStation} from './battlefield-arcade.js';
 import {createObjectiveTerrain} from './battlefield-objectives.js';
+import {createLakeTerrain, lakeSeatRadius} from './battlefield-lake.js';
 import {createGymTerrain} from './battlefield-terrain.js';
 import {fireGymLeaderStation} from './battlefield-fire.js';
 import {grassGymLeaderStation} from './battlefield-grass.js';
@@ -92,7 +93,7 @@ export function createBattlefield() {
   const orbit = new THREE.Spherical(19,1.05,0);
   const canvas = renderer.domElement;
   let orbitDrag;
-  let scene, host, config, battleEffects, terrain, objectiveTerrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
+  let scene, host, config, battleEffects, terrain, lakeTerrain, objectiveTerrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
 
   function shadeModel(model, muted, faded) {
     model?.traverse(part => {
@@ -833,6 +834,7 @@ export function createBattlefield() {
     if (!scene) return;
     battleEffects?.dispose(); battleEffects = null;
     terrain?.dispose(); terrain = null;
+    lakeTerrain?.dispose(); lakeTerrain = null;
     contactMap?.dispose(); contactMap = null;
     for (const pod of pods) {
       pod.traitAura?.dispose();
@@ -865,15 +867,17 @@ export function createBattlefield() {
     const coast = config.theme==='water' && !Number.isInteger(config.portraitIndex);
     const fire = config.theme==='fire' && !Number.isInteger(config.portraitIndex);
     const grass = config.theme==='grass' && !Number.isInteger(config.portraitIndex);
+    const lake = config.theme==='lake' && !Number.isInteger(config.portraitIndex);
     renderer.localClippingEnabled = grass;
     if (grass) scene.fog = new THREE.Fog(0x98b4aa,grassFogRange.near,grassFogRange.far);
     if (coast) scene.fog = new THREE.Fog(0x9fc1d1,24,82);
     if (fire) scene.fog = new THREE.Fog(p.sky,26,65);
-    renderer.toneMappingExposure = coast ? 1.03 : fire ? 1.12 : grass ? 1.00 : 1.35;
-    scene.add(new THREE.HemisphereLight(coast || fire ? 0xc5dcff : grass ? 0xd9efff : 0xeafaff,
-      coast ? 0x827b73 : fire ? 0x564b59 : grass ? 0x887761 : 0x58705b, coast ? 1.29 : fire ? 1.58 : grass ? 1.25 : 2.5));
-    const sun = new THREE.DirectionalLight(coast ? 0xffebd8 : fire ? 0xd7e3ff : grass ? 0xffdfb3 : 0xfff0d4,
-      coast ? 3.65 : fire ? 2.62 : grass ? 3.44 : 3.2);
+    renderer.toneMappingExposure = coast ? 1.03 : fire ? 1.12 : grass ? 1.00 : lake ? 1.06 : 1.35;
+    scene.add(new THREE.HemisphereLight(coast || fire ? 0xc5dcff : grass ? 0xd9efff : lake ? 0xceebff : 0xeafaff,
+      coast ? 0x827b73 : fire ? 0x564b59 : grass ? 0x887761 : lake ? 0x52696d : 0x58705b,
+      coast ? 1.29 : fire ? 1.58 : grass ? 1.25 : lake ? 2.08 : 2.5));
+    const sun = new THREE.DirectionalLight(coast ? 0xffebd8 : fire ? 0xd7e3ff : grass ? 0xffdfb3 : lake ? 0xe0edff : 0xfff0d4,
+      coast ? 3.65 : fire ? 2.62 : grass ? 3.44 : lake ? 1.72 : 3.2);
     sun.position.set(coast ? -16 : -12, coast ? 11.5 : 22, coast ? 9 : 8); sun.castShadow = true;
     sun.shadow.mapSize.setScalar((coast || grass) && window.innerWidth>=850 ? 2048 : 1024);
     Object.assign(sun.shadow.camera,{left:-17,right:17,top:17,bottom:-17,near:1,far:65});
@@ -931,11 +935,18 @@ export function createBattlefield() {
       sun.shadow.normalBias = .033;
       sun.shadow.bias = -.00026;
     }
+    const seatRadius = lake ? lakeSeatRadius : config.theme==='silph' && config.players.length>8 ? 9.3 : 7.2;
     const layout = config.coastalBattle
       ? coastalSeatLayout(config.players,config.viewerId)
-      : fixedLayout?.seats ?? seatLayout(config.players,config.viewerId,config.theme==='silph' && config.players.length>8 ? 9.3 : 7.2);
-    if (['lake','silph'].includes(config.theme)) {
-      objectiveTerrain=createObjectiveTerrain(scene,config.theme);
+      : fixedLayout?.seats ?? seatLayout(config.players,config.viewerId,seatRadius);
+    if (lake) {
+      const lakeScene = scene;
+      lakeTerrain=createLakeTerrain(scene,()=>{
+        if (scene===lakeScene) draw(performance.now());
+      });
+      objectiveTerrain=lakeTerrain.setObjective;
+    } else if (config.theme==='silph') {
+      objectiveTerrain=createObjectiveTerrain(scene);
     } else if (themed) {
       const terrainScene = scene;
       terrain = createGymTerrain(scene,config.theme,()=>{
@@ -997,8 +1008,11 @@ export function createBattlefield() {
       const group=new THREE.Group(); group.position.set(position.x,.24,position.z); group.rotation.y=position.angle;
       scene.add(group);
       const color=colors[position.index%colors.length];
+      const {leader,raidBoss,trainerAvatar} = layouts.get(position.id);
       if (fire || grass) {
         terrain.createPokemonPodium(group,pokemonPodiumTop);
+      } else if (lake) {
+        lakeTerrain.createSeat(group,pokemonPodiumTop,raidBoss);
       } else {
         const facets = coast ? 36 : 8;
         cylinder(1.32,.16,p.trim,0,.06,0,group,facets);
@@ -1024,7 +1038,6 @@ export function createBattlefield() {
       mesh(new THREE.SphereGeometry(.5,24,16,0,Math.PI*2,0,Math.PI/2),mat(color),0,.53,0,proxy);
       mesh(new THREE.SphereGeometry(.5,24,16,0,Math.PI*2,Math.PI/2,Math.PI/2),mat(0xeef0dc),0,.53,0,proxy);
       cylinder(.508,.075,p.trim,0,.53,0,proxy,32);
-      const leader=layouts.get(position.id).leader;
       const station = coastalStations?.stations.get(position.id) ??
         ((fire || grass) ? {angle:leader ? Math.PI+sceneryAngle : position.angle,rear:leader} : null);
       const rearStation = station?.rear ?? false;
@@ -1046,7 +1059,7 @@ export function createBattlefield() {
         commandPost = {y:0,z:2.62};
       }
       const trainerSlot = addTrainer(trainerParent, leader ? 0 : trainerIndex++, leader, {
-        local:position.id===config.viewerId, avatar:layouts.get(position.id).trainerAvatar,commandPost,
+        local:position.id===config.viewerId, avatar:trainerAvatar,commandPost,
         previous:previousTrainers?.get(position.id),
       });
       let commandDais;
@@ -1116,7 +1129,7 @@ export function createBattlefield() {
       for (let i=0; i<12; i++) levelSparks.add(new THREE.Mesh(sparkGeometry, levelSparkMaterial));
       levelAura.add(levelRing, levelSparks);
       pods.push({id:position.id, angle:position.angle, position:new THREE.Vector3(position.x,2.65,position.z), spritePosition:group.localToWorld(new THREE.Vector3(0,.42,-.24)), halo, glowRing, footShadow, turnMarker, proxy, modelSlot, ball, flash, levelAura, levelRing, levelSparks, levelSparkMaterial, trainerSlot, commandDais,
-        rearStation, stationAngle:station?.angle ?? position.angle, stationPosition:station ? trainerParent.position : null});
+        raidBoss, rearStation, stationAngle:station?.angle ?? position.angle, stationPosition:station ? trainerParent.position : null});
     });
     battleEffects = createBattleEffects(scene,pods,modelForDex);
   }
@@ -1287,7 +1300,7 @@ export function createBattlefield() {
     const targets = pods.filter(pod => focus?.targetIds?.includes(pod.id));
     const source = pods.find(pod => pod.id === focus?.sourceId);
     const narrow = camera.aspect < .9;
-    const distance = narrow ? Math.max(22,21 / Math.max(.43,camera.aspect)) : 21.5;
+    const distance = narrow ? Math.max(22,21 / Math.max(.43,camera.aspect)) : lakeTerrain ? 25.4 : 21.5;
     let mode = 'trainer';
     camera.fov = 49;
     camera.near = .1;
@@ -1307,9 +1320,10 @@ export function createBattlefield() {
       mode = 'free';
       desiredTarget.set(0,1.1,0);
       desiredCamera.setFromSpherical(orbit);
-      if (config.coastalBattle || config.theme==='grass') {
+      if (lakeTerrain) desiredCamera.multiplyScalar(1.19);
+      if (lakeTerrain || config.coastalBattle || config.theme==='grass') {
         const horizontal = Math.hypot(desiredCamera.x,desiredCamera.z);
-        const innerLimit = config.theme==='grass' ? 13.10 : 14.8;
+        const innerLimit = lakeTerrain?.freeCameraRadius(desiredCamera) ?? (config.theme==='grass' ? 13.10 : 14.8);
         if (horizontal>innerLimit) {
           desiredCamera.x *= innerLimit/horizontal;
           desiredCamera.z *= innerLimit/horizontal;
@@ -1389,6 +1403,16 @@ export function createBattlefield() {
         if (config.theme==='fire' && narrow) {
           camera.fov = 57;
           desiredCamera.set(0,distance*.28,distance*.77);
+        }
+        if (lakeTerrain) {
+          if (narrow) {
+            camera.fov = 55;
+            desiredCamera.set(0,distance*.31,distance*.97);
+            desiredTarget.y -= 3.05;
+          } else {
+            desiredCamera.y = distance*.35;
+            desiredTarget.z = -2;
+          }
         }
         if (seatedCoastalViewer || seatedFireViewer || seatedGrassViewer) {
           desiredCamera.x = narrow ? 3.0 : 4.4;
@@ -1473,17 +1497,24 @@ export function createBattlefield() {
     const trainerCamera = host.dataset.camera==='trainer';
     const clipOwnStation = trainerCamera && camera.near>.1;
     const clipRearStation = clipOwnStation && pods.some(pod=>pod.rearStation && pod.id===config.viewerId);
+    lakeTerrain?.update(time,config.reducedMotion,camera);
     if (['fire','grass'].includes(config.theme)) terrain?.update(time,config.reducedMotion,host.dataset.camera==='wide',camera.position);
     else terrain?.update(time,config.reducedMotion,clipRearStation,config.waterMotion);
     const dt = Math.min(.075,Math.max(0,(time-previousFrame)/1000));
     previousFrame = time;
     const viewWidth = host.clientWidth, viewHeight = host.clientHeight;
     const partners = projectedPartners(camera,viewWidth,viewHeight);
-    const visiblePartners = (config.coastalBattle || ['fire','grass'].includes(config.theme)) && trainerCamera ? partners : [];
+    const visiblePartners = (config.coastalBattle || ['fire','grass','lake'].includes(config.theme)) && trainerCamera ? partners : [];
+    let transmitterBounds;
+    if (lakeTerrain && trainerCamera && camera.aspect<.9) {
+      const point = framingPoint.copy(lakeTerrain.transmitterAnchor).project(camera);
+      const x = (point.x+1)*viewWidth/2, y = (1-point.y)*viewHeight/2;
+      transmitterBounds = {left:x-17,right:x+17,top:y-21,bottom:y+12};
+    }
     for (const pod of pods) {
       const hideOwnTrainer = config.coastalBattle || (['fire','grass'].includes(config.theme) && !pod.rearStation);
       const ownTrainerView = hideOwnTrainer && trainerCamera && pod.id===config.viewerId;
-      pod.trainerSlot.visible = !ownTrainerView && !config.players.find(player=>player.id===pod.id)?.raidBoss;
+      pod.trainerSlot.visible = !ownTrainerView && !pod.raidBoss;
       if (pod.commandDais) pod.commandDais.visible = !ownTrainerView || (!clipOwnStation && !['fire','grass'].includes(config.theme));
     }
     const targets = focus?.targetIds || [];
@@ -1501,7 +1532,8 @@ export function createBattlefield() {
         const cx = THREE.MathUtils.clamp(x+dx,w/2+2,viewWidth-w/2-2);
         const cy = y+dy;
         const rect = {left:cx-w/2,right:cx+w/2,top:cy-h-5,bottom:cy-5};
-        const obstruction = visiblePartners.reduce((total,partner)=>total+overlap(rect,partner.core),0);
+        const objectiveOverlap = transmitterBounds ? overlap(rect,transmitterBounds)*2.1 : 0;
+        const obstruction = visiblePartners.reduce((total,partner)=>total+overlap(rect,partner.core),objectiveOverlap);
         const collisions = placedBadges.reduce((total,other)=>total+overlap(rect,other),0);
         const outside = Math.max(0,51-rect.top)+Math.max(0,rect.bottom-(viewHeight-104));
         return {x:cx,y:cy,rect,cost:obstruction+collisions*1.35+outside*w+2*(Math.abs(dx)+Math.abs(dy))};
@@ -1558,7 +1590,8 @@ export function createBattlefield() {
       }
       const muted = config.coastalBattle && Boolean(eligible && !isEligible && config.viewerId!==pod.id);
       const model = pod.visual?.model;
-      const faded = obscuring.has(model);
+      const keepBossVisible = lakeTerrain && pod.raidBoss && !eligible && !targets.length;
+      const faded = obscuring.has(model) && !keepBossVisible;
       if (pod.shadedModel!==model) shadeModel(pod.shadedModel,false,false);
       if (pod.shadedModel!==model || pod.modelMuted!==muted || pod.modelFaded!==faded) shadeModel(model,muted,faded);
       pod.shadedModel=model; pod.modelMuted=muted; pod.modelFaded=faded;
