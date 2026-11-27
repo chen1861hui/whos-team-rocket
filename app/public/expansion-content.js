@@ -202,7 +202,14 @@ const ralts = {
 const absol = {
   id: 'hoenn-absol', forms: [359, 359, 359], names: Array(3).fill(['阿勃梭鲁', 'Absol']), hp: [3, 4, 4],
   traitName: text('灾祸预感', 'Disaster Sense'),
-  trait: text('每个自己的出牌阶段限一次，私看牌堆顶的印刷天气。Lv.2起可把该牌置底。Lv.3若保留雷雨，可获得一枚速度强化。', 'Once during your Play phase, privately see the top card’s printed weather. From Lv. 2 you may put it on the bottom. At Lv. 3 keeping Thunderstorm grants one Speed marker if you have none.'),
+  traitByLevel: [
+    text('自己的出牌阶段限一次，私下查看牌堆顶一张牌的印刷天气。',
+      'Once during your Play phase, privately check the printed weather of the top card.'),
+    text('自己的出牌阶段限一次，私下查看牌堆顶一张牌的印刷天气。你可将该牌置于牌堆底。',
+      'Once during your Play phase, privately check the printed weather of the top card. You may put that card on the bottom of the deck.'),
+    text('自己的出牌阶段限一次，私下查看牌堆顶一张牌的印刷天气。你可将该牌置底。若保留雷雨牌且尚无速度强化，获得一枚速度强化。',
+      'Once during your Play phase, privately check the printed weather of the top card. You may put it on the bottom. If you keep a Thunderstorm card on top and have no Speed marker, gain one.'),
+  ],
   moves: level => [
     level === 3 ? move('暗袭要害', 'Night Slash', 2) : move('劈开', 'Slash', level),
     ...(level >= 2 ? [{
@@ -218,7 +225,14 @@ export const counterMoves = {
 const wobbuffet = {
   id:'hoenn-wobbuffet', forms:[360,202,202], names:[['小果然','Wynaut'],['果然翁','Wobbuffet'],['果然翁','Wobbuffet']], hp:[3,4,5],
   traitName:text('蓄势反击','Ready to Counter'),
-  trait:text('受到其他出战搭档的指挥招式伤害且留场后，可弃烈日或晴朗牌，对来源造成1点伤害。Lv.2起可弃暴雨或雷雨牌反击天气招式。Lv.3反击伤害为本次所受伤害，最多2点。每个训练家回合限成功一次。','After taking command move damage from another active and staying in battle, discard Intense Sun or Clear to deal 1 damage back. At Lv.2, Rain or Thunderstorm can answer weather moves. At Lv.3, return the amount taken, capped at 2. Once per trainer turn.'),
+  traitByLevel: [
+    text('受到其他出场搭档的指挥招式伤害，且双方仍留场时，可弃一张烈日或晴朗手牌发动双倍奉还，对原招式来源造成 1 点基础伤害。每个训练家回合限成功反击一次。',
+      'After taking damage from another active Pokémon’s command move, if both Pokémon stay in battle, discard one Intense Sun or Clear card to use Counter against the original attacker for 1 base damage. One successful counter per trainer turn.'),
+    text('受到其他出场搭档的招式伤害，且双方仍留场时，可以反击。受指挥招式伤害，弃一张烈日或晴朗手牌发动双倍奉还。受天气招式伤害，弃一张暴雨或雷雨手牌发动镜面反射。两种反击都对原招式来源造成 1 点基础伤害，共享每个训练家回合限成功反击一次的限制。',
+      'After taking move damage from another active Pokémon, if both Pokémon stay in battle, you may strike back. Discard one Intense Sun or Clear card to use Counter after a command move, or one Rain or Thunderstorm card to use Mirror Coat after a weather move. Either deals 1 base damage to the original attacker. The two responses share one successful counter per trainer turn.'),
+    text('受到其他出场搭档的招式伤害，且双方仍留场时，可以反击。受指挥招式伤害，弃一张烈日或晴朗手牌发动双倍奉还。受天气招式伤害，弃一张暴雨或雷雨手牌发动镜面反射。反击对原招式来源造成等同于本次实际所受伤害的基础伤害，最多 2 点。两种反击共享每个训练家回合限成功反击一次的限制。',
+      'After taking move damage from another active Pokémon, if both Pokémon stay in battle, you may strike back. Discard one Intense Sun or Clear card to use Counter after a command move, or one Rain or Thunderstorm card to use Mirror Coat after a weather move. The base damage to the original attacker equals the actual damage taken, up to 2. The two responses share one successful counter per trainer turn.'),
+  ],
   moves:level=>[
     move('挣扎','Struggle',level===1?1:2),
     ...(level>=2?[{
@@ -231,7 +245,12 @@ export const SHEDINJA_ID = 'hoenn-shedinja';
 const nincada = {
   id:'hoenn-nincada', forms:[290,291,291], names:[['土居忍士','Nincada'],['铁面忍者','Ninjask'],['铁面忍者','Ninjask']], hp:[3,4,5],
   traitName:text('分支进化','Split Evolution'),
-  trait:text('满体力的铁面忍者在自己回合结束、升至 Lv.3 时，可以选择脱壳忍者分支。','At full HP, Ninjask may choose the Shedinja branch when levelling up to Lv.3 at the end of its trainer’s turn.'),
+  traitByLevel: [
+    text('升至 2 级时进化为铁面忍者。', 'Evolves into Ninjask at Lv. 2.'),
+    text('在自己的回合结束时，若铁面忍者满体力且本次选择让它升至 3 级，可选择进化为脱壳忍者。',
+      'When levelling this Ninjask to Lv. 3 at the end of your turn, you may choose Shedinja if Ninjask is at full HP.'),
+    text('铁面忍者路线在本级完成进化。', 'This is the final form of the Ninjask branch.'),
+  ],
   moves:level=>level===1?[move('抓','Scratch',1)]:[
     ...(level===3?[move('十字剪','X-Scissor',2,'x-scissor')]:[]),
     move('急速折返','U-turn',level===2?1:2,'u-turn'),
@@ -243,10 +262,15 @@ const shedinja = {
   trait:text('免疫火、飞行、岩石、幽灵和恶属性之外的伤害招式。事件、天气和异常的伤害照常结算。','Prevents damage from moves other than Fire, Flying, Rock, Ghost and Dark. Damage from events, weather and statuses resolves normally.'),
   moves:()=>[move('影子偷袭','Shadow Sneak',1)],
 };
+const illusion = text('登场时伪装成存活的后备，至出招、受伤、换出或特性被压制。',
+  'On entry, disguise as a living reserve until using a move, taking damage, switching out or losing the ability.');
+const illusionWithDecoy = text(
+  `${illusion.zh}自己出牌时，若仍处于伪装且尚未标记手牌，可私下标记一张非指挥手牌，用它支付一次伤害指挥招式的费用。`,
+  `${illusion.en} During your Play phase, while disguised and with no card marked, privately mark one non-command card to pay for one damaging command move.`);
 const zorua = {
   id:'hoenn-zorua', forms:[570,571,571], names:[['索罗亚','Zorua'],['索罗亚克','Zoroark'],['索罗亚克','Zoroark']], hp:[3,4,4],
   traitName:text('幻觉','Illusion'),
-  trait:text('登场时伪装成存活的后备，至出招、受伤、换出或特性被压制。Lv.2起可在伪装中私下标记一张非指挥手牌，作为一次伤害招式的指挥费用。','On entry, disguise as a living reserve until using a move, taking damage, switching out or losing the ability. From Lv.2, privately mark one non-command card while disguised to pay for one damaging command move.'),
+  traitByLevel:[illusion,illusionWithDecoy,illusionWithDecoy],
   moves:level=>[
     level===1?move('抓','Scratch',1):move('暗袭要害','Night Slash',2),
     ...(level===3?[move('暗黑爆破','Night Daze',2)]:[]),
@@ -254,10 +278,17 @@ const zorua = {
 };
 export const MIMIKYU_ID = 'hoenn-mimikyu';
 export const mimikyuModelDexes = [778, '778-busted'];
+const disguise = text('挡下第一次会造成伤害的对手招式和这次伤害的附带效果，随后变为现形。',
+  'Blocks the first opposing move that would deal damage and its on-damage effects, then changes to Busted Form.');
 const mimikyu = {
   id: MIMIKYU_ID, pack: HOENN_PACK, forms: [778,778,778], names: Array(3).fill(['谜拟丘','Mimikyu']), hp: [3,4,4],
   traitName: text('画皮','Disguise'),
-  trait: text('挡下第一次会造成伤害的对手招式和这次伤害的附带效果，随后变为现形。Lv.3 可主动消耗画皮来获得一枚力量强化。','Blocks the first opposing move that would deal damage and its on-damage effects, then changes to Busted Form. At Lv.3, spend the intact disguise for one Power marker.'),
+  traitByLevel: [
+    disguise,
+    disguise,
+    text(`${disguise.zh}若画皮仍完好且自己尚无力量强化，也可在自己的出牌阶段主动消耗画皮，获得一枚力量强化。`,
+      `${disguise.en} During your Play phase, if the disguise is intact and you have no Power marker, you may spend it to gain one.`),
+  ],
   moves: level => [
     level === 1 ? move('影子偷袭','Shadow Sneak',1) : move('暗影爪','Shadow Claw',2),
     ...(level === 3 ? [move('嬉闹','Play Rough',2)] : []),
@@ -287,7 +318,7 @@ export function expansionCatalogue(catalogue) {
     levels: pokemon.names.map((name, index) => ({
       level: index + 1, name: text(...name), hp: pokemon.hp[index], hpStatus: 'homebrew',
       effectStatus: 'combat-preview', evidenceStatus: 'homebrew', traitName: pokemon.traitName,
-      abilityText: pokemon.trait, moves: pokemon.moves(index + 1),
+      abilityText: pokemon.traitByLevel?.[index] ?? pokemon.trait, moves: pokemon.moves(index + 1),
       portraitImage: { url: '/pokemon-art/tour/' + pokemon.forms[index] + '.png', dex: pokemon.forms[index] },
     })),
     portraitImage: { url: '/pokemon-art/tour/' + pokemon.forms[0] + '.png' },
