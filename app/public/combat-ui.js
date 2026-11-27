@@ -153,11 +153,12 @@ export function toolDialog(card,kit) {
   const art=playCardFace(card,language).art;
   const title=say(language,'Choose a tool','选择道具');
   const hint=node('p',{'aria-live':'polite'});
+  const description=node('p',{class:'muted',hidden:true});
   const choices=node('div',{class:'arena-tool-choices'});
   const confirm=node('button',{type:'button',class:'button primary',id:'confirm-tool',disabled:true},say(language,'Use tool','使用道具'));
   const cancel=node('button',{type:'button',class:'button secondary',id:'cancel-tool',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
   const panel=node('section',{class:'arena-prompt arena-tool-prompt',tabindex:-1,'aria-label':title},
-    node('h2',{},title),choices,hint,node('div',{class:'action-row'},cancel,confirm));
+    node('h2',{},title),choices,description,hint,node('div',{class:'action-row'},cancel,confirm));
   let choice=null, target=null;
   const update=()=>{
     confirm.disabled=!target||kit.busy;
@@ -167,6 +168,8 @@ export function toolDialog(card,kit) {
     const label=pokemon?`${seat.nickname} · ${kit.partnerName(pokemon.catalogueId,pokemon.level)}`:seat?.nickname;
     hint.textContent=target?label:choice?say(language,'Choose a highlighted target.','点击战场上高亮的目标。')
       :say(language,'Choose one item. It spends the whole card.','选择一种道具，使用时消耗整张牌。');
+    description.hidden=!choice?.description;
+    description.textContent=choice?.description ? kit.localized(choice.description) : '';
     [...choices.children].forEach((button,index)=>button.setAttribute('aria-pressed',String(tool.choices[index]===choice)));
     kit.syncArenaPrompt();
   };
@@ -439,6 +442,7 @@ export function equipItemDialog(card,kit) {
   const cancel=node('button',{type:'button',class:'button secondary',onclick:()=>kit.closeArenaPrompt()},say(language,'Cancel','取消'));
   kit.openArenaPrompt(node('section',{class:'arena-prompt arena-event-prompt',tabindex:-1,'aria-label':title},
     node('h2',{},art?node('img',{src:`/play-card-art/${art}`,alt:''}):null,kit.localized(card.name)),
+    equipment.description ? node('p',{},kit.localized(equipment.description)) : null,
     choices,hint,node('div',{class:'action-row'},cancel,confirm)));
 }
 export function lightBallDialog(kit) {

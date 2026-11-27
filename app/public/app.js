@@ -548,7 +548,8 @@ function render() {
   }
   const dialogStillAvailable = activeDialog &&
     (activeDialog !== 'lobby-settings' || view?.status === 'lobby') &&
-    (!activeDialog.startsWith('entry:') || root.classList.contains('landing-page'));
+    (!activeDialog.startsWith('entry:') || root.classList.contains('landing-page')) &&
+    (!activeDialog.startsWith('hand-card:') || handCardForDialog(activeDialog));
   if (dialogStillAvailable) {
     openDialog(activeDialog);
   } else if (activeDialog) {
@@ -1811,7 +1812,10 @@ function handPanel() {
         el('span',{'aria-hidden':'true'},String(index+1).padStart(2,'0'))),
       el('div',{class:`hand-card-art${face.art.length>1?' hand-card-art-split':''}`,'aria-hidden':'true'},
         face.art.map(filename=>el('img',{src:`/play-card-art/${filename}`,alt:'',draggable:false}))),
-      el('strong',{},localized(card.name)),
+      el('strong',{},face.brief ? el('button',{type:'button',class:'hand-card-read',id:`read-card-${card.id}`,
+        'aria-haspopup':'dialog','aria-label':`${battleText(['Card details','卡牌说明'])} · ${localized(card.name)}`,
+        onclick:()=>openSystemDialog(`hand-card:${card.id}`,`read-card-${card.id}`)},
+        el('span',{},localized(card.name)),el('span',{'aria-hidden':'true',class:'hand-card-info-icon'},'i')) : localized(card.name)),
       face.brief ? el('p',{class:'hand-card-brief'},face.brief) : null,
       card.weather ? el('small',{class:'hand-card-weather','data-weather':card.weather},weatherLabel(card.weather,language)) : null,
       el('div',{class:'hand-card-actions'},itemUse,use,toolUse,eventUse,
@@ -1972,9 +1976,40 @@ function rulebookView() {
           el('li',{},el('strong',{},localized(title)),el('p',{},localized(description))))):null)))));
 }
 
+function handCardForDialog(kind) {
+  return view?.status==='playing' ? view.self.hand.find(card=>card.id===kind.slice('hand-card:'.length)) : undefined;
+}
+function openHandCardDialog(dialog,card) {
+  const face = playCardFace(card,language);
+  const battle = view.self.battle;
+  const tool = battle?.tools.find(item=>item.toolType===card.toolType&&(!item.cardId||item.cardId===card.id));
+  const event = battle?.events.find(item=>item.eventType===card.eventType);
+  const equipment = battle?.equipItems.find(item=>item.itemType===card.itemType);
+  const effect = event?.description ?? equipment?.description;
+  const close = button('close',()=>dialog.close(),'button secondary small',false,{id:'close-info-dialog'});
+  const summary = [face.category,card.weather && weatherLabel(card.weather,language)].filter(Boolean).join(' · ');
+  dialog.className = 'info-dialog hand-card-dialog';
+  dialog.setAttribute('aria-labelledby','info-dialog-title');
+  dialog.replaceChildren(
+    el('div',{class:'dialog-heading'},el('h2',{id:'info-dialog-title'},localized(card.name)),close),
+    summary ? el('p',{class:'hand-card-context'},summary) : null,
+    tool?.choices.length
+      ? el('div',{class:'hand-card-rules'},tool.choices.map(choice=>el('section',{},
+        el('h3',{},localized(choice.name)),el('p',{},localized(choice.description)))))
+      : el('div',{class:'hand-card-rules'},el('p',{},effect ? localized(effect) : face.brief)));
+  if (!dialog.open) dialog.showModal();
+  dialog.scrollTop = 0;
+  close.focus({preventScroll:true});
+}
+
 function openDialog(kind) {
   const dialog = $('#info-dialog');
   dialogKind = kind;
+  if (kind.startsWith('hand-card:')) {
+    const card = handCardForDialog(kind);
+    if (card) openHandCardDialog(dialog,card);
+    return;
+  }
   if (kind.startsWith('conditions:')) {
     const trainer = view?.players.find(player=>player.id===kind.slice('conditions:'.length));
     const heading = battleText(['Battle status and held item','战斗状态与持有物']);
