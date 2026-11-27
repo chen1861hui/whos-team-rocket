@@ -9,3 +9,20 @@ app/node_modules/
 .DS_Store
 Thumbs.db
 *.swp
+
+# Local QA and research files
+/.playwright-cli/
+/output/
+/outputs/
+/playwright-report/
+/test-results/
+/research-assets/
+/repo-private-archive/
+/*-preview.png
+/*-preview.jpg
+/*-preview.jpeg
+/*-preview.webp
+/gameplay-milestone-*.md
+/*-HANDOVER.md
+/HANDOVER-PROMPT.md
+/GAME-EXPANSION-IMPLEMENTATION.md
