@@ -31,7 +31,7 @@ const palettes = {
 };
 
 const trainerRevealColors = {leader:0x89e5ff,gym:0x93f1bf,rocket:0xff745c,challenger:0xffd58a,jenny:0x79baff,joy:0xffaad8};
-const pokemonPodiumTop = .26;
+const lakeRockTop = .26;
 const pokemonModelVersions = {16:28,17:28,18:28,88:31,92:19,94:25,122:18,143:18,146:23,'351-sun':27,'351-rain':26,172:29,212:29,238:29,239:29,242:29,440:29,446:29,464:29,466:29,158:30,159:30,160:30,173:30,176:30,179:30,180:30,181:30,202:30,233:30,252:30,253:30,254:30,290:30,291:30,292:30,359:30,360:30,462:30,468:30,474:30,570:30,571:30};
 function shorelineLeaves() {
   const positions = [], colors = [];
@@ -94,7 +94,9 @@ export function createBattlefield() {
   const trainerCameraRotation = new THREE.Quaternion();
   const orbit = new THREE.Spherical(19,1.05,0);
   const canvas = renderer.domElement;
-  let orbitDrag;
+  const aimRay = new THREE.Raycaster();
+  const aimPoint = new THREE.Vector2();
+  let orbitDrag, aimPress;
   let scene, host, config, battleEffects, terrain, lakeTerrain, radioTerrain, silphTerrain, objectiveTerrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
 
   function shadeModel(model, muted, faded) {
@@ -141,18 +143,49 @@ export function createBattlefield() {
   }
   const freeOrbitActive = () => config?.camera==='free' && host?.dataset.camera==='free';
   canvas.addEventListener('pointerdown',event=>{
+    aimPress = event.isPrimary && event.button===0 && eligible?.length
+      ? {id:event.pointerId,x:event.clientX,y:event.clientY} : null;
     if (!freeOrbitActive() || event.button!==0 || orbitDrag) return;
     orbitDrag={id:event.pointerId,x:event.clientX,y:event.clientY};
     canvas.setPointerCapture(event.pointerId);
     canvas.focus({preventScroll:true});
   });
   canvas.addEventListener('pointermove',event=>{
+    if (event.pointerId===aimPress?.id && Math.hypot(event.clientX-aimPress.x,event.clientY-aimPress.y)>7) aimPress=null;
     if (event.pointerId!==orbitDrag?.id || !freeOrbitActive()) return;
     const {x,y}=orbitDrag;
     orbitDrag.x=event.clientX; orbitDrag.y=event.clientY;
     moveOrbit((event.clientX-x)*.006,(event.clientY-y)*.006);
   });
+  canvas.addEventListener('pointercancel',event=>{
+    if (event.pointerId===aimPress?.id) aimPress=null;
+  });
   canvas.addEventListener('lostpointercapture',()=>{ orbitDrag=undefined; });
+  canvas.addEventListener('click',event=>{
+    const press = aimPress;
+    aimPress = null;
+    if (!press || !eligible?.length || Math.hypot(event.clientX-press.x,event.clientY-press.y)>7) return;
+    const {left,top,width,height} = canvas.getBoundingClientRect();
+    aimPoint.set((event.clientX-left)*2/width-1,1-(event.clientY-top)*2/height);
+    aimRay.layers.mask = camera.layers.mask;
+    aimRay.setFromCamera(aimPoint,camera);
+    const seatByMesh = new Map();
+    for (const pod of pods) {
+      const model = pod.visual?.model ?? pod.proxy;
+      model.traverseVisible(part=>{
+        if (!part.isMesh || part.userData.pokemonEffect || !part.layers.test(aimRay.layers)) return;
+        if (part.isSkinnedMesh) {
+          // Use the bounds of the pose currently on screen.
+          part.computeBoundingSphere();
+          if (part.boundingBox) part.computeBoundingBox();
+        }
+        seatByMesh.set(part,pod.id);
+      });
+    }
+    const [hit] = aimRay.intersectObjects([...seatByMesh.keys()],false);
+    const target = hit && seatByMesh.get(hit.object);
+    if (eligible.includes(target)) config.selectActivePokemon?.(target);
+  });
   canvas.addEventListener('wheel',event=>{
     if (!freeOrbitActive()) return;
     event.preventDefault();
@@ -520,7 +553,7 @@ export function createBattlefield() {
     }
     transition.releasePoint ??= point;
     const flight = THREE.MathUtils.clamp((t-release)/(land-release),0,1);
-    pod.ball.position.copy(transition.releasePoint).lerp(new THREE.Vector3(0,.47,-.24),flight);
+    pod.ball.position.copy(transition.releasePoint).lerp(new THREE.Vector3(0,pod.modelBaseY+.20,-.24),flight);
     pod.ball.position.y += 4*flight*(1-flight)*1.08;
     pod.ball.rotation.x = flight*Math.PI*3;
   }
@@ -694,8 +727,7 @@ export function createBattlefield() {
       return;
     }
     if (visual.faintWaist) {
-      // The original animation uses the open battlefield behind Snorlax. Center its
-      // lying pose on the smaller tabletop podium and keep its back on the surface.
+      // Center Snorlax's lying pose at its seat and keep its back on the surface.
       model.position.set(0,0,0);
       pod.modelSlot.parent.updateWorldMatrix(true,false);
       // Attached skinned meshes refresh bindMatrixInverse in updateMatrixWorld.
@@ -705,7 +737,7 @@ export function createBattlefield() {
       bounds.getCenter(faintCenter);
       faintLanding.setFromMatrixPosition(pod.modelSlot.matrixWorld);
       const settle = THREE.MathUtils.smoothstep(progress,.36,.74);
-      const floor = pod.modelSlot.parent.matrixWorld.elements[13]+pokemonPodiumTop+.01;
+      const floor = pod.floorY+.01;
       faintLanding.set((faintLanding.x-faintCenter.x)*settle,floor-bounds.min.y,(faintLanding.z-faintCenter.z)*settle);
       if (faintLanding.y<0) faintLanding.y *= settle;
       model.position.copy(faintLanding.applyQuaternion(pod.modelSlot.getWorldQuaternion(slotInverse).invert()));
@@ -714,7 +746,7 @@ export function createBattlefield() {
     if (visual.faintGroundScale!==model.scale.x) {
       model.position.y = 0;
       pod.modelSlot.updateMatrixWorld(true);
-      const floor = pod.modelSlot.parent.matrixWorld.elements[13]+pokemonPodiumTop+.01;
+      const floor = pod.floorY+.01;
       const gap = floor-flyingMotionBounds.setFromObject(model,true).min.y;
       visual.faintGroundOffset = Number.isFinite(gap)
         ? gap<0 ? gap*THREE.MathUtils.smoothstep(progress,.15,.95) : gap
@@ -959,6 +991,7 @@ export function createBattlefield() {
     const layout = config.coastalBattle || radio
       ? coastalSeatLayout(config.players,config.viewerId)
       : fixedLayout?.seats ?? seatLayout(config.players,config.viewerId,seatRadius);
+    const fieldFloorY = .22;
     if (radio) {
       radioTerrain = createRadioTerrain(scene,renderer,sun);
       objectiveTerrain = radioTerrain.setObjective;
@@ -988,7 +1021,7 @@ export function createBattlefield() {
         }
         mesh(new THREE.ConeGeometry(10,6,8),mat(0x6c8291),0,-3.3,0).rotation.z=Math.PI;
       }
-      cylinder(11.8,.5,p.trim,0,-.65); cylinder(11.5,.6,p.edge,0,-.18); cylinder(10.8,.1,p.field,0,.17);
+      cylinder(11.8,.5,p.trim,0,-.65); cylinder(11.5,.6,p.edge,0,-.18); cylinder(10.8,.1,p.field,0,fieldFloorY-.05);
       ring(10.2,.09,0xe5ebcf,0,.235); ring(4.4,.07,0xe5ebcf,0,.245);
       // Central field emblem and opposing lanes stay clear for future attack effects.
       ring(2.05,.08,0xe8eed7,0,.26); ring(.62,.11,0xe8eed7,0,.27);
@@ -1027,41 +1060,38 @@ export function createBattlefield() {
       contactMap.colorSpace = THREE.SRGBColorSpace;
       contactMaterial = new THREE.MeshBasicMaterial({map:contactMap,transparent:true,depthWrite:false,toneMapped:false});
     }
+    const seatY = .24;
+    const floorY = lakeTerrain ? seatY+lakeRockTop
+      : (terrain?.floorY ?? radioTerrain?.floorY ?? silphTerrain?.floorY ?? fieldFloorY);
+    const floorOffset = floorY-seatY;
+    const modelBaseY = floorOffset+.01;
+    const markerY = floorOffset+(silph ? .026 : grass ? .015 : .009);
     let trainerIndex = 0;
     layout.forEach(position => {
       const rearShift = silphTerrain && position.slot===layout.length/2 ? 1.45 : 0;
-      const group=new THREE.Group(); group.position.set(position.x+rearShift,.24,position.z); group.rotation.y=position.angle;
+      const group=new THREE.Group(); group.position.set(position.x+rearShift,seatY,position.z); group.rotation.y=position.angle;
       scene.add(group);
       const color=colors[position.index%colors.length];
       const {leader,raidBoss,trainerAvatar} = layouts.get(position.id);
       let footShadow;
-      if (fire || grass) {
-        terrain.createPokemonPodium(group,pokemonPodiumTop);
-      } else if (lake) {
-        lakeTerrain.createSeat(group,pokemonPodiumTop,raidBoss);
+      if (lakeTerrain) {
+        lakeTerrain.createSeat(group,lakeRockTop,raidBoss);
       } else if (silphTerrain) {
-        footShadow = silphTerrain.createSeat(group,pokemonPodiumTop);
-      } else {
-        const facets = coast || radio ? 36 : 8;
-        cylinder(1.32,.16,p.trim,0,.06,0,group,facets);
-        cylinder(coast ? 1.24 : 1.17,.12,p.edge,0,pokemonPodiumTop-.06,0,group,facets);
+        footShadow = silphTerrain.createPokemonShadow(group);
       }
       if (contactMaterial) {
-        const plinthShadow = mesh(new THREE.PlaneGeometry(3.5,3.12),contactMaterial,.14,-.017,.13,group);
-        footShadow = mesh(new THREE.PlaneGeometry(1.94,1.82),contactMaterial,0,.263,-.24,group);
-        for (const shadow of [plinthShadow,footShadow]) {
-          shadow.rotation.x = -Math.PI/2;
-          shadow.castShadow = shadow.receiveShadow = false;
-        }
+        footShadow = mesh(new THREE.PlaneGeometry(1.94,1.82),contactMaterial,0,floorOffset+.003,-.24,group);
+        footShadow.rotation.x = -Math.PI/2;
+        footShadow.castShadow = footShadow.receiveShadow = false;
       }
-      const halo=ring(1.12,.075,color,0,.269,0,group);
+      const halo=ring(1.12,.075,color,0,markerY,0,group);
       halo.material.toneMapped = false;
-      const glowRing = ring(1.23,.18,0xffffff,0,.272,0,group);
+      const glowRing = ring(1.23,.18,0xffffff,0,markerY+.003,0,group);
       glowRing.visible = false;
       glowRing.receiveShadow = false;
       Object.assign(glowRing.material,{transparent:true,opacity:.29,depthWrite:false,toneMapped:false});
       // A neutral capsule is a model slot, not a claimed Pokémon asset.
-      const proxy=new THREE.Group(); proxy.position.set(0,.28,-.24); group.add(proxy);
+      const proxy=new THREE.Group(); proxy.position.set(0,floorOffset+.02,-.24); group.add(proxy);
       mesh(new THREE.SphereGeometry(.5,24,16,0,Math.PI*2,0,Math.PI/2),mat(color),0,.53,0,proxy);
       mesh(new THREE.SphereGeometry(.5,24,16,0,Math.PI*2,Math.PI/2,Math.PI/2),mat(0xeef0dc),0,.53,0,proxy);
       cylinder(.508,.075,p.trim,0,.53,0,proxy,32);
@@ -1120,16 +1150,16 @@ export function createBattlefield() {
         dais.traverse(part=>{ if (part.isMesh) part.layers.enable(1); });
       }
       if(leader) {
-        ring(1.27,.13,p.accent||0xffd477,0,.272,0,group);
+        ring(1.27,.13,p.accent||0xffd477,0,markerY+.003,0,group);
         if (!commandPost) {
           const pennant=mesh(new THREE.PlaneGeometry(.64,.98),mat(p.accent||0xffd477,{side:THREE.DoubleSide}),.84,1.2,1.68,group);
           pennant.rotation.y=-.2;
           box(.06,1.68,.06,p.trim,.49,.86,1.68,group);
         }
       }
-      const turnMarker=mesh(new THREE.OctahedronGeometry(.16),new THREE.MeshBasicMaterial({color:0xffd459}),0,2.1,0,group);
+      const turnMarker=mesh(new THREE.OctahedronGeometry(.16),new THREE.MeshBasicMaterial({color:0xffd459}),0,floorOffset+1.84,0,group);
       const modelSlot = new THREE.Group();
-      modelSlot.position.set(0,.27,-.24);
+      modelSlot.position.set(0,modelBaseY,-.24);
       group.add(modelSlot);
       const ball = new THREE.Group();
       group.add(ball);
@@ -1140,7 +1170,7 @@ export function createBattlefield() {
       orb(.135,0xfff4df,0,0,-.49,ball);
       const flash = mesh(new THREE.SphereGeometry(.75,20,14),new THREE.MeshBasicMaterial({
         color:0xfffaf0, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false
-      }),0,1,-.24,group);
+      }),0,floorOffset+.74,-.24,group);
       flash.castShadow = flash.receiveShadow = false;
       const levelAura = new THREE.Group();
       levelAura.position.copy(modelSlot.position);
@@ -1156,7 +1186,8 @@ export function createBattlefield() {
       const sparkGeometry = new THREE.OctahedronGeometry(.10);
       for (let i=0; i<12; i++) levelSparks.add(new THREE.Mesh(sparkGeometry, levelSparkMaterial));
       levelAura.add(levelRing, levelSparks);
-      pods.push({id:position.id, angle:position.angle, position:new THREE.Vector3(group.position.x,2.65,position.z), spritePosition:group.localToWorld(new THREE.Vector3(0,.42,-.24)), halo, glowRing, footShadow, turnMarker, proxy, modelSlot, ball, flash, levelAura, levelRing, levelSparks, levelSparkMaterial, trainerSlot, trainerShadow, commandDais,
+      pods.push({id:position.id, angle:position.angle, position:new THREE.Vector3(group.position.x,floorY+2.15,position.z), spritePosition:group.localToWorld(new THREE.Vector3(0,floorOffset+.16,-.24)), floorY, modelBaseY,
+        halo, glowRing, footShadow, turnMarker, proxy, modelSlot, ball, flash, levelAura, levelRing, levelSparks, levelSparkMaterial, trainerSlot, trainerShadow, commandDais,
         raidBoss, rearStation, stationAngle:station?.angle ?? position.angle, stationPosition:station ? trainerParent.position : null});
     });
     battleEffects = createBattleEffects(scene,pods,modelForDex);
@@ -1177,7 +1208,7 @@ export function createBattlefield() {
       const {footprint, size} = pod.visual;
       const sine = Math.sin(pod.angle), cosine = Math.cos(pod.angle);
       const x = pod.position.x-.24*sine, z = pod.position.z-.24*cosine;
-      const floor = pod.modelSlot.parent.position.y+pokemonPodiumTop+.01;
+      const floor = pod.floorY+.01;
       const bottom = floor+footprint.bottom*size, top = floor+footprint.top*size;
       const center = point(x,bottom+(top-bottom)*.64,z);
       const body = {left:Infinity,right:-Infinity,top:Infinity,bottom:-Infinity};
@@ -1686,7 +1717,7 @@ export function createBattlefield() {
       const active=pod.id===config.turnId;
       const size = pod.visual?.size ?? pokemonLevelScale(pod.modelRequest?.level);
       pod.turnMarker.visible=active && !eligible;
-      pod.turnMarker.position.y=2.1+(size-1)*1.8+(config.reducedMotion?0:Math.sin(time*.002)*.08);
+      pod.turnMarker.position.y=pod.modelBaseY+1.83+(size-1)*1.8+(config.reducedMotion?0:Math.sin(time*.002)*.08);
       const isEligible = eligible?.includes(pod.id);
       pod.halo.material.color.setHex(eligible
         ? marked.includes(pod.id) ? 0xffbc4f : eligible.includes(pod.id) ? 0xb5ffe8 : 0x526560
@@ -1775,7 +1806,7 @@ export function createBattlefield() {
         if (!recovery) pod.recovery = null;
         if (pod.down && !faintDuration) {
           pod.modelSlot.rotation.z = -pod.down*1.24;
-          pod.modelSlot.position.set(pod.down*.27,.27+pod.down*.44,-.24);
+          pod.modelSlot.position.set(pod.down*.27,pod.modelBaseY+pod.down*.44,-.24);
         }
       }
       const leveling = pod.change?.kind === 'level-up';
@@ -1854,7 +1885,7 @@ export function createBattlefield() {
         if (motion && acting.rig?.airborne && !actingDown && !config.reducedMotion && (!pod.change || pod.change.waitForHit)) {
           // Attack and recoil can tilt a wing below the idle loop's lowest point.
           pod.modelSlot.updateMatrixWorld(true);
-          const floor = pod.modelSlot.parent.matrixWorld.elements[13]+pokemonPodiumTop;
+          const floor = pod.floorY;
           const wingBottom = flyingMotionBounds.setFromObject(acting.model,true).min.y;
           if (wingBottom < floor) pod.modelSlot.position.y += floor-wingBottom;
         }
@@ -1879,7 +1910,7 @@ export function createBattlefield() {
       label?.classList.toggle('world-effect-target',targets.includes(pod.id));
       label?.classList.toggle('world-peripheral',camera.aspect<.9 && host.dataset.camera==='target' &&
         !targets.includes(pod.id) && focus?.sourceId!==pod.id && config.viewerId!==pod.id);
-      pod.position.y = 2.65 + (size-1)*1.8 + (leveling ? pod.visual.model.position.y : 0);
+      pod.position.y = pod.floorY+2.15 + (size-1)*1.8 + (leveling ? pod.visual.model.position.y : 0);
       const labelAnchor = pod.position.clone();
       const labelLift = (pod.visual?.labelLift ?? 0)*size;
       labelAnchor.y += labelLift;
@@ -1917,7 +1948,7 @@ export function createBattlefield() {
       if (isEligible) {
         for (const target of targetLayer?.querySelectorAll(`[data-target-seat="${CSS.escape(pod.id)}"]:not([hidden])`) || []) {
           const point = pod.spritePosition.clone();
-          point.y = target.dataset.targetSlot ? point.y + .65*size : .53;
+          point.y = target.dataset.targetSlot ? point.y + .65*size : pod.floorY+.03;
           project(target,point);
         }
       }
@@ -1978,6 +2009,7 @@ export function createBattlefield() {
       host.dataset.mode = displayMode();
       observer?.disconnect(); observer=new ResizeObserver(resize); observer.observe(host);
       eligible = null;
+      aimPress = null;
       marked = [];
       aimBottom = 0;
       mountDraftModels();

@@ -143,7 +143,6 @@ export function createSilphTerrain(scene) {
   const shoulder = material(0x4c5869,{roughness:.67,emissive:0x394453,emissiveIntensity:.76});
   const columnFace = material(0x657180,{roughness:.56,metalness:.15,emissive:0x34404f,emissiveIntensity:.4,
     envMap:environment,envMapIntensity:.68});
-  const tread = material(0x91949b,{roughness:.82});
   const recess = material(0x18202a);
   const velvet = material(0x111620,{roughness:.96});
   const violet = new THREE.MeshPhysicalMaterial({color:0x7b2c66,roughness:.30,clearcoat:.44,clearcoatRoughness:.23,
@@ -163,7 +162,6 @@ export function createSilphTerrain(scene) {
     transparent:true,depthWrite:false,toneMapped:false});
   const hallFill = glow(0xb2bfd6,.083);
   const seatGlow = glow(0xffe5ca,.25);
-  const seatReflection = glow(0xffddb9,.42);
   const panelGlow = glow(0xffd6ab,.39,wallWash);
   const fixtureGlow = glow(0xffe6c9,.32,stripScatter);
   const walkwayGlow = glow(0xffdbc1,.40);
@@ -575,19 +573,13 @@ export function createSilphTerrain(scene) {
 
   let previousTeam;
   return {
+    floorY:floorHeight,
     objectiveBounds:[
       new THREE.Box3(new THREE.Vector3(-radius,.74,-radius),new THREE.Vector3(radius,ballY+radius,.78)),
       new THREE.Box3(new THREE.Vector3(-2.36,.2,-2.08),new THREE.Vector3(2.36,.79,2.08)),
     ],
-    createSeat(group,top) {
-      flat(3.64,3.51,contact,0,-.025,.06,group).renderOrder = -1;
-      flat(3.94,4.20,seatGlow,0,-.023,.73,group);
-      flat(2.71,2.38,seatReflection,0,-.020,1.58,group);
-      cylinder(1.285,1.415,.15,8,dark,0,.046,0,group);
-      cylinder(1.24,1.33,.117,8,steel,0,top-.078,0,group);
-      cylinder(1.193,1.214,.037,8,lens,0,top-.018,0,group);
-      cylinder(1.12,1.13,.035,8,tread,0,top-.016,0,group);
-      const footShadow = flat(1.58,1.32,contact,0,top+.007,-.24,group);
+    createPokemonShadow(group) {
+      const footShadow = flat(1.58,1.32,contact,0,floorHeight+.014-group.position.y,-.24,group);
       footShadow.renderOrder = -1;
       footShadow.visible = false;
       return footShadow;

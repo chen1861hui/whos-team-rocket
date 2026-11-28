@@ -417,7 +417,7 @@ export function createGymTerrain(scene, theme, refresh, sceneryAngle=0) {
     });
     drift.needsUpdate = true;
   }
-  return {update,dispose() {
+  return {floorY:surfaceHeight,update,dispose() {
     disposed = true;
     map.dispose();
     coastalStone?.dispose();

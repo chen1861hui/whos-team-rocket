@@ -300,8 +300,7 @@ function flameTexture() {
 function impact(scene,key,target,textures) {
   const ice = key==='ice-beam';
   const [dark,light,white] = palettes[key];
-  const ground = target.spritePosition.clone();
-  ground.y = .52;
+  const ground = target.spritePosition.clone().setY(target.floorY+.02);
   const center = mouth(target);
   const effect = attach(scene,t=>{
     const spread = 1-Math.exp(-t*4);
@@ -504,9 +503,9 @@ function localEffect(scene,recipe,source,target,textures,{hit=false,ability=fals
   const [dark,light,white] = palettes[family];
   const striking = form==='strike' || form==='slash';
   const anchor = target ?? source;
-  const origin = anchor.spritePosition.clone().setY(.54);
+  const origin = anchor.spritePosition.clone().setY(anchor.floorY+.04);
   const trace = !hit && source && (['field','mark'].includes(form) || (ability && target && ['cloud','flow','ward'].includes(form)));
-  const start = trace ? source.spritePosition.clone().setY(.54) : origin;
+  const start = trace ? source.spritePosition.clone().setY(source.floorY+.04) : origin;
   const direction = target && source ? target.spritePosition.clone().sub(source.spritePosition).setY(0) : null;
   const rising = ['heal','sun','flare','gather'].includes(form);
   const ward = form==='ward';
@@ -646,7 +645,7 @@ function localEffect(scene,recipe,source,target,textures,{hit=false,ability=fals
 function trait(scene,key,source,textures,steady=false) {
   const fire = key==='blaze';
   const [dark,light,white] = palettes[key];
-  const floor = source.spritePosition.clone().setY(.53);
+  const floor = source.spritePosition.clone().setY(source.floorY+.03);
   const effect = attach(scene,t=>{
     const power = steady ? .46+.05*Math.sin(t*4.2) : smoothstep(t,.04,.25)*fade(t,fire?.52:.73,.99);
     if (steady) source.modelSlot.getWorldPosition(effect.group.position).setY(floor.y);

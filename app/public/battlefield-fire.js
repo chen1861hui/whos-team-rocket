@@ -738,25 +738,6 @@ export function createFireGym(scene, sceneryAngle) {
   box(.265,.017,.008,trim,0,0,.006,seal);
   add(new THREE.CircleGeometry(.037,20),trim,0,0,.014,seal);
 
-  const podiumBase = new THREE.CylinderGeometry(1.25,1.32,.184,48);
-  const podiumBezel = new THREE.CylinderGeometry(1.28,1.30,.055,48);
-  const podiumInset = new THREE.CylinderGeometry(1.17,1.20,.034,48);
-  const podiumStone = new THREE.CylinderGeometry(1.08,1.09,.025,48);
-  const podiumBelt = new THREE.CylinderGeometry(1.289,1.297,.022,48);
-  const podiumFace = material(0x46434a,{...stone,bumpScale:.067,roughness:.68});
-  function createPokemonPodium(parent,top) {
-    add(podiumBase,podiumFace,0,top-.172,0,parent).castShadow = true;
-    add(podiumBelt,rimBacking,0,top-.198,0,parent);
-    add(podiumBezel,rimMetal,0,top-.067,0,parent);
-    add(podiumInset,stationSteel,0,top-.031,0,parent);
-    add(podiumStone,podiumFace,0,top-.0125,0,parent);
-    for (let i=0;i<8;i++) {
-      const angle = i*turn/8;
-      const stud = add(rivet,rimMetal,Math.sin(angle)*1.29,top-.137,Math.cos(angle)*1.29,parent);
-      stud.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),new THREE.Vector3(Math.sin(angle),0,Math.cos(angle)));
-    }
-  }
-
   const bowl = new THREE.CylinderGeometry(.48,.30,.24,16);
   const flames = [];
   const fire = new THREE.ShaderMaterial({
@@ -977,8 +958,8 @@ export function createFireGym(scene, sceneryAngle) {
         burner.rotation.y = i+t*.31;
       }
     },
+    floorY:floorHeight,
     createStation,
-    createPokemonPodium,
     dispose() {
       paving.map.dispose();
       paving.bumpMap.dispose();
