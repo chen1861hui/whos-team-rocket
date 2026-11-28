@@ -5,7 +5,7 @@ import {coastalSeatLayout, coastalStationLayout, fireGymLayout, pokemonArenaMode
 import {animateBattlePose, battleEffectLabel, createBattleEffects, createStatusEffect, createTrainerReveal, createTraitAura} from './battlefield-effects.js';
 import {civilianProfiles, gymLeaderProfiles} from './trainer-profiles.js';
 import {waterGymArcadeBounds,waterGymRearStation} from './battlefield-arcade.js';
-import {createObjectiveTerrain} from './battlefield-objectives.js';
+import {createSilphTerrain} from './battlefield-objectives.js';
 import {createRadioTerrain} from './battlefield-radio.js';
 import {createLakeTerrain, lakeSeatRadius} from './battlefield-lake.js';
 import {createGymTerrain} from './battlefield-terrain.js';
@@ -95,7 +95,7 @@ export function createBattlefield() {
   const orbit = new THREE.Spherical(19,1.05,0);
   const canvas = renderer.domElement;
   let orbitDrag;
-  let scene, host, config, battleEffects, terrain, lakeTerrain, radioTerrain, objectiveTerrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
+  let scene, host, config, battleEffects, terrain, lakeTerrain, radioTerrain, silphTerrain, objectiveTerrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
 
   function shadeModel(model, muted, faded) {
     model?.traverse(part => {
@@ -838,6 +838,7 @@ export function createBattlefield() {
     terrain?.dispose(); terrain = null;
     lakeTerrain?.dispose(); lakeTerrain = null;
     radioTerrain?.dispose(); radioTerrain = null;
+    silphTerrain?.dispose(); silphTerrain = null;
     contactMap?.dispose(); contactMap = null;
     for (const pod of pods) {
       pod.traitAura?.dispose();
@@ -872,16 +873,17 @@ export function createBattlefield() {
     const grass = config.theme==='grass' && !Number.isInteger(config.portraitIndex);
     const lake = config.theme==='lake' && !Number.isInteger(config.portraitIndex);
     const radio = config.theme==='radio' && !Number.isInteger(config.portraitIndex);
+    const silph = config.theme==='silph' && !Number.isInteger(config.portraitIndex);
     renderer.localClippingEnabled = grass;
     if (grass) scene.fog = new THREE.Fog(0x98b4aa,grassFogRange.near,grassFogRange.far);
     if (coast) scene.fog = new THREE.Fog(0x9fc1d1,24,82);
     if (fire) scene.fog = new THREE.Fog(p.sky,26,65);
-    renderer.toneMappingExposure = coast ? 1.03 : fire ? 1.12 : grass ? 1.00 : lake ? 1.06 : 1.35;
-    scene.add(new THREE.HemisphereLight(coast || fire ? 0xc5dcff : grass ? 0xd9efff : lake ? 0xceebff : 0xeafaff,
-      coast ? 0x827b73 : fire ? 0x564b59 : grass ? 0x887761 : lake ? 0x52696d : 0x58705b,
-      coast ? 1.29 : fire ? 1.58 : grass ? 1.25 : lake ? 2.08 : 2.5));
-    const sun = new THREE.DirectionalLight(coast ? 0xffebd8 : fire ? 0xd7e3ff : grass ? 0xffdfb3 : lake ? 0xe0edff : 0xfff0d4,
-      coast ? 3.65 : fire ? 2.62 : grass ? 3.44 : lake ? 1.72 : 3.2);
+    renderer.toneMappingExposure = coast ? 1.03 : fire ? 1.12 : grass ? 1.00 : lake ? 1.06 : silph ? 1.07 : 1.35;
+    scene.add(new THREE.HemisphereLight(coast || fire ? 0xc5dcff : grass ? 0xd9efff : lake ? 0xceebff : silph ? 0xe4eaf3 : 0xeafaff,
+      coast ? 0x827b73 : fire ? 0x564b59 : grass ? 0x887761 : lake ? 0x52696d : silph ? 0x83848b : 0x58705b,
+      coast ? 1.29 : fire ? 1.58 : grass ? 1.25 : lake ? 2.08 : silph ? 1.46 : 2.5));
+    const sun = new THREE.DirectionalLight(coast ? 0xffebd8 : fire ? 0xd7e3ff : grass ? 0xffdfb3 : lake ? 0xe0edff : silph ? 0xfff4e8 : 0xfff0d4,
+      coast ? 3.65 : fire ? 2.62 : grass ? 3.44 : lake ? 1.72 : silph ? 1.72 : 3.2);
     sun.position.set(coast ? -16 : -12, coast ? 11.5 : 22, coast ? 9 : 8); sun.castShadow = true;
     sun.shadow.mapSize.setScalar((coast || grass) && window.innerWidth>=850 ? 2048 : 1024);
     Object.assign(sun.shadow.camera,{left:-17,right:17,top:17,bottom:-17,near:1,far:65});
@@ -939,6 +941,20 @@ export function createBattlefield() {
       sun.shadow.normalBias = .033;
       sun.shadow.bias = -.00026;
     }
+    if (silph) {
+      const wideView = window.innerWidth>=850;
+      sun.position.set(-3.4,13.1,3.2);
+      sun.shadow.mapSize.setScalar(wideView ? 2048 : 1024);
+      Object.assign(sun.shadow.camera,{left:-13.9,right:13.9,top:13.9,bottom:-13.9,near:1,far:34});
+      sun.shadow.camera.updateProjectionMatrix();
+      sun.shadow.bias = -.00025;
+      sun.shadow.normalBias = .026;
+      sun.shadow.intensity = .80;
+      sun.shadow.radius = wideView ? 4.8 : 2.6;
+      const softLight = new THREE.DirectionalLight(0xb7c6d4,.55);
+      softLight.position.set(8,7.4,-10);
+      scene.add(softLight);
+    }
     const seatRadius = lake ? lakeSeatRadius : config.theme==='silph' && config.players.length>8 ? 9.3 : 7.2;
     const layout = config.coastalBattle || radio
       ? coastalSeatLayout(config.players,config.viewerId)
@@ -952,8 +968,9 @@ export function createBattlefield() {
         if (scene===lakeScene) draw(performance.now());
       });
       objectiveTerrain=lakeTerrain.setObjective;
-    } else if (config.theme==='silph') {
-      objectiveTerrain=createObjectiveTerrain(scene);
+    } else if (silph) {
+      silphTerrain = createSilphTerrain(scene);
+      objectiveTerrain = silphTerrain.setObjective;
     } else if (themed) {
       const terrainScene = scene;
       terrain = createGymTerrain(scene,config.theme,()=>{
@@ -1012,20 +1029,23 @@ export function createBattlefield() {
     }
     let trainerIndex = 0;
     layout.forEach(position => {
-      const group=new THREE.Group(); group.position.set(position.x,.24,position.z); group.rotation.y=position.angle;
+      const rearShift = silphTerrain && position.slot===layout.length/2 ? 1.45 : 0;
+      const group=new THREE.Group(); group.position.set(position.x+rearShift,.24,position.z); group.rotation.y=position.angle;
       scene.add(group);
       const color=colors[position.index%colors.length];
       const {leader,raidBoss,trainerAvatar} = layouts.get(position.id);
+      let footShadow;
       if (fire || grass) {
         terrain.createPokemonPodium(group,pokemonPodiumTop);
       } else if (lake) {
         lakeTerrain.createSeat(group,pokemonPodiumTop,raidBoss);
+      } else if (silphTerrain) {
+        footShadow = silphTerrain.createSeat(group,pokemonPodiumTop);
       } else {
         const facets = coast || radio ? 36 : 8;
         cylinder(1.32,.16,p.trim,0,.06,0,group,facets);
         cylinder(coast ? 1.24 : 1.17,.12,p.edge,0,pokemonPodiumTop-.06,0,group,facets);
       }
-      let footShadow;
       if (contactMaterial) {
         const plinthShadow = mesh(new THREE.PlaneGeometry(3.5,3.12),contactMaterial,.14,-.017,.13,group);
         footShadow = mesh(new THREE.PlaneGeometry(1.94,1.82),contactMaterial,0,.263,-.24,group);
@@ -1069,6 +1089,7 @@ export function createBattlefield() {
         local:position.id===config.viewerId, avatar:trainerAvatar,commandPost,
         previous:previousTrainers?.get(position.id),
       });
+      const trainerShadow = silphTerrain?.createTrainerShadow(trainerParent);
       let commandDais;
       if (commandPost && (fire || grass)) {
         if (!rearStation) {
@@ -1135,7 +1156,7 @@ export function createBattlefield() {
       const sparkGeometry = new THREE.OctahedronGeometry(.10);
       for (let i=0; i<12; i++) levelSparks.add(new THREE.Mesh(sparkGeometry, levelSparkMaterial));
       levelAura.add(levelRing, levelSparks);
-      pods.push({id:position.id, angle:position.angle, position:new THREE.Vector3(position.x,2.65,position.z), spritePosition:group.localToWorld(new THREE.Vector3(0,.42,-.24)), halo, glowRing, footShadow, turnMarker, proxy, modelSlot, ball, flash, levelAura, levelRing, levelSparks, levelSparkMaterial, trainerSlot, commandDais,
+      pods.push({id:position.id, angle:position.angle, position:new THREE.Vector3(group.position.x,2.65,position.z), spritePosition:group.localToWorld(new THREE.Vector3(0,.42,-.24)), halo, glowRing, footShadow, turnMarker, proxy, modelSlot, ball, flash, levelAura, levelRing, levelSparks, levelSparkMaterial, trainerSlot, trainerShadow, commandDais,
         raidBoss, rearStation, stationAngle:station?.angle ?? position.angle, stationPosition:station ? trainerParent.position : null});
     });
     battleEffects = createBattleEffects(scene,pods,modelForDex);
@@ -1178,6 +1199,31 @@ export function createBattlefield() {
   function overlap(a,b) {
     return Math.max(0,Math.min(a.right,b.right)-Math.max(a.left,b.left)) *
       Math.max(0,Math.min(a.bottom,b.bottom)-Math.max(a.top,b.top));
+  }
+  function silphBadgeObstacles(width,height) {
+    const objective = silphTerrain.objectiveBounds.map(({min,max})=>{
+      const bounds = {left:Infinity,right:-Infinity,top:Infinity,bottom:-Infinity};
+      for (const x of [min.x,max.x]) for (const y of [min.y,max.y]) for (const z of [min.z,max.z]) {
+        const p = framingPoint.set(x,y,z).project(camera);
+        const px = (p.x+1)*width/2, py = (1-p.y)*height/2;
+        bounds.left = Math.min(bounds.left,px-3);
+        bounds.right = Math.max(bounds.right,px+3);
+        bounds.top = Math.min(bounds.top,py-3);
+        bounds.bottom = Math.max(bounds.bottom,py+3);
+      }
+      return bounds;
+    });
+    const panels = [];
+    const stage = host.closest('.match-stage');
+    if (stage) {
+      const {left,top} = host.getBoundingClientRect();
+      for (const panel of stage.querySelectorAll('.match-progress,.arena-has-response,.arena-prompt,.match-tray,.camera-controls')) {
+        if (!panel.offsetWidth || getComputedStyle(panel).visibility==='hidden') continue;
+        const bounds = panel.getBoundingClientRect();
+        panels.push({left:bounds.left-left-3,right:bounds.right-left+3,top:bounds.top-top-3,bottom:bounds.bottom-top+3});
+      }
+    }
+    return {objective,panels};
   }
   function obscuringModels(partners, targets, width, height, revealedTrainer) {
     const bodies = partners.filter(({center})=>center.depth>=-1 && center.depth<=1);
@@ -1329,6 +1375,14 @@ export function createBattlefield() {
       mode = 'free';
       desiredTarget.set(0,1.1,0);
       desiredCamera.setFromSpherical(orbit);
+      if (silphTerrain && !narrow) {
+        // Four upward input steps frame the booth, sunken court and front rim from inside the room.
+        camera.fov = 46;
+        desiredTarget.y = 2.25;
+        desiredCamera.x *= 1.175;
+        desiredCamera.y *= 1.42;
+        desiredCamera.z *= 1.175;
+      }
       if (lakeTerrain) desiredCamera.multiplyScalar(1.19);
       if (lakeTerrain || tableCamera || config.theme==='grass') {
         const horizontal = Math.hypot(desiredCamera.x,desiredCamera.z);
@@ -1409,6 +1463,17 @@ export function createBattlefield() {
         desiredCamera.set(0,distance*(narrow?.46:.42),distance);
         const aimTilt = THREE.MathUtils.smoothstep(aimBottom,172,302);
         desiredTarget.set(0,(narrow?.15:1.15)-aimTilt*.8,(narrow?-.7:-1.4)+aimTilt*1.5);
+        if (silphTerrain) {
+          if (narrow) {
+            desiredCamera.y *= 1.11;
+            desiredCamera.z *= 1.11;
+            desiredTarget.z += .3;
+          } else {
+            camera.fov = 46;
+            desiredCamera.set(0,7.47,23.35);
+            desiredTarget.set(0,2.14-aimTilt*.68,.18+aimTilt*1.5);
+          }
+        }
         if (config.theme==='fire' && narrow) {
           camera.fov = 57;
           desiredCamera.set(0,distance*.28,distance*.77);
@@ -1508,13 +1573,17 @@ export function createBattlefield() {
     const clipRearStation = clipOwnStation && pods.some(pod=>pod.rearStation && pod.id===config.viewerId);
     lakeTerrain?.update(time,config.reducedMotion,camera);
     radioTerrain?.update(camera);
+    silphTerrain?.update(camera,host.dataset.camera);
     if (['fire','grass'].includes(config.theme)) terrain?.update(time,config.reducedMotion,host.dataset.camera==='wide',camera.position);
     else terrain?.update(time,config.reducedMotion,clipRearStation,config.waterMotion);
     const dt = Math.min(.075,Math.max(0,(time-previousFrame)/1000));
     previousFrame = time;
     const viewWidth = host.clientWidth, viewHeight = host.clientHeight;
     const partners = projectedPartners(camera,viewWidth,viewHeight);
-    const visiblePartners = (config.coastalBattle || radioTerrain || ['fire','grass','lake'].includes(config.theme)) && trainerCamera ? partners : [];
+    const lowSilphOrbit = silphTerrain && host.dataset.camera==='free' && camera.position.y<6.75;
+    const nearSilphSeat = lowSilphOrbit ? 5.8*Math.hypot(camera.position.x,camera.position.z) : Infinity;
+    const visiblePartners = silphTerrain || ((config.coastalBattle || radioTerrain || ['fire','grass','lake'].includes(config.theme)) && trainerCamera) ? partners : [];
+    const silphObstacles = silphTerrain ? silphBadgeObstacles(viewWidth,viewHeight) : null;
     let transmitterBounds;
     if (lakeTerrain && trainerCamera && camera.aspect<.9) {
       const point = framingPoint.copy(lakeTerrain.transmitterAnchor).project(camera);
@@ -1546,6 +1615,12 @@ export function createBattlefield() {
         const obstruction = visiblePartners.reduce((total,partner)=>total+overlap(rect,partner.core),objectiveOverlap);
         const collisions = placedBadges.reduce((total,other)=>total+overlap(rect,other),0);
         const outside = Math.max(0,51-rect.top)+Math.max(0,rect.bottom-(viewHeight-104));
+        if (silphObstacles) {
+          const blocked = silphObstacles.panels.reduce((total,other)=>total+overlap(rect,other),0);
+          const covered = silphObstacles.objective.reduce((total,other)=>total+overlap(rect,other),0);
+          return {x:cx,y:cy,rect,cost:obstruction*1.25+covered*25+(blocked+collisions)*9+outside*w*2+
+            Math.hypot(cx-x,dy)*1.3};
+        }
         return {x:cx,y:cy,rect,cost:obstruction+collisions*1.35+outside*w+2*(Math.abs(dx)+Math.abs(dy))};
       }
       let best = candidate(0,0);
@@ -1555,6 +1630,12 @@ export function createBattlefield() {
           const option = candidate(dx,dy);
           if (option.cost<best.cost) best = option;
         }
+        if (silphObstacles && best.cost>h) {
+          for (const dx of [-w*1.56,-w,-w*.48,0,w*.48,w,w*1.56]) for (const dy of [-h*2.1,-h*1.4,-h*.64,0,h*.78,h*1.5]) {
+            const option = candidate(dx,dy);
+            if (option.cost<best.cost) best = option;
+          }
+        }
       }
       placedBadges.push(best.rect);
       return best;
@@ -1563,15 +1644,33 @@ export function createBattlefield() {
       if (!element) return;
       const p = point.clone().project(camera);
       let x = p.x*.5+.5, y = -p.y*.5+.5;
-      if (visiblePartners.length && element.classList.contains('world-seat-compact') && Math.abs(p.x)<.94 && Math.abs(p.y)<.91 && p.z<=1) {
-        const position = placeBadge(element,x*viewWidth,y*viewHeight);
+      const sideLimit = silphTerrain ? 1.02 : camera.aspect < .9 && host.dataset.camera==='target' ? .76 : .94;
+      if ((silphObstacles || visiblePartners.length) && element.classList.contains('world-seat-compact') &&
+          Math.abs(p.x)<sideLimit && Math.abs(p.y)<.91 && p.z<=1) {
+        const anchorX = x*viewWidth, anchorY = y*viewHeight;
+        const position = placeBadge(element,anchorX,anchorY);
+        if (silphObstacles && position.rect) {
+          const {left,right,top,bottom} = position.rect;
+          const startX = THREE.MathUtils.clamp(anchorX,left+2,right-2);
+          const startY = THREE.MathUtils.clamp(anchorY,top,bottom);
+          const lineX = anchorX-startX, lineY = anchorY-startY;
+          const length = Math.hypot(lineX,lineY);
+          const lineBounds = {left:Math.min(startX,anchorX)-1,right:Math.max(startX,anchorX)+1,
+            top:Math.min(startY,anchorY)-1,bottom:Math.max(startY,anchorY)+1};
+          const showLine = length>18 && !silphObstacles.objective.some(rect=>overlap(lineBounds,rect)>0);
+          element.style.setProperty('--silph-leader-length',`${showLine ? length : 0}px`);
+          if (showLine) {
+            element.style.setProperty('--silph-leader-x',`${startX-left}px`);
+            element.style.setProperty('--silph-leader-y',`${startY-top}px`);
+            element.style.setProperty('--silph-leader-angle',`${Math.atan2(lineY,lineX)}rad`);
+          }
+        }
         x = position.x/viewWidth;
         y = position.y/viewHeight;
       }
       element.style.setProperty('--projected-left', `${x*100}%`);
       element.style.setProperty('--projected-top', `${y*100}%`);
       if (clip) {
-        const sideLimit = camera.aspect < .9 && host.dataset.camera==='target' ? .76 : .94;
         element.classList.toggle('off-camera',Math.abs(p.x)>sideLimit || Math.abs(p.y)>.91 || p.z>1);
       }
     };
@@ -1591,7 +1690,7 @@ export function createBattlefield() {
       const isEligible = eligible?.includes(pod.id);
       pod.halo.material.color.setHex(eligible
         ? marked.includes(pod.id) ? 0xffbc4f : eligible.includes(pod.id) ? 0xb5ffe8 : 0x526560
-        : targets.includes(pod.id)?0xff8457:active?0xffd459:0x809e94);
+        : targets.includes(pod.id)?0xff8457:active?0xffd459:silphTerrain?0xcfcac4:0x809e94);
       if (pod.glowRing) {
         pod.glowRing.visible = Boolean(isEligible);
         pod.glowRing.material.color.copy(pod.halo.material.color);
@@ -1651,6 +1750,11 @@ export function createBattlefield() {
         pod.footShadow.visible = Boolean(pod.visual?.model.visible);
         pod.footShadow.position.x = pod.modelSlot.position.x;
         pod.footShadow.position.z = pod.modelSlot.position.z;
+      }
+      if (pod.trainerShadow) {
+        pod.trainerShadow.visible = Boolean(pod.trainerSlot.visible && pod.trainerSlot.model?.visible);
+        pod.trainerShadow.position.x = pod.trainerSlot.position.x;
+        pod.trainerShadow.position.z = pod.trainerSlot.position.z;
       }
       const fainting = pod.faintAt != null;
       if (pod.faintWait && !config.reducedMotion) {
@@ -1779,6 +1883,14 @@ export function createBattlefield() {
       const labelAnchor = pod.position.clone();
       const labelLift = (pod.visual?.labelLift ?? 0)*size;
       labelAnchor.y += labelLift;
+      if (pod.position.x*camera.position.x+pod.position.z*camera.position.z>nearSilphSeat) {
+        // Put the foreground badge beside its station, below the central exhibit's silhouette.
+        const seat = framingPoint.copy(pod.spritePosition).project(camera);
+        const offset = seat.x>.055 ? 1.03 : -1.03;
+        labelAnchor.x += camera.matrixWorld.elements[0]*offset;
+        labelAnchor.z += camera.matrixWorld.elements[2]*offset;
+        labelAnchor.y -= .98;
+      }
       if ((config.coastalBattle || radioTerrain) && trainerCamera && host.clientWidth>=900 && camera.aspect>=1.4) {
         const side = Math.sin(pod.angle), depth = Math.cos(pod.angle);
         let shift = 0;
