@@ -2520,6 +2520,8 @@ button.checkin-seat .checkin-seat-copy { color:#5d3918; }
 .checkin-gym span { font-size:22px; line-height:1; }
 .checkin-gym[aria-pressed="true"] { background:var(--table-blue); border-color:var(--table-brass); color:var(--table-paper); }
 .checkin-gym:disabled { opacity:1; cursor:default; }
+.checkin-settings .checkin-map-help { margin-top:8px; }
+.checkin-settings .match-mode-settings { margin-top:14px; }
 .checkin-settings .lobby-settings { margin:13px 0; }
 .checkin-settings .lobby-settings .inline-note { margin:6px 0 12px; }
 .checkin-settings .checkin-save { width:100%; margin-top:8px; }

@@ -1,5 +1,5 @@
 import { TOUR_PACK, HOENN_PACK, MIXED_PACK, tourName, hoennName, mixedName, tourItems, hoennItems, expansionCards, expansionCatalogue, fieldWeathers, hasPack, hoennDelayedEvents, SHEDINJA_ID, MIMIKYU_ID, expansionBattleFormDex } from './expansion-content.js';
-import { isTeamRole, ROOM_CAPACITY, seatCapacity, teamRoles, matchTeamRoles, validTeamScenarioSize, isLakeRaid, isSilphControl, LAKE_RAGE, SILPH_CONTROL, RADIO_TOWER, VIRIDIAN_GYM, VIRIDIAN_MIN, VIRIDIAN_MAX, VIRIDIAN_REVEAL_ROUND, INFILTRATOR_ROUND, viridianMinimum, validViridianSize } from './match-mode.js';
+import { isTeamRole, ROOM_CAPACITY, seatCapacity, teamRoles, matchTeamRoles, validTeamScenarioSize, isLakeRaid, LAKE_RAGE, LAKE_CHALLENGER_LIMIT, SILPH_CONTROL, SILPH_TEAM_SIZES, RADIO_TOWER, RADIO_GOAL, VIRIDIAN_GYM, VIRIDIAN_MIN, VIRIDIAN_MAX, VIRIDIAN_REVEAL_ROUND, INFILTRATOR_ROUND, viridianMinimum, validViridianSize } from './match-mode.js';
 import {coastalSeatLayout, fireGymLayout, pokemonLevelScale, seatLayout} from './battlefield-layout.js';
 import {playCardFace} from './play-card-face.js';
 import {pokemonTypes, typeIconPath} from './pokemon-types.js';
@@ -53,10 +53,12 @@ const strings = {
   viridianLaunch:[`The Acting Gym Leader goes first. The true Gym Leader stays hidden until the acting leader is eliminated or round ${VIRIDIAN_REVEAL_ROUND} begins.`,`代理馆主先行动。代理馆主出局或第 ${VIRIDIAN_REVEAL_ROUND} 轮开始时，公开真馆主的身份。`],
   lake:['Lake of Rage · Red Gyarados','愤怒之湖·红色暴鲤龙'],
   silph:['Silph Co. · Master Ball','西尔佛公司·大师球争夺'],
-  lakeStartHelp:['Seat 2–6 challengers. The Gyarados AI joins when you start.','2–6 位挑战者准备后开局。系统会加入红色暴鲤龙首领 AI。'],
-  silphStartHelp:['Seat 6 or 12 ready trainers in three equal teams.','6 或 12 位训练家准备后开局，平分为三队。'],
+  lakeMap:['Lake of Rage','愤怒之湖'], silphMap:['Silph Co.','西尔佛公司'],
+  lakeStartHelp:[`Start with 2–${LAKE_CHALLENGER_LIMIT} ready challengers. Work together to defeat the Red Gyarados AI.`,`2–${LAKE_CHALLENGER_LIMIT} 位挑战者准备后开局，合力击败红色暴鲤龙首领 AI。`],
+  silphStartHelp:[`Start with ${SILPH_TEAM_SIZES.join(' or ')} ready trainers in three equal teams. Hold the Master Ball for one full rotation or eliminate both rival teams.`,`${SILPH_TEAM_SIZES.join(' 或 ')} 位训练家准备后开局，平分为三队。守住大师球一圈，或淘汰另外两队即可获胜。`],
   teamScenario:['Team scenario','组队场景'], standardTeams:['Standard battle','标准对战'],
   radio:['Goldenrod Radio Tower','满金市广播塔'], radioTower:['Goldenrod Radio Tower','满金市广播塔争夺战'], radioIntelligence:['Intelligence','情报点'],
+  radioStartHelp:[`Start with an even number of ready trainers (2–${ROOM_CAPACITY}). Gather ${RADIO_GOAL} intelligence points or eliminate the opposing team to win.`,`2–${ROOM_CAPACITY} 位训练家且人数为偶数，全部准备后开局。取得 ${RADIO_GOAL} 点情报，或淘汰对方全队即可获胜。`],
   radioVictory:['Radio Tower won by intelligence','通过广播塔情报获胜'],
   radioElimination:['Opposing team eliminated','对方全队退场'],
   teamAssignment:['Team assignment','分队方式'], teamSeat:['Alternate by seat','按座位交替'], teamRandom:['Random teams','随机分队'],
@@ -64,9 +66,9 @@ const strings = {
   teamLaunch:['Two equal teams will be public at the start. A trainer is chosen at random to go first, then play follows seat order. Eliminate all opposing trainers to win.','开局公开人数相等的两队。随机决定先手，随后按座位顺序行动。让对方所有训练家出局的一队获胜。'],
   teamStep:['Team lineup','队伍名单'], teamConfirm:['Confirm lineup','确认队伍'],
   teamWaiting:['Waiting for trainers to confirm the lineup.','等待训练家确认队伍。'],
-  teamTooMany:['The identity mode supports at most six trainers.','原版身份局最多支持 6 位训练家。'],
+  teamTooMany:['The number of seated trainers exceeds the limit for the selected map or game mode.','当前入座的训练家人数超过所选地图或玩法的上限。'],
   targetPokemon:['Target active','选为目标'],
-  gymLabel:['Gym','道馆'],
+  mapLabel:['Map','地图'],
   copyShort:['Copy','复制'],
   leaveTab:['Leave session','退出会话'],
   startBattlePreview:['Start game','开始游戏'], combatPreview:['COMBAT PREVIEW · TEST DECK','战斗预览 · 测试牌库'],
@@ -121,7 +123,8 @@ const strings = {
   ready: ['Ready', '已准备'], notReady: ['Getting ready', '准备中'], readyButton: ['I’m ready', '准备好了'], unready: ['Cancel ready', '取消准备'],
   start: ['Start partner selection', '开始选择搭档'], startHelp: ['Start with 3–6 ready trainers, or one human and one AI for a practice duel.', '3–6 位训练家准备后可开局。一位真人加一名 AI 可开始练习对决。'],
   watch: ['Watch the table come together.', '一起等待牌桌就绪。'], watchCopy: ['Spectators can follow public activity. Candidates, hands and unrevealed reserves stay private. Previously revealed reserves remain public.', '观众可以查看公开进度。候选、手牌与未公开备战身份保持私密；已公开的备战搭档仍公开。'],
-  arenaTitle: ['Choose a Gym', '选择属性道馆'],
+  arenaTitle: ['Choose a map', '选择地图'],
+  saveMapHelp: ['Save the room settings to use this map.', '保存房间设置后使用此地图。'],
   fire: ['Fire Gym','火属性道馆'], fireDesc: ['A cracked basalt platform above flowing lava.','熔岩环绕的裂纹玄武岩战台。'],
   water: ['Water Gym','水属性道馆'], waterDesc: ['Ripple tiles and cascades in a rocky basin.','水纹石板、岩池与层叠落水。'],
   grass: ['Grass Gym','草属性道馆'], grassDesc: ['A woodland clearing edged with moss and wildflowers.','苔石和野花围绕的林间空地。'],
@@ -260,6 +263,11 @@ let draftPicks = {active:null,reserve:null};
 let revealVictory = false, victorySoundTimer;
 let victoryRevealDelay = 0;
 const gymThemes = ['fire', 'water', 'grass'];
+const teamMaps = {
+  [LAKE_RAGE]: {theme:'lake', label:'lakeMap', modeLabel:'lake', help:'lakeStartHelp'},
+  [RADIO_TOWER]: {theme:'radio', label:'radio', modeLabel:'radioTower', help:'radioStartHelp'},
+  [SILPH_CONTROL]: {theme:'silph', label:'silphMap', modeLabel:'silph', help:'silphStartHelp'},
+};
 let professionDraft = '';
 let view = null, busy = false, pollRunning = false, connected = true, errorKey = '', errorCode = '', noticeKey = '', settingsDraft = null, signature = '', dialogKind = null, terminalReason = '';
 let credentialVisible = false, dialogReturnFocus = null;
@@ -708,9 +716,8 @@ document.addEventListener('keydown',event=>{
 });
 window.addEventListener('resize',()=>{ if (arenaPrompt) syncArenaPrompt(); });
 function combatKit() { return {getView:()=>view,language,localized,partnerName,partnerImage,action,openArenaPrompt,closeArenaPrompt,syncArenaPrompt,get busy(){return busy;}}; }
-const isRadioTower = settings => settings.matchMode==='teams' && settings.teamScenario===RADIO_TOWER;
-const venueTheme = settings => isLakeRaid(settings) ? 'lake' : isSilphControl(settings) ? 'silph' : isRadioTower(settings) ? 'radio' : settings.arena;
-const teamModeLabel = settings => ({[LAKE_RAGE]:'lake',[SILPH_CONTROL]:'silph',[RADIO_TOWER]:'radioTower'}[settings.teamScenario] ?? 'teamMode');
+const teamMap = settings => settings?.matchMode==='teams' ? teamMaps[settings.teamScenario] : undefined;
+const venueTheme = settings => teamMap(settings)?.theme ?? settings.arena;
 function gymTypeIcon(theme) {
   if (theme==='lake') return typeIcon('water');
   if (theme==='radio') return '◉';
@@ -886,8 +893,8 @@ function renderLobby() {
       el('div',{class:'checkin-roster-heading'},el('h2',{},t('lineup')),el('span',{},`${ready} / ${players.length} · ${t('trainersReady')}`)),
       seats,view.self.spectator ? null : el('p',{class:'checkin-seat-hint'},t('seatChangeHelp'))),
     el('div',{class:'checkin-controls'},
-      el('div',{class:'checkin-config'},el('div',{},el('span',{},t('gymLabel')),el('strong',{},gymTypeIcon(venueTheme(view.settings)),t(venueTheme(view.settings)))),
-        el('div',{},el('span',{},t('matchMode')),el('strong',{},t(teams?teamModeLabel(view.settings):view.settings.identityScenario===VIRIDIAN_GYM?'viridianGym':'identityMode'),
+      el('div',{class:'checkin-config'},el('div',{},el('span',{},t('mapLabel')),el('strong',{},gymTypeIcon(venueTheme(view.settings)),t(venueTheme(view.settings)))),
+        el('div',{},el('span',{},t('matchMode')),el('strong',{},t(teams?(teamMap(view.settings)?.modeLabel ?? 'teamMode'):view.settings.identityScenario===VIRIDIAN_GYM?'viridianGym':'identityMode'),
           teams && !isLakeRaid(view.settings) ? ` · ${t(view.settings.teamAssignment==='random'?'teamRandom':'teamSeat')}` : null,
           view.settings.gymGuard ? ` · ${t('gymGuard')}` : null,
           view.settings.rocketPartners ? ` · ${t('rocketPartners')}` : null,
@@ -897,7 +904,7 @@ function renderLobby() {
           view.settings.trainerProfessions ? ` · ${t('trainerProfessions')}` : null)),
         button('lobbySettings',()=>openSystemDialog('lobby-settings','open-lobby-settings'),'button secondary',false,{id:'open-lobby-settings'})),
       view.self.spectator ? null : lobbyLaunch()),
-    el('p',{class:'checkin-hint'},t(view.self.spectator?'watchCopy':teams?(isLakeRaid(view.settings)?'lakeStartHelp':isSilphControl(view.settings)?'silphStartHelp':'teamStartHelp'):view.settings.identityScenario===VIRIDIAN_GYM?viridianHelp(view.settings):'startHelp')),
+    el('p',{class:'checkin-hint'},t(view.self.spectator?'watchCopy':teams?(teamMap(view.settings)?.help ?? 'teamStartHelp'):view.settings.identityScenario===VIRIDIAN_GYM?viridianHelp(view.settings):'startHelp')),
     el('footer',{class:'checkin-footer'},el('span',{},`${t('spectators')} · ${watchers.length}`,watchers.length?` · ${watchers.map(player=>player.nickname).join(' · ')}`:null),leave)),
     el('details',{id:'lobby-utilities',class:'checkin-utilities'},el('summary',{},t('control')),
       el('div',{class:'room-sidebar'},logPanel(),recoveryPanel(),isOwner()?controlPanel():null)));
@@ -926,17 +933,34 @@ function lobbyPanel() {
   const panel = el('section', { class: 'lobby-panel checkin-settings' }, el('h3', {}, t('arenaTitle')));
   if (!settingsDraft) settingsDraft = { ...view.settings };
   const settings = isOwner() ? settingsDraft : view.settings;
+  const selectedTheme = venueTheme(settings);
   const arenas = el('div', { class: 'checkin-gyms', role:'group', 'aria-label':t('arenaTitle') });
-  const options = gymThemes.includes(view.settings.arena) ? gymThemes : [...gymThemes, view.settings.arena];
-  for (const arena of options) arenas.append(el('button', { id: `arena-${arena}`, type: 'button', class: 'checkin-gym', disabled: busy || !isOwner(), 'aria-pressed': settings.arena === arena, onclick: () => { settingsDraft.arena = arena; render(); } }, el('span', {'aria-hidden':true},gymTypeIcon(arena)),el('strong',{},t(arena))));
+  const regularThemes = gymThemes.includes(view.settings.arena) ? gymThemes : [...gymThemes, view.settings.arena];
+  const options = [
+    ...regularThemes.map(theme=>({theme,label:theme,scenario:'standard'})),
+    ...Object.entries(teamMaps).map(([scenario,{theme,label}])=>({theme,label,scenario})),
+  ];
+  for (const {theme,label,scenario} of options) {
+    arenas.append(el('button',{id:`arena-${theme}`,type:'button',class:'checkin-gym',disabled:busy||!isOwner(),
+      'aria-pressed':selectedTheme===theme,onclick:()=>{
+        settingsDraft.teamScenario = scenario;
+        if (scenario==='standard') settingsDraft.arena = theme;
+        else settingsDraft.matchMode = 'teams';
+        render();
+      }},el('span',{'aria-hidden':true},gymTypeIcon(theme)),el('strong',{},t(label))));
+  }
+  panel.append(arenas);
+  const map = teamMap(settings);
+  if (map) panel.append(el('p',{class:'checkin-map-help'},t(map.help)));
   const selectSetting = (key, label, choices, fallback) => el('label',{class:'match-mode-setting'},t(label),
     el('select',{id:key,disabled:busy||!isOwner(),onchange:event=>{settingsDraft[key]=event.target.value; render();}},
       Object.entries(choices).map(([value,name])=>el('option',{value,selected:value===(settings[key]??fallback)},t(name)))));
-  panel.prepend(el('div',{class:'match-mode-settings'},
+  const teamScenarios = {standard:'standardTeams',...Object.fromEntries(Object.entries(teamMaps).map(([scenario,map])=>[scenario,map.modeLabel]))};
+  panel.append(el('div',{class:'match-mode-settings'},
     selectSetting('contentPack','contentPack',{base:'baseContent',[TOUR_PACK]:'tourContent',[HOENN_PACK]:'hoennContent',[MIXED_PACK]:'mixedContent'},'base'),
     selectSetting('matchMode','matchMode',{identity:'identityMode',teams:'teamMode'},'identity'),
     settings.matchMode==='teams' && !isLakeRaid(settings) ? selectSetting('teamAssignment','teamAssignment',{seat:'teamSeat',random:'teamRandom'},'seat') : null,
-    settings.matchMode==='teams' ? selectSetting('teamScenario','teamScenario',{standard:'standardTeams',[RADIO_TOWER]:'radioTower',[LAKE_RAGE]:'lake',[SILPH_CONTROL]:'silph'},'standard')
+    settings.matchMode==='teams' ? selectSetting('teamScenario','teamScenario',teamScenarios,'standard')
       : selectSetting('identityScenario','identityScenario',{standard:'identityMode',[VIRIDIAN_GYM]:'viridianGym'},'standard')));
   if (settings.matchMode!=='teams' && settings.identityScenario===VIRIDIAN_GYM) {
     for (const key of ['gymGuard','rocketPartners','rocketInfiltration']) {
@@ -966,7 +990,6 @@ function lobbyPanel() {
   },'trainerProfessions');
   $('input',professions).disabled = busy || !isOwner();
   panel.append(professions);
-  if (!isRadioTower(settings)) panel.append(arenas);
   const timers = el('div', { class: 'timer-grid' });
   const turnEnabled = Number(settings.turnSeconds) > 0;
   const turnToggle = preference('turnTimerEnabled', turnEnabled, enabled => {
@@ -990,7 +1013,7 @@ function lobbyPanel() {
   }
   advanced.append(el('p', { class: 'inline-note' }, t('automationHelp')));
   panel.append(advanced);
-  if (settings.arena !== view.settings.arena) panel.append(el('p',{class:'inline-note'},language==='zh'?'保存设置以使用此道馆。':'Save settings to use this Gym.'));
+  if (selectedTheme !== venueTheme(view.settings)) panel.append(el('p',{class:'inline-note'},t('saveMapHelp')));
   if (isOwner()) panel.append(button('saveSettings', saveSettings, 'button primary checkin-save',false,{id:'save-lobby-settings'}));
   return panel;
 }
@@ -1024,9 +1047,9 @@ function lobbyLaunch() {
   if (!view.self.spectator) launch.append(button(ownPlayer()?.ready ? 'unready' : 'readyButton', () => action('ready', { ready: !ownPlayer()?.ready }), ownPlayer()?.ready ? 'button secondary' : 'button primary'));
   // The player-facing start follows identity → five private draws → partner choice.
   if (isOwner()) launch.append(button(practiceDuel?'startPracticeDuel':'startBattlePreview',()=>{
-    const code = view.code, arena = view.settings.arena;
-    askConfirmation(teams?'teamLaunch':viridian?'viridianLaunch':practiceDuel?'practiceDuel':'combatFixture',()=>{
-      if(view?.code===code&&view.status==='lobby'&&view.settings.arena===arena)action('startBattlePreview');
+    const code = view.code, arena = venueTheme(view.settings);
+    askConfirmation(teams?(teamMap(view.settings)?.help ?? 'teamLaunch'):viridian?'viridianLaunch':practiceDuel?'practiceDuel':'combatFixture',()=>{
+      if(view?.code===code&&view.status==='lobby'&&venueTheme(view.settings)===arena)action('startBattlePreview');
     }, lobbyDeckLabel(players.length));
   },'button primary',!allReady||settings.arena!==view.settings.arena||automationChanged||modeChanged));
   return launch;
@@ -1049,7 +1072,7 @@ function teamLineup(count) {
   const players = seated().toSorted((a,b)=>a.seatNumber-b.seatNumber);
   return el('section',{class:'arena-identity team-lineup'},
     el('h1',{},t('teamStep')),
-    el('p',{},t(isLakeRaid(view.settings)?'lakeStartHelp':isSilphControl(view.settings)?'silphStartHelp':'teamLaunch')),
+    el('p',{},t(teamMap(view.settings)?.help ?? 'teamLaunch')),
     el('div',{class:'team-lineup-columns','data-team-count':matchTeamRoles(view.settings).length},matchTeamRoles(view.settings).map(role=>el('section',{'data-team':role},
       el('h2',{},isLakeRaid(view.settings)?battleText(role==='team-a'?['Challengers','挑战者']:['Boss','首领']):roleName(role,language)),
       el('ol',{},players.filter(player=>player.role===role).map(player=>el('li',{},player.nickname,player.id===view.selfId?` · ${t('you')}`:null)))))),
@@ -2301,7 +2324,7 @@ function setView(next, force = false) {
   else updateTurnClock();
 }
 function showError(error) {
-  const mapped = { INVALID_TEAM_SIZE:'teamStartHelp', INVALID_VIRIDIAN_SIZE:viridianHelp(view?.settings), INFILTRATOR_AWAITS_PLEDGE:'infiltratorWait', TOO_MANY_TRAINERS:'teamTooMany', POKEMON_DRAW_EXHAUSTED:'drawPokemonFirst', CANDIDATE_DRAW_INCOMPLETE:'drawPokemonFirst', IDENTITY_ALREADY_SEEN:'identityWaiting', CONTENT_UNAVAILABLE:'genericError', RESPONSE_PENDING:'responsePending', STALE_DECISION:'stale', NOT_YOUR_DECISION:'wrongTurn', MOVE_UNAVAILABLE:'wrongPhase', INVALID_TARGET:'invalidSelection', TRAIT_UNAVAILABLE:'wrongPhase', WRONG_MODE:'wrongPhase', INVALID_RESPONSE:'invalidInput', INVALID_CARD:'invalidInput', SWITCH_USED:'switchUsedHelp', SWITCH_UNAVAILABLE:'switchUnavailable', STALE_REVISION: 'stale', UNAUTHORIZED: 'unauthorized', ROOM_NOT_FOUND: 'roomMissing', ROOM_CLOSED: 'closedCopy', ROOM_FULL: 'roomFull', GAME_STARTED: 'gameStarted', NOT_READY: 'notReadyError', DRAW_EXHAUSTED: 'drawExhausted', NOT_YOUR_TURN: 'wrongTurn', WRONG_PHASE:'wrongPhase', INVALID_PHASE:'wrongPhase', TURN_INCOMPLETE: 'turnIncomplete', VOTE_PENDING: 'votePending', INVALID_SELECTION: 'invalidSelection', INVALID_PROFESSION:'chooseProfession', OWNER_ONLY: 'ownerOnly', INVALID_SETTINGS: 'timerInvalid', INVALID_NICKNAME: 'invalidInput' };
+  const mapped = { INVALID_TEAM_SIZE:teamMap(view?.settings)?.help ?? 'teamStartHelp', INVALID_VIRIDIAN_SIZE:viridianHelp(view?.settings), INFILTRATOR_AWAITS_PLEDGE:'infiltratorWait', TOO_MANY_TRAINERS:'teamTooMany', POKEMON_DRAW_EXHAUSTED:'drawPokemonFirst', CANDIDATE_DRAW_INCOMPLETE:'drawPokemonFirst', IDENTITY_ALREADY_SEEN:'identityWaiting', CONTENT_UNAVAILABLE:'genericError', RESPONSE_PENDING:'responsePending', STALE_DECISION:'stale', NOT_YOUR_DECISION:'wrongTurn', MOVE_UNAVAILABLE:'wrongPhase', INVALID_TARGET:'invalidSelection', TRAIT_UNAVAILABLE:'wrongPhase', WRONG_MODE:'wrongPhase', INVALID_RESPONSE:'invalidInput', INVALID_CARD:'invalidInput', SWITCH_USED:'switchUsedHelp', SWITCH_UNAVAILABLE:'switchUnavailable', STALE_REVISION: 'stale', UNAUTHORIZED: 'unauthorized', ROOM_NOT_FOUND: 'roomMissing', ROOM_CLOSED: 'closedCopy', ROOM_FULL: 'roomFull', GAME_STARTED: 'gameStarted', NOT_READY: 'notReadyError', DRAW_EXHAUSTED: 'drawExhausted', NOT_YOUR_TURN: 'wrongTurn', WRONG_PHASE:'wrongPhase', INVALID_PHASE:'wrongPhase', TURN_INCOMPLETE: 'turnIncomplete', VOTE_PENDING: 'votePending', INVALID_SELECTION: 'invalidSelection', INVALID_PROFESSION:'chooseProfession', OWNER_ONLY: 'ownerOnly', INVALID_SETTINGS: 'timerInvalid', INVALID_NICKNAME: 'invalidInput' };
   errorKey = error.network ? 'networkError' : error.code === 'SEAT_TAKEN' ? 'seatTaken' : mapped[error.code] || 'genericError';
   errorCode = error.code && /^[A-Z0-9_]{1,60}$/i.test(error.code) ? error.code : '';
   noticeKey = ''; renderMessages();
