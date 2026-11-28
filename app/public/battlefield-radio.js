@@ -385,6 +385,7 @@ export function createRadioTerrain(scene, renderer, key) {
   }
 
   return {
+    floorY,
     setObjective(radio) {
       for (const {team,lamps} of banks) {
         lamps.forEach((lamp,index)=>{

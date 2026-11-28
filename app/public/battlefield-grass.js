@@ -1497,58 +1497,6 @@ export function createGrassGym(scene,sceneryAngle,refresh) {
 
   const top=mat(0xc2bbad,{map:carvedStone.albedo,bumpMap:carvedStone.bump,bumpScale:.088});
   const edge=stoneSurface(0xa5a28d,.085);
-  const green=mat(0x718754,{map:grit});
-  const podiumCore=new THREE.CylinderGeometry(1.23,1.29,.225,48);
-  const podiumCap=new THREE.CylinderGeometry(1.158,1.17,.071,64);
-  const podiumInlay=new THREE.RingGeometry(1.055,1.147,64).rotateX(-Math.PI/2);
-  const podiumMortar=mat(0x817b6d,{map:carvedStone.albedo});
-  const rimStone=mat(0xffffff,{map:carvedStone.albedo,bumpMap:carvedStone.bump,
-    bumpScale:.073,roughness:.94,vertexColors:true});
-  const rimRandom=randomFrom(761);
-  const rimCount=12;
-  const rimAngles=Array.from({length:rimCount},(_,i)=>(i+(rimRandom()-.5)*.24)*turn/rimCount);
-  const rimPatches=[];
-  const rimTint=new THREE.Color(),rimMoss=new THREE.Color(0x859060),rimVertexTint=new THREE.Color();
-  const rimPalette=[0xc1b9ac,0xaca89e,0xbdb7aa,0xb7b0a3];
-  for(let i=0;i<rimCount;i++){
-    const a=rimAngles[i]+.014,b=(rimAngles[i+1] ?? rimAngles[0]+turn)-.014;
-    const inner=1.135,outer=1.295+(rimRandom()-.5)*.025;
-    const shape=new THREE.Shape();
-    shape.moveTo(Math.cos(a)*outer,Math.sin(a)*outer);
-    shape.absarc(0,0,outer,a,b,false);
-    shape.lineTo(Math.cos(b)*inner,Math.sin(b)*inner);
-    shape.absarc(0,0,inner,b,a,true);
-    shape.closePath();
-    const height=.211+rimRandom()*.008;
-    const patch=new THREE.ExtrudeGeometry(shape,{depth:height,bevelEnabled:true,
-      bevelSize:.018,bevelOffset:-.018,bevelThickness:.014,bevelSegments:1,curveSegments:7});
-    const {position,uv}=patch.attributes;
-    const colors=new Float32Array(position.count*3);
-    rimTint.set(rimPalette[i%rimPalette.length]);
-    const textureShift=rimRandom(),mossAmount=.22+rimRandom()*.59;
-    for(let j=0;j<position.count;j++){
-      const y=position.getZ(j);
-      const lower=1-THREE.MathUtils.smoothstep(y,-.012,height*.54);
-      const taper=1+lower*.045;
-      const x=position.getX(j)*taper,z=position.getY(j)*taper;
-      position.setXYZ(j,x,z,y-height-.027);
-      uv.setXY(j,uv.getX(j)*.87+textureShift,uv.getY(j)*.87+textureShift*.53);
-      const variation=fieldNoise(x*23+z*11,y*35,19);
-      rimVertexTint.copy(rimTint).lerp(rimMoss,mossAmount*lower*variation).toArray(colors,j*3);
-    }
-    patch.setAttribute('color',new THREE.BufferAttribute(colors,3));
-    patch.rotateX(-Math.PI/2);
-    patch.computeVertexNormals();
-    rimPatches.push(patch);
-  }
-  const podiumRim=mergeGeometries(rimPatches);
-  for(const patch of rimPatches) patch.dispose();
-  function createPokemonPodium(parent,y) {
-    add(podiumCore,podiumMortar,0,y-.141,0,parent,true);
-    add(podiumCap,top,0,y-.045,0,parent,true);
-    add(podiumRim,rimStone,0,y,0,parent,true);
-    add(podiumInlay,green,0,y-.006,0,parent);
-  }
   function createStation(parent) {
     const dais=new THREE.Group();
     parent.add(dais);
@@ -1565,7 +1513,7 @@ export function createGrassGym(scene,sceneryAngle,refresh) {
       arch.visible=wide || localCamera.z>-12.4 || Math.abs(localCamera.x)>6.85;
     },
     setVegetationClip(normal,distance) { vegetationClip.set(normal,distance); },
-    createPokemonPodium,createStation,
+    floorY,createStation,
     dispose(){
       disposed=true;
       for(const texture of [timber,grit,forestMap,rockMap,barkMap,mossMap,bankMoss,forestFloor.albedo,forestFloor.bump,

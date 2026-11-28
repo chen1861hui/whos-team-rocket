@@ -380,7 +380,7 @@ export function createBattleEffects(scene, pods, loadModel) {
   const traitBursts = new Map();
   const steadyBlaze = new Map();
   let moveEffects;
-  const midpoint = pod => pod.position.clone().setY(1.04);
+  const midpoint = pod => pod.position.clone().setY(pod.floorY+.54);
   const textureLoader = new THREE.TextureLoader(), portraits = new Map();
   let songNote;
   function textureFor(art) {
@@ -696,10 +696,10 @@ export function createBattleEffects(scene, pods, loadModel) {
 }
 
 export function animateBattlePose(pod,motion,time,reducedMotion) {
-  const {modelSlot,visual} = pod;
+  const {modelSlot,modelBaseY,visual} = pod;
   const idle = !reducedMotion && visual?.rig?.airborne && !visual.mixer && !pod.change;
   const breathing = idle ? Math.sin(time*.003 + pod.angle*1.8) : 0;
-  modelSlot.position.set(0,.27+breathing*.043,-.24);
+  modelSlot.position.set(0,modelBaseY+breathing*.043,-.24);
   modelSlot.rotation.set(0,0,0);
   modelSlot.scale.set(1,1+breathing*.026,1);
   if (!motion || reducedMotion || (pod.change && !pod.change.waitForHit)) return;
