@@ -603,6 +603,7 @@ body.battle-view { color:var(--home-ink); background:var(--home-paper); min-widt
 .battle-live .world-self:not(.world-leader) .world-seat-top { background:#e3efff; }
 .battle-live .world-seat-top { color:var(--home-ink); }
 .world-sprites { position:absolute; inset:0; pointer-events:none; }
+.world-sprite-target { z-index:4; pointer-events:auto; cursor:pointer; }
 .world-host :is(.world-seat,.world-sprite) { left:var(--flat-left); top:var(--flat-top); }
 .world-host[data-mode='3d'] :is(.world-seat,.world-sprite) {
   left:var(--projected-left,var(--flat-left)); top:var(--projected-top,var(--flat-top));
@@ -1944,11 +1945,12 @@ button.draft-slot { pointer-events:auto; cursor:pointer; }
 .world-target[aria-pressed="true"] { --aim:#ffdb79; border:2px solid var(--aim); box-shadow:0 0 20px #ffd97880; }
 .world-target:is(:hover,:focus-visible) { outline:2px solid var(--aim); outline-offset:3px; }
 .match-table .world-host[data-mode='3d'] .world-target:not(.world-target-reserve):not([hidden]) {
-  translate:-50% -88%; width:clamp(58px,8vw,104px); height:clamp(62px,10vw,126px); aspect-ratio:auto;
-  padding:0; place-items:end; border:0; outline:0; box-shadow:none; background:none;
+  left:clamp(29px,calc(var(--projected-left,var(--flat-left)) + clamp(15px,2.5vw,36px)),calc(100% - 29px));
+  translate:-50% calc(-50% + 5px); width:44px; height:44px; aspect-ratio:auto;
+  padding:0; place-items:center; border:0; outline:0; box-shadow:none; background:none;
 }
 .match-table .world-host[data-mode='3d'] .world-target:not(.world-target-reserve) .aim-marker {
-  min-width:20px; min-height:20px; margin-inline-end:6%; translate:0 2px;
+  min-width:20px; min-height:20px;
   color:var(--aim); background:#112333; border:1px solid var(--aim);
   box-shadow:0 2px 6px #142531a0;
 }
@@ -1960,7 +1962,7 @@ button.draft-slot { pointer-events:auto; cursor:pointer; }
 .world-aiming :is(.world-seat,.world-sprite):not(.world-eligible) { opacity:.28; }
 .match-table .world-aiming .world-seat.world-eligible { outline:1px solid #b5ffe8; outline-offset:2px; }
 .match-table .world-aiming .world-seat.world-targeted { outline:2px solid #ffdb79; }
-.match-table .world-aiming .pokemon-name-button:disabled { opacity:1; cursor:default; }
+.match-table .world-aiming .pokemon-name-button:disabled { opacity:1; pointer-events:none; }
 
 .arena-judgment-reveal {
   position:absolute; z-index:5; top:148px; right:20px; width:clamp(95px,10vw,116px);

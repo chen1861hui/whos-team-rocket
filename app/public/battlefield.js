@@ -94,7 +94,9 @@ export function createBattlefield() {
   const trainerCameraRotation = new THREE.Quaternion();
   const orbit = new THREE.Spherical(19,1.05,0);
   const canvas = renderer.domElement;
-  let orbitDrag;
+  const aimRay = new THREE.Raycaster();
+  const aimPoint = new THREE.Vector2();
+  let orbitDrag, aimPress;
   let scene, host, config, battleEffects, terrain, lakeTerrain, radioTerrain, silphTerrain, objectiveTerrain, contactMap, geometryKey = '', pods = [], labelLayer, spriteLayer, targetLayer, observer, disposed = false, lost = false, lastFrame = 0;
 
   function shadeModel(model, muted, faded) {
@@ -141,18 +143,49 @@ export function createBattlefield() {
   }
   const freeOrbitActive = () => config?.camera==='free' && host?.dataset.camera==='free';
   canvas.addEventListener('pointerdown',event=>{
+    aimPress = event.isPrimary && event.button===0 && eligible?.length
+      ? {id:event.pointerId,x:event.clientX,y:event.clientY} : null;
     if (!freeOrbitActive() || event.button!==0 || orbitDrag) return;
     orbitDrag={id:event.pointerId,x:event.clientX,y:event.clientY};
     canvas.setPointerCapture(event.pointerId);
     canvas.focus({preventScroll:true});
   });
   canvas.addEventListener('pointermove',event=>{
+    if (event.pointerId===aimPress?.id && Math.hypot(event.clientX-aimPress.x,event.clientY-aimPress.y)>7) aimPress=null;
     if (event.pointerId!==orbitDrag?.id || !freeOrbitActive()) return;
     const {x,y}=orbitDrag;
     orbitDrag.x=event.clientX; orbitDrag.y=event.clientY;
     moveOrbit((event.clientX-x)*.006,(event.clientY-y)*.006);
   });
+  canvas.addEventListener('pointercancel',event=>{
+    if (event.pointerId===aimPress?.id) aimPress=null;
+  });
   canvas.addEventListener('lostpointercapture',()=>{ orbitDrag=undefined; });
+  canvas.addEventListener('click',event=>{
+    const press = aimPress;
+    aimPress = null;
+    if (!press || !eligible?.length || Math.hypot(event.clientX-press.x,event.clientY-press.y)>7) return;
+    const {left,top,width,height} = canvas.getBoundingClientRect();
+    aimPoint.set((event.clientX-left)*2/width-1,1-(event.clientY-top)*2/height);
+    aimRay.layers.mask = camera.layers.mask;
+    aimRay.setFromCamera(aimPoint,camera);
+    const seatByMesh = new Map();
+    for (const pod of pods) {
+      const model = pod.visual?.model ?? pod.proxy;
+      model.traverseVisible(part=>{
+        if (!part.isMesh || part.userData.pokemonEffect || !part.layers.test(aimRay.layers)) return;
+        if (part.isSkinnedMesh) {
+          // Use the bounds of the pose currently on screen.
+          part.computeBoundingSphere();
+          if (part.boundingBox) part.computeBoundingBox();
+        }
+        seatByMesh.set(part,pod.id);
+      });
+    }
+    const [hit] = aimRay.intersectObjects([...seatByMesh.keys()],false);
+    const target = hit && seatByMesh.get(hit.object);
+    if (eligible.includes(target)) config.selectActivePokemon?.(target);
+  });
   canvas.addEventListener('wheel',event=>{
     if (!freeOrbitActive()) return;
     event.preventDefault();
@@ -1976,6 +2009,7 @@ export function createBattlefield() {
       host.dataset.mode = displayMode();
       observer?.disconnect(); observer=new ResizeObserver(resize); observer.observe(host);
       eligible = null;
+      aimPress = null;
       marked = [];
       aimBottom = 0;
       mountDraftModels();

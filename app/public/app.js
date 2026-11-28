@@ -663,6 +663,7 @@ function syncArenaPrompt() {
   const aimPanel = prompt?.targets ? prompt.panel : responseTargets.length ? $('.arena-has-response',stage) : null;
   const aimBottom = aimPanel ? aimPanel.offsetHeight+43 : 0;
   field.style.setProperty('--aim-bottom',`${Math.max(105,aimBottom)}px`);
+  const activeTargets = new Set();
   for (const target of field.querySelectorAll('[data-target-seat]')) {
     const id = target.dataset.targetSeat;
     const slot = target.dataset.targetSlot;
@@ -670,6 +671,7 @@ function syncArenaPrompt() {
       ? !slots.some(option=>option.targetId===id && (option.slot==='reserve')===Boolean(slot))
       : Boolean(slot) || !ids.includes(id));
     target.disabled = !prompt && Boolean(responseTargets.find(button=>button.dataset.arenaSeat===id)?.disabled);
+    if (!slot && !target.hidden && !target.disabled) activeTargets.add(id);
     target.setAttribute('aria-pressed',String(marked.includes(id) &&
       (!slots || reserveSelected===Boolean(slot))));
   }
@@ -677,6 +679,7 @@ function syncArenaPrompt() {
     const id = element.dataset.seatId ?? element.dataset.spriteId;
     element.classList.toggle('world-eligible',ids.includes(id));
     element.classList.toggle('world-targeted',marked.includes(id));
+    if (element.dataset.spriteId) element.classList.toggle('world-sprite-target',activeTargets.has(id));
     for (const button of element.querySelectorAll('.pokemon-name-button,button.world-token')) button.disabled = aiming;
   }
   battlefield?.targeting(aiming ? ids : null,marked,aimBottom);
@@ -1470,6 +1473,11 @@ function worldPanel(players, viewerId, turnId, theme) {
   const labels=el('div',{class:'world-labels'});
   const sprites=el('div',{class:'world-sprites','aria-hidden':'true'});
   const targetLayer=el('div',{class:'world-targets'});
+  const activeTargetButtons = new Map();
+  function selectActivePokemon(id) {
+    const target = activeTargetButtons.get(id);
+    if (target && !target.hidden && !target.disabled) target.click();
+  }
   const showLeader = player => player.role==='leader' && (view?.status!=='identity' || player.identityAcknowledged);
   const coastalBattle = theme==='water' && ['playing','finished'].includes(view?.status);
   const seats = players.map(player=>({id:player.id,leader:showLeader(player)}));
@@ -1497,7 +1505,8 @@ function worldPanel(players, viewerId, turnId, theme) {
     const art = form ? `/pokemon-art/tour/${form}.png`
       : entry?.levels?.find(face=>face.level===player.active.level)?.portraitImage?.url || entry?.portraitImage?.url;
     if(!largeTable && art && !player.eliminated && !player.active?.defeated) {
-      const sprite=el('img',{class:'world-sprite','data-sprite-id':player.id,src:art,alt:'',draggable:false});
+      const sprite=el('img',{class:'world-sprite','data-sprite-id':player.id,src:art,alt:'',draggable:false,
+        onclick:()=>selectActivePokemon(player.id)});
       sprite.style.setProperty('--flat-left', flatLeft);
       sprite.style.setProperty('--flat-top', flatTop);
       sprite.style.setProperty('--pokemon-scale', pokemonLevelScale(player.active.level));
@@ -1521,6 +1530,7 @@ function worldPanel(players, viewerId, turnId, theme) {
         target.style.setProperty('--flat-left',flatLeft);
         target.style.setProperty('--flat-top',flatTop);
         if (slot) target.style.setProperty('--reserve-direction',side>.1?-1:1);
+        else activeTargetButtons.set(player.id,target);
         (largeTable ? label : targetLayer).append(target);
       };
       addTarget(null,targetLabel,largeTable?t('targetPokemon'):el('span',{'aria-hidden':'true',class:'aim-marker'},'✦'));
@@ -1562,6 +1572,7 @@ function worldPanel(players, viewerId, turnId, theme) {
         waterMotion:Boolean(inBattle && theme==='water' && !reducedMotion && previewOptions.get('water-motion')==='on'),
         eventTypes:stage ? view.self.hand.filter(card=>card.kind==='event').map(card=>card.eventType) : [],
         activeCardEvent:inBattle ? view.activeCardEvent : null,
+        selectActivePokemon,
         playCue:gameAudio.playBattleCue,
         cues:inBattle ? arenaCues.splice(0) : [],
       });
